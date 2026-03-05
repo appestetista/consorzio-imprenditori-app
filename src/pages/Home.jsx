@@ -282,24 +282,19 @@ export default function Home() {
     return parts.length > 0 ? `CONTESTO AZIENDALE: ${parts.join(', ')}. Personalizza la risposta in base a questo contesto.\n\n` : '';
   };
 
-  const runAnalysis = async ({ msg, category, sottocategoria, newMessages, convId }) => {
+  const runAnalysis = async ({ msg, newMessages, convId }) => {
     const userContext = buildUserContext();
 
     // Storicità conversazione — ultime 3 coppie per dare contesto all'LLM
     let historyBlock = '';
-    const previousMsgs = newMessages.slice(0, -1); // escludi il messaggio corrente
+    const previousMsgs = newMessages.slice(0, -1);
     if (previousMsgs.length > 0) {
-      const recent = previousMsgs.slice(-6); // max 3 coppie domanda-risposta
+      const recent = previousMsgs.slice(-6);
       const historyParts = recent.map(m => {
         if (m.role === 'user') return 'UTENTE: ' + (m.content || '').substring(0, 150);
         if (m.role === 'assistant' && m.content) {
           const c = m.content;
-          if (typeof c === 'object' && c.risposta) {
-            return 'ASSISTENTE: ' + c.risposta.substring(0, 200);
-          }
-          if (typeof c === 'object' && c.sintesi_decisionale) {
-            return 'ASSISTENTE: ' + c.sintesi_decisionale.substring(0, 200);
-          }
+          if (typeof c === 'object' && c.risposta) return 'ASSISTENTE: ' + c.risposta.substring(0, 200);
           if (typeof c === 'string') return 'ASSISTENTE: ' + c.substring(0, 200);
         }
         return null;
@@ -311,75 +306,12 @@ export default function Home() {
       }
     }
 
-    // KB contenuto verificato — passa dati reali all'LLM, non solo titoli
-    let kbHint = '';
-    try {
-      const kbRecords = await base44.entities.KnowledgeBase.filter({ categoria: category, attivo: true });
-      if (kbRecords.length > 0) {
-        // Ricerca rilevanza: filtra schede che contengono parole della domanda
-        const parole = msg.toLowerCase().split(' ').filter(w => w.length > 3);
-        const rilevanti = kbRecords.filter(r => 
-          parole.some(p => (r.titolo || '').toLowerCase().includes(p) || (r.contenuto || '').toLowerCase().includes(p))
-        );
-        const schedeDaUsare = rilevanti.length > 0 ? rilevanti.slice(0, 3) : kbRecords.slice(0, 2);
-        
-        kbHint = 'DATI NORMATIVI GIÀ VERIFICATI — usa questi come base affidabile, cerca online SOLO per aggiornamenti o dati non presenti qui:\n\n' 
-          + schedeDaUsare.map(r => 
-              '### ' + r.titolo + ' [affidabilità: ' + (r.livello_affidabilita || 'verificato') + ']\n' + (r.contenuto || '').substring(0, 800)
-            ).join('\n\n') 
-          + '\n\n';
-      }
-    } catch (e) { kbHint = ''; }
-
-    // === MAPPA COMPLETA SEZIONI DEDICATE ===
-    const SEZIONI_DEDICATE = [
-      { keywords: ['tasse', 'imposte', 'iva', 'irpef', 'ires', 'irap', 'regime', 'forfettario', 'ordinario', 'aliquota', 'fisco', 'dichiarazione', 'f24', 'fattura'], nome: 'Simulatore Fiscale', pagina: 'SimulatoreFiscale', descrizione: 'Calcola le tue imposte e confronta i regimi fiscali', parametri: ['regime_fiscale', 'fatturato_annuo', 'forma_giuridica'] },
-      { keywords: ['dipendente', 'assunzione', 'stipendio', 'busta paga', 'ccnl', 'costo personale', 'tfr', 'contributi previdenziali', 'part-time', 'apprendista'], nome: 'Costo del Personale', pagina: 'SimulatoreCostoPersonale', descrizione: 'Calcola il costo esatto di un dipendente con CCNL reali', parametri: ['numero_dipendenti', 'settore'] },
-      { keywords: ['contratto', 'clausola', 'recesso', 'analisi contratto', 'penale contrattuale', 'inadempimento'], nome: 'Analisi Contratti', pagina: 'AnalisiContratti', descrizione: 'Analizza clausole e rischi dei tuoi contratti', parametri: [] },
-      { keywords: ['bando', 'bandi', 'finanziamento', 'agevolazione', 'fondo perduto', 'contributo', 'pnrr', 'transizione 5.0', 'invitalia', 'simest', 'credito imposta'], nome: 'Bandi e Finanziamenti', pagina: 'FinanziamentiAgevolati', descrizione: 'Cerca bandi attivi e finanziamenti per la tua azienda', parametri: ['settore', 'fatturato_annuo', 'numero_dipendenti', 'forma_giuridica'] },
-      { keywords: ['import', 'export', 'dazio', 'dogana', 'codice hs', 'internazional', 'estero', 'incoterms', 'commercio estero'], nome: 'Import / Export', pagina: 'ImportExport', descrizione: 'Analisi mercati, dazi doganali e codici HS ufficiali', parametri: ['settore'] },
-      { keywords: ['compliance', 'sanzione', 'gdpr', 'privacy', 'sicurezza lavoro', '81/08', 'haccp', 'normativa', 'obbligo'], nome: 'Evita Sanzioni', pagina: 'ComplianceAziendale', descrizione: 'Verifica la tua compliance e previeni sanzioni', parametri: ['settore', 'numero_dipendenti'] },
-      { keywords: ['welfare', 'benefit', 'buoni pasto', 'fringe benefit', 'premio produzione', 'flexible benefit'], nome: 'Benefit Dipendenti', pagina: 'WelfareAziendale', descrizione: 'Gestisci il welfare aziendale con vantaggi fiscali', parametri: ['numero_dipendenti', 'forma_giuridica'] },
-      { keywords: ['fornitore', 'fornitura', 'preventivo', 'acquisto', 'appalto'], nome: 'Ricerca Fornitori', pagina: 'Fornitori', descrizione: 'Trova fornitori verificati nella tua zona', parametri: ['settore', 'zona'] },
-      { keywords: ['consulente', 'consulenza', 'commercialista', 'avvocato', 'professionista'], nome: 'Consulenze', pagina: 'Consulenze', descrizione: 'Prenota una consulenza con un professionista', parametri: [] },
-      { keywords: ['energia', 'bolletta', 'fotovoltaico', 'risparmio energetico', 'luce', 'gas'], nome: 'Risparmio Energetico', pagina: 'RisparmioEnergetico', descrizione: 'Confronta offerte e risparmia su luce e gas', parametri: [] },
-      { keywords: ['asta', 'aste', 'immobiliare', 'tribunale', 'perizia', 'offerta minima'], nome: 'Aste Immobiliari', pagina: 'AsteImmobiliari', descrizione: 'Cerca aste immobiliari attive nella tua zona', parametri: ['zona'] },
-      { keywords: ['marketplace', 'vendere', 'comprare', 'annuncio', 'offerta commerciale'], nome: 'Market Place', pagina: 'Marketplace', descrizione: 'Compra e vendi tra imprenditori del Consorzio', parametri: [] },
-    ];
-
-    const msgLower = msg.toLowerCase();
-    let strumentoSuggerito = null;
-    let bestKeywordCount = 0;
-    
-    for (const sez of SEZIONI_DEDICATE) {
-      const matchCount = sez.keywords.filter(kw => msgLower.includes(kw)).length;
-      if (matchCount > bestKeywordCount) {
-        bestKeywordCount = matchCount;
-        strumentoSuggerito = { nome: sez.nome, pagina: sez.pagina, descrizione: sez.descrizione, parametri: sez.parametri };
-      }
-    }
-
-    if (strumentoSuggerito && strumentoSuggerito.parametri.length > 0) {
-      const parametriDaPassare = {};
-      for (const param of strumentoSuggerito.parametri) {
-        if (effectiveUser?.[param]) parametriDaPassare[param] = effectiveUser[param];
-      }
-      const importoMatch = msg.match(/(\d[\d.,]*)\s*(?:€|euro)/i);
-      if (importoMatch) parametriDaPassare._importo = importoMatch[1];
-      const dipMatch = msg.match(/(\d+)\s*(?:dipendenti|dipendente|persone|collaboratori)/i);
-      if (dipMatch) parametriDaPassare._num_dipendenti = dipMatch[1];
-      strumentoSuggerito.parametri_utente = parametriDaPassare;
-    }
-
-    // Chiamata consultaAI
+    // Chiamata consultaAI — nessuna classificazione, nessuna KB, tutto pulito
     let parsed = null;
     try {
       const aiResponse = await base44.functions.invoke('consultaAI', {
         message: msg,
-        category: category,
-        sottocategoria: sottocategoria,
         userContext: userContext,
-        kbContent: kbHint,
         conversationHistory: historyBlock,
       });
       if (aiResponse.data?.success && aiResponse.data?.data) {
@@ -392,7 +324,7 @@ export default function Home() {
     if (!parsed) {
       try {
         const fallbackResult = await base44.integrations.Core.InvokeLLM({
-          prompt: `Sei un consulente d'impresa italiano. Rispondi in modo completo e dettagliato.\n${kbHint}${userContext}Categoria: ${category} — ${sottocategoria}.\nDomanda: ${msg}`,
+          prompt: `Sei un consulente d'impresa italiano. Rispondi in modo completo e dettagliato.\n${userContext}Domanda: ${msg}`,
           add_context_from_internet: true,
         });
         parsed = fallbackResult || 'Risposta non disponibile.';
@@ -400,15 +332,11 @@ export default function Home() {
     }
 
     const newCount = (consulenzeUsate || 0) + 1;
-    
-    // Per il rendering in memoria: teniamo l'oggetto parsed
     const finalContent = parsed || 'Risposta non disponibile. Riprova.';
     const assistantMsg = { role: 'assistant', content: finalContent, isAI: true, usageCount: newCount, isNew: true };
     const updatedMessages = [...newMessages, assistantMsg];
     setMessages(updatedMessages);
     
-    // Per il database: TUTTI i content devono essere stringhe (Base44 rifiuta oggetti)
-    // Salva anche isAI, isCompare, usageCount per il restore dalla sidebar
     const messagesForDB = updatedMessages.map(m => ({
       role: m.role,
       content: typeof m.content === 'object' && m.content !== null ? JSON.stringify(m.content) : (m.content || ''),
@@ -419,16 +347,11 @@ export default function Home() {
     }));
     
     const rispostaStr = typeof finalContent === 'string' ? finalContent : JSON.stringify(finalContent);
-    const queryHash = normalizeQuery(msg);
     await base44.entities.ChatConversation.update(convId, {
       messages: messagesForDB,
-      categoria: category,
-      sottocategoria,
       risposta_json: rispostaStr,
-      query_hash: queryHash,
     });
 
-    // Incrementa contatore consulenze
     setConsulenzeUsate(newCount);
     await base44.auth.updateMe({ consulenze_usate_mese: newCount });
   };
