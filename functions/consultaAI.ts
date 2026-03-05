@@ -228,10 +228,11 @@ FORMATTAZIONE
         return Response.json({ error: `OpenAI error ${openaiResponse.status}: ${err.substring(0, 300)}` }, { status: 500 });
       }
 
-      // TransformStream: legge SSE da OpenAI → riscrive SSE al client
+      // Invia subito la context question come primo evento
       const encoder = new TextEncoder();
       const decoder = new TextDecoder();
       let fullContent = '';
+      let sentContextQuestion = false;
 
       const transformStream = new TransformStream({
         async transform(chunk, controller) {
