@@ -9,7 +9,7 @@ import { normalizeUser, isUserConsultant } from '../components/utils/normalizeUs
 import { cn } from '@/lib/utils';
 import BottomNav from '../components/layout/BottomNav';
 import ChatMessage from '../components/home/ChatMessage';
-import DecisionResponse from '../components/home/DecisionResponse';
+
 import SimpleAIResponse from '../components/home/SimpleAIResponse';
 import CompareResult from '../components/home/CompareResult';
 import ChatSidebar from '../components/home/ChatSidebar';
