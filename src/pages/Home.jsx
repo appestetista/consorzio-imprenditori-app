@@ -202,20 +202,31 @@ export default function Home() {
   }, [effectiveUser?.email]);
 
   const runAnalysis = async ({ msg, newMessages, convId }) => {
-    // Storicità conversazione — ultime 3 coppie per dare contesto all'LLM
+    // Storicità conversazione — ultime 6 coppie (12 msg), 800 char/msg, cap 10.000 char totali
     let historyBlock = '';
     const previousMsgs = newMessages.slice(0, -1);
     if (previousMsgs.length > 0) {
-      const recent = previousMsgs.slice(-6);
-      const historyParts = recent.map(m => {
-        if (m.role === 'user') return 'UTENTE: ' + (m.content || '').substring(0, 150);
-        if (m.role === 'assistant' && m.content) {
+      const recent = previousMsgs.slice(-12);
+      const historyParts = [];
+      let totalChars = 0;
+      const MAX_TOTAL = 10000;
+      const MAX_PER_MSG = 800;
+      
+      for (const m of recent) {
+        let part = null;
+        if (m.role === 'user') {
+          part = 'UTENTE: ' + (m.content || '').substring(0, MAX_PER_MSG);
+        } else if (m.role === 'assistant' && m.content) {
           const c = m.content;
-          if (typeof c === 'object' && c.risposta) return 'ASSISTENTE: ' + c.risposta.substring(0, 200);
-          if (typeof c === 'string') return 'ASSISTENTE: ' + c.substring(0, 200);
+          if (typeof c === 'object' && c.risposta) part = 'ASSISTENTE: ' + c.risposta.substring(0, MAX_PER_MSG);
+          else if (typeof c === 'string') part = 'ASSISTENTE: ' + c.substring(0, MAX_PER_MSG);
         }
-        return null;
-      }).filter(Boolean);
+        if (part) {
+          if (totalChars + part.length > MAX_TOTAL) break;
+          historyParts.push(part);
+          totalChars += part.length;
+        }
+      }
       
       if (historyParts.length > 0) {
         historyBlock = 'CONVERSAZIONE PRECEDENTE (per contesto, rispondi SOLO alla domanda corrente):\n' 
