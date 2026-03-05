@@ -1,35 +1,8 @@
 import { createClientFromRequest } from 'npm:@base44/sdk@0.8.20';
 
 // ═══════════════════════════════════════════════════════════════
-// PIPELINE: Gemini Search (contesto web) → GPT-4o (risposta finale)
+// PIPELINE: Gemini Search (contesto web) → GPT-4o STREAMING
 // ═══════════════════════════════════════════════════════════════
-
-async function callOpenAI(apiKey, model, messages, maxTokens, temperature) {
-  const response = await fetch("https://api.openai.com/v1/chat/completions", {
-    method: "POST",
-    headers: { "Content-Type": "application/json", "Authorization": `Bearer ${apiKey}` },
-    body: JSON.stringify({ 
-      model, 
-      messages, 
-      temperature, 
-      max_tokens: maxTokens,
-      top_p: 0.95,
-      frequency_penalty: 0.3,
-      presence_penalty: 0.2,
-    }),
-    signal: AbortSignal.timeout(120000),
-  });
-  if (!response.ok) {
-    const err = await response.text();
-    throw new Error(`OpenAI ${model} error ${response.status}: ${err.substring(0, 300)}`);
-  }
-  const data = await response.json();
-  return {
-    content: data.choices?.[0]?.message?.content || '',
-    inputTokens: data.usage?.prompt_tokens || 0,
-    outputTokens: data.usage?.completion_tokens || 0,
-  };
-}
 
 async function callGeminiSearch(apiKey, userPrompt) {
   const url = `https://generativelanguage.googleapis.com/v1beta/models/gemini-2.5-flash:generateContent?key=${apiKey}`;
@@ -60,7 +33,6 @@ async function callGeminiSearch(apiKey, userPrompt) {
 
 function calcCost(model, inputTokens, outputTokens) {
   const rates = {
-    'chatgpt-4o-latest': { input: 2.50 / 1_000_000, output: 10.00 / 1_000_000 },
     'gpt-4o':      { input: 2.50 / 1_000_000, output: 10.00 / 1_000_000 },
     'gpt-4o-mini': { input: 0.15 / 1_000_000, output: 0.60  / 1_000_000 },
     'gemini':      { input: 0.15 / 1_000_000, output: 0.60  / 1_000_000 },
@@ -70,7 +42,7 @@ function calcCost(model, inputTokens, outputTokens) {
 }
 
 // ═══════════════════════════════════════════════════════════════
-// HANDLER
+// HANDLER — SSE STREAMING
 // ═══════════════════════════════════════════════════════════════
 Deno.serve(async (req) => {
   const startTime = Date.now();
@@ -81,7 +53,7 @@ Deno.serve(async (req) => {
     if (!user) return Response.json({ error: 'Non autorizzato' }, { status: 401 });
 
     const body = await req.json();
-    const { message, conversationHistory } = body;
+    const { message, conversationHistory, stream } = body;
     if (!message) return Response.json({ error: 'Messaggio mancante' }, { status: 400 });
 
     const openaiKey = Deno.env.get("OPENAI_API_KEY");
@@ -94,7 +66,7 @@ Deno.serve(async (req) => {
     let webSearchUsed = false;
     let webContext = '';
 
-    // ── STEP 1: Gemini Search per contesto web aggiornato ──
+    // ── STEP 1: Gemini Search ──
     if (geminiKey) {
       try {
         console.log('[consultaAI] Gemini Search in corso...');
@@ -108,13 +80,12 @@ Deno.serve(async (req) => {
           console.log(`[consultaAI] Gemini Search OK: ${geminiResult.content.length} chars`);
         }
       } catch (e) {
-        console.log('[consultaAI] Gemini Search fallito (continuo senza):', e.message);
+        console.log('[consultaAI] Gemini Search fallito:', e.message);
       }
     }
 
-    // ── STEP 2: GPT-4o con system prompt + contesto web + storico completo ──
+    // ── STEP 2: Build messages ──
     const chatMessages = [];
-
     chatMessages.push({
       role: "system",
       content: `Sei ARIA (Assistente per Ricerca, Innovazione e Analisi), un consulente strategico e tecnico di altissimo livello che opera in lingua italiana.
@@ -192,7 +163,6 @@ FORMATTAZIONE
 - Righe vuote tra sezioni per leggibilità`
     });
 
-    // ── Contesto web da Gemini Search (se disponibile) ──
     if (webContext) {
       chatMessages.push({
         role: "system",
@@ -200,7 +170,6 @@ FORMATTAZIONE
       });
     }
 
-    // ── Storico conversazione completo come messaggi alternati ──
     if (conversationHistory && conversationHistory.trim()) {
       chatMessages.push({
         role: "system",
@@ -208,28 +177,141 @@ FORMATTAZIONE
       });
     }
 
-    // Messaggio utente
     chatMessages.push({ role: "user", content: message });
 
-    const gptResult = await callOpenAI(openaiKey, 'gpt-4o', chatMessages, 16384, 0.45);
-    totalInput += gptResult.inputTokens;
-    totalOutput += gptResult.outputTokens;
-    totalCost += calcCost('gpt-4o', gptResult.inputTokens, gptResult.outputTokens);
+    // ══════════════════════════════════════
+    // STREAMING MODE
+    // ══════════════════════════════════════
+    if (stream) {
+      const openaiResponse = await fetch("https://api.openai.com/v1/chat/completions", {
+        method: "POST",
+        headers: { "Content-Type": "application/json", "Authorization": `Bearer ${openaiKey}` },
+        body: JSON.stringify({
+          model: 'gpt-4o',
+          messages: chatMessages,
+          temperature: 0.45,
+          max_tokens: 16384,
+          top_p: 0.95,
+          frequency_penalty: 0.3,
+          presence_penalty: 0.2,
+          stream: true,
+        }),
+        signal: AbortSignal.timeout(120000),
+      });
 
-    const response_data = gptResult.content;
-    const model_used = 'gpt-4o';
-    const provider = 'openai';
+      if (!openaiResponse.ok) {
+        const err = await openaiResponse.text();
+        return Response.json({ error: `OpenAI error ${openaiResponse.status}: ${err.substring(0, 300)}` }, { status: 500 });
+      }
+
+      // TransformStream: legge SSE da OpenAI → riscrive SSE al client
+      const encoder = new TextEncoder();
+      const decoder = new TextDecoder();
+      let fullContent = '';
+
+      const transformStream = new TransformStream({
+        async transform(chunk, controller) {
+          const text = decoder.decode(chunk, { stream: true });
+          const lines = text.split('\n');
+          for (const line of lines) {
+            if (!line.startsWith('data: ')) continue;
+            const data = line.slice(6).trim();
+            if (data === '[DONE]') {
+              // Invia messaggio finale con metadata
+              const elapsed = Date.now() - startTime;
+              const meta = JSON.stringify({
+                done: true,
+                web_search_used: webSearchUsed,
+                response_time_ms: elapsed,
+              });
+              controller.enqueue(encoder.encode(`data: ${meta}\n\n`));
+
+              // Log utilizzo in background (non blocca lo stream)
+              try {
+                await base44.asServiceRole.entities.UsageLog.create({
+                  user_email: user.email,
+                  action_type: 'chat_ai',
+                  model_used: 'gpt-4o',
+                  provider: 'openai',
+                  input_tokens: totalInput,
+                  output_tokens: totalOutput,
+                  cost_usd: Math.round(totalCost * 100000) / 100000,
+                  category: 'Generale',
+                  response_time_ms: elapsed,
+                  timestamp: new Date().toISOString(),
+                });
+              } catch (e) {
+                console.log('[consultaAI] UsageLog error:', e.message);
+              }
+              return;
+            }
+            try {
+              const parsed = JSON.parse(data);
+              const delta = parsed.choices?.[0]?.delta?.content;
+              if (delta) {
+                fullContent += delta;
+                controller.enqueue(encoder.encode(`data: ${JSON.stringify({ text: delta })}\n\n`));
+              }
+              // Cattura usage dal chunk finale
+              if (parsed.usage) {
+                totalInput += parsed.usage.prompt_tokens || 0;
+                totalOutput += parsed.usage.completion_tokens || 0;
+                totalCost += calcCost('gpt-4o', parsed.usage.prompt_tokens || 0, parsed.usage.completion_tokens || 0);
+              }
+            } catch {}
+          }
+        },
+      });
+
+      openaiResponse.body.pipeTo(transformStream.writable);
+
+      return new Response(transformStream.readable, {
+        headers: {
+          'Content-Type': 'text/event-stream',
+          'Cache-Control': 'no-cache',
+          'Connection': 'keep-alive',
+        },
+      });
+    }
+
+    // ══════════════════════════════════════
+    // NON-STREAMING MODE (fallback)
+    // ══════════════════════════════════════
+    const openaiResponse = await fetch("https://api.openai.com/v1/chat/completions", {
+      method: "POST",
+      headers: { "Content-Type": "application/json", "Authorization": `Bearer ${openaiKey}` },
+      body: JSON.stringify({
+        model: 'gpt-4o',
+        messages: chatMessages,
+        temperature: 0.45,
+        max_tokens: 16384,
+        top_p: 0.95,
+        frequency_penalty: 0.3,
+        presence_penalty: 0.2,
+      }),
+      signal: AbortSignal.timeout(120000),
+    });
+
+    if (!openaiResponse.ok) {
+      const err = await openaiResponse.text();
+      throw new Error(`OpenAI error ${openaiResponse.status}: ${err.substring(0, 300)}`);
+    }
+
+    const data = await openaiResponse.json();
+    const response_data = data.choices?.[0]?.message?.content || '';
+    totalInput += data.usage?.prompt_tokens || 0;
+    totalOutput += data.usage?.completion_tokens || 0;
+    totalCost += calcCost('gpt-4o', data.usage?.prompt_tokens || 0, data.usage?.completion_tokens || 0);
 
     const elapsed = Date.now() - startTime;
-    console.log(`[consultaAI] Done in ${elapsed}ms | model=${model_used} | cost=$${totalCost.toFixed(5)}`);
+    console.log(`[consultaAI] Done in ${elapsed}ms | cost=$${totalCost.toFixed(5)}`);
 
-    // Log utilizzo
     try {
       await base44.asServiceRole.entities.UsageLog.create({
         user_email: user.email,
         action_type: 'chat_ai',
-        model_used,
-        provider,
+        model_used: 'gpt-4o',
+        provider: 'openai',
         input_tokens: totalInput,
         output_tokens: totalOutput,
         cost_usd: Math.round(totalCost * 100000) / 100000,
@@ -244,8 +326,8 @@ FORMATTAZIONE
     return Response.json({
       success: true,
       data: response_data,
-      model_used,
-      provider,
+      model_used: 'gpt-4o',
+      provider: 'openai',
       tokens: { input: totalInput, output: totalOutput },
       cost_usd: totalCost,
       response_time_ms: elapsed,
