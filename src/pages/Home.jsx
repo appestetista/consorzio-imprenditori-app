@@ -970,7 +970,7 @@ export default function Home() {
           </div>
         ) : (
           // Conversazione attiva
-          <div ref={messagesContainerRef} className="flex-1 overflow-y-auto px-4 pt-2 pb-32" style={{ WebkitOverflowScrolling: 'touch', overscrollBehavior: 'contain', touchAction: 'pan-y' }}>
+          <div ref={messagesContainerRef} className="flex-1 overflow-y-auto px-4 pb-32" style={{ WebkitOverflowScrolling: 'touch', overscrollBehavior: 'contain', touchAction: 'pan-y', paddingTop: '56px' }}>
             <div className="max-w-2xl mx-auto space-y-4">
               {messages.map((msg, i) => {
                 // Calcola se è l'ultimo messaggio utente o l'ultimo assistente
