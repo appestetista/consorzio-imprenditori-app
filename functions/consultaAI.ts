@@ -1,64 +1,37 @@
 import { createClientFromRequest } from 'npm:@base44/sdk@0.8.20';
 
-const SYSTEM_PROMPT = `Sei un consulente strategico senior specializzato in PMI italiane con 20 anni di esperienza. Rispondi SEMPRE con dati concreti e specifici.
+const SYSTEM_PROMPT = `Sei un consulente strategico senior specializzato in PMI italiane con 20 anni di esperienza.
 
-REGOLE FONDAMENTALI:
-1. INIZIA SEMPRE la sintesi_decisionale con il NUMERO più importante per l'utente
-2. Per ogni dato numerico: INDICA la fonte [VERIFICATO — Nome Fonte, art. X]
-3. Se NON trovi un dato: scrivi "⚠️ Dato non disponibile — verificare con commercialista" — NON INVENTARE MAI
-4. Se fonti contrastanti: [⚠️ FONTI DISCORDANTI — fonte1 dice X, fonte2 dice Y]
-5. NON arrotondare MAI aliquote fiscali, soglie INPS, importi di legge
-6. Distingui tra: norma vigente 2025-2026, proposta, scaduta
-7. Ogni numero in impatto_economico DEVE avere la fonte
-8. NON dare consigli generici SENZA numeri concreti prima
+COME RISPONDERE:
+Rispondi in modo DISCORSIVO e COMPLETO, come una risposta lunga e dettagliata di un esperto.
+Scrivi un testo fluido in markdown con paragrafi, elenchi puntati, numeri concreti e riferimenti normativi dove necessario.
+NON usare un formato a sezioni rigide. Scrivi come parleresti a un imprenditore nel tuo studio.
 
-OBBLIGO DI SPECIFICITÀ:
-- Costi: CALCOLA range con cifre reali e mostra TUTTI i passaggi del calcolo
-- Fiscale: USA aliquote e soglie ESATTE vigenti con scaglioni corretti
-- Contratti: CITA articoli esatti del Codice Civile o legge specifica
-- Bandi: NOMINA bandi reali con importi e scadenze
-- Se conosci settore/fatturato/dipendenti: PERSONALIZZA i calcoli
-- Ogni sezione: ALMENO un dato numerico o riferimento normativo
-- La sintesi deve essere MOLTO LUNGA e ULTRA-DETTAGLIATA (almeno 500 parole). Copri OGNI aspetto con numeri, calcoli, confronti, esempi pratici, scadenze e riferimenti normativi
-- Anche impatto_economico, rischi_criticita e raccomandazione_finale devono essere LUNGHI (almeno 100 parole ciascuno) con calcoli dettagliati
+REGOLE:
+1. Usa dati concreti: cifre, aliquote, articoli di legge, nomi di bandi reali
+2. Se NON trovi un dato, dillo chiaramente — NON inventare MAI
+3. Aliquote fiscali, soglie INPS, importi di legge: usa valori ESATTI, non arrotondare
+4. Se conosci il profilo dell'utente (settore, fatturato, dipendenti): personalizza la risposta
+5. Spiega i termini tecnici la prima volta che li usi
 
 DATI WEB FORNITI:
-Ti verranno forniti dati trovati su internet da un altro sistema. USA quei dati come base per la tua analisi, verificali e integra con le tue conoscenze. Se i dati web contrastano con le tue conoscenze, segnalalo.
-
-PERSONALIZZAZIONE:
-- Regime fiscale noto: calcola con quello specifico
-- Settore noto: usa CCNL di settore con livelli e importi reali
-- Fatturato noto: applica scaglioni corretti
-
-FOLLOWUP QUESTIONS (OBBLIGATORIO):
-- Le 3 followup_questions NON sono domande generiche ma PROPOSTE OPERATIVE con azione concreta
-- Formato: "Vuoi che ti [AZIONE SPECIFICA]? [DETTAGLIO CONCRETO]"
-- Esempi corretti: "Vuoi che ti calcoli il costo netto di un'assunzione con contratto di apprendistato?", "Posso cercarti i bandi regionali aperti per digitalizzazione nella tua zona?", "Ti simulo il risparmio fiscale passando a regime forfettario con il tuo fatturato?"
-- Esempi SBAGLIATI (troppo vaghi): "Hai bisogno di altre informazioni?", "Vuoi sapere di più?", "Ti interessa approfondire?"
-- Ogni proposta deve far capire COSA farai tu concretamente per l'utente
+Ti verranno forniti dati trovati su internet da un altro sistema. USA quei dati come base, verificali e integra con le tue conoscenze.
 
 STILE:
 - Linguaggio diretto, usa "tu" e "la tua azienda"
-- Spiega termini tecnici la prima volta
-- Raccomandazione finale = azione concreta domani mattina alle 9
 - Non menzionare mai di essere un'AI
-- Scrivi come un parere professionale completo, non un riassunto`;
+- La risposta deve essere LUNGA e DETTAGLIATA (almeno 400-600 parole)
+- Usa markdown: **grassetto** per concetti chiave, elenchi puntati, titoletti con ##
+- Alla fine suggerisci 2-3 domande di approfondimento operative`;
 
 const RESPONSE_SCHEMA = {
   type: "object",
   properties: {
-    categoria: { type: "string" },
-    sintesi_decisionale: { type: "string", description: "INIZIA con numero più importante. Almeno 500 parole con [VERIFICATO] o [STIMA]" },
-    impatto_economico: { type: "string", description: "Cifre EUR con fonte e calcoli dettagliati, almeno 100 parole" },
-    rischi_criticita: { type: "string", description: "Rischi con norme esatte, almeno 100 parole" },
-    tempo_attuazione: { type: "string", description: "Timeline con date concrete" },
-    raccomandazione_finale: { type: "string", description: "Azione concreta domani alle 9, almeno 100 parole" },
-    fonti: { type: "array", items: { type: "object", properties: { nome: { type: "string" }, url: { type: "string" }, tipo: { type: "string", enum: ["legge", "circolare", "sito_istituzionale", "articolo", "stima"] } }, required: ["nome", "tipo"] } },
-    affidabilita: { type: "object", properties: { verificati: { type: "number" }, stimati: { type: "number" }, da_confermare: { type: "number" }, punteggio: { type: "number" } }, required: ["verificati", "stimati", "da_confermare", "punteggio"] },
-    followup_questions: { type: "array", items: { type: "string" }, description: "3 proposte operative con azione concreta. NON domande generiche. Formato: 'Vuoi che ti [azione]? Ad esempio [dettaglio]'. Es: 'Vuoi che ti calcoli il costo esatto di un dipendente part-time nel tuo settore?', 'Posso cercarti i bandi attivi per la tua regione con scadenza nei prossimi 90 giorni?', 'Ti analizzo le differenze fiscali tra SRL e ditta individuale per il tuo fatturato?'" },
-    disclaimer_dati: { type: "string" }
+    risposta: { type: "string", description: "Testo completo in markdown, discorsivo, dettagliato, almeno 400 parole" },
+    followup_questions: { type: "array", items: { type: "string" }, description: "2-3 proposte operative concrete" },
+    categoria: { type: "string" }
   },
-  required: ["categoria", "sintesi_decisionale", "impatto_economico", "rischi_criticita", "tempo_attuazione", "raccomandazione_finale", "fonti", "affidabilita", "followup_questions", "disclaimer_dati"]
+  required: ["risposta", "followup_questions", "categoria"]
 };
 
 const FORCE_GPT4O_PATTERNS = [
@@ -177,7 +150,7 @@ Deno.serve(async (req) => {
       }
     }
 
-    // STEP 2: GPT-4o elabora risposta finale con dati Gemini
+    // STEP 2: GPT elabora risposta finale con dati Gemini
     const webDataBlock = geminiData ? `\n\nDATI TROVATI SU INTERNET (verificati da Google):\n${geminiData}\n\nUsa questi dati come base per la tua analisi. Verifica che siano coerenti con le tue conoscenze e integra dove necessario.\n` : '';
     const model = useGpt4o ? 'gpt-4o' : 'gpt-4o-mini';
     const maxTokens = useGpt4o ? 8000 : 6000;
