@@ -47,6 +47,7 @@ export default function useStreamingAI() {
         conversationHistory: conversationHistory || '',
       });
       if (aiResponse.data?.success && aiResponse.data?.data) {
+        if (aiResponse.data.context_question) onContextQuestion?.(aiResponse.data.context_question);
         const fullText = aiResponse.data.data;
         await typewriterReveal(fullText, onChunk);
         onDone(fullText, { 
