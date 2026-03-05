@@ -217,44 +217,39 @@ FORMATTAZIONE
     // STREAMING MODE
     // ══════════════════════════════════════
     if (stream) {
-      const deepseekKey = Deno.env.get("DEEPSEEK_API_KEY");
       const encoder = new TextEncoder();
 
-      // Strategia: DeepSeek genera il Quadro Generale veloce,
+      // Strategia: Gemini Flash genera il Quadro Generale veloce,
       // poi GPT-4o completa con l'analisi approfondita.
       // Entrambi partono in parallelo.
 
-      // Istruzioni GPT-4o: salta il Quadro Generale se DeepSeek lo fornisce
       const gptMessages = [...chatMessages];
 
-      // Lancia TUTTO in parallelo: DeepSeek intro + GPT-4o streaming + Context question
-      const deepseekPromise = deepseekKey ? callDeepSeekQuickIntro(deepseekKey, message, webContext).catch(e => {
-        console.log('[consultaAI] DeepSeek fallito:', e.message);
+      // Lancia TUTTO in parallelo: Gemini Flash intro + GPT-4o streaming + Context question
+      const flashIntroPromise = geminiKey ? callGeminiFlashQuickIntro(geminiKey, message, webContext).catch(e => {
+        console.log('[consultaAI] Gemini Flash intro fallito:', e.message);
         return null;
       }) : Promise.resolve(null);
 
-      // Context question DeepSeek — parte in parallelo, arriverà durante lo streaming
-      const contextPromise = deepseekKey ? (async () => {
+      // Context question via Gemini Flash — parte in parallelo, arriverà durante lo streaming
+      const contextPromise = geminiKey ? (async () => {
         try {
-          const cqResp = await fetch("https://api.deepseek.com/chat/completions", {
+          const cqUrl = `https://generativelanguage.googleapis.com/v1beta/models/gemini-2.0-flash:generateContent?key=${geminiKey}`;
+          const cqResp = await fetch(cqUrl, {
             method: "POST",
-            headers: { "Content-Type": "application/json", "Authorization": `Bearer ${deepseekKey}` },
+            headers: { "Content-Type": "application/json" },
             body: JSON.stringify({
-              model: "deepseek-chat",
-              messages: [
-                { role: "system", content: `Genera UNA SOLA domanda di approfondimento che l'utente probabilmente vorrà fare DOPO aver ricevuto la risposta alla sua domanda.
+              contents: [{ parts: [{ text: `Domanda: "${message}"${conversationHistory ? `\nContesto: ${conversationHistory.substring(0, 300)}` : ''}` }] }],
+              systemInstruction: { parts: [{ text: `Genera UNA SOLA domanda di approfondimento che l'utente probabilmente vorrà fare DOPO aver ricevuto la risposta alla sua domanda.
 REGOLE: collegata al tema, aspetto CONCRETO (costi, tempistiche, normativa, procedure, calcoli), 10-20 parole in italiano con "?", NON generica, NON riformulare la domanda.
-Rispondi SOLO con la domanda.` },
-                { role: "user", content: `Domanda: "${message}"${conversationHistory ? `\nContesto: ${conversationHistory.substring(0, 300)}` : ''}` }
-              ],
-              temperature: 0.7,
-              max_tokens: 80,
+Rispondi SOLO con la domanda, nient'altro.` }] },
+              generationConfig: { temperature: 0.7, maxOutputTokens: 80 },
             }),
             signal: AbortSignal.timeout(8000),
           });
           if (cqResp.ok) {
             const cqData = await cqResp.json();
-            return (cqData.choices?.[0]?.message?.content || '').trim().replace(/^["']|["']$/g, '');
+            return (cqData.candidates?.[0]?.content?.parts?.[0]?.text || '').trim().replace(/^["']|["']$/g, '');
           }
         } catch (e) {
           console.log('[consultaAI] Context question skip:', e.message);
