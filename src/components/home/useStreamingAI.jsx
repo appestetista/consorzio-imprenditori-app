@@ -2,46 +2,25 @@ import { useRef, useCallback } from 'react';
 import { base44 } from '@/api/base44Client';
 
 /**
- * Hook per streaming delle risposte AI.
+ * Hook per streaming delle risposte AI via SSE.
  * 
  * Strategia:
- * 1. Tenta fetch diretto con streaming SSE verso l'endpoint della funzione
- * 2. Se lo streaming fallisce (401, 404, no SSE), cade sul classico base44.functions.invoke
- * 
- * Il token auth viene estratto da localStorage dove il Base44 SDK lo salva automaticamente.
+ * 1. Tenta fetch diretto con SSE streaming
+ * 2. Se fallisce → fallback su base44.functions.invoke + typewriter simulato
  */
 
 function getAuthToken() {
-  // Il Base44 SDK salva il token JWT in localStorage
-  // Cerchiamo qualsiasi chiave che contenga un JWT valido
   try {
     const keys = Object.keys(localStorage);
-    // Ordina per priorità: chiavi con "token" prima
-    const sorted = keys.sort((a, b) => {
-      const aScore = (a.toLowerCase().includes('token') ? 2 : 0) + (a.toLowerCase().includes('auth') ? 1 : 0);
-      const bScore = (b.toLowerCase().includes('token') ? 2 : 0) + (b.toLowerCase().includes('auth') ? 1 : 0);
-      return bScore - aScore;
-    });
-    
-    for (const key of sorted) {
+    // Cerca JWT tokens (iniziano con "ey", hanno 3 parti separate da ".")
+    for (const key of keys) {
       const val = localStorage.getItem(key);
-      if (val && typeof val === 'string' && val.startsWith('ey') && val.length > 50) {
+      if (val && typeof val === 'string' && val.startsWith('ey') && val.includes('.') && val.length > 50) {
         return val;
       }
     }
   } catch {}
   return null;
-}
-
-function getFunctionURL() {
-  // Costruisci l'URL della funzione basandoci sull'URL corrente dell'app
-  const origin = window.location.origin;
-  // Base44 espone le funzioni su vari path possibili
-  // Proviamo nell'ordine: /functions/, /api/functions/
-  return [
-    `${origin}/functions/consultaAI`,
-    `${origin}/api/functions/consultaAI`,
-  ];
 }
 
 export default function useStreamingAI() {
@@ -50,61 +29,88 @@ export default function useStreamingAI() {
   const streamAI = useCallback(async ({ message, conversationHistory, onChunk, onDone, onError }) => {
     const controller = new AbortController();
     abortRef.current = controller;
-    
+
     const token = getAuthToken();
-    const urls = getFunctionURL();
     
-    // Tenta streaming via fetch diretto
-    let streamingWorked = false;
+    // Prova lo streaming diretto via fetch
+    const streamingSuccess = await tryStreaming({ 
+      message, conversationHistory, token, controller, onChunk, onDone 
+    });
     
-    for (const url of urls) {
-      if (streamingWorked) break;
-      
-      try {
-        const headers = { 'Content-Type': 'application/json' };
-        if (token) headers['Authorization'] = `Bearer ${token}`;
+    if (streamingSuccess) return;
 
-        const response = await fetch(url, {
-          method: 'POST',
-          headers,
-          body: JSON.stringify({
-            message,
-            conversationHistory: conversationHistory || '',
-            stream: true,
-          }),
-          signal: controller.signal,
+    // Fallback: usa SDK classico + typewriter
+    console.log('[streaming] Fallback to SDK invoke + typewriter');
+    try {
+      const aiResponse = await base44.functions.invoke('consultaAI', {
+        message,
+        conversationHistory: conversationHistory || '',
+      });
+      if (aiResponse.data?.success && aiResponse.data?.data) {
+        const fullText = aiResponse.data.data;
+        await typewriterReveal(fullText, onChunk);
+        onDone(fullText, { 
+          web_search_used: aiResponse.data.web_search_used, 
+          response_time_ms: aiResponse.data.response_time_ms 
         });
+      } else {
+        throw new Error(aiResponse.data?.error || 'Risposta vuota');
+      }
+    } catch (e) {
+      if (e.name === 'AbortError') return;
+      onError?.(e);
+    }
+  }, []);
 
-        // Se 404 o 401, prova il prossimo URL
-        if (response.status === 404 || response.status === 401 || response.status === 403) {
-          console.log(`[streaming] ${url} returned ${response.status}, trying next...`);
-          continue;
+  const abort = useCallback(() => {
+    abortRef.current?.abort();
+  }, []);
+
+  return { streamAI, abort };
+}
+
+async function tryStreaming({ message, conversationHistory, token, controller, onChunk, onDone }) {
+  // Lista di URL candidati per raggiungere la funzione
+  const origin = window.location.origin;
+  const urls = [
+    `${origin}/functions/consultaAI`,
+    `${origin}/api/functions/consultaAI`,
+  ];
+
+  for (const url of urls) {
+    try {
+      const headers = { 'Content-Type': 'application/json' };
+      if (token) headers['Authorization'] = `Bearer ${token}`;
+
+      const response = await fetch(url, {
+        method: 'POST',
+        headers,
+        body: JSON.stringify({
+          message,
+          conversationHistory: conversationHistory || '',
+          stream: true,
+        }),
+        signal: controller.signal,
+      });
+
+      if (response.status === 404 || response.status === 401 || response.status === 403) continue;
+      if (!response.ok) continue;
+
+      const contentType = response.headers.get('content-type') || '';
+
+      // Se è JSON classico (non SSE), usa typewriter
+      if (contentType.includes('application/json')) {
+        const json = await response.json();
+        if (json.success && json.data) {
+          await typewriterReveal(json.data, onChunk);
+          onDone(json.data, { web_search_used: json.web_search_used, response_time_ms: json.response_time_ms });
+          return true;
         }
+        continue;
+      }
 
-        if (!response.ok) {
-          const errText = await response.text();
-          throw new Error(`HTTP ${response.status}: ${errText.substring(0, 200)}`);
-        }
-
-        const contentType = response.headers.get('content-type') || '';
-        
-        // Se non è SSE, trattalo come JSON classico
-        if (!contentType.includes('text/event-stream')) {
-          const json = await response.json();
-          if (json.success && json.data) {
-            streamingWorked = true;
-            // Simula un effetto typewriter sul testo ricevuto tutto insieme
-            const fullText = json.data;
-            simulateTypewriter(fullText, onChunk, () => {
-              onDone(fullText, { web_search_used: json.web_search_used, response_time_ms: json.response_time_ms });
-            });
-            return;
-          }
-          throw new Error(json.error || 'Risposta non valida');
-        }
-
-        // Stream SSE reale
-        streamingWorked = true;
+      // Stream SSE
+      if (contentType.includes('text/event-stream') || response.body) {
         const reader = response.body.getReader();
         const decoder = new TextDecoder();
         let buffer = '';
@@ -121,11 +127,11 @@ export default function useStreamingAI() {
 
           for (const line of lines) {
             if (!line.startsWith('data: ')) continue;
-            const data = line.slice(6).trim();
-            if (!data) continue;
+            const payload = line.slice(6).trim();
+            if (!payload) continue;
 
             try {
-              const parsed = JSON.parse(data);
+              const parsed = JSON.parse(payload);
               if (parsed.done) {
                 metadata = parsed;
               } else if (parsed.text) {
@@ -136,81 +142,61 @@ export default function useStreamingAI() {
           }
         }
 
-        onDone(fullText, metadata);
-        return;
-
-      } catch (e) {
-        if (e.name === 'AbortError') return;
-        console.log(`[streaming] ${url} failed:`, e.message);
-        continue;
-      }
-    }
-
-    // Fallback: usa base44.functions.invoke classica (nessuno streaming)
-    if (!streamingWorked) {
-      console.log('[streaming] Falling back to SDK invoke');
-      try {
-        const aiResponse = await base44.functions.invoke('consultaAI', {
-          message,
-          conversationHistory: conversationHistory || '',
-        });
-        if (aiResponse.data?.success && aiResponse.data?.data) {
-          const fullText = aiResponse.data.data;
-          // Simula typewriter anche sul fallback
-          simulateTypewriter(fullText, onChunk, () => {
-            onDone(fullText, { 
-              web_search_used: aiResponse.data.web_search_used, 
-              response_time_ms: aiResponse.data.response_time_ms 
-            });
-          });
-        } else {
-          throw new Error(aiResponse.data?.error || 'Risposta vuota');
+        // Se abbiamo ricevuto testo, è andato a buon fine
+        if (fullText) {
+          onDone(fullText, metadata);
+          return true;
         }
-      } catch (e) {
-        if (e.name === 'AbortError') return;
-        onError?.(e);
       }
+    } catch (e) {
+      if (e.name === 'AbortError') throw e;
+      console.log(`[streaming] ${url} failed:`, e.message);
+      continue;
     }
-  }, []);
+  }
 
-  const abort = useCallback(() => {
-    abortRef.current?.abort();
-  }, []);
-
-  return { streamAI, abort };
+  return false;
 }
 
 /**
- * Simula un effetto typewriter: rivela il testo blocco per blocco.
- * Usato come fallback quando il backend risponde tutto insieme.
+ * Simula typewriter: rivela il testo gradualmente dividendolo per sezioni.
+ * Usato come fallback quando lo streaming SSE non è disponibile.
  */
-function simulateTypewriter(text, onChunk, onComplete) {
-  // Dividi per paragrafi/sezioni per un reveal naturale
-  const chunks = [];
-  const lines = text.split('\n');
-  let current = '';
-  
-  for (const line of lines) {
-    current += line + '\n';
-    // Ogni 3-5 righe o a fine sezione (##), emetti un chunk
-    if (current.split('\n').length >= 4 || line.startsWith('##') || line.startsWith('---')) {
-      chunks.push(current);
-      current = '';
+function typewriterReveal(text, onChunk) {
+  return new Promise((resolve) => {
+    const lines = text.split('\n');
+    const chunks = [];
+    let current = '';
+    
+    for (const line of lines) {
+      current += line + '\n';
+      // Emetti chunk ogni 2-3 righe o ai titoli di sezione
+      const lineCount = current.split('\n').length;
+      if (lineCount >= 3 || line.startsWith('##') || line.startsWith('---') || line === '') {
+        if (current.trim()) chunks.push(current);
+        current = '';
+      }
     }
-  }
-  if (current) chunks.push(current);
-
-  let revealed = '';
-  let i = 0;
-  
-  const interval = setInterval(() => {
-    if (i >= chunks.length) {
-      clearInterval(interval);
-      onComplete();
+    if (current.trim()) chunks.push(current);
+    
+    // Se pochi chunks, risolvi subito
+    if (chunks.length <= 1) {
+      onChunk(text, text);
+      resolve();
       return;
     }
-    revealed += chunks[i];
-    onChunk(revealed, chunks[i]);
-    i++;
-  }, 80); // 80ms tra i chunk per un effetto veloce ma visibile
+
+    let revealed = '';
+    let i = 0;
+    const interval = setInterval(() => {
+      if (i >= chunks.length) {
+        clearInterval(interval);
+        resolve();
+        return;
+      }
+      revealed += chunks[i];
+      onChunk(revealed, chunks[i]);
+      i++;
+    }, 60);
+  });
 }
