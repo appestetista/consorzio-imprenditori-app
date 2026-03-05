@@ -1,8 +1,7 @@
 import { createClientFromRequest } from 'npm:@base44/sdk@0.8.20';
 
 // ═══════════════════════════════════════════════════════════════
-// PIPELINE PULITA: GPT-4o diretto + Gemini per dati web → merge
-// Obiettivo: risposte identiche a ChatGPT
+// PIPELINE PULITA: GPT-4o diretto (no Gemini)
 // ═══════════════════════════════════════════════════════════════
 
 async function callOpenAI(apiKey, model, messages, maxTokens, temperature) {
