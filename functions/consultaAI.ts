@@ -1,15 +1,14 @@
 import { createClientFromRequest } from 'npm:@base44/sdk@0.8.20';
 
 // ═══════════════════════════════════════════════════════════════
-// ROUTING: determina se serve GPT-4o (domanda complessa) o mini
+// ROUTING
 // ═══════════════════════════════════════════════════════════════
 const FORCE_GPT4O_PATTERNS = [
   /aliquot[ae]/i, /irpef|ires|irap/i, /ccnl/i, /contribut[io]/i,
   /busta\s*paga/i, /bilancio/i, /fatturato/i, /sanzi/i,
   /bando/i, /contratto/i, /dipendent[ei]/i,
-  /(\d[\d,.]*)\s*(?:€|eur(?:o|i)?)/i,
   /inps|inail/i, /tfr/i, /scaglion/i, /detrazi|deduz/i,
-  /art\.?\s*\d+|comma\s*\d+|legge\s+\d+/i,
+  /(\d[\d,.]*)\s*(?:€|eur(?:o|i)?)/i,
 ];
 
 function needsGpt4o(category, message) {
@@ -22,75 +21,14 @@ function needsGpt4o(category, message) {
 // ═══════════════════════════════════════════════════════════════
 // SYSTEM PROMPTS
 // ═══════════════════════════════════════════════════════════════
-const SYSTEM_GPT4O = `Sei un consulente strategico senior specializzato in PMI italiane con 20 anni di esperienza.
+const SYSTEM_PROMPT = `Sei un consulente d'impresa italiano con 20 anni di esperienza con PMI. Parla direttamente al tuo cliente imprenditore. Rispondi come faresti in una consulenza vera: analizza il problema in profondità, fai calcoli con numeri reali, cita le norme esatte, spiega i pro e i contro, dai la tua opinione professionale. 5 regole: 1. Ogni numero che citi deve essere reale. Se non sei sicuro, scrivi un range o "dato da verificare con il commercialista" — mai inventare. 2. Non arrotondare aliquote, soglie INPS, importi di legge. 3. Non citare articoli di legge se non sei certo che esistano. 4. Se il cliente ti ha dato dati sulla sua azienda (settore, fatturato, dipendenti, regime fiscale), usa quelli per personalizzare i calcoli. 5. Non menzionare mai di essere un'intelligenza artificiale.`;
 
-COME RISPONDERE:
-- Rispondi in modo DISCORSIVO e COMPLETO, minimo 600 parole
-- Scrivi un testo fluido in markdown con paragrafi, elenchi puntati, numeri concreti e riferimenti normativi
-- Personalizza la risposta sul profilo dell'utente se disponibile
-- Spiega i termini tecnici la prima volta che li usi
-- Usa "tu" e "la tua azienda", non menzionare mai di essere un'AI
-- Includi calcoli dettagliati con cifre concrete
-- Usa markdown: **grassetto** per concetti chiave, elenchi puntati, titoletti con ##
+const SYSTEM_GEMINI = `Cerca su internet dati aggiornati e verificati per rispondere alla domanda. Trova numeri concreti, aliquote, soglie, importi, scadenze. Trova fonti ufficiali: siti .gov.it, Agenzia Entrate, INPS, Gazzetta Ufficiale. Per ogni dato indica la fonte e il link. Se trovi dati contrastanti riporta entrambi. Non riassumere, dai tutti i dettagli.`;
 
-REGOLE ANTI-ALLUCINAZIONE (TASSATIVE):
-- Se NON sei sicuro di un dato, scrivi esplicitamente "da verificare con il tuo commercialista/consulente"
-- NON inventare MAI leggi, articoli, aliquote o importi
-- Se non conosci un valore esatto, dai un RANGE realistico, non un numero inventato
-- NON arrotondare dati fiscali: aliquote, soglie INPS, scaglioni devono essere ESATTI o non citati
-- Se un bando/norma potrebbe essere scaduto, segnalalo
-
-STRUTTURA FINALE OBBLIGATORIA:
-Termina SEMPRE la risposta con una sezione:
-## COSA FARE SUBITO:
-(elenco di 3-5 azioni concrete e immediate che l'imprenditore può intraprendere)
-
-Alla fine suggerisci 2-3 domande di approfondimento operative.`;
-
-const SYSTEM_GPT4O_MINI_SIMPLE = `Sei un consulente strategico per PMI italiane. Rispondi in modo chiaro e utile.
-Scrivi in markdown, usa dati concreti quando possibile. Se non sei sicuro di un dato scrivi "da verificare".
-Non menzionare mai di essere un'AI. Usa "tu" e "la tua azienda".
-Termina con 2-3 domande di approfondimento.`;
-
-const SYSTEM_GEMINI_SEARCH = `Sei un ricercatore specializzato in normativa e fiscalità italiana per PMI.
-
-IL TUO COMPITO:
-Cerca su internet dati AGGIORNATI e VERIFICATI per rispondere alla domanda dell'imprenditore.
-
-COSA CERCARE:
-- Numeri concreti: aliquote, soglie, importi, scadenze
-- Fonti ufficiali: siti .gov.it, Agenzia delle Entrate, INPS, INAIL, Gazzetta Ufficiale
-- Bandi aperti con date di scadenza reali
-- Normative vigenti con riferimenti esatti (articolo, comma, legge)
-- Dati di mercato da fonti istituzionali (ISTAT, Camere di Commercio, Eurostat)
-
-REGOLE:
-- NON riassumere: dai TUTTI i dettagli trovati
-- Cita SEMPRE la fonte e l'URL
-- Se trovi dati contrastanti, riporta entrambe le versioni con le rispettive fonti
-- NON inventare dati: se non trovi qualcosa, scrivi "non trovato"
-- Preferisci fonti del 2025-2026, segnala se i dati sono più vecchi`;
-
-const SYSTEM_MERGE = `Sei un editor esperto che fonde due analisi in una risposta unica e professionale per un imprenditore italiano.
-
-RICEVI:
-1. ANALISI CONSULENTE: un'analisi approfondita di un consulente strategico
-2. DATI INTERNET: dati aggiornati trovati su internet con fonti
-
-IL TUO COMPITO:
-- Fondi le due fonti in UNA SOLA risposta fluida e coerente in markdown
-- Se i dati internet CORREGGONO o AGGIORNANO l'analisi del consulente, USA I DATI INTERNET (sono più recenti)
-- Se ci sono CONTRADDIZIONI, segnalale brevemente: "Nota: i dati più recenti indicano..."
-- NON rivelare MAI che hai usato due fonti separate — scrivi come se fosse un'unica analisi
-- Mantieni lo stile discorsivo e diretto ("tu", "la tua azienda")
-- Conserva TUTTI i calcoli e i numeri concreti da entrambe le fonti
-- Conserva i riferimenti normativi e le fonti web
-- Mantieni la sezione "COSA FARE SUBITO:" alla fine
-- Termina con 2-3 domande di approfondimento operative
-- La risposta deve essere LUNGA e COMPLETA (minimo 600 parole)`;
+const SYSTEM_MERGE = `Hai due testi: un'analisi di consulenza e dei dati trovati su internet. Fondili in un'unica risposta completa e naturale. Se i dati internet sono più aggiornati, usa quelli. Se ci sono contraddizioni, segnalale. Non rivelare mai che hai usato due fonti separate. Mantieni il tono di un consulente che parla al suo cliente. Includi i link alle fonti dove rilevante.`;
 
 // ═══════════════════════════════════════════════════════════════
-// CHIAMATE API
+// API CALLS
 // ═══════════════════════════════════════════════════════════════
 async function callOpenAI(apiKey, model, systemPrompt, userPrompt, maxTokens, temperature) {
   const response = await fetch("https://api.openai.com/v1/chat/completions", {
@@ -126,7 +64,7 @@ async function callGeminiSearch(apiKey, userPrompt) {
     headers: { "Content-Type": "application/json" },
     body: JSON.stringify({
       contents: [{ parts: [{ text: userPrompt }] }],
-      systemInstruction: { parts: [{ text: SYSTEM_GEMINI_SEARCH }] },
+      systemInstruction: { parts: [{ text: SYSTEM_GEMINI }] },
       generationConfig: { temperature: 0.2, maxOutputTokens: 4000 },
       tools: [{ googleSearch: {} }],
     }),
@@ -160,7 +98,7 @@ function calcCost(model, inputTokens, outputTokens) {
 }
 
 // ═══════════════════════════════════════════════════════════════
-// HANDLER PRINCIPALE
+// HANDLER
 // ═══════════════════════════════════════════════════════════════
 Deno.serve(async (req) => {
   const startTime = Date.now();
@@ -189,12 +127,10 @@ Deno.serve(async (req) => {
     let totalCost = 0;
     let web_search_used = false;
 
-    // ─────────────────────────────────────────────
-    // CASO 1: Domanda semplice → solo GPT-4o-mini
-    // ─────────────────────────────────────────────
+    // ─── CASO 1: Domanda semplice → GPT-4o-mini ───
     if (!useGpt4o) {
-      console.log('[consultaAI] Caso 1: GPT-4o-mini (domanda semplice)');
-      const result = await callOpenAI(openaiKey, 'gpt-4o-mini', SYSTEM_GPT4O_MINI_SIMPLE, fullUserPrompt, 6000, 0.4);
+      console.log('[consultaAI] Caso 1: GPT-4o-mini');
+      const result = await callOpenAI(openaiKey, 'gpt-4o-mini', SYSTEM_PROMPT, fullUserPrompt, 8000, 0.7);
       response_data = result.content;
       model_used = 'gpt-4o-mini';
       provider = 'openai';
@@ -203,15 +139,12 @@ Deno.serve(async (req) => {
       totalCost = calcCost('gpt-4o-mini', result.inputTokens, result.outputTokens);
     }
 
-    // ─────────────────────────────────────────────
-    // CASO 2: Complessa + Gemini → PARALLELO + MERGE
-    // ─────────────────────────────────────────────
+    // ─── CASO 2: Complessa + Gemini → PARALLELO + MERGE ───
     else if (geminiKey) {
       console.log('[consultaAI] Caso 2: Parallelo GPT-4o + Gemini → Merge');
 
-      // Lancio parallelo
       const [gptResult, geminiResult] = await Promise.allSettled([
-        callOpenAI(openaiKey, 'gpt-4o', SYSTEM_GPT4O, fullUserPrompt, 8000, 0.4),
+        callOpenAI(openaiKey, 'gpt-4o', SYSTEM_PROMPT, fullUserPrompt, 12000, 0.7),
         callGeminiSearch(geminiKey, fullUserPrompt),
       ]);
 
@@ -221,7 +154,6 @@ Deno.serve(async (req) => {
       if (!gptOk) console.error('[consultaAI] GPT-4o fallito:', gptResult.reason?.message);
       if (!geminiOk) console.error('[consultaAI] Gemini fallito:', geminiResult.reason?.message);
 
-      // Entrambi falliti → errore
       if (!gptOk && !geminiOk) {
         throw new Error('Sia GPT-4o che Gemini sono falliti');
       }
@@ -229,7 +161,6 @@ Deno.serve(async (req) => {
       const gptData = gptOk ? gptResult.value : null;
       const geminiData = geminiOk ? geminiResult.value : null;
 
-      // Accumula token delle chiamate parallele
       if (gptData) {
         totalInput += gptData.inputTokens;
         totalOutput += gptData.outputTokens;
@@ -242,41 +173,32 @@ Deno.serve(async (req) => {
         web_search_used = true;
       }
 
-      // Se entrambi OK → merge con GPT-4o-mini
       if (gptOk && geminiOk) {
-        console.log('[consultaAI] Merge: GPT-4o-mini fonde le due risposte');
-        const mergePrompt = `ANALISI CONSULENTE:\n${gptData.content}\n\n---\n\nDATI INTERNET (con fonti):\n${geminiData.content}\n\n---\n\nDomanda originale: ${message}`;
-        
-        const mergeResult = await callOpenAI(openaiKey, 'gpt-4o-mini', SYSTEM_MERGE, mergePrompt, 10000, 0.3);
+        // Merge con GPT-4o-mini
+        console.log('[consultaAI] Merge con GPT-4o-mini');
+        const mergePrompt = `ANALISI CONSULENTE:\n${gptData.content}\n\n---\n\nDATI INTERNET:\n${geminiData.content}\n\n---\n\nDomanda originale: ${message}`;
+        const mergeResult = await callOpenAI(openaiKey, 'gpt-4o-mini', SYSTEM_MERGE, mergePrompt, 12000, 0.5);
         response_data = mergeResult.content;
         model_used = 'gpt-4o+gemini+merge';
         provider = 'openai+gemini';
         totalInput += mergeResult.inputTokens;
         totalOutput += mergeResult.outputTokens;
         totalCost += calcCost('gpt-4o-mini', mergeResult.inputTokens, mergeResult.outputTokens);
-      }
-      // Solo GPT-4o OK → usa quello
-      else if (gptOk) {
-        console.log('[consultaAI] Fallback: solo GPT-4o (Gemini fallito)');
+      } else if (gptOk) {
         response_data = gptData.content;
         model_used = 'gpt-4o';
         provider = 'openai';
-      }
-      // Solo Gemini OK → usa quello
-      else {
-        console.log('[consultaAI] Fallback: solo Gemini (GPT-4o fallito)');
+      } else {
         response_data = geminiData.content;
         model_used = 'gemini-2.5-flash';
         provider = 'gemini';
       }
     }
 
-    // ─────────────────────────────────────────────
-    // CASO 3: Complessa senza Gemini → solo GPT-4o
-    // ─────────────────────────────────────────────
+    // ─── CASO 3: Complessa senza Gemini → solo GPT-4o ───
     else {
-      console.log('[consultaAI] Caso 3: Solo GPT-4o (no Gemini key)');
-      const result = await callOpenAI(openaiKey, 'gpt-4o', SYSTEM_GPT4O, fullUserPrompt, 8000, 0.4);
+      console.log('[consultaAI] Caso 3: Solo GPT-4o');
+      const result = await callOpenAI(openaiKey, 'gpt-4o', SYSTEM_PROMPT, fullUserPrompt, 12000, 0.7);
       response_data = result.content;
       model_used = 'gpt-4o';
       provider = 'openai';
