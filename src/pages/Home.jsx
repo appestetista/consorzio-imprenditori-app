@@ -441,43 +441,20 @@ export default function Home() {
       try {
         console.log('[AI] Fallback a InvokeLLM...');
         const fallbackResult = await base44.integrations.Core.InvokeLLM({
-          prompt: `Consulente strategico per PMI italiane. Dati concreti, mai generici.\n${kbHint}${userContext}Categoria: ${category} — ${sottocategoria}.\nDomanda: ${msg}`,
+          prompt: `Sei un consulente strategico per PMI italiane. Rispondi in modo dettagliato e discorsivo con dati concreti.\n${kbHint}${userContext}Categoria: ${category} — ${sottocategoria}.\nDomanda: ${msg}`,
           add_context_from_internet: true,
           response_json_schema: {
             type: "object",
             properties: {
-              categoria: { type: "string" }, sintesi_decisionale: { type: "string" }, impatto_economico: { type: "string" },
-              rischi_criticita: { type: "string" }, tempo_attuazione: { type: "string" }, raccomandazione_finale: { type: "string" },
-              fonti: { type: "array", items: { type: "object", properties: { nome: { type: "string" }, url: { type: "string" }, tipo: { type: "string" } } } },
-              affidabilita: { type: "object", properties: { verificati: { type: "number" }, stimati: { type: "number" }, da_confermare: { type: "number" }, punteggio: { type: "number" } } },
-              followup_questions: { type: "array", items: { type: "string" } }
+              risposta: { type: "string" },
+              followup_questions: { type: "array", items: { type: "string" } },
+              categoria: { type: "string" }
             }
           }
         });
         parsed = typeof fallbackResult === 'string' ? JSON.parse(fallbackResult) : fallbackResult;
       } catch (e2) { parsed = null; }
     }
-
-    // Post-validazione qualità risposta
-    if (parsed && typeof parsed === 'object') {
-      const warnings = [];
-      if (!parsed.fonti || parsed.fonti.length === 0) {
-        warnings.push('Nessuna fonte citata nella risposta');
-      } else {
-        const senzaUrl = parsed.fonti.filter(f => !f.url || f.url === '');
-        if (senzaUrl.length > 0) warnings.push(senzaUrl.length + ' fonte/i senza link verificabile');
-      }
-      if (parsed.affidabilita && parsed.affidabilita.punteggio < 50) {
-        warnings.push('Punteggio affidabilità basso (' + parsed.affidabilita.punteggio + '/100)');
-      }
-      if (parsed.affidabilita && parsed.affidabilita.stimati > parsed.affidabilita.verificati) {
-        warnings.push('Più dati stimati che verificati — consigliata verifica con un professionista');
-      }
-      if (warnings.length > 0) parsed._quality_warnings = warnings;
-    }
-
-    // Inietta strumento correlato se presente
-    if (parsed && strumentoSuggerito) parsed.strumento_correlato = strumentoSuggerito;
 
     const newCount = (consulenzeUsate || 0) + 1;
     
