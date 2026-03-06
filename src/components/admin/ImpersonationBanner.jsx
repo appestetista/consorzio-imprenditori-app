@@ -16,20 +16,19 @@ export default function ImpersonationBanner() {
   };
 
   return (
-    <div className="sticky top-0 z-[9999] bg-amber-500 text-black px-4 py-2 flex items-center justify-between text-sm font-medium">
-      <div className="flex items-center gap-2">
-        <Eye className="w-4 h-4" />
-        <span>
-          Stai visualizzando come: <strong>{impersonation.targetName || impersonation.targetEmail}</strong>
-          {impersonation.role === 'consulente' && ' (Consulente)'}
+    <div className="fixed left-2 right-2 z-[9999] flex items-center justify-between bg-amber-500/95 backdrop-blur-sm text-black rounded-full px-3 py-1.5 shadow-lg" style={{ top: '68px' }}>
+      <div className="flex items-center gap-1.5 text-xs font-medium truncate">
+        <Eye className="w-3.5 h-3.5 flex-shrink-0" />
+        <span className="truncate">
+          <strong>{impersonation.targetName || impersonation.targetEmail}</strong>
         </span>
       </div>
       <button
         onClick={handleStop}
-        className="flex items-center gap-1.5 bg-black/20 hover:bg-black/30 rounded-lg px-3 py-1 transition-colors font-semibold"
+        className="flex items-center gap-1 bg-black/20 hover:bg-black/30 rounded-full px-2.5 py-0.5 transition-colors text-xs font-semibold flex-shrink-0 ml-2"
       >
-        <X className="w-4 h-4" />
-        Torna Admin
+        <X className="w-3 h-3" />
+        Admin
       </button>
     </div>
   );
