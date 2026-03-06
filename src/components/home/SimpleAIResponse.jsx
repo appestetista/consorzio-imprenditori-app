@@ -1,6 +1,6 @@
 import React, { useState, useEffect, useCallback, useRef, useMemo } from 'react';
 import ReactMarkdown from 'react-markdown';
-import { Sparkles, Star, Send, Loader2, Copy, Check } from 'lucide-react';
+import { Sparkles, Star, Send, Loader2, Copy, Check, RefreshCw } from 'lucide-react';
 import { toast } from 'sonner';
 import { base44 } from '@/api/base44Client';
 import StreamingReveal from './StreamingReveal';
@@ -152,25 +152,25 @@ function extractSuggestions(text) {
   return { cleanText, suggestions: suggestions.slice(0, 2) };
 }
 
-export default function SimpleAIResponse({ content, onFollowup, conversationId, isNew = false, isStreaming = false, contextQuestion = '', entertainQuestions = '', onContextSelect }) {
+export default function SimpleAIResponse({ content, onFollowup, onRegenerate, conversationId, isNew = false, isStreaming = false, contextQuestion = '', entertainQuestions = '', onContextSelect }) {
   const rawRisposta = content?.risposta || '';
   const { cleanText: fullRisposta, suggestions } = useMemo(() => extractSuggestions(rawRisposta), [rawRisposta]);
   const followups = content?.followup_questions || [];
+  const [copied, setCopied] = useState(false);
+
+  const handleCopy = useCallback(() => {
+    navigator.clipboard.writeText(fullRisposta || rawRisposta || '');
+    setCopied(true);
+    toast.success('Copiato negli appunti');
+    setTimeout(() => setCopied(false), 2000);
+  }, [fullRisposta, rawRisposta]);
 
   // ── Stato per animazione "pensiero" + typewriter ──
   const [thinkingDone, setThinkingDone] = useState(!isStreaming && !isNew);
   const [displayedText, setDisplayedText] = useState(!isStreaming && !isNew ? fullRisposta : '');
   const [typewriterDone, setTypewriterDone] = useState(!isStreaming && !isNew);
-  const [copied, setCopied] = useState(false);
   const prevLengthRef = useRef(0);
   const typewriterRef = useRef(null);
-
-  const handleCopy = useCallback(() => {
-    navigator.clipboard.writeText(fullRisposta || '');
-    setCopied(true);
-    toast.success('Copiato negli appunti');
-    setTimeout(() => setCopied(false), 2000);
-  }, [fullRisposta]);
 
   // Quando il thinking finisce, inizia il typewriter
   const handleThinkingFinished = useCallback(() => {
@@ -320,7 +320,7 @@ export default function SimpleAIResponse({ content, onFollowup, conversationId, 
       <div className="w-8 h-8 rounded-xl bg-gradient-to-br from-[#d4af37] to-[#b8860b] flex items-center justify-center flex-shrink-0 mt-0.5">
         <Sparkles className="w-4 h-4 text-white" />
       </div>
-      <div className="flex-1 max-w-[92%] space-y-3">
+      <div className="flex-1 max-w-[92%] space-y-2">
         <div className="rounded-2xl bg-slate-800/50 border border-slate-700/40 px-5 py-4">
           <ReactMarkdown
             className="text-[17px] text-slate-200 leading-[1.7] prose prose-base prose-invert max-w-none [&>*:first-child]:mt-0 [&>*:last-child]:mb-0"
@@ -330,12 +330,16 @@ export default function SimpleAIResponse({ content, onFollowup, conversationId, 
           </ReactMarkdown>
         </div>
 
-        {/* Azioni: copia + rating */}
-        <div className="flex items-center gap-2 ml-1">
-          <button onClick={handleCopy} className="p-1.5 rounded-lg text-slate-500 hover:text-slate-300 hover:bg-slate-800/50 transition-colors" title="Copia risposta">
+        {/* Barra azioni: Copia + Rigenera */}
+        <div className="flex items-center gap-1 ml-1">
+          <button onClick={handleCopy} className="p-1.5 rounded-lg text-slate-500 hover:text-slate-300 hover:bg-slate-700/50 transition-colors" title="Copia risposta">
             {copied ? <Check className="w-3.5 h-3.5 text-green-400" /> : <Copy className="w-3.5 h-3.5" />}
           </button>
-          <RatingInline conversationId={conversationId} />
+          {onRegenerate && (
+            <button onClick={onRegenerate} className="p-1.5 rounded-lg text-slate-500 hover:text-slate-300 hover:bg-slate-700/50 transition-colors" title="Rigenera risposta">
+              <RefreshCw className="w-3.5 h-3.5" />
+            </button>
+          )}
         </div>
 
         {suggestions.length > 0 && (
@@ -351,6 +355,8 @@ export default function SimpleAIResponse({ content, onFollowup, conversationId, 
             ))}
           </div>
         )}
+
+        <RatingInline conversationId={conversationId} />
       </div>
     </div>
   );
