@@ -343,92 +343,9 @@ Deno.serve(async (req) => {
           await sendSSE({ started: true, time_to_first_sse_ms: timeToFirstSSE });
           console.log(`[consultaAI] ⚡ SSE started in ${timeToFirstSSE}ms`);
 
-          // ── STEP 2: Launch ALL lightweight tasks in parallel ──
-          const normalizePromise = normalizeQuery(geminiKey, message).catch(e => {
-            console.log('[consultaAI] Normalization failed:', e.message);
-            return { text: message.toLowerCase().substring(0, 100).trim(), inputTokens: 0, outputTokens: 0 };
-          });
-
-          const routerPromise = routeQuery(geminiKey, message, conversationHistory).catch(e => {
-            console.log('[consultaAI] Router failed:', e.message);
-            return { complexity: 'STANDARD', category: 'SPIEGAZIONE', inputTokens: 0, outputTokens: 0 };
-          });
-
-          const clarificationPromise = generateClarification(geminiKey, message, conversationHistory).catch(() => '');
-
-          const fastResponsePromise = generateFastResponse(geminiKey, message, 'SPIEGAZIONE').catch(e => {
-            console.log('[consultaAI] Fast response failed:', e.message);
-            return null;
-          });
-
-          // ── STEP 3: Cache lookup races with other tasks ──
-          // normalizeQuery → cache lookup (non-blocking for others)
-          const cachePromise = (async () => {
-            if (!isFirstMessage) return null;
-            const normResult = await normalizePromise;
-            const normalizedQuery = normResult.text.toLowerCase().replace(/[.!?;:,]$/g, '').trim();
-            totalInput += normResult.inputTokens;
-            totalOutput += normResult.outputTokens;
-            totalCost += calcCost('gemini-flash', normResult.inputTokens, normResult.outputTokens);
-            console.log(`[consultaAI] Normalized: "${normalizedQuery}"`);
-
-            if (normalizedQuery.length <= 5) return { normalizedQuery, hit: null };
-
-            try {
-              const cached = await base44.asServiceRole.entities.AIResponseCache.filter({ normalized_query: normalizedQuery });
-              if (cached.length > 0) {
-                const entry = cached[0];
-                if (entry.expires_at && new Date(entry.expires_at) < new Date()) {
-                  console.log(`[consultaAI] Cache EXPIRED, deleting id=${entry.id}`);
-                  base44.asServiceRole.entities.AIResponseCache.delete(entry.id).catch(() => {});
-                  return { normalizedQuery, hit: null };
-                }
-                console.log(`[consultaAI] CACHE HIT! id=${entry.id}, hits=${entry.hit_count || 0}`);
-                base44.asServiceRole.entities.AIResponseCache.update(entry.id, {
-                  hit_count: (entry.hit_count || 0) + 1,
-                  last_hit_at: new Date().toISOString(),
-                }).catch(() => {});
-                return { normalizedQuery, hit: entry };
-              }
-            } catch (e) {
-              console.log('[consultaAI] Cache lookup error:', e.message);
-            }
-            return { normalizedQuery, hit: null };
-          })();
-
-          // Wait for cache result — if hit, respond immediately
-          const cacheResult = await cachePromise;
-          const normalizedQuery = cacheResult?.normalizedQuery || message.toLowerCase().substring(0, 100);
-
-          if (cacheResult?.hit) {
-            const cacheHit = cacheResult.hit;
-            const elapsed = Date.now() - startTime;
-            if (cacheHit.suggestions) {
-              try {
-                const sugs = JSON.parse(cacheHit.suggestions);
-                if (sugs.length > 0) await sendSSE({ entertain_questions: sugs.join('|||') });
-              } catch {}
-            }
-            await sendSSE({ text: cacheHit.response_text });
-            await sendSSE({ done: true, web_search_used: false, response_time_ms: elapsed, cache_hit: true, time_to_first_token_ms: elapsed });
-            console.log(`[consultaAI] ✅ Cache hit response in ${elapsed}ms`);
-
-            base44.asServiceRole.entities.UsageLog.create({
-              user_email: user.email, action_type: 'chat_ai_cache', model_used: 'cache',
-              provider: 'cache', input_tokens: 0, output_tokens: 0, cost_usd: 0,
-              category: cacheHit.category || 'Generale', response_time_ms: elapsed,
-              timestamp: new Date().toISOString(),
-            }).catch(() => {});
-
-            await writer.close();
-            return;
-          }
-
-          // ── CACHE MISS: Start GPT-4o streaming immediately ──
-          // Don't wait for router/clarification/fastResponse to finish before starting GPT-4o
-          // We use a default system prompt and update metadata later
-
-          // Start GPT-4o with default prompt (doesn't need router result)
+          // ── STEP 2: Launch GPT-4o + ALL lightweight tasks AT THE SAME TIME ──
+          // GPT-4o starts connecting immediately — no waiting for cache/router/etc.
+          const gptAbort = new AbortController();
           const defaultSystemPrompt = buildSystemPrompt({ category: 'SPIEGAZIONE' });
           const chatMessages = [{ role: "system", content: defaultSystemPrompt }];
           if (conversationHistory && conversationHistory.trim()) {
@@ -439,7 +356,6 @@ Deno.serve(async (req) => {
           }
           chatMessages.push({ role: "user", content: message });
 
-          // Launch GPT-4o streaming NOW (doesn't wait for router)
           const gptPromise = fetch("https://api.openai.com/v1/chat/completions", {
             method: "POST",
             headers: { "Content-Type": "application/json", "Authorization": `Bearer ${openaiKey}` },
@@ -453,42 +369,86 @@ Deno.serve(async (req) => {
               presence_penalty: 0.1,
               stream: true,
             }),
-            signal: AbortSignal.timeout(120000),
+            signal: gptAbort.signal,
           });
 
-          // While GPT-4o connects, resolve the parallel lightweight tasks
-          const [routerResult, clarification, fastResult, openaiResponse] = await Promise.all([
-            routerPromise,
-            clarificationPromise,
-            fastResponsePromise,
-            gptPromise,
+          const routerPromise = routeQuery(geminiKey, message, conversationHistory).catch(() => ({
+            complexity: 'STANDARD', category: 'SPIEGAZIONE', inputTokens: 0, outputTokens: 0
+          }));
+
+          const clarificationPromise = generateClarification(geminiKey, message, conversationHistory).catch(() => '');
+
+          // Cache lookup (normalize → DB) — races with GPT-4o
+          let normalizedQuery = message.toLowerCase().substring(0, 100).trim();
+          const cachePromise = isFirstMessage ? (async () => {
+            const normResult = await normalizeQuery(geminiKey, message).catch(() => ({
+              text: message.toLowerCase().substring(0, 100).trim(), inputTokens: 0, outputTokens: 0
+            }));
+            normalizedQuery = normResult.text.toLowerCase().replace(/[.!?;:,]$/g, '').trim();
+            totalInput += normResult.inputTokens; totalOutput += normResult.outputTokens;
+            totalCost += calcCost('gemini-flash', normResult.inputTokens, normResult.outputTokens);
+            if (normalizedQuery.length <= 5) return null;
+            try {
+              const cached = await base44.asServiceRole.entities.AIResponseCache.filter({ normalized_query: normalizedQuery });
+              if (cached.length > 0) {
+                const entry = cached[0];
+                if (entry.expires_at && new Date(entry.expires_at) < new Date()) {
+                  base44.asServiceRole.entities.AIResponseCache.delete(entry.id).catch(() => {});
+                  return null;
+                }
+                base44.asServiceRole.entities.AIResponseCache.update(entry.id, {
+                  hit_count: (entry.hit_count || 0) + 1, last_hit_at: new Date().toISOString(),
+                }).catch(() => {});
+                return entry;
+              }
+            } catch {}
+            return null;
+          })() : Promise.resolve(null);
+
+          // Race: cache vs GPT-4o connection — whichever finishes first wins
+          const CACHE_TIMEOUT = 3000; // max wait for cache before going with GPT
+          const cacheWithTimeout = Promise.race([
+            cachePromise,
+            new Promise(resolve => setTimeout(() => resolve(null), CACHE_TIMEOUT)),
           ]);
 
-          // Track router costs
+          const [cacheHit, openaiResponse] = await Promise.all([cacheWithTimeout, gptPromise]);
+
+          // If cache hit, abort GPT-4o and respond immediately
+          if (cacheHit) {
+            gptAbort.abort();
+            const elapsed = Date.now() - startTime;
+            console.log(`[consultaAI] ✅ CACHE HIT in ${elapsed}ms`);
+            if (cacheHit.suggestions) {
+              try {
+                const sugs = JSON.parse(cacheHit.suggestions);
+                if (sugs.length > 0) await sendSSE({ entertain_questions: sugs.join('|||') });
+              } catch {}
+            }
+            await sendSSE({ text: cacheHit.response_text });
+            await sendSSE({ done: true, web_search_used: false, response_time_ms: elapsed, cache_hit: true, time_to_first_token_ms: elapsed });
+            base44.asServiceRole.entities.UsageLog.create({
+              user_email: user.email, action_type: 'chat_ai_cache', model_used: 'cache',
+              provider: 'cache', input_tokens: 0, output_tokens: 0, cost_usd: 0,
+              category: cacheHit.category || 'Generale', response_time_ms: elapsed,
+              timestamp: new Date().toISOString(),
+            }).catch(() => {});
+            await writer.close();
+            return;
+          }
+
+          // ── NO CACHE: Process GPT-4o stream ──
+          // Resolve remaining lightweight tasks (non-blocking)
+          const [routerResult, clarification] = await Promise.all([routerPromise, clarificationPromise]);
           totalInput += routerResult.inputTokens || 0;
           totalOutput += routerResult.outputTokens || 0;
           totalCost += calcCost('gemini-flash', routerResult.inputTokens || 0, routerResult.outputTokens || 0);
           console.log(`[consultaAI] Router: ${routerResult.complexity}/${routerResult.category}`);
 
-          // Send clarification question
           if (clarification) {
-            console.log(`[consultaAI] Clarification: ${clarification}`);
             await sendSSE({ context_question: clarification });
           }
 
-          // Send fast response as initial text
-          let fullContent = '';
-          if (fastResult && fastResult.text && fastResult.text.length > 20) {
-            totalInput += fastResult.inputTokens;
-            totalOutput += fastResult.outputTokens;
-            totalCost += calcCost('gemini-flash', fastResult.inputTokens, fastResult.outputTokens);
-            const timeToFirstToken = Date.now() - startTime;
-            console.log(`[consultaAI] ⚡ First token (fast response) in ${timeToFirstToken}ms`);
-            fullContent = fastResult.text + '\n\n';
-            await sendSSE({ text: fullContent, time_to_first_token_ms: timeToFirstToken });
-          }
-
-          // ── Process GPT-4o stream ──
           if (!openaiResponse.ok) {
             const err = await openaiResponse.text();
             await sendSSE({ error: `OpenAI error ${openaiResponse.status}` });
@@ -498,10 +458,8 @@ Deno.serve(async (req) => {
 
           const decoder = new TextDecoder();
           const reader = openaiResponse.body.getReader();
-          let skipFastSection = !!fastResult?.text;
-          let skipping = false;
-          let gptBuffer = '';
-          let firstGptTokenSent = false;
+          let fullContent = '';
+          let firstTokenSent = false;
 
           while (true) {
             const { done, value } = await reader.read();
@@ -514,29 +472,7 @@ Deno.serve(async (req) => {
               if (!line.startsWith('data: ')) continue;
               const data = line.slice(6).trim();
               if (data === '[DONE]') {
-                // Flush any remaining buffer
-                if (gptBuffer) {
-                  fullContent += gptBuffer;
-                  await sendSSE({ text: gptBuffer });
-                  gptBuffer = '';
-                }
-
-                // ── SELF_CHECK ──
-                try {
-                  const selfCheckResult = await selfCheck(openaiKey, fullContent);
-                  if (!selfCheckResult.skipped && selfCheckResult.text !== fullContent) {
-                    await sendSSE({ self_check_replace: selfCheckResult.text });
-                    fullContent = selfCheckResult.text;
-                    console.log(`[consultaAI] SELF_CHECK applied: content replaced`);
-                  }
-                  totalInput += selfCheckResult.inputTokens;
-                  totalOutput += selfCheckResult.outputTokens;
-                  totalCost += calcCost('gpt-4o-mini', selfCheckResult.inputTokens, selfCheckResult.outputTokens);
-                } catch (e) {
-                  console.log('[consultaAI] SELF_CHECK error:', e.message);
-                }
-
-                // ── Suggestions + Title (parallel) ──
+                // ── Post-stream: Suggestions + Title (parallel, no SELF_CHECK to save 3-5s) ──
                 const [sugResult, titleResult] = await Promise.all([
                   generateSuggestions(geminiKey, message, fullContent).catch(() => null),
                   generateTitle(geminiKey, message, fullContent).catch(() => null),
@@ -544,8 +480,7 @@ Deno.serve(async (req) => {
 
                 let suggestionsText = '';
                 if (sugResult?.text) {
-                  totalInput += sugResult.inputTokens;
-                  totalOutput += sugResult.outputTokens;
+                  totalInput += sugResult.inputTokens; totalOutput += sugResult.outputTokens;
                   totalCost += calcCost('gemini-flash', sugResult.inputTokens, sugResult.outputTokens);
                   suggestionsText = sugResult.text;
                   const sugLines = suggestionsText.split('|||').map(s => s.trim()).filter(s => s.length > 3);
@@ -558,8 +493,7 @@ Deno.serve(async (req) => {
 
                 let generatedTitle = '';
                 if (titleResult?.text) {
-                  totalInput += titleResult.inputTokens;
-                  totalOutput += titleResult.outputTokens;
+                  totalInput += titleResult.inputTokens; totalOutput += titleResult.outputTokens;
                   totalCost += calcCost('gemini-flash', titleResult.inputTokens, titleResult.outputTokens);
                   generatedTitle = titleResult.text;
                 }
@@ -567,27 +501,22 @@ Deno.serve(async (req) => {
                 const elapsed = Date.now() - startTime;
                 await sendSSE({
                   done: true, web_search_used: false, response_time_ms: elapsed,
-                  generated_title: generatedTitle || null,
-                  time_to_complete_ms: elapsed,
+                  generated_title: generatedTitle || null, time_to_complete_ms: elapsed,
                 });
-                console.log(`[consultaAI] ✅ Complete response in ${elapsed}ms`);
+                console.log(`[consultaAI] ✅ Complete in ${elapsed}ms`);
 
-                // ── Cache save (fire-and-forget) ──
+                // Cache save (fire-and-forget)
                 if (isFirstMessage && normalizedQuery.length > 5 && fullContent.length > 100) {
                   const sugArray = suggestionsText ? suggestionsText.split('|||').map(s => s.trim()).filter(s => s.length > 3) : [];
                   base44.asServiceRole.entities.AIResponseCache.create({
-                    normalized_query: normalizedQuery,
-                    response_text: fullContent,
-                    suggestions: JSON.stringify(sugArray),
-                    title: generatedTitle || '',
-                    category: routerResult.category || 'SPIEGAZIONE',
-                    complexity: routerResult.complexity || 'STANDARD',
-                    hit_count: 0,
-                    expires_at: new Date(Date.now() + 30 * 24 * 60 * 60 * 1000).toISOString(),
-                  }).catch(e => console.log('[consultaAI] Cache save error:', e.message));
+                    normalized_query: normalizedQuery, response_text: fullContent,
+                    suggestions: JSON.stringify(sugArray), title: generatedTitle || '',
+                    category: routerResult.category || 'SPIEGAZIONE', complexity: routerResult.complexity || 'STANDARD',
+                    hit_count: 0, expires_at: new Date(Date.now() + 30 * 24 * 60 * 60 * 1000).toISOString(),
+                  }).catch(() => {});
                 }
 
-                // Log usage (fire-and-forget)
+                // Usage log (fire-and-forget)
                 base44.asServiceRole.entities.UsageLog.create({
                   user_email: user.email, action_type: 'chat_ai',
                   model_used: 'gemini-flash+gpt-4o', provider: 'multi',
@@ -595,7 +524,7 @@ Deno.serve(async (req) => {
                   cost_usd: Math.round(totalCost * 100000) / 100000,
                   category: routerResult.category || 'Generale',
                   response_time_ms: elapsed, timestamp: new Date().toISOString(),
-                }).catch(e => console.log('[consultaAI] UsageLog error:', e.message));
+                }).catch(() => {});
 
                 continue;
               }
@@ -604,44 +533,13 @@ Deno.serve(async (req) => {
                 const parsed = JSON.parse(data);
                 const delta = parsed.choices?.[0]?.delta?.content;
                 if (delta) {
-                  // Log first GPT token timing
-                  if (!firstGptTokenSent && !fullContent) {
+                  if (!firstTokenSent) {
                     const timeToFirstToken = Date.now() - startTime;
-                    console.log(`[consultaAI] ⚡ First GPT-4o token in ${timeToFirstToken}ms`);
-                    firstGptTokenSent = true;
+                    console.log(`[consultaAI] ⚡ First token in ${timeToFirstToken}ms`);
+                    firstTokenSent = true;
                   }
-
-                  if (skipFastSection) {
-                    gptBuffer += delta;
-                    if (!skipping && gptBuffer.includes('## Risposta Rapida')) {
-                      skipping = true;
-                    }
-                    if (skipping) {
-                      const introIdx = gptBuffer.indexOf('## Risposta Rapida');
-                      if (introIdx !== -1) {
-                        const afterIntro = gptBuffer.substring(introIdx + 20);
-                        const nextSection = afterIntro.search(/\n## /);
-                        if (nextSection !== -1) {
-                          const toSend = afterIntro.substring(nextSection);
-                          fullContent += toSend;
-                          await sendSSE({ text: toSend });
-                          skipFastSection = false;
-                          skipping = false;
-                          gptBuffer = '';
-                        }
-                      }
-                    } else {
-                      if (gptBuffer.length > 1500) {
-                        fullContent += gptBuffer;
-                        await sendSSE({ text: gptBuffer });
-                        skipFastSection = false;
-                        gptBuffer = '';
-                      }
-                    }
-                  } else {
-                    fullContent += delta;
-                    await sendSSE({ text: delta });
-                  }
+                  fullContent += delta;
+                  await sendSSE({ text: delta });
                 }
                 if (parsed.usage) {
                   totalInput += parsed.usage.prompt_tokens || 0;
@@ -650,12 +548,6 @@ Deno.serve(async (req) => {
                 }
               } catch {}
             }
-          }
-
-          // Flush residual buffer
-          if (gptBuffer) {
-            fullContent += gptBuffer;
-            await sendSSE({ text: gptBuffer });
           }
 
         } catch (e) {
