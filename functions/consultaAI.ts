@@ -44,7 +44,7 @@ function calcCost(model, inputTokens, outputTokens) {
 }
 
 async function callGeminiFlashQuickIntro(apiKey, userMessage, webContext) {
-  const systemPrompt = `Sei ARIA, consulente strategico italiano. Genera SOLO la sezione "## Quadro Generale" (150-250 parole) per la domanda dell'utente. Scrivi in italiano professionale, con dati concreti e contesto attuale. Non aggiungere altre sezioni. Vai dritto al punto, niente frasi vuote.${webContext ? `\n\nDATI WEB AGGIORNATI:\n${webContext.substring(0, 2000)}` : ''}`;
+  const systemPrompt = `Sei ARIA, consulente strategico italiano. Genera SOLO la sezione "## 1. Introduzione Breve" (100-200 parole) per la domanda dell'utente. Spiega in modo semplice e diretto cosa significa l'argomento richiesto e perché è rilevante oggi. Scrivi in italiano professionale, con dati concreti. Non aggiungere altre sezioni. Vai dritto al punto, niente frasi vuote.${webContext ? `\n\nDATI WEB AGGIORNATI:\n${webContext.substring(0, 2000)}` : ''}`;
   
   const url = `https://generativelanguage.googleapis.com/v1beta/models/gemini-2.0-flash:generateContent?key=${apiKey}`;
   const response = await fetch(url, {
