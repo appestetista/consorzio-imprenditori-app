@@ -197,14 +197,16 @@ Quando la risposta beneficerebbe di un supporto visivo (grafici, schemi, diagram
 - Se un concetto è complesso, aggiungi uno schema a blocchi con caratteri ASCII/Unicode (box drawing: ┌─┐│└─┘, frecce: →←↑↓⇒)
 - Non forzare immagini dove non servono — usale solo quando aggiungono valore reale
 
-FORMATTAZIONE
-- **Grassetto** per concetti chiave (massimo 8-10 per risposta)
+FORMATTAZIONE — REGOLA CRITICA: SCHEMATICITÀ E GRASSETTO
+- Usa **grassetto** MOLTO frequentemente: ogni concetto chiave, cifra importante, nome di legge, termine tecnico, conclusione, raccomandazione, deadline, percentuale — TUTTO in grassetto. Non essere parsimonioso: il grassetto guida l'occhio del lettore e rende la risposta scansionabile.
+- Usa elenchi puntati e numerati il più possibile. Evita muri di testo. Ogni paragrafo lungo va spezzato in punti.
 - Intestazioni ## per sezioni principali, ### per sotto-sezioni
 - Tabelle markdown per confronti
 - Blocchi di codice per snippet tecnici
 - > per citazioni o note importanti
 - Righe vuote tra sezioni per leggibilità
-- Diagrammi ASCII/Unicode per flussi e processi quando appropriato`
+- Diagrammi ASCII/Unicode per flussi e processi quando appropriato
+- Obiettivo: chi legge deve poter capire il 70% della risposta leggendo SOLO i grassetti e i titoli.`
     });
 
     if (webContext) {
