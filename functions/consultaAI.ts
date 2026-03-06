@@ -98,8 +98,20 @@ Deno.serve(async (req) => {
       'normativa','requisiti','documentazione','istanza','domanda',
       'prima','poi','successivamente','quindi','infine','fase','passaggio','livello','stadio'
     ];
-    const isProcedural = proceduralKeywords.some(kw => msgLower.includes(kw));
-    console.log(`[consultaAI] Procedural mode: ${isProcedural}`);
+    const hasKeyword = proceduralKeywords.some(kw => msgLower.includes(kw));
+    // Detect intento operativo semantico anche senza parole chiave esplicite
+    const operationalPatterns = [
+      /come\s+(?:posso|faccio|devo|si\s+pu[oò])/,
+      /(?:voglio|vorrei|devo|ho bisogno di|mi serve)\s+(?:\w+\s+){0,3}(?:aprire|creare|fare|ottenere|attivare|configurare|installare|registrare|avviare|inviare|risolvere|cambiare|modificare|impostare|settare|preparare|organizzare|gestire|completare|chiudere|trasferire|migrare|convertire|spostare)/,
+      /(?:cosa\s+(?:serve|devo|mi\s+serve)\s+per)/,
+      /(?:quali\s+(?:sono\s+(?:i\s+passaggi|le\s+fasi|gli\s+step)))/,
+      /(?:aiut(?:ami|o)\s+(?:a|con))\s+/,
+      /(?:dove|quando|a chi)\s+(?:devo|bisogna|si deve)\s+/,
+      /(?:per\s+(?:aprire|creare|ottenere|attivare|registrare|avviare|richiedere|fare|configurare|installare))/,
+    ];
+    const hasOperationalIntent = operationalPatterns.some(rx => rx.test(msgLower));
+    const isProcedural = hasKeyword || hasOperationalIntent;
+    console.log(`[consultaAI] Procedural mode: ${isProcedural} (keyword=${hasKeyword}, intent=${hasOperationalIntent})`);
 
     const openaiKey = Deno.env.get("OPENAI_API_KEY");
     const geminiKey = Deno.env.get("GEMINI_API_KEY");
