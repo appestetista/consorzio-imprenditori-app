@@ -280,7 +280,15 @@ REGOLE DI STILE PROCEDURA:
 - **Usa SEMPRE elenchi numerati** per i passaggi operativi
 - Usa il **grassetto** per OGNI nome di documento, ente, scadenza, importo, termine tecnico
 - Indica quando è consigliabile rivolgersi a un professionista e di che tipo
-- Niente preamboli, niente introduzioni generiche — parti subito con l'Obiettivo`
+- Niente preamboli, niente introduzioni generiche — parti subito con l'Obiettivo
+
+REGOLE PER AMBITI TECNICI, AMMINISTRATIVI O NORMATIVI:
+- **Privilegia SEMPRE fonti ufficiali**: Gazzetta Ufficiale, siti istituzionali (.gov.it), normativa vigente, circolari ministeriali, FAQ ufficiali degli enti
+- **Cita la base normativa**: indica articoli di legge, decreti, regolamenti UE, circolari specifiche quando disponibili
+- **Evita informazioni speculative** — se un dato non è verificabile, non includerlo
+- **Se non sei sicuro di un passaggio, dichiaralo esplicitamente**: usa formule come "⚠️ Da verificare con [ente competente]" oppure "Dato indicativo, confermare su [fonte ufficiale]"
+- **Non inventare scadenze, importi o requisiti** — se non hai il dato aggiornato, scrivi "verificare sul sito ufficiale [nome ente]"
+- **Distingui chiaramente** tra informazioni certe (da normativa) e stime/approssimazioni`
       });
     }
 
