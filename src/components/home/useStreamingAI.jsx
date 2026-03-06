@@ -142,6 +142,10 @@ async function tryStreaming({ message, conversationHistory, token, controller, o
                 onContextQuestion?.(parsed.context_question);
               } else if (parsed.entertain_questions) {
                 onEntertainQuestions?.(parsed.entertain_questions);
+              } else if (parsed.self_check_replace) {
+                // SELF_CHECK ha migliorato la risposta: sostituisci tutto il contenuto
+                fullText = parsed.self_check_replace;
+                onChunk(fullText, '');
               } else if (parsed.text) {
                 fullText += parsed.text;
                 onChunk(fullText, parsed.text);
