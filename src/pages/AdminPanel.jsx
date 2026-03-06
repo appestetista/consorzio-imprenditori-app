@@ -246,9 +246,69 @@ export default function AdminPanel() {
     <div className="min-h-screen bg-slate-900 pb-64">
       <main className="px-4 py-6 max-w-md mx-auto">
         <div className="flex items-center justify-between mb-4">
-          <div>
-            <h2 className="text-green-400 text-sm font-semibold">Consorzio Imprenditori</h2>
-            <h1 className="text-red-500 text-2xl font-bold">Pannello Admin</h1>
+          <div className="flex items-center gap-3">
+            {/* Menu hamburger admin */}
+            <Sheet open={menuOpen} onOpenChange={setMenuOpen}>
+              <SheetTrigger asChild>
+                <button className="w-10 h-10 flex items-center justify-center rounded-xl active:bg-white/10 transition-colors">
+                  <Menu className="w-6 h-6 text-slate-400" />
+                </button>
+              </SheetTrigger>
+              <SheetContent side="left" className="bg-slate-900 border-slate-700 w-72 p-0">
+                <div className="p-5 border-b border-slate-700">
+                  <h2 className="text-white font-bold text-lg">Menu Admin</h2>
+                  <p className="text-slate-400 text-xs mt-1">{user?.email}</p>
+                </div>
+                <div className="p-3 space-y-1">
+                  <button onClick={() => { setMenuOpen(false); setShowImpersonationDialog(true); }} className="w-full flex items-center gap-3 px-4 py-3 rounded-lg text-left hover:bg-slate-800 transition-colors">
+                    <Eye className="w-5 h-5 text-lime-400" />
+                    <div>
+                      <p className="text-white text-sm font-medium">Impersonifica Utente</p>
+                      <p className="text-slate-500 text-xs">Visualizza come utente o consulente</p>
+                    </div>
+                  </button>
+                  <button onClick={() => { setMenuOpen(false); navigate(createPageUrl('Home')); }} className="w-full flex items-center gap-3 px-4 py-3 rounded-lg text-left hover:bg-slate-800 transition-colors">
+                    <Home className="w-5 h-5 text-blue-400" />
+                    <div>
+                      <p className="text-white text-sm font-medium">Vai alla Home</p>
+                      <p className="text-slate-500 text-xs">Torna alla chat AI</p>
+                    </div>
+                  </button>
+                  <button onClick={() => { setMenuOpen(false); navigate(createPageUrl('GestioneMembri')); }} className="w-full flex items-center gap-3 px-4 py-3 rounded-lg text-left hover:bg-slate-800 transition-colors">
+                    <Users className="w-5 h-5 text-purple-400" />
+                    <div>
+                      <p className="text-white text-sm font-medium">Gestione Membri</p>
+                      <p className="text-slate-500 text-xs">Utenti e inviti</p>
+                    </div>
+                  </button>
+                  <button onClick={() => { setMenuOpen(false); navigate(createPageUrl('GestioneZone')); }} className="w-full flex items-center gap-3 px-4 py-3 rounded-lg text-left hover:bg-slate-800 transition-colors">
+                    <MapPin className="w-5 h-5 text-amber-400" />
+                    <div>
+                      <p className="text-white text-sm font-medium">Gestione Zone</p>
+                      <p className="text-slate-500 text-xs">Zone territoriali</p>
+                    </div>
+                  </button>
+                  <button onClick={() => { setMenuOpen(false); navigate(createPageUrl('GestioneCostiAI')); }} className="w-full flex items-center gap-3 px-4 py-3 rounded-lg text-left hover:bg-slate-800 transition-colors">
+                    <DollarSign className="w-5 h-5 text-[#d4af37]" />
+                    <div>
+                      <p className="text-white text-sm font-medium">Costi AI</p>
+                      <p className="text-slate-500 text-xs">Monitoraggio utilizzo</p>
+                    </div>
+                  </button>
+                  <button onClick={() => { setMenuOpen(false); navigate(createPageUrl('MyProfile')); }} className="w-full flex items-center gap-3 px-4 py-3 rounded-lg text-left hover:bg-slate-800 transition-colors">
+                    <Settings className="w-5 h-5 text-slate-400" />
+                    <div>
+                      <p className="text-white text-sm font-medium">Profilo</p>
+                      <p className="text-slate-500 text-xs">Impostazioni account</p>
+                    </div>
+                  </button>
+                </div>
+              </SheetContent>
+            </Sheet>
+            <div>
+              <h2 className="text-green-400 text-sm font-semibold">Consorzio Imprenditori</h2>
+              <h1 className="text-red-500 text-2xl font-bold">Pannello Admin</h1>
+            </div>
           </div>
           <div className="flex items-center gap-3">
             <GlobalTopIcons userEmail={user?.email} userRegime={null} />
