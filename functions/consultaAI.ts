@@ -286,8 +286,15 @@ Deno.serve(async (req) => {
       try {
         const cached = await base44.asServiceRole.entities.AIResponseCache.filter({ normalized_query: normalizedQuery });
         if (cached.length > 0) {
-          cacheHit = cached[0];
-          console.log(`[consultaAI] CACHE HIT! id=${cacheHit.id}, hits=${cacheHit.hit_count || 0}`);
+          const entry = cached[0];
+          // Check TTL (30 days)
+          if (entry.expires_at && new Date(entry.expires_at) < new Date()) {
+            console.log(`[consultaAI] Cache EXPIRED, deleting id=${entry.id}`);
+            base44.asServiceRole.entities.AIResponseCache.delete(entry.id).catch(() => {});
+          } else {
+            cacheHit = entry;
+            console.log(`[consultaAI] CACHE HIT! id=${cacheHit.id}, hits=${cacheHit.hit_count || 0}`);
+          }
           // Update hit count async
           base44.asServiceRole.entities.AIResponseCache.update(cacheHit.id, {
             hit_count: (cacheHit.hit_count || 0) + 1,
