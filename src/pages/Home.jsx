@@ -231,15 +231,19 @@ export default function Home() {
     if (previousMsgs.length === 0) return '';
     const historyParts = [];
     let totalChars = 0;
-    const MAX_TOTAL = 80000;
-    for (let i = previousMsgs.length - 1; i >= 0; i--) {
-      const m = previousMsgs[i];
+    // Ridotto da 80k a 20k: meno token = meno latenza GPT-4o, prompt più leggero
+    const MAX_TOTAL = 20000;
+    // Limita anche il numero di messaggi da includere (ultimi 10 scambi max)
+    const recentMsgs = previousMsgs.slice(-20);
+    for (let i = recentMsgs.length - 1; i >= 0; i--) {
+      const m = recentMsgs[i];
       let part = null;
       if (m.role === 'user') part = 'UTENTE: ' + (m.content || '');
       else if (m.role === 'assistant' && m.content) {
         const c = m.content;
-        if (typeof c === 'object' && c.risposta) part = 'ASSISTENTE: ' + c.risposta;
-        else if (typeof c === 'string') part = 'ASSISTENTE: ' + c;
+        // Tronca risposte AI lunghe a 1500 char per risparmiare token
+        const raw = typeof c === 'object' && c.risposta ? c.risposta : (typeof c === 'string' ? c : '');
+        part = 'ASSISTENTE: ' + (raw.length > 1500 ? raw.substring(0, 1500) + '…' : raw);
       }
       if (part) {
         if (totalChars + part.length > MAX_TOTAL) break;
