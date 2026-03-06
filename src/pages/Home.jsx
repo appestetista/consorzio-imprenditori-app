@@ -371,7 +371,7 @@ export default function Home() {
             }
           } catch {}
 
-          const finalContent = parsed || 'La risposta ha richiesto più tempo del previsto. Riprova con una domanda più specifica o inizia una nuova conversazione.';
+          const finalContent = parsed || 'Fammi riformulare la risposta in modo più mirato. Puoi ripetere la domanda o chiedermi qualcosa di più specifico? Così posso darti informazioni più precise.';
           const assistantMsg = { role: 'assistant', content: finalContent, isAI: true, usageCount: newCount, isNew: true };
           const updatedMessages = [...newMessages, assistantMsg];
           setMessages(updatedMessages);
@@ -424,7 +424,7 @@ export default function Home() {
     } catch (e) {
       console.error('>>> ERRORE:', e?.message || e);
       console.error('>>> DETTAGLIO:', JSON.stringify(e));
-      const errMsg = { role: 'assistant', content: 'Mi dispiace, si è verificato un errore. Riprova tra un momento.' };
+      const errMsg = { role: 'assistant', content: 'Scusa, stavo elaborando troppi dati insieme. Riformula la domanda in modo più specifico e ti rispondo subito.' };
       const updatedMessages = [...newMessages, errMsg];
       setMessages(updatedMessages);
       const resolvedId = await convPromise.catch(() => convId);
