@@ -26,7 +26,7 @@ function getAuthToken() {
 export default function useStreamingAI() {
   const abortRef = useRef(null);
 
-  const streamAI = useCallback(async ({ message, conversationHistory, onChunk, onDone, onError, onContextQuestion }) => {
+  const streamAI = useCallback(async ({ message, conversationHistory, onChunk, onDone, onError, onContextQuestion, onEntertainQuestions }) => {
     const controller = new AbortController();
     abortRef.current = controller;
 
