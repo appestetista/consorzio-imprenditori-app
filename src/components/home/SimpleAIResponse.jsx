@@ -212,18 +212,14 @@ export default function SimpleAIResponse({ content, onFollowup, onRegenerate, co
         }
         return;
       }
-      // Velocità variabile per effetto scrittura naturale
-      const nextChar = fullRisposta[currentIdx] || '';
-      // Pausa più lunga dopo punteggiatura, più breve su lettere normali
-      let step = 1;
-      if (nextChar === ' ') step = 2;
-      if (nextChar === '\n') step = 1;
-      step = Math.min(step, currentTarget - currentIdx);
+      // Velocità più aggressiva: 3-5 caratteri per tick per ridurre la latenza percepita
+      const remaining = currentTarget - currentIdx;
+      const step = Math.min(remaining, remaining > 200 ? 5 : 3);
       currentIdx += step;
       const slice = fullRisposta.substring(0, currentIdx);
       setDisplayedText(slice);
       prevLengthRef.current = currentIdx;
-    }, 6);
+    }, 4);
 
     return () => {
       if (typewriterRef.current) {
