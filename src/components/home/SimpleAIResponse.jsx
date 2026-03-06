@@ -120,8 +120,39 @@ const markdownComponents = {
   td: ({ children }) => <td className="px-3 py-2 text-slate-300">{children}</td>,
 };
 
+/**
+ * Estrae i suggerimenti dalla sezione SUGGERIMENTI a fine risposta.
+ * Restituisce { cleanText, suggestions } dove cleanText è senza la sezione e suggestions è un array.
+ */
+function extractSuggestions(text) {
+  if (!text) return { cleanText: '', suggestions: [] };
+  
+  // Cerca la sezione SUGGERIMENTI (con o senza ---) alla fine del testo
+  const sugPattern = /\n---\s*\n\*\*SUGGERIMENTI\*\*\s*\n([\s\S]*?)$/i;
+  const sugPattern2 = /\n\*\*SUGGERIMENTI\*\*\s*\n([\s\S]*?)$/i;
+  
+  let match = text.match(sugPattern) || text.match(sugPattern2);
+  if (!match) return { cleanText: text, suggestions: [] };
+  
+  const sugBlock = match[1].trim();
+  const cleanText = text.substring(0, match.index).trimEnd();
+  
+  // Estrai le singole voci numerate
+  const lines = sugBlock.split('\n').filter(l => l.trim());
+  const suggestions = [];
+  for (const line of lines) {
+    const cleaned = line.replace(/^\d+\.\s*/, '').trim();
+    if (cleaned && cleaned.length > 5) {
+      suggestions.push(cleaned);
+    }
+  }
+  
+  return { cleanText, suggestions: suggestions.slice(0, 2) };
+}
+
 export default function SimpleAIResponse({ content, onFollowup, conversationId, isNew = false, isStreaming = false, contextQuestion = '', onContextSelect }) {
-  const fullRisposta = content?.risposta || '';
+  const rawRisposta = content?.risposta || '';
+  const { cleanText: fullRisposta, suggestions } = useMemo(() => extractSuggestions(rawRisposta), [rawRisposta]);
   const followups = content?.followup_questions || [];
 
   // ── Stato per animazione "pensiero" + typewriter ──
