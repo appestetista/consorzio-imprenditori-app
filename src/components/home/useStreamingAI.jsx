@@ -40,9 +40,15 @@ export default function useStreamingAI() {
 
       if (aiResponse.data?.success && aiResponse.data?.data) {
         const fullText = aiResponse.data.data;
+        
+        // Genera titolo localmente dalle prime parole del messaggio
+        const autoTitle = message.length > 40 
+          ? message.substring(0, 40).trim() + '...' 
+          : message;
+        
         const metadata = {
           response_time_ms: aiResponse.data.response_time_ms,
-          generated_title: aiResponse.data.generated_title || null,
+          generated_title: autoTitle,
         };
 
         // Typewriter: rivela il testo progressivamente
