@@ -338,8 +338,10 @@ Deno.serve(async (req) => {
           await sendSSE({ started: true, time_to_first_sse_ms: timeToFirstSSE });
           console.log(`[consultaAI] ⚡ SSE started in ${timeToFirstSSE}ms`);
 
+          // Tronca conversationHistory lato backend per ridurre token GPT-4o
+          const truncatedHistory = conversationHistory ? conversationHistory.substring(0, 12000) : '';
+
           // ── STEP 2: Launch GPT-4o + ALL lightweight tasks AT THE SAME TIME ──
-          // GPT-4o starts connecting immediately — no waiting for cache/router/etc.
           const gptAbort = new AbortController();
           const defaultSystemPrompt = buildSystemPrompt({ category: 'SPIEGAZIONE' });
           const chatMessages = [{ role: "system", content: defaultSystemPrompt }];
@@ -367,16 +369,12 @@ Deno.serve(async (req) => {
             signal: gptAbort.signal,
           });
 
-          // Tronca conversationHistory lato backend per ridurre token GPT-4o
-          const truncatedHistory = conversationHistory ? conversationHistory.substring(0, 12000) : '';
-
+          // Entertain questions — fire immediately, non-blocking
+          const entertainPromise = generateEntertainQuestions(geminiKey, message).catch(() => null);
+          // Router — fire immediately, non-blocking
           const routerPromise = routeQuery(geminiKey, message, truncatedHistory).catch(() => ({
             complexity: 'STANDARD', category: 'SPIEGAZIONE', inputTokens: 0, outputTokens: 0
           }));
-
-          // Clarification solo se necessario — verrà lanciata dopo il router se ADVANCED
-          // Entertain questions — shown during wait, fires immediately
-          const entertainPromise = generateEntertainQuestions(geminiKey, message).catch(() => null);
 
           // Cache lookup (normalize → DB) — races with GPT-4o
           let normalizedQuery = message.toLowerCase().substring(0, 100).trim();
@@ -405,8 +403,8 @@ Deno.serve(async (req) => {
             return null;
           })() : Promise.resolve(null);
 
-          // Race: cache vs GPT-4o connection — whichever finishes first wins
-          const CACHE_TIMEOUT = 2000; // ridotto da 3s a 2s: priorità al first token
+          // Race: cache vs GPT-4o connection
+          const CACHE_TIMEOUT = 1500;
           const cacheWithTimeout = Promise.race([
             cachePromise,
             new Promise(resolve => setTimeout(() => resolve(null), CACHE_TIMEOUT)),
@@ -437,37 +435,39 @@ Deno.serve(async (req) => {
             return;
           }
 
-          // ── NO CACHE: Process GPT-4o stream ──
-          // Resolve remaining lightweight tasks (non-blocking)
-          const [routerResult, entertainResult] = await Promise.all([routerPromise, entertainPromise]);
-          totalInput += routerResult.inputTokens || 0;
-          totalOutput += routerResult.outputTokens || 0;
-          totalCost += calcCost('gemini-flash', routerResult.inputTokens || 0, routerResult.outputTokens || 0);
-          console.log(`[consultaAI] Router: ${routerResult.complexity}/${routerResult.category}`);
-
-          // Send entertain questions FIRST — shown immediately during wait
-          if (entertainResult?.text) {
-            totalInput += entertainResult.inputTokens || 0;
-            totalOutput += entertainResult.outputTokens || 0;
-            totalCost += calcCost('gemini-flash', entertainResult.inputTokens || 0, entertainResult.outputTokens || 0);
-            await sendSSE({ entertain_questions: entertainResult.text });
-            console.log(`[consultaAI] Entertain questions sent: ${entertainResult.text.substring(0, 60)}...`);
-          }
-
-          // Clarification solo per domande ADVANCED/ambigue — lanciata DOPO router per non rallentare
-          if (routerResult.complexity === 'ADVANCED') {
-            const clarification = await generateClarification(geminiKey, message, truncatedHistory).catch(() => '');
-            if (clarification) {
-              await sendSSE({ context_question: clarification });
-            }
-          }
-
+          // ── NO CACHE: Process GPT-4o stream IMMEDIATELY ──
+          // Don't wait for router/entertain — start reading GPT tokens NOW
           if (!openaiResponse.ok) {
             const err = await openaiResponse.text();
             await sendSSE({ error: `OpenAI error ${openaiResponse.status}` });
             await writer.close();
             return;
           }
+
+          // Send entertain questions as soon as they're ready (fire-and-forget, non-blocking)
+          let routerResult = { complexity: 'STANDARD', category: 'SPIEGAZIONE', inputTokens: 0, outputTokens: 0 };
+          entertainPromise.then(async (entertainResult) => {
+            if (entertainResult?.text) {
+              totalInput += entertainResult.inputTokens || 0;
+              totalOutput += entertainResult.outputTokens || 0;
+              totalCost += calcCost('gemini-flash', entertainResult.inputTokens || 0, entertainResult.outputTokens || 0);
+              await sendSSE({ entertain_questions: entertainResult.text }).catch(() => {});
+            }
+          }).catch(() => {});
+
+          // Router result — resolve in background, used for post-stream tasks
+          routerPromise.then(async (result) => {
+            routerResult = result;
+            totalInput += result.inputTokens || 0;
+            totalOutput += result.outputTokens || 0;
+            totalCost += calcCost('gemini-flash', result.inputTokens || 0, result.outputTokens || 0);
+            console.log(`[consultaAI] Router: ${result.complexity}/${result.category}`);
+            // Clarification solo per ADVANCED
+            if (result.complexity === 'ADVANCED') {
+              const clarification = await generateClarification(geminiKey, message, truncatedHistory).catch(() => '');
+              if (clarification) await sendSSE({ context_question: clarification }).catch(() => {});
+            }
+          }).catch(() => {});
 
           const decoder = new TextDecoder();
           const reader = openaiResponse.body.getReader();
@@ -485,61 +485,69 @@ Deno.serve(async (req) => {
               if (!line.startsWith('data: ')) continue;
               const data = line.slice(6).trim();
               if (data === '[DONE]') {
-                // ── Post-stream: Suggestions + Title (parallel, no SELF_CHECK to save 3-5s) ──
-                const [sugResult, titleResult] = await Promise.all([
-                  generateSuggestions(geminiKey, message, fullContent).catch(() => null),
-                  generateTitle(geminiKey, message, fullContent).catch(() => null),
-                ]);
-
-                let suggestionsText = '';
-                if (sugResult?.text) {
-                  totalInput += sugResult.inputTokens; totalOutput += sugResult.outputTokens;
-                  totalCost += calcCost('gemini-flash', sugResult.inputTokens, sugResult.outputTokens);
-                  suggestionsText = sugResult.text;
-                  const sugLines = suggestionsText.split('|||').map(s => s.trim()).filter(s => s.length > 3);
-                  if (sugLines.length > 0) {
-                    const sugBlock = '\n\n---\n**SUGGERIMENTI**\n\n' + sugLines.map((s, i) => `${i + 1}. ${s}`).join('\n');
-                    fullContent += sugBlock;
-                    await sendSSE({ text: sugBlock });
-                  }
-                }
-
-                let generatedTitle = '';
-                if (titleResult?.text) {
-                  totalInput += titleResult.inputTokens; totalOutput += titleResult.outputTokens;
-                  totalCost += calcCost('gemini-flash', titleResult.inputTokens, titleResult.outputTokens);
-                  generatedTitle = titleResult.text;
-                }
-
+                // ── Send "done" IMMEDIATELY — don't wait for suggestions/title ──
                 const elapsed = Date.now() - startTime;
-                await sendSSE({
-                  done: true, web_search_used: false, response_time_ms: elapsed,
-                  generated_title: generatedTitle || null, time_to_complete_ms: elapsed,
-                });
-                console.log(`[consultaAI] ✅ Complete in ${elapsed}ms`);
+                console.log(`[consultaAI] ✅ Stream complete in ${elapsed}ms`);
 
-                // Cache save (fire-and-forget)
-                if (isFirstMessage && normalizedQuery.length > 5 && fullContent.length > 100) {
-                  const sugArray = suggestionsText ? suggestionsText.split('|||').map(s => s.trim()).filter(s => s.length > 3) : [];
-                  base44.asServiceRole.entities.AIResponseCache.create({
-                    normalized_query: normalizedQuery, response_text: fullContent,
-                    suggestions: JSON.stringify(sugArray), title: generatedTitle || '',
-                    category: routerResult.category || 'SPIEGAZIONE', complexity: routerResult.complexity || 'STANDARD',
-                    hit_count: 0, expires_at: new Date(Date.now() + 30 * 24 * 60 * 60 * 1000).toISOString(),
+                // Fire suggestions + title in background, send as separate SSE
+                (async () => {
+                  const [sugResult, titleResult] = await Promise.all([
+                    generateSuggestions(geminiKey, message, fullContent).catch(() => null),
+                    generateTitle(geminiKey, message, fullContent).catch(() => null),
+                  ]);
+
+                  let suggestionsText = '';
+                  if (sugResult?.text) {
+                    totalInput += sugResult.inputTokens; totalOutput += sugResult.outputTokens;
+                    totalCost += calcCost('gemini-flash', sugResult.inputTokens, sugResult.outputTokens);
+                    suggestionsText = sugResult.text;
+                    const sugLines = suggestionsText.split('|||').map(s => s.trim()).filter(s => s.length > 3);
+                    if (sugLines.length > 0) {
+                      const sugBlock = '\n\n---\n**SUGGERIMENTI**\n\n' + sugLines.map((s, i) => `${i + 1}. ${s}`).join('\n');
+                      fullContent += sugBlock;
+                      await sendSSE({ text: sugBlock }).catch(() => {});
+                    }
+                  }
+
+                  let generatedTitle = '';
+                  if (titleResult?.text) {
+                    totalInput += titleResult.inputTokens; totalOutput += titleResult.outputTokens;
+                    totalCost += calcCost('gemini-flash', titleResult.inputTokens, titleResult.outputTokens);
+                    generatedTitle = titleResult.text;
+                  }
+
+                  // Send final done with title
+                  await sendSSE({
+                    done: true, web_search_used: false, response_time_ms: elapsed,
+                    generated_title: generatedTitle || null, time_to_complete_ms: Date.now() - startTime,
                   }).catch(() => {});
-                }
 
-                // Usage log (fire-and-forget)
-                base44.asServiceRole.entities.UsageLog.create({
-                  user_email: user.email, action_type: 'chat_ai',
-                  model_used: 'gemini-flash+gpt-4o', provider: 'multi',
-                  input_tokens: totalInput, output_tokens: totalOutput,
-                  cost_usd: Math.round(totalCost * 100000) / 100000,
-                  category: routerResult.category || 'Generale',
-                  response_time_ms: elapsed, timestamp: new Date().toISOString(),
-                }).catch(() => {});
+                  // Cache save (fire-and-forget)
+                  if (isFirstMessage && normalizedQuery.length > 5 && fullContent.length > 100) {
+                    const sugArray = suggestionsText ? suggestionsText.split('|||').map(s => s.trim()).filter(s => s.length > 3) : [];
+                    base44.asServiceRole.entities.AIResponseCache.create({
+                      normalized_query: normalizedQuery, response_text: fullContent,
+                      suggestions: JSON.stringify(sugArray), title: generatedTitle || '',
+                      category: routerResult.category || 'SPIEGAZIONE', complexity: routerResult.complexity || 'STANDARD',
+                      hit_count: 0, expires_at: new Date(Date.now() + 30 * 24 * 60 * 60 * 1000).toISOString(),
+                    }).catch(() => {});
+                  }
 
-                continue;
+                  // Usage log (fire-and-forget)
+                  base44.asServiceRole.entities.UsageLog.create({
+                    user_email: user.email, action_type: 'chat_ai',
+                    model_used: 'gemini-flash+gpt-4o', provider: 'multi',
+                    input_tokens: totalInput, output_tokens: totalOutput,
+                    cost_usd: Math.round(totalCost * 100000) / 100000,
+                    category: routerResult.category || 'Generale',
+                    response_time_ms: Date.now() - startTime, timestamp: new Date().toISOString(),
+                  }).catch(() => {});
+
+                  // Close writer after background tasks
+                  try { await writer.close(); } catch {}
+                })();
+
+                return; // Exit the stream reading loop
               }
 
               try {
