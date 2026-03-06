@@ -389,12 +389,14 @@ Deno.serve(async (req) => {
             signal: gptAbort.signal,
           });
 
-          const routerPromise = routeQuery(geminiKey, message, conversationHistory).catch(() => ({
+          // Tronca conversationHistory lato backend per ridurre token GPT-4o
+          const truncatedHistory = conversationHistory ? conversationHistory.substring(0, 12000) : '';
+
+          const routerPromise = routeQuery(geminiKey, message, truncatedHistory).catch(() => ({
             complexity: 'STANDARD', category: 'SPIEGAZIONE', inputTokens: 0, outputTokens: 0
           }));
 
-          const clarificationPromise = generateClarification(geminiKey, message, conversationHistory).catch(() => '');
-
+          // Clarification solo se necessario — verrà lanciata dopo il router se ADVANCED
           // Entertain questions — shown during wait, fires immediately
           const entertainPromise = generateEntertainQuestions(geminiKey, message).catch(() => null);
 
