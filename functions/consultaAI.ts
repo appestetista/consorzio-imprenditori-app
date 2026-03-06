@@ -273,10 +273,14 @@ Elencare TUTTI i documenti, moduli, software o strumenti richiesti. Usa una tabe
 ## Errori Comuni da Evitare
 Elenco dei problemi frequenti o passaggi critici, con spiegazione delle conseguenze e come evitarli.
 
-REGOLE:
+REGOLE DI STILE PROCEDURA:
+- **Evita spiegazioni teoriche lunghe** — vai dritto all'azione pratica
+- **Frasi brevi e dirette** — ogni frase deve dire cosa fare, non perché
+- **Ogni passaggio deve essere immediatamente eseguibile** dall'utente senza interpretazioni
+- **Usa SEMPRE elenchi numerati** per i passaggi operativi
 - Usa il **grassetto** per OGNI nome di documento, ente, scadenza, importo, termine tecnico
-- Indica SEMPRE quando è consigliabile rivolgersi a un professionista e di che tipo
-- Ogni passaggio deve contenere l'azione concreta, il dove, il come, e i documenti necessari`
+- Indica quando è consigliabile rivolgersi a un professionista e di che tipo
+- Niente preamboli, niente introduzioni generiche — parti subito con l'Obiettivo`
       });
     }
 
