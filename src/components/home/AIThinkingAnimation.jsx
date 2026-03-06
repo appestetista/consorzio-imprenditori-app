@@ -5,31 +5,48 @@ import { Sparkles } from 'lucide-react';
 const thinkingPhrases = [
   "Analizzo la tua richiesta…",
   "Cerco fonti aggiornate…",
-  "Verifico i dati…",
-  "Organizzo le informazioni…",
-  "Preparo la risposta…",
+  "Verifico i dati sul web…",
+  "Incrocio le informazioni…",
+  "Organizzo la risposta…",
+  "Valuto le alternative…",
+  "Quasi pronto…",
 ];
 
-export default function AIThinkingAnimation({ onFinished }) {
+/**
+ * Animazione "sto pensando" — NON ha timer fisso.
+ * Si chiude solo quando il parent chiama dismiss (via prop `dismiss`).
+ * Fallback massimo a 30s per evitare blocchi.
+ */
+export default function AIThinkingAnimation({ onFinished, dismiss = false }) {
   const [phraseIndex, setPhraseIndex] = useState(0);
   const [visible, setVisible] = useState(true);
 
-  // Cicla le frasi ogni 1.5 secondi
+  // Cicla le frasi ogni 2 secondi (più lento, più leggibile)
   useEffect(() => {
     const interval = setInterval(() => {
       setPhraseIndex(prev => (prev + 1) % thinkingPhrases.length);
-    }, 1500);
+    }, 2000);
     return () => clearInterval(interval);
   }, []);
 
-  // Dopo 5 secondi scompare e chiama onFinished (max fallback)
+  // Quando il parent dice di chiudere, fade-out e callback
   useEffect(() => {
-    const timer = setTimeout(() => {
+    if (dismiss && visible) {
       setVisible(false);
       setTimeout(() => onFinished?.(), 300);
-    }, 5000);
+    }
+  }, [dismiss]);
+
+  // Fallback massimo 30s per evitare blocco infinito
+  useEffect(() => {
+    const timer = setTimeout(() => {
+      if (visible) {
+        setVisible(false);
+        setTimeout(() => onFinished?.(), 300);
+      }
+    }, 30000);
     return () => clearTimeout(timer);
-  }, [onFinished]);
+  }, []);
 
   return (
     <AnimatePresence>
