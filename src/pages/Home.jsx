@@ -700,6 +700,7 @@ export default function Home() {
                         conversationId={activeConversationId}
                         isNew={!!msg.isNew && !msg.isStreaming}
                         isStreaming={!!msg.isStreaming}
+                        entertainQuestions={isLastAssistant && msg.isStreaming ? entertainQuestions : ''}
                         contextQuestion={isLastAssistant && (msg.isStreaming || msg.isNew) ? contextQuestion : ''}
                         onContextSelect={(q) => {
                           if (isStreaming || isTyping) {
