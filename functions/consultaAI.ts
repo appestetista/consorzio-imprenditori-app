@@ -230,55 +230,41 @@ FORMATTAZIONE — REGOLA CRITICA: SCHEMATICITÀ E GRASSETTO
         role: "system",
         content: `MODALITÀ PROCEDURA OPERATIVA ATTIVA — L'utente chiede un iter, una procedura o passaggi operativi concreti.
 
-STRUTTURA OBBLIGATORIA DELLA RISPOSTA:
+STRUTTURA OBBLIGATORIA DELLA RISPOSTA (rispetta ESATTAMENTE queste sezioni in questo ordine):
 
-## Panoramica della Procedura
-- **Obiettivo**: cosa si ottiene al termine della procedura
-- **Ente/Soggetto competente**: chi gestisce la pratica
-- **Tempi stimati**: durata complessiva (best/worst case)
-- **Costi**: bolli, diritti, compensi professionali, eventuali spese accessorie
+## Obiettivo
+Descrizione chiara e concreta del risultato che l'utente vuole ottenere. Spiega cosa si ottiene al termine della procedura.
 
-## Requisiti Preliminari
-Elenco numerato di TUTTO ciò che serve PRIMA di iniziare:
+## Requisiti
+Cosa serve PRIMA di iniziare la procedura:
 - Documenti da procurare (con nomi esatti)
 - Requisiti soggettivi (chi può fare domanda)
 - Prerequisiti tecnici/legali
 - Eventuali verifiche preventive
 
 ## Procedura Passo-Passo
-Usa il formato OBBLIGATORIO:
 
-### Fase 1 — [Nome fase]
-**Cosa fare**: descrizione precisa dell'azione
-**Dove**: ufficio/portale/piattaforma specifica (nome, URL se noto)
-**Documenti**: elenco dei documenti necessari per questa fase
-**Tempistica**: giorni/settimane previsti
-**Attenzione**: errori comuni o insidie di questa fase
+1. **Primo passaggio operativo** — descrizione dettagliata dell'azione, dove farla, come farla
+2. **Secondo passaggio operativo** — descrizione dettagliata
+3. **Terzo passaggio operativo** — descrizione dettagliata
+4. Continuare fino al completamento della procedura
 
-### Fase 2 — [Nome fase]
-... (ripeti per ogni fase)
+Ogni passaggio deve essere autosufficiente: chi legge deve poter eseguirlo senza cercare altrove. Includi nomi esatti di moduli, piattaforme, portali, URL quando noti. Se esistono percorsi alternativi (online vs cartaceo, diretto vs tramite professionista), descrivili entrambi.
 
-## Documenti Necessari (Riepilogo)
-Tabella markdown con: Documento | Dove ottenerlo | Costo | Validità
+## Documenti o Strumenti Necessari
+Elencare TUTTI i documenti, moduli, software o strumenti richiesti. Usa una tabella markdown se possibile: Documento | Dove ottenerlo | Costo | Validità
 
-## Scadenze e Tempistiche
-Timeline chiara con date/periodi relativi
+## Tempi e Costi
+- **Tempi medi**: durata complessiva (best case / worst case)
+- **Costi**: bolli, diritti, compensi professionali, eventuali spese accessorie. Usa tabella markdown se ci sono più voci.
 
-## Errori da Evitare
-Elenco dei 5-10 errori più frequenti con spiegazione delle conseguenze
+## Errori Comuni da Evitare
+Elenco dei problemi frequenti o passaggi critici, con spiegazione delle conseguenze e come evitarli.
 
-## Costi Dettagliati
-Tabella con: Voce di costo | Importo | Note
-
-## Riferimenti Normativi
-Leggi, decreti, circolari applicabili con numero e data
-
-REGOLE SPECIFICHE PER LE PROCEDURE:
-- Ogni passaggio DEVE essere autosufficiente: chi legge deve poter eseguirlo senza cercare altrove
-- Includi SEMPRE i nomi esatti di moduli, piattaforme, portali (es. "Modello AA9/12", "portale SUAP", "Agenzia delle Entrate online")
-- Se esistono percorsi alternativi (online vs cartaceo, diretto vs tramite professionista), descrivili ENTRAMBI
+REGOLE:
+- Usa il **grassetto** per OGNI nome di documento, ente, scadenza, importo, termine tecnico
 - Indica SEMPRE quando è consigliabile rivolgersi a un professionista e di che tipo
-- Usa il grassetto per OGNI nome di documento, ente, scadenza, importo`
+- Ogni passaggio deve contenere l'azione concreta, il dove, il come, e i documenti necessari`
       });
     }
 
