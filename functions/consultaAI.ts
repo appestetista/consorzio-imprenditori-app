@@ -588,8 +588,9 @@ Deno.serve(async (req) => {
 
     const systemPrompt = buildSystemPrompt(routerResult);
     const chatMessages = [{ role: "system", content: systemPrompt }];
-    if (conversationHistory && conversationHistory.trim()) {
-      chatMessages.push({ role: "system", content: `CONTESTO CONVERSAZIONE:\n${conversationHistory}` });
+    const truncHistFallback = conversationHistory ? conversationHistory.substring(0, 12000) : '';
+    if (truncHistFallback.trim()) {
+      chatMessages.push({ role: "system", content: `CONTESTO CONVERSAZIONE:\n${truncHistFallback}` });
     }
     chatMessages.push({ role: "user", content: message });
 
@@ -598,10 +599,10 @@ Deno.serve(async (req) => {
       headers: { "Content-Type": "application/json", "Authorization": `Bearer ${openaiKey}` },
       body: JSON.stringify({
         model: 'gpt-4o', messages: chatMessages,
-        temperature: 0.3, max_tokens: 2000, top_p: 0.9,
-        frequency_penalty: 0.2, presence_penalty: 0.1,
+        temperature: 0.3, max_tokens: 1500, top_p: 0.85,
+        frequency_penalty: 0.3, presence_penalty: 0.15,
       }),
-      signal: AbortSignal.timeout(120000),
+      signal: AbortSignal.timeout(60000),
     });
 
     if (!openaiResponse.ok) {
