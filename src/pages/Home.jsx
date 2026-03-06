@@ -356,6 +356,11 @@ export default function Home() {
           console.error('[AI] Streaming error:', error?.message);
           setIsStreaming(false);
           setStreamingText('');
+          setContextQuestion('');
+          setEntertainQuestions('');
+          
+          // Rimuovi subito il placeholder streaming per sbloccare l'UI
+          setMessages([...newMessages, { role: 'assistant', content: '⏳ Riprovo...', isAI: true, usageCount: newCount }]);
           
           // Fallback: prova la chiamata classica non-streaming
           let parsed = null;
@@ -374,10 +379,10 @@ export default function Home() {
                 prompt: `Rispondi in modo completo e dettagliato.\nDomanda: ${msg}`,
                 add_context_from_internet: true,
               });
-            } catch { parsed = 'Errore. Riprova.'; }
+            } catch { parsed = 'Errore temporaneo del server. Riprova tra qualche secondo.'; }
           }
 
-          const finalContent = parsed || 'Risposta non disponibile. Riprova.';
+          const finalContent = parsed || 'Errore temporaneo del server. Riprova tra qualche secondo.';
           const assistantMsg = { role: 'assistant', content: finalContent, isAI: true, usageCount: newCount, isNew: true };
           const updatedMessages = [...newMessages, assistantMsg];
           setMessages(updatedMessages);
@@ -385,7 +390,7 @@ export default function Home() {
           const resolvedConvId = await convPromise.catch(() => null);
           if (resolvedConvId) await saveConversation(updatedMessages, resolvedConvId);
           setConsulenzeUsate(newCount);
-          await base44.auth.updateMe({ consulenze_usate_mese: newCount });
+          await base44.auth.updateMe({ consulenze_usate_mese: newCount }).catch(() => {});
           resolve();
         },
       });
