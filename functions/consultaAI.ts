@@ -693,7 +693,7 @@ Deno.serve(async (req) => {
       headers: { "Content-Type": "application/json", "Authorization": `Bearer ${openaiKey}` },
       body: JSON.stringify({
         model: 'gpt-4o', messages: chatMessages,
-        temperature: 0.3, max_tokens: 1000, top_p: 0.9,
+        temperature: 0.3, max_tokens: 2000, top_p: 0.9,
         frequency_penalty: 0.2, presence_penalty: 0.1,
       }),
       signal: AbortSignal.timeout(120000),
