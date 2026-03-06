@@ -117,7 +117,7 @@ export default function AIThinkingAnimation({ onFinished, dismiss = false, userM
               transition={{ duration: 0.3 }}
               className="text-sm text-slate-400 font-medium text-center"
             >
-              {thinkingPhrases[phraseIndex]}
+              {phrases[phraseIndex % phrases.length]}
             </motion.p>
           </AnimatePresence>
         </motion.div>
