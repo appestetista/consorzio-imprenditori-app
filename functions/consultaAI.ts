@@ -112,28 +112,6 @@ Regole: ogni opzione max 8 parole. Rispondi SOLO con JSON.`,
   return '';
 }
 
-// ── Fast response (preview) ──
-async function generateFastResponse(geminiKey, message, category) {
-  const categoryHint = category === 'PROCEDURA' ? 'Anticipa brevemente cosa serve per iniziare.' :
-    category === 'DECISIONE' ? 'Anticipa brevemente il criterio chiave per decidere.' :
-    category === 'CONFRONTO' ? 'Anticipa brevemente la differenza principale.' :
-    'Anticipa brevemente il concetto chiave.';
-  
-  const result = await geminiFlash(geminiKey,
-    `Genera un'anteprima della risposta in ESATTAMENTE 2 frasi (max 40 parole totali).
-${categoryHint}
-Regole:
-- Prima frase: inquadra il tema in modo diretto
-- Seconda frase: anticipa la soluzione o il punto chiave
-- Tono professionale, italiano, niente emoji
-- Vai dritto al punto, niente preamboli
-Restituisci solo le 2 frasi.`,
-    message,
-    { temperature: 0.4, maxOutputTokens: 100, timeout: 5000 }
-  );
-  return result;
-}
-
 // ── SELF_CHECK — quality gate ──
 async function selfCheck(openaiKey, responseText) {
   const wordCount = responseText.split(/\s+/).filter(w => w.length > 0).length;
