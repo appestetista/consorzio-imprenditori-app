@@ -131,10 +131,10 @@ export default function SimpleAIResponse({ content, onFollowup, conversationId, 
 
   // CRITICO: se arriva testo dal backend mentre thinking è attivo, termina thinking subito
   useEffect(() => {
-    if (!thinkingDone && isStreaming && fullRisposta && fullRisposta.length > 0) {
+    if (!thinkingDone && fullRisposta && fullRisposta.length > 0) {
       setThinkingDone(true);
     }
-  }, [thinkingDone, isStreaming, fullRisposta]);
+  }, [thinkingDone, fullRisposta]);
 
   // Typewriter: rivela il testo carattere per carattere man mano che arriva
   useEffect(() => {
