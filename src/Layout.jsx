@@ -4,6 +4,7 @@ import { VideoVisitProvider } from './components/context/VideoVisitContext';
 import { PanelProvider } from './components/layout/GlobalTopIcons';
 import GlobalPanels from './components/layout/GlobalPanels';
 import GlobalHeader from './components/layout/GlobalHeader';
+import ImpersonationBanner from './components/admin/ImpersonationBanner';
 import { base44 } from '@/api/base44Client';
 import { Toaster } from 'sonner';
 import CalendarSideTab from './components/calendario/CalendarSideTab';
