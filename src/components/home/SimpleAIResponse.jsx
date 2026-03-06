@@ -83,9 +83,9 @@ const markdownComponents = {
   ol: ({ children }) => <ol className="my-2 ml-4 list-decimal space-y-1">{children}</ol>,
   li: ({ children }) => <li className="my-0.5 leading-relaxed">{children}</li>,
   strong: ({ children }) => <strong className="text-white font-semibold">{children}</strong>,
-  h1: ({ children }) => <h1 className="text-lg font-bold text-white mt-4 mb-2">{children}</h1>,
-  h2: ({ children }) => <h2 className="text-base font-bold text-[#d4af37] mt-4 mb-2">{children}</h2>,
-  h3: ({ children }) => <h3 className="text-sm font-semibold text-white mt-3 mb-1.5">{children}</h3>,
+  h1: ({ children }) => <h1 className="text-xl font-bold text-white mt-4 mb-2">{children}</h1>,
+  h2: ({ children }) => <h2 className="text-lg font-bold text-[#d4af37] mt-4 mb-2">{children}</h2>,
+  h3: ({ children }) => <h3 className="text-base font-semibold text-white mt-3 mb-1.5">{children}</h3>,
   a: ({ children, ...props }) => (
     <a {...props} className="text-[#d4af37] underline" target="_blank" rel="noopener noreferrer">{children}</a>
   ),
@@ -103,13 +103,13 @@ const markdownComponents = {
   ),
   table: ({ children }) => (
     <div className="overflow-x-auto my-3 rounded-lg border border-slate-700/60">
-      <table className="w-full text-xs text-left">{children}</table>
+      <table className="w-full text-sm text-left">{children}</table>
     </div>
   ),
   thead: ({ children }) => <thead className="bg-slate-700/50 text-[#d4af37]">{children}</thead>,
   tbody: ({ children }) => <tbody className="divide-y divide-slate-700/40">{children}</tbody>,
   tr: ({ children }) => <tr className="hover:bg-slate-700/20 transition-colors">{children}</tr>,
-  th: ({ children }) => <th className="px-3 py-2 font-semibold text-xs whitespace-nowrap">{children}</th>,
+  th: ({ children }) => <th className="px-3 py-2 font-semibold text-sm whitespace-nowrap">{children}</th>,
   td: ({ children }) => <td className="px-3 py-2 text-slate-300">{children}</td>,
 };
 
@@ -233,7 +233,7 @@ export default function SimpleAIResponse({ content, onFollowup, conversationId, 
             {displayedText ? (
               <div className="relative">
                 <ReactMarkdown
-                  className="text-sm text-slate-200 leading-relaxed prose prose-sm prose-invert max-w-none [&>*:first-child]:mt-0 [&>*:last-child]:mb-0"
+                  className="text-base text-slate-200 leading-relaxed prose prose-base prose-invert max-w-none [&>*:first-child]:mt-0 [&>*:last-child]:mb-0"
                   components={markdownComponents}
                 >
                   {displayedText}
@@ -262,7 +262,7 @@ export default function SimpleAIResponse({ content, onFollowup, conversationId, 
       <div className="flex-1 max-w-[92%] space-y-3">
         <div className="rounded-2xl bg-slate-800/50 border border-slate-700/40 px-5 py-4">
           <ReactMarkdown
-            className="text-sm text-slate-200 leading-relaxed prose prose-sm prose-invert max-w-none [&>*:first-child]:mt-0 [&>*:last-child]:mb-0"
+            className="text-base text-slate-200 leading-relaxed prose prose-base prose-invert max-w-none [&>*:first-child]:mt-0 [&>*:last-child]:mb-0"
             components={markdownComponents}
           >
             {fullRisposta}
