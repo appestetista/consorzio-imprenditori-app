@@ -177,7 +177,8 @@ export default function SimpleAIResponse({ content, onFollowup, onRegenerate, co
     setThinkingDone(true);
   }, []);
 
-  // L'animazione viene chiusa (dismiss) solo quando arriva testo reale dal backend
+  // L'animazione viene chiusa (dismiss) quando arriva testo reale dal backend
+  // oppure quando il backend segnala "started" (il primo SSE che arriva subito)
   const shouldDismissThinking = !thinkingDone && !!fullRisposta && fullRisposta.length > 0;
 
   // Typewriter: rivela il testo carattere per carattere man mano che arriva
