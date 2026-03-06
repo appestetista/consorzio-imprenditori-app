@@ -694,9 +694,11 @@ export default function Home() {
                         conversationId={activeConversationId}
                         isNew={!!msg.isNew && !msg.isStreaming}
                         isStreaming={!!msg.isStreaming}
-                        contextQuestion={isLastAssistant && msg.isStreaming ? contextQuestion : ''}
+                        contextQuestion={isLastAssistant && (msg.isStreaming || msg.isNew) ? contextQuestion : ''}
                         onContextSelect={(q) => {
                           if (isStreaming || isTyping) {
+                            // L'utente ha scelto un'opzione mentre l'AI sta ancora rispondendo
+                            // Salva la selezione — quando lo streaming finisce, verrà inviata come followup
                             setPendingContextAnswer(q);
                             pendingContextRef.current = q;
                             setContextQuestion('');
