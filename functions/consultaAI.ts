@@ -444,12 +444,20 @@ Rispondi SOLO con le due domande separate da |||, nient'altro.` }] },
       // Processa tutto in background
       (async () => {
         try {
-          // 1. Context question arriva async — la invia appena pronta
-          contextPromise.then(async (cq) => {
+          // 1a. Domanda di chiarimento — arriva async
+          clarificationPromise.then(async (cq) => {
             if (cq) {
               contextQuestion = cq;
-              console.log(`[consultaAI] Context question: "${cq}"`);
+              console.log(`[consultaAI] Clarification: "${cq}"`);
               try { await sendSSE({ context_question: cq }); } catch {}
+            }
+          });
+
+          // 1b. Domande propositive per intrattenere — arrivano async
+          entertainPromise.then(async (eq) => {
+            if (eq) {
+              console.log(`[consultaAI] Entertain: "${eq}"`);
+              try { await sendSSE({ entertain_questions: eq }); } catch {}
             }
           });
 
