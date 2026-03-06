@@ -95,6 +95,7 @@ export default function AdminPanel() {
   const [showImportExportPanel, setShowImportExportPanel] = useState(false);
   const [showCostoPersonalePanel, setShowCostoPersonalePanel] = useState(false);
   const [showAbbonamentiPanel, setShowAbbonamentiPanel] = useState(false);
+  const [menuOpen, setMenuOpen] = useState(false);
 
   useEffect(() => {
     window.scrollTo(0, 0);
