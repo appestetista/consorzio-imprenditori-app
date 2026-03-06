@@ -50,7 +50,7 @@ export default function AIThinkingAnimation({ onFinished, dismiss = false, userM
   // Cicla le frasi ogni 2 secondi (più lento, più leggibile)
   useEffect(() => {
     const interval = setInterval(() => {
-      setPhraseIndex(prev => (prev + 1) % thinkingPhrases.length);
+      setPhraseIndex(prev => (prev + 1) % phrases.length);
     }, 2000);
     return () => clearInterval(interval);
   }, []);
