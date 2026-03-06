@@ -131,7 +131,7 @@ export default function Layout({ children, currentPageName }) {
           '#0f172a'
         }; }`}</style>
         {/* Header globale trasparente — hamburger + busta + campanella */}
-        {(
+        {currentPageName !== 'AdminPanel' && (
           <GlobalHeader
             userEmail={layoutUser?.email}
             userRegime={layoutUser?.regime_fiscale}
