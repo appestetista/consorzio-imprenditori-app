@@ -5,6 +5,7 @@ import { base44 } from '@/api/base44Client';
 import StreamingReveal from './StreamingReveal';
 import AIThinkingAnimation from './AIThinkingAnimation';
 import ContextFollowup from './ContextFollowup';
+import EntertainQuestions from './EntertainQuestions';
 
 function RatingInline({ conversationId }) {
   const [rating, setRating] = useState(0);
