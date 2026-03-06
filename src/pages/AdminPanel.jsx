@@ -2,7 +2,7 @@ import React, { useState, useEffect } from 'react';
 import { base44 } from '@/api/base44Client';
 import { useQuery, useMutation, useQueryClient } from '@tanstack/react-query';
 import useNotificationSound from '../components/hooks/useNotificationSound';
-import { Users, Briefcase, Settings, Bell, Clock, Trash2, Mail, Eye, MessageSquare, CalendarDays, MapPin, DollarSign, UserPlus, Search, Edit, Phone, PhoneOff, Save, Upload, X, ChevronRight, Calculator, Star, Globe, Database } from 'lucide-react';
+import { Users, Briefcase, Settings, Bell, Clock, Trash2, Mail, Eye, MessageSquare, CalendarDays, MapPin, DollarSign, UserPlus, Search, Edit, Phone, PhoneOff, Save, Upload, X, ChevronRight, Calculator, Star, Globe, Database, Menu, Home, LogOut } from 'lucide-react';
 import { Link, useNavigate } from 'react-router-dom';
 import { createPageUrl } from '@/utils';
 import { Button } from '@/components/ui/button';
