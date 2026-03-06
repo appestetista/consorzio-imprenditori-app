@@ -520,6 +520,7 @@ Deno.serve(async (req) => {
                 // ── STEP 9: Save to cache ──
                 if (isFirstMessage && normalizedQuery.length > 5 && fullContent.length > 100) {
                   const sugArray = suggestionsText ? suggestionsText.split('|||').map(s => s.trim()).filter(s => s.length > 3) : [];
+                  const expiresAt = new Date(Date.now() + 30 * 24 * 60 * 60 * 1000).toISOString();
                   base44.asServiceRole.entities.AIResponseCache.create({
                     normalized_query: normalizedQuery,
                     response_text: fullContent,
@@ -528,6 +529,7 @@ Deno.serve(async (req) => {
                     category: routerResult.category || 'SPIEGAZIONE',
                     complexity: routerResult.complexity || 'STANDARD',
                     hit_count: 0,
+                    expires_at: expiresAt,
                   }).catch(e => console.log('[consultaAI] Cache save error:', e.message));
                 }
 
