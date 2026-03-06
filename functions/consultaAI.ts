@@ -166,7 +166,7 @@ Se trovi problemi (vaghezza, teoria inutile, mancanza di passi operativi), riscr
 
 Regole:
 * mantieni la stessa struttura delle sezioni
-* massimo **400 parole**
+* massimo **800 parole**
 * privilegia esempi concreti
 * evita frasi generiche
 * rendi la risposta più pratica e operativa
