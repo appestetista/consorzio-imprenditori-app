@@ -496,7 +496,7 @@ Rispondi SOLO con le due domande separate da |||, nient'altro.` }] },
 
           const decoder = new TextDecoder();
           const reader = openaiResponse.body.getReader();
-          let skipQuadroGenerale = flashSent;
+          let skipIntroSection = flashSent;
           let skipping = false;
           let fullContent = flashSent ? flashResult.content + '\n\n' : '';
           let gptBuffer = '';
@@ -537,36 +537,34 @@ Rispondi SOLO con le due domande separate da |||, nient'altro.` }] },
                 const parsed = JSON.parse(data);
                 const delta = parsed.choices?.[0]?.delta?.content;
                 if (delta) {
-                  // Se DeepSeek ha già inviato il Quadro Generale,
-                  // saltiamo quella sezione dal stream GPT-4o
-                  if (skipQuadroGenerale) {
+                  // Se Gemini Flash ha già inviato l'Introduzione,
+                  // saltiamo la sezione 1 dal stream GPT-4o
+                  if (skipIntroSection) {
                     gptBuffer += delta;
-                    // Aspetta di avere abbastanza testo per trovare la fine del Quadro Generale
-                    if (!skipping && gptBuffer.includes('## Quadro Generale')) {
+                    // Cerca l'inizio della sezione Introduzione nel buffer
+                    if (!skipping && (gptBuffer.includes('## 1.') || gptBuffer.includes('## Quadro Generale'))) {
                       skipping = true;
                     }
                     if (skipping) {
-                      // Cerca la prossima sezione ## dopo Quadro Generale
-                      const afterQuadro = gptBuffer.indexOf('## Quadro Generale');
-                      const restAfterQuadro = gptBuffer.substring(afterQuadro + 20);
-                      const nextSection = restAfterQuadro.search(/\n## /);
-                      if (nextSection !== -1) {
-                        // Trovata la prossima sezione, inizia a inviare da lì
-                        const toSend = restAfterQuadro.substring(nextSection);
-                        fullContent += toSend;
-                        await sendSSE({ text: toSend });
-                        skipQuadroGenerale = false;
-                        skipping = false;
-                        gptBuffer = '';
+                      // Cerca la prossima sezione ## dopo l'Introduzione
+                      const introIdx = gptBuffer.search(/## (?:1\.|Quadro Generale)/);
+                      if (introIdx !== -1) {
+                        const restAfterIntro = gptBuffer.substring(introIdx + 5);
+                        const nextSection = restAfterIntro.search(/\n## /);
+                        if (nextSection !== -1) {
+                          const toSend = restAfterIntro.substring(nextSection);
+                          fullContent += toSend;
+                          await sendSSE({ text: toSend });
+                          skipIntroSection = false;
+                          skipping = false;
+                          gptBuffer = '';
+                        }
                       }
-                      // Altrimenti continua ad accumulare
                     } else {
-                      // Non ancora trovato "## Quadro Generale", controlla se è passata abbastanza roba
                       if (gptBuffer.length > 2000) {
-                        // Probabilmente GPT-4o non ha usato "## Quadro Generale", invia tutto
                         fullContent += gptBuffer;
                         await sendSSE({ text: gptBuffer });
-                        skipQuadroGenerale = false;
+                        skipIntroSection = false;
                         gptBuffer = '';
                       }
                     }
