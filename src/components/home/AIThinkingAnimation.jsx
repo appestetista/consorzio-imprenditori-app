@@ -22,12 +22,12 @@ export default function AIThinkingAnimation({ onFinished }) {
     return () => clearInterval(interval);
   }, []);
 
-  // Dopo 3 secondi scompare e chiama onFinished (max fallback)
+  // Dopo 5 secondi scompare e chiama onFinished (max fallback)
   useEffect(() => {
     const timer = setTimeout(() => {
       setVisible(false);
       setTimeout(() => onFinished?.(), 300);
-    }, 3000);
+    }, 5000);
     return () => clearTimeout(timer);
   }, [onFinished]);
 
