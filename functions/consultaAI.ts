@@ -395,6 +395,9 @@ Deno.serve(async (req) => {
 
           const clarificationPromise = generateClarification(geminiKey, message, conversationHistory).catch(() => '');
 
+          // Entertain questions — shown during wait, fires immediately
+          const entertainPromise = generateEntertainQuestions(geminiKey, message).catch(() => null);
+
           // Cache lookup (normalize → DB) — races with GPT-4o
           let normalizedQuery = message.toLowerCase().substring(0, 100).trim();
           const cachePromise = isFirstMessage ? (async () => {
