@@ -289,6 +289,10 @@ export default function Home() {
           console.log('[AI] Context question received:', question);
           setContextQuestion(question);
         },
+        onEntertainQuestions: (questions) => {
+          console.log('[AI] Entertain questions received:', questions);
+          setEntertainQuestions(questions);
+        },
         onChunk: (fullText) => {
           setStreamingText(fullText);
           // Aggiorna il messaggio in tempo reale
