@@ -231,13 +231,22 @@ export default function SimpleAIResponse({ content, onFollowup, conversationId, 
     }
   }, [isStreaming]);
 
-  // ── Fase 1: Animazione pensiero — frasi rotanti + puntini nella bolla + domande propositives ──
+  // ── Fase 1: Animazione pensiero — frasi rotanti + puntini nella bolla ──
+  // Durante l'attesa mostra: animazione pensiero + domande propositive (intrattenimento) + domanda di chiarimento (se ambigua)
   if (isStreaming && !thinkingDone) {
     return (
       <div className="space-y-4">
         {/* Animazione centrale con frasi */}
         <AIThinkingAnimation onFinished={handleThinkingFinished} dismiss={shouldDismissThinking} />
-        {/* Domanda di chiarimento con opzioni — appare durante l'attesa */}
+        {/* Domande propositive — intrattenimento durante l'attesa */}
+        {entertainQuestions && (
+          <EntertainQuestions
+            questions={entertainQuestions}
+            visible={!!entertainQuestions}
+            onSelect={(q) => onContextSelect?.(q)}
+          />
+        )}
+        {/* Domanda di chiarimento — se la richiesta è ambigua */}
         {contextQuestion && (
           <ContextFollowup
             question={contextQuestion}
