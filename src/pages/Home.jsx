@@ -378,7 +378,8 @@ export default function Home() {
           const updatedMessages = [...newMessages, assistantMsg];
           setMessages(updatedMessages);
 
-          await saveConversation(updatedMessages, convId);
+          const resolvedConvId = await convPromise.catch(() => null);
+          if (resolvedConvId) await saveConversation(updatedMessages, resolvedConvId);
           setConsulenzeUsate(newCount);
           await base44.auth.updateMe({ consulenze_usate_mese: newCount });
           resolve();
