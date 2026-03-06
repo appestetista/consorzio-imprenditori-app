@@ -1,6 +1,6 @@
 import React, { useState, useEffect, useCallback, useRef, useMemo } from 'react';
 import ReactMarkdown from 'react-markdown';
-import { Sparkles, Star, Send, Loader2, Copy, Check, RefreshCw } from 'lucide-react';
+import { Sparkles, Star, Send, Loader2, Copy, Check } from 'lucide-react';
 import { toast } from 'sonner';
 import { base44 } from '@/api/base44Client';
 import StreamingReveal from './StreamingReveal';
@@ -161,8 +161,16 @@ export default function SimpleAIResponse({ content, onFollowup, conversationId, 
   const [thinkingDone, setThinkingDone] = useState(!isStreaming && !isNew);
   const [displayedText, setDisplayedText] = useState(!isStreaming && !isNew ? fullRisposta : '');
   const [typewriterDone, setTypewriterDone] = useState(!isStreaming && !isNew);
+  const [copied, setCopied] = useState(false);
   const prevLengthRef = useRef(0);
   const typewriterRef = useRef(null);
+
+  const handleCopy = useCallback(() => {
+    navigator.clipboard.writeText(fullRisposta || '');
+    setCopied(true);
+    toast.success('Copiato negli appunti');
+    setTimeout(() => setCopied(false), 2000);
+  }, [fullRisposta]);
 
   // Quando il thinking finisce, inizia il typewriter
   const handleThinkingFinished = useCallback(() => {
