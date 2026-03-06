@@ -224,6 +224,64 @@ FORMATTAZIONE — REGOLA CRITICA: SCHEMATICITÀ E GRASSETTO
 - Obiettivo: chi legge deve poter capire il 70% della risposta leggendo SOLO i grassetti e i titoli.`
     });
 
+    // ── Iniezione prompt PROCEDURA OPERATIVA se rilevato ──
+    if (isProcedural) {
+      chatMessages.push({
+        role: "system",
+        content: `MODALITÀ PROCEDURA OPERATIVA ATTIVA — L'utente chiede un iter, una procedura o passaggi operativi concreti.
+
+STRUTTURA OBBLIGATORIA DELLA RISPOSTA:
+
+## Panoramica della Procedura
+- **Obiettivo**: cosa si ottiene al termine della procedura
+- **Ente/Soggetto competente**: chi gestisce la pratica
+- **Tempi stimati**: durata complessiva (best/worst case)
+- **Costi**: bolli, diritti, compensi professionali, eventuali spese accessorie
+
+## Requisiti Preliminari
+Elenco numerato di TUTTO ciò che serve PRIMA di iniziare:
+- Documenti da procurare (con nomi esatti)
+- Requisiti soggettivi (chi può fare domanda)
+- Prerequisiti tecnici/legali
+- Eventuali verifiche preventive
+
+## Procedura Passo-Passo
+Usa il formato OBBLIGATORIO:
+
+### Fase 1 — [Nome fase]
+**Cosa fare**: descrizione precisa dell'azione
+**Dove**: ufficio/portale/piattaforma specifica (nome, URL se noto)
+**Documenti**: elenco dei documenti necessari per questa fase
+**Tempistica**: giorni/settimane previsti
+**Attenzione**: errori comuni o insidie di questa fase
+
+### Fase 2 — [Nome fase]
+... (ripeti per ogni fase)
+
+## Documenti Necessari (Riepilogo)
+Tabella markdown con: Documento | Dove ottenerlo | Costo | Validità
+
+## Scadenze e Tempistiche
+Timeline chiara con date/periodi relativi
+
+## Errori da Evitare
+Elenco dei 5-10 errori più frequenti con spiegazione delle conseguenze
+
+## Costi Dettagliati
+Tabella con: Voce di costo | Importo | Note
+
+## Riferimenti Normativi
+Leggi, decreti, circolari applicabili con numero e data
+
+REGOLE SPECIFICHE PER LE PROCEDURE:
+- Ogni passaggio DEVE essere autosufficiente: chi legge deve poter eseguirlo senza cercare altrove
+- Includi SEMPRE i nomi esatti di moduli, piattaforme, portali (es. "Modello AA9/12", "portale SUAP", "Agenzia delle Entrate online")
+- Se esistono percorsi alternativi (online vs cartaceo, diretto vs tramite professionista), descrivili ENTRAMBI
+- Indica SEMPRE quando è consigliabile rivolgersi a un professionista e di che tipo
+- Usa il grassetto per OGNI nome di documento, ente, scadenza, importo`
+      });
+    }
+
     if (webContext) {
       chatMessages.push({
         role: "system",
