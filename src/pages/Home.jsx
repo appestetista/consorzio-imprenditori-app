@@ -293,6 +293,9 @@ export default function Home() {
           console.log('[AI] Entertain questions received:', questions);
           setEntertainQuestions(questions);
         },
+        onStarted: () => {
+          console.log('[AI] Backend started processing');
+        },
         onChunk: (fullText) => {
           setStreamingText(fullText);
           // Aggiorna il messaggio in tempo reale
