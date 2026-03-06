@@ -86,6 +86,21 @@ Deno.serve(async (req) => {
     const { message, conversationHistory, stream } = body;
     if (!message) return Response.json({ error: 'Messaggio mancante' }, { status: 400 });
 
+    // ── Detect PROCEDURA OPERATIVA ──
+    const msgLower = message.toLowerCase();
+    const proceduralKeywords = [
+      'procedura','iter','passaggi','fasi','step','workflow','processo','metodo','istruzioni','guida',
+      'come fare','come si fa','come ottenere','come richiedere','come attivare','come configurare','come installare',
+      'richiedere','ottenere','registrare','attivare','aprire','presentare','depositare','trasmettere',
+      'inviare','compilare','configurare','installare','abilitare','verificare','validare','certificare',
+      'integrare','implementare','aggiornare','avviare','eseguire',
+      'autorizzazione','permesso','licenza','certificazione','conformità','adempimento','regolamento',
+      'normativa','requisiti','documentazione','istanza','domanda',
+      'prima','poi','successivamente','quindi','infine','fase','passaggio','livello','stadio'
+    ];
+    const isProcedural = proceduralKeywords.some(kw => msgLower.includes(kw));
+    console.log(`[consultaAI] Procedural mode: ${isProcedural}`);
+
     const openaiKey = Deno.env.get("OPENAI_API_KEY");
     const geminiKey = Deno.env.get("GEMINI_API_KEY");
     if (!openaiKey) return Response.json({ error: 'OPENAI_API_KEY non configurata' }, { status: 500 });
