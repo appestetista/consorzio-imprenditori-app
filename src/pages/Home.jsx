@@ -44,6 +44,7 @@ export default function Home() {
   const [streamingText, setStreamingText] = useState('');
   const [isStreaming, setIsStreaming] = useState(false);
   const [contextQuestion, setContextQuestion] = useState('');
+  const [entertainQuestions, setEntertainQuestions] = useState('');
   const [pendingContextAnswer, setPendingContextAnswer] = useState('');
   const { streamAI } = useStreamingAI();
   const recognitionRef = useRef(null);
