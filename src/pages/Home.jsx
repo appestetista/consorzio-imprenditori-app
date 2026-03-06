@@ -575,6 +575,9 @@ export default function Home() {
       if (m.isCompare) restored.isCompare = true;
       if (m.isDetail) restored.isDetail = true;
       if (m.usageCount) restored.usageCount = m.usageCount;
+      // CRITICO: mai isNew o isStreaming su messaggi caricati dal DB
+      restored.isNew = false;
+      restored.isStreaming = false;
       return restored;
     });
   };
