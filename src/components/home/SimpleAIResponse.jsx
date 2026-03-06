@@ -4,6 +4,7 @@ import { Sparkles, Star, Send, Loader2 } from 'lucide-react';
 import { base44 } from '@/api/base44Client';
 import StreamingReveal from './StreamingReveal';
 import AIThinkingAnimation from './AIThinkingAnimation';
+import ContextFollowup from './ContextFollowup';
 
 function RatingInline({ conversationId }) {
   const [rating, setRating] = useState(0);
@@ -119,7 +120,7 @@ const markdownComponents = {
   td: ({ children }) => <td className="px-3 py-2 text-slate-300">{children}</td>,
 };
 
-export default function SimpleAIResponse({ content, onFollowup, conversationId, isNew = false, isStreaming = false }) {
+export default function SimpleAIResponse({ content, onFollowup, conversationId, isNew = false, isStreaming = false, contextQuestion = '', onContextSelect }) {
   const fullRisposta = content?.risposta || '';
   const followups = content?.followup_questions || [];
 
@@ -202,12 +203,20 @@ export default function SimpleAIResponse({ content, onFollowup, conversationId, 
     }
   }, [isStreaming]);
 
-  // ── Fase 1: Animazione pensiero — frasi rotanti + puntini nella bolla ──
+  // ── Fase 1: Animazione pensiero — frasi rotanti + puntini nella bolla + domande propositives ──
   if (isStreaming && !thinkingDone) {
     return (
       <div className="space-y-4">
         {/* Animazione centrale con frasi */}
         <AIThinkingAnimation onFinished={handleThinkingFinished} />
+        {/* Domande propositives — appaiono durante l'attesa */}
+        {contextQuestion && (
+          <ContextFollowup
+            question={contextQuestion}
+            visible={!!contextQuestion}
+            onSelect={(q) => onContextSelect?.(q)}
+          />
+        )}
         {/* Bolla con puntini che ballano */}
         <div className="flex items-start gap-3" style={{ touchAction: 'pan-y' }}>
           <div className="w-8 h-8 rounded-xl bg-gradient-to-br from-[#d4af37] to-[#b8860b] flex items-center justify-center flex-shrink-0 mt-0.5">
