@@ -151,7 +151,7 @@ function extractSuggestions(text) {
   return { cleanText, suggestions: suggestions.slice(0, 2) };
 }
 
-export default function SimpleAIResponse({ content, onFollowup, conversationId, isNew = false, isStreaming = false, contextQuestion = '', onContextSelect }) {
+export default function SimpleAIResponse({ content, onFollowup, conversationId, isNew = false, isStreaming = false, contextQuestion = '', entertainQuestions = '', onContextSelect }) {
   const rawRisposta = content?.risposta || '';
   const { cleanText: fullRisposta, suggestions } = useMemo(() => extractSuggestions(rawRisposta), [rawRisposta]);
   const followups = content?.followup_questions || [];
