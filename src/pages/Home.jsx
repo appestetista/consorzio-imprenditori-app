@@ -264,7 +264,7 @@ export default function Home() {
     await base44.entities.ChatConversation.update(convId, { messages: messagesForDB, risposta_json: rispostaStr });
   };
 
-  const runAnalysis = async ({ msg, newMessages, convId }) => {
+  const runAnalysis = async ({ msg, newMessages, convPromise }) => {
     const historyBlock = buildHistoryBlock(newMessages);
 
     // Mostra subito il messaggio assistente vuoto per lo streaming
