@@ -515,7 +515,7 @@ export default function Home() {
     } catch (e) {
       console.error('>>> ERRORE:', e?.message || e);
       console.error('>>> DETTAGLIO:', JSON.stringify(e));
-      const errMsg = { role: 'assistant', content: 'Mi dispiace, si è verificato un errore nel confronto. Riprova tra un momento.' };
+      const errMsg = { role: 'assistant', content: 'Ho bisogno di qualche dettaglio in più per confrontare questi scenari. Prova a descriverli con più precisione e ci riprovo subito.' };
       const updated = [...newMessages, errMsg];
       setMessages(updated);
       await base44.entities.ChatConversation.update(convId, { messages: updated });
