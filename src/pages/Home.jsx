@@ -723,6 +723,7 @@ export default function Home() {
                         isStreaming={!!msg.isStreaming}
                         entertainQuestions={isLastAssistant && msg.isStreaming ? entertainQuestions : ''}
                         contextQuestion={isLastAssistant && (msg.isStreaming || msg.isNew) ? contextQuestion : ''}
+                        userMessage={(() => { const prevUser = messages.slice(0, i).filter(m => m.role === 'user').pop(); return prevUser?.content || ''; })()}
                         onContextSelect={(q) => {
                           if (isStreaming || isTyping) {
                             // L'utente ha scelto un'opzione mentre l'AI sta ancora rispondendo
