@@ -543,6 +543,23 @@ Deno.serve(async (req) => {
                   gptBuffer = '';
                 }
 
+                // ── STEP 7b: SELF_CHECK — quality gate ──
+                try {
+                  const selfCheckResult = await selfCheck(openaiKey, fullContent);
+                  if (!selfCheckResult.skipped && selfCheckResult.text !== fullContent) {
+                    // Replace content with improved version — send delta to client
+                    const replacement = selfCheckResult.text;
+                    await sendSSE({ self_check_replace: replacement });
+                    fullContent = replacement;
+                    console.log(`[consultaAI] SELF_CHECK applied: content replaced`);
+                  }
+                  totalInput += selfCheckResult.inputTokens;
+                  totalOutput += selfCheckResult.outputTokens;
+                  totalCost += calcCost('gpt-4o-mini', selfCheckResult.inputTokens, selfCheckResult.outputTokens);
+                } catch (e) {
+                  console.log('[consultaAI] SELF_CHECK error:', e.message);
+                }
+
                 // ── STEP 8: Suggestions + Title (parallel, post-stream) ──
                 const suggestionsPromise = generateSuggestions(geminiKey, message, fullContent).catch(() => null);
                 const titlePromise = generateTitle(geminiKey, message, fullContent).catch(() => null);
@@ -710,10 +727,23 @@ Deno.serve(async (req) => {
     }
 
     const data = await openaiResponse.json();
-    const responseData = data.choices?.[0]?.message?.content || '';
+    let responseData = data.choices?.[0]?.message?.content || '';
     totalInput += data.usage?.prompt_tokens || 0;
     totalOutput += data.usage?.completion_tokens || 0;
     totalCost += calcCost('gpt-4o', data.usage?.prompt_tokens || 0, data.usage?.completion_tokens || 0);
+
+    // SELF_CHECK on non-streaming response
+    try {
+      const selfCheckResult = await selfCheck(openaiKey, responseData);
+      if (!selfCheckResult.skipped) {
+        responseData = selfCheckResult.text;
+      }
+      totalInput += selfCheckResult.inputTokens;
+      totalOutput += selfCheckResult.outputTokens;
+      totalCost += calcCost('gpt-4o-mini', selfCheckResult.inputTokens, selfCheckResult.outputTokens);
+    } catch (e) {
+      console.log('[consultaAI] SELF_CHECK error (non-stream):', e.message);
+    }
 
     const elapsed = Date.now() - startTime;
 
