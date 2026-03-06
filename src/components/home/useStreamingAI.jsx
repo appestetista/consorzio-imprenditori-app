@@ -51,13 +51,19 @@ export default function useStreamingAI() {
           generated_title: autoTitle,
         };
 
-        // Typewriter: rivela il testo progressivamente
-        // Velocità adattiva: più è lungo, più veloce per parola
+        // Typewriter con "primo paragrafo rapido":
+        // Le prime ~30 parole appaiono velocissime (dare subito qualcosa da leggere),
+        // poi il resto rallenta leggermente per un effetto naturale.
         const words = fullText.split(/(\s+)/); // mantiene gli spazi
         const totalWords = words.filter(w => w.trim()).length;
-        // Tempo totale typewriter: min 0.8s, max 2.5s
-        const totalTime = Math.min(2500, Math.max(800, totalWords * 30));
-        const intervalMs = Math.max(10, totalTime / words.length);
+        
+        // Soglia primo paragrafo: ~30 parole reali
+        const fastThreshold = Math.min(60, Math.floor(words.length * 0.3)); // ~30 parole (inclusi spazi)
+        const fastIntervalMs = 8;  // Molto veloce per il primo blocco
+        // Resto: tempo adattivo
+        const remainingWords = words.length - fastThreshold;
+        const slowTotalTime = Math.min(2000, Math.max(600, remainingWords * 25));
+        const slowIntervalMs = remainingWords > 0 ? Math.max(12, slowTotalTime / remainingWords) : 12;
 
         let currentIndex = 0;
         let revealed = '';
@@ -70,8 +76,9 @@ export default function useStreamingAI() {
               return;
             }
 
-            // Rivela 1-3 parole alla volta per fluidità
-            const batch = Math.min(3, words.length - currentIndex);
+            const isFastPhase = currentIndex < fastThreshold;
+            // Fase veloce: 4-5 parole alla volta; fase lenta: 2-3
+            const batch = isFastPhase ? Math.min(5, words.length - currentIndex) : Math.min(3, words.length - currentIndex);
             for (let i = 0; i < batch; i++) {
               if (currentIndex < words.length) {
                 revealed += words[currentIndex];
@@ -81,11 +88,24 @@ export default function useStreamingAI() {
 
             onChunk(revealed, '');
 
+            // Quando passiamo dalla fase veloce a quella lenta, cambia intervallo
+            if (!isFastPhase && currentIndex >= fastThreshold + 1) {
+              clearInterval(typewriterRef.current);
+              if (currentIndex >= words.length) { resolve(); return; }
+              typewriterRef.current = setInterval(() => {
+                if (controller.signal.aborted) { clearInterval(typewriterRef.current); resolve(); return; }
+                const b = Math.min(3, words.length - currentIndex);
+                for (let i = 0; i < b; i++) { if (currentIndex < words.length) { revealed += words[currentIndex]; currentIndex++; } }
+                onChunk(revealed, '');
+                if (currentIndex >= words.length) { clearInterval(typewriterRef.current); resolve(); }
+              }, slowIntervalMs);
+            }
+
             if (currentIndex >= words.length) {
               clearInterval(typewriterRef.current);
               resolve();
             }
-          }, intervalMs);
+          }, fastIntervalMs);
         });
 
         // Fine: invia il testo completo + metadata
