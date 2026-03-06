@@ -358,30 +358,20 @@ export default function Home() {
           setContextQuestion('');
           setEntertainQuestions('');
           
-          // Rimuovi subito il placeholder streaming per sbloccare l'UI
-          setMessages([...newMessages, { role: 'assistant', content: '⏳ Riprovo...', isAI: true, usageCount: newCount }]);
-          
-          // Fallback: prova la chiamata classica non-streaming
+          // Fallback rapido: un solo retry con history ridotta, poi messaggio chiaro
           let parsed = null;
           try {
-            const aiResponse = await base44.functions.invoke('consultaAI', {
+            // Retry con history azzerata (meno token = meno CPU)
+            const retryResponse = await base44.functions.invoke('consultaAI', {
               message: msg,
-              conversationHistory: historyBlock,
+              conversationHistory: '',
             });
-            if (aiResponse.data?.success && aiResponse.data?.data) {
-              parsed = aiResponse.data.data;
+            if (retryResponse.data?.success && retryResponse.data?.data) {
+              parsed = retryResponse.data.data;
             }
           } catch {}
-          if (!parsed) {
-            try {
-              parsed = await base44.integrations.Core.InvokeLLM({
-                prompt: `Rispondi in modo completo e dettagliato.\nDomanda: ${msg}`,
-                add_context_from_internet: true,
-              });
-            } catch { parsed = 'Errore temporaneo del server. Riprova tra qualche secondo.'; }
-          }
 
-          const finalContent = parsed || 'Errore temporaneo del server. Riprova tra qualche secondo.';
+          const finalContent = parsed || 'La risposta ha richiesto più tempo del previsto. Riprova con una domanda più specifica o inizia una nuova conversazione.';
           const assistantMsg = { role: 'assistant', content: finalContent, isAI: true, usageCount: newCount, isNew: true };
           const updatedMessages = [...newMessages, assistantMsg];
           setMessages(updatedMessages);
