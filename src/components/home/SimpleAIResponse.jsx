@@ -203,7 +203,7 @@ export default function SimpleAIResponse({ content, onFollowup, onRegenerate, co
             onSelect={(q) => onContextSelect?.(q)}
           />
         )}
-        {/* Bolla con puntini che ballano */}
+        {/* Bolla con puntini che ballano + progress bar */}
         <div className="flex items-start gap-3" style={{ touchAction: 'pan-y' }}>
           <div className="w-8 h-8 rounded-xl bg-gradient-to-br from-[#d4af37] to-[#b8860b] flex items-center justify-center flex-shrink-0 mt-0.5">
             <Sparkles className="w-4 h-4 text-white" />
@@ -215,6 +215,7 @@ export default function SimpleAIResponse({ content, onFollowup, onRegenerate, co
                 <div className="w-2.5 h-2.5 bg-[#d4af37] rounded-full animate-bounce" style={{ animationDelay: '150ms' }} />
                 <div className="w-2.5 h-2.5 bg-[#d4af37] rounded-full animate-bounce" style={{ animationDelay: '300ms' }} />
               </div>
+              <ThinkingProgressBar complete={false} />
             </div>
           </div>
         </div>
