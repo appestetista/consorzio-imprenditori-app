@@ -178,7 +178,7 @@ export default function SimpleAIResponse({ content, onFollowup, conversationId, 
       const slice = fullRisposta.substring(0, currentIdx);
       setDisplayedText(slice);
       prevLengthRef.current = currentIdx;
-    }, 18);
+    }, 6);
 
     return () => {
       if (typewriterRef.current) {
