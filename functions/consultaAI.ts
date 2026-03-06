@@ -176,7 +176,7 @@ Restituisci solo la risposta finale.`
         { role: "user", content: responseText }
       ],
       temperature: 0.1,
-      max_tokens: 600,
+      max_tokens: 2500,
     }),
     signal: AbortSignal.timeout(30000),
   });
