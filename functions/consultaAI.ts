@@ -473,8 +473,9 @@ Deno.serve(async (req) => {
           const reader = openaiResponse.body.getReader();
           let fullContent = '';
           let firstTokenSent = false;
+          let streamDone = false;
 
-          while (true) {
+          while (!streamDone) {
             const { done, value } = await reader.read();
             if (done) break;
 
@@ -485,11 +486,11 @@ Deno.serve(async (req) => {
               if (!line.startsWith('data: ')) continue;
               const data = line.slice(6).trim();
               if (data === '[DONE]') {
-                // ── Send "done" IMMEDIATELY — don't wait for suggestions/title ──
+                streamDone = true;
                 const elapsed = Date.now() - startTime;
                 console.log(`[consultaAI] ✅ Stream complete in ${elapsed}ms`);
 
-                // Fire suggestions + title in background, send as separate SSE
+                // Fire suggestions + title in background, send as separate SSE when ready
                 (async () => {
                   const [sugResult, titleResult] = await Promise.all([
                     generateSuggestions(geminiKey, message, fullContent).catch(() => null),
@@ -516,13 +517,11 @@ Deno.serve(async (req) => {
                     generatedTitle = titleResult.text;
                   }
 
-                  // Send final done with title
                   await sendSSE({
                     done: true, web_search_used: false, response_time_ms: elapsed,
                     generated_title: generatedTitle || null, time_to_complete_ms: Date.now() - startTime,
                   }).catch(() => {});
 
-                  // Cache save (fire-and-forget)
                   if (isFirstMessage && normalizedQuery.length > 5 && fullContent.length > 100) {
                     const sugArray = suggestionsText ? suggestionsText.split('|||').map(s => s.trim()).filter(s => s.length > 3) : [];
                     base44.asServiceRole.entities.AIResponseCache.create({
@@ -533,7 +532,6 @@ Deno.serve(async (req) => {
                     }).catch(() => {});
                   }
 
-                  // Usage log (fire-and-forget)
                   base44.asServiceRole.entities.UsageLog.create({
                     user_email: user.email, action_type: 'chat_ai',
                     model_used: 'gemini-flash+gpt-4o', provider: 'multi',
@@ -543,11 +541,10 @@ Deno.serve(async (req) => {
                     response_time_ms: Date.now() - startTime, timestamp: new Date().toISOString(),
                   }).catch(() => {});
 
-                  // Close writer after background tasks
                   try { await writer.close(); } catch {}
                 })();
 
-                return; // Exit the stream reading loop
+                break; // Exit the for loop
               }
 
               try {
