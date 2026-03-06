@@ -693,6 +693,17 @@ export default function Home() {
                         conversationId={activeConversationId}
                         isNew={!!msg.isNew && !msg.isStreaming}
                         isStreaming={!!msg.isStreaming}
+                        contextQuestion={isLastAssistant && msg.isStreaming ? contextQuestion : ''}
+                        onContextSelect={(q) => {
+                          if (isStreaming || isTyping) {
+                            setPendingContextAnswer(q);
+                            pendingContextRef.current = q;
+                            setContextQuestion('');
+                          } else {
+                            setContextQuestion('');
+                            handleSend(q);
+                          }
+                        }}
                       />
 
                     </div>
@@ -736,28 +747,6 @@ export default function Home() {
         >
           <ArrowUp className="w-4 h-4 text-slate-200 rotate-180" />
         </button>
-      )}
-
-      {/* Domanda di contesto (sopra input, solo durante/dopo streaming) */}
-      {contextQuestion && !compareMode && (
-        <div className="fixed z-40 px-2 left-0 right-0" style={{ bottom: '200px' }}>
-          <ContextFollowup
-            question={contextQuestion}
-            visible={!!contextQuestion}
-            onSelect={(q) => {
-              if (isStreaming || isTyping) {
-                // Streaming ancora in corso: accoda la risposta
-                setPendingContextAnswer(q);
-                pendingContextRef.current = q;
-                setContextQuestion(''); // Nascondi il riquadro
-              } else {
-                // Risposta completa: invia subito
-                setContextQuestion('');
-                handleSend(q);
-              }
-            }}
-          />
-        </div>
       )}
 
       {/* Campo di input */}
