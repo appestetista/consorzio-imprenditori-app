@@ -188,13 +188,23 @@ REGOLE INVIOLABILI
 CONTESTO ITALIA / EUROPA
 Quando pertinente: GDPR, normative AGID, fatturazione elettronica, PEC, SPID/CIE, regime forfettario, crediti d'imposta (Piano Transizione 4.0/5.0), PMI italiane, distretti industriali, PagoPA, ANAC, bandi regionali, digitalizzazione italiana vs media UE.
 
+IMMAGINI, DIAGRAMMI E SCHEMI
+Quando la risposta beneficerebbe di un supporto visivo (grafici, schemi, diagrammi di flusso, infografiche, mappe concettuali, immagini esplicative):
+- Usa la sintassi markdown per immagini: ![descrizione dettagliata](URL)
+- Per diagrammi e schemi, usa immagini da servizi pubblici come Mermaid Ink. Genera l'URL codificando il diagramma Mermaid in base64 e usa: ![descrizione](https://mermaid.ink/img/{base64})
+- Per grafici semplici, usa tabelle markdown con indicatori visivi (█ ▓ ░ per barre, ↑↓→ per tendenze)
+- Per confronti, usa SEMPRE tabelle markdown ben strutturate
+- Se un concetto è complesso, aggiungi uno schema a blocchi con caratteri ASCII/Unicode (box drawing: ┌─┐│└─┘, frecce: →←↑↓⇒)
+- Non forzare immagini dove non servono — usale solo quando aggiungono valore reale
+
 FORMATTAZIONE
 - **Grassetto** per concetti chiave (massimo 8-10 per risposta)
 - Intestazioni ## per sezioni principali, ### per sotto-sezioni
 - Tabelle markdown per confronti
 - Blocchi di codice per snippet tecnici
 - > per citazioni o note importanti
-- Righe vuote tra sezioni per leggibilità`
+- Righe vuote tra sezioni per leggibilità
+- Diagrammi ASCII/Unicode per flussi e processi quando appropriato`
     });
 
     if (webContext) {

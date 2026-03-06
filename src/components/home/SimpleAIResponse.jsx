@@ -89,6 +89,12 @@ const markdownComponents = {
   a: ({ children, ...props }) => (
     <a {...props} className="text-[#d4af37] underline" target="_blank" rel="noopener noreferrer">{children}</a>
   ),
+  img: ({ src, alt, ...props }) => (
+    <div className="my-3 rounded-xl overflow-hidden border border-slate-700/40">
+      <img src={src} alt={alt || ''} className="w-full max-h-[400px] object-contain bg-slate-900/50" loading="lazy" {...props} />
+      {alt && <p className="text-xs text-slate-400 px-3 py-1.5 bg-slate-800/60 italic">{alt}</p>}
+    </div>
+  ),
   blockquote: ({ children }) => (
     <blockquote className="border-l-2 border-[#d4af37]/50 pl-3 my-2 text-slate-300 italic">
       {children}
