@@ -406,7 +406,7 @@ Deno.serve(async (req) => {
           })() : Promise.resolve(null);
 
           // Race: cache vs GPT-4o connection — whichever finishes first wins
-          const CACHE_TIMEOUT = 3000; // max wait for cache before going with GPT
+          const CACHE_TIMEOUT = 2000; // ridotto da 3s a 2s: priorità al first token
           const cacheWithTimeout = Promise.race([
             cachePromise,
             new Promise(resolve => setTimeout(() => resolve(null), CACHE_TIMEOUT)),
