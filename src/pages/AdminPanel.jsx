@@ -246,7 +246,12 @@ export default function AdminPanel() {
     <div className="min-h-screen bg-slate-900 pb-64">
       <main className="px-4 py-6 max-w-md mx-auto">
         <div className="flex items-center justify-between mb-4">
+          <div>
+            <h2 className="text-green-400 text-sm font-semibold">Consorzio Imprenditori</h2>
+            <h1 className="text-red-500 text-2xl font-bold">Pannello Admin</h1>
+          </div>
           <div className="flex items-center gap-3">
+            <GlobalTopIcons userEmail={user?.email} userRegime={null} />
             {/* Menu hamburger admin */}
             <Sheet open={menuOpen} onOpenChange={setMenuOpen}>
               <SheetTrigger asChild>
@@ -254,7 +259,7 @@ export default function AdminPanel() {
                   <Menu className="w-6 h-6 text-slate-400" />
                 </button>
               </SheetTrigger>
-              <SheetContent side="left" className="bg-slate-900 border-slate-700 w-72 p-0">
+              <SheetContent side="right" className="bg-slate-900 border-slate-700 w-72 p-0">
                 <div className="p-5 border-b border-slate-700">
                   <h2 className="text-white font-bold text-lg">Menu Admin</h2>
                   <p className="text-slate-400 text-xs mt-1">{user?.email}</p>
@@ -305,14 +310,6 @@ export default function AdminPanel() {
                 </div>
               </SheetContent>
             </Sheet>
-            <div>
-              <h2 className="text-green-400 text-sm font-semibold">Consorzio Imprenditori</h2>
-              <h1 className="text-red-500 text-2xl font-bold">Pannello Admin</h1>
-            </div>
-          </div>
-          <div className="flex items-center gap-3">
-            <GlobalTopIcons userEmail={user?.email} userRegime={null} />
-            <p className="text-slate-400 text-xs">{new Date().toLocaleDateString('it-IT', { day: 'numeric', month: 'short' })}</p>
           </div>
         </div>
 
