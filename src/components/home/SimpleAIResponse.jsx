@@ -1,6 +1,7 @@
 import React, { useState, useEffect, useCallback, useRef, useMemo } from 'react';
 import ReactMarkdown from 'react-markdown';
-import { Sparkles, Star, Send, Loader2 } from 'lucide-react';
+import { Sparkles, Star, Send, Loader2, Copy, Check } from 'lucide-react';
+import { toast } from 'sonner';
 import { base44 } from '@/api/base44Client';
 import StreamingReveal from './StreamingReveal';
 import AIThinkingAnimation from './AIThinkingAnimation';
