@@ -342,8 +342,8 @@ REGOLE PER AMBITI TECNICI, AMMINISTRATIVI O NORMATIVI:
         return null;
       }) : Promise.resolve(null);
 
-      // Context question via Gemini Flash — domanda di chiarimento con 2 opzioni
-      const contextPromise = geminiKey ? (async () => {
+      // Domanda di chiarimento con 2 opzioni — se la richiesta è ambigua
+      const clarificationPromise = geminiKey ? (async () => {
         try {
           const cqUrl = `https://generativelanguage.googleapis.com/v1beta/models/gemini-2.0-flash:generateContent?key=${geminiKey}`;
           const cqResp = await fetch(cqUrl, {
@@ -369,18 +369,45 @@ REGOLE PER AMBITI TECNICI, AMMINISTRATIVI O NORMATIVI:
           if (cqResp.ok) {
             const cqData = await cqResp.json();
             const raw = (cqData.candidates?.[0]?.content?.parts?.[0]?.text || '').trim();
-            // Parse JSON
             try {
               const parsed = JSON.parse(raw.replace(/```json\n?/g, '').replace(/```/g, '').trim());
               if (parsed.question && parsed.options && parsed.options.length >= 2) {
                 return JSON.stringify(parsed);
               }
             } catch {
-              console.log('[consultaAI] Context question parse failed:', raw.substring(0, 100));
+              console.log('[consultaAI] Clarification parse failed:', raw.substring(0, 100));
             }
           }
         } catch (e) {
-          console.log('[consultaAI] Context question skip:', e.message);
+          console.log('[consultaAI] Clarification skip:', e.message);
+        }
+        return '';
+      })() : Promise.resolve('');
+
+      // Domande propositive per intrattenere l'utente durante l'attesa
+      const entertainPromise = geminiKey ? (async () => {
+        try {
+          const eUrl = `https://generativelanguage.googleapis.com/v1beta/models/gemini-2.0-flash:generateContent?key=${geminiKey}`;
+          const eResp = await fetch(eUrl, {
+            method: "POST",
+            headers: { "Content-Type": "application/json" },
+            body: JSON.stringify({
+              contents: [{ parts: [{ text: `Domanda: "${message}"${conversationHistory ? `\nContesto: ${conversationHistory.substring(0, 300)}` : ''}` }] }],
+              systemInstruction: { parts: [{ text: `Genera ESATTAMENTE 2 domande di approfondimento propositivo che offrano aiuto concreto all'utente, separate da |||.
+TONO OBBLIGATORIO: inizia SEMPRE con formule come "Posso aiutarti a calcolare...", "Vuoi che approfondisca...", "Posso cercare...", "Ti serve sapere...", "Posso verificare...", "Vuoi che analizzi...".
+REGOLE: collegate al tema, aspetti CONCRETI diversi tra loro (costi, tempistiche, normativa, procedure, calcoli), 10-20 parole ciascuna in italiano con "?", NON generiche, NON riformulare la domanda originale.
+FORMATO ESATTO: domanda1|||domanda2
+Rispondi SOLO con le due domande separate da |||, nient'altro.` }] },
+              generationConfig: { temperature: 0.7, maxOutputTokens: 80 },
+            }),
+            signal: AbortSignal.timeout(8000),
+          });
+          if (eResp.ok) {
+            const eData = await eResp.json();
+            return (eData.candidates?.[0]?.content?.parts?.[0]?.text || '').trim().replace(/^["']|["']$/g, '');
+          }
+        } catch (e) {
+          console.log('[consultaAI] Entertain questions skip:', e.message);
         }
         return '';
       })() : Promise.resolve('');
