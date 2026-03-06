@@ -165,77 +165,19 @@ export default function SimpleAIResponse({ content, onFollowup, onRegenerate, co
     setTimeout(() => setCopied(false), 2000);
   }, [fullRisposta, rawRisposta]);
 
-  // ── Stato per animazione "pensiero" + typewriter ──
+  // ── Stato per animazione "pensiero" — NO typewriter, mostra direttamente i chunk SSE ──
   const [thinkingDone, setThinkingDone] = useState(!isStreaming && !isNew);
-  const [displayedText, setDisplayedText] = useState(!isStreaming && !isNew ? fullRisposta : '');
-  const [typewriterDone, setTypewriterDone] = useState(!isStreaming && !isNew);
-  const prevLengthRef = useRef(0);
-  const typewriterRef = useRef(null);
 
-  // Quando il thinking finisce, inizia il typewriter
   const handleThinkingFinished = useCallback(() => {
     setThinkingDone(true);
   }, []);
 
-  // L'animazione viene chiusa (dismiss) quando arriva testo reale dal backend
-  // oppure quando il backend segnala "started" (il primo SSE che arriva subito)
+  // Dismiss thinking appena arriva testo reale dal backend
   const shouldDismissThinking = !thinkingDone && !!fullRisposta && fullRisposta.length > 0;
 
-  // Typewriter: rivela il testo carattere per carattere man mano che arriva
-  useEffect(() => {
-    if (!thinkingDone) return;
-    if (!fullRisposta) return;
-
-    // Se non è streaming e non è nuovo, mostra tutto subito
-    if (!isStreaming && !isNew) {
-      setDisplayedText(fullRisposta);
-      setTypewriterDone(true);
-      return;
-    }
-
-    // Typewriter incrementale: aggiungi i nuovi caratteri uno alla volta
-    const targetLength = fullRisposta.length;
-    if (targetLength <= prevLengthRef.current && displayedText.length >= targetLength) return;
-
-    // Pulisci timer precedente
-    if (typewriterRef.current) clearInterval(typewriterRef.current);
-
-    let currentIdx = displayedText.length;
-    typewriterRef.current = setInterval(() => {
-      const currentTarget = fullRisposta.length; // può crescere nel frattempo
-      if (currentIdx >= currentTarget) {
-        // Se lo streaming è finito e abbiamo raggiunto la fine
-        if (!isStreaming) {
-          clearInterval(typewriterRef.current);
-          typewriterRef.current = null;
-          setTypewriterDone(true);
-        }
-        return;
-      }
-      // Velocità più aggressiva: 3-5 caratteri per tick per ridurre la latenza percepita
-      const remaining = currentTarget - currentIdx;
-      const step = Math.min(remaining, remaining > 200 ? 5 : 3);
-      currentIdx += step;
-      const slice = fullRisposta.substring(0, currentIdx);
-      setDisplayedText(slice);
-      prevLengthRef.current = currentIdx;
-    }, 4);
-
-    return () => {
-      if (typewriterRef.current) {
-        clearInterval(typewriterRef.current);
-        typewriterRef.current = null;
-      }
-    };
-  }, [thinkingDone, fullRisposta, isStreaming, isNew]);
-
-  // Cleanup quando lo streaming finisce: rivela il testo rimanente
-  useEffect(() => {
-    if (!isStreaming && thinkingDone && fullRisposta && displayedText.length < fullRisposta.length) {
-      // Lo streaming è finito, lascia il typewriter finire il rimanente
-      // Non fare nulla, il typewriter lo gestisce
-    }
-  }, [isStreaming]);
+  // Mostra fullRisposta direttamente — i chunk SSE arrivano già incrementalmente dal backend
+  const displayedText = thinkingDone ? fullRisposta : '';
+  const typewriterDone = !isStreaming && !isNew;
 
   // ── Fase 1: Animazione pensiero — frasi rotanti + puntini nella bolla ──
   // Durante l'attesa mostra: animazione pensiero + domande propositive (intrattenimento) + domanda di chiarimento (se ambigua)
