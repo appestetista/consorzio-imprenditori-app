@@ -205,7 +205,7 @@ export default function SimpleAIResponse({ content, onFollowup, conversationId, 
       <div className="space-y-4">
         {/* Animazione centrale con frasi */}
         <AIThinkingAnimation onFinished={handleThinkingFinished} dismiss={shouldDismissThinking} />
-        {/* Domande propositives — appaiono durante l'attesa */}
+        {/* Domanda di chiarimento con opzioni — appare durante l'attesa */}
         {contextQuestion && (
           <ContextFollowup
             question={contextQuestion}
