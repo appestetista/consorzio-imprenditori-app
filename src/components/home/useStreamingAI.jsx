@@ -70,7 +70,7 @@ export default function useStreamingAI() {
   return { streamAI, abort };
 }
 
-async function tryStreaming({ message, conversationHistory, token, controller, onChunk, onDone, onContextQuestion }) {
+async function tryStreaming({ message, conversationHistory, token, controller, onChunk, onDone, onContextQuestion, onEntertainQuestions }) {
   // Lista di URL candidati per raggiungere la funzione
   const origin = window.location.origin;
   const urls = [
