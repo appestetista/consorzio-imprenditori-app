@@ -62,11 +62,11 @@ Deno.serve(async (req) => {
         model: 'gpt-4o-mini',
         messages: chatMessages,
         temperature: 0.4,
-        max_tokens: 800,
+        max_tokens: 600,
         top_p: 0.9,
         frequency_penalty: 0.2,
       }),
-      signal: AbortSignal.timeout(20000),
+      signal: AbortSignal.timeout(15000),
     });
 
     if (!openaiResponse.ok) {
