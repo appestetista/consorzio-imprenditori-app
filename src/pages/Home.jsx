@@ -272,8 +272,9 @@ export default function Home() {
     setIsStreaming(true);
     setStreamingText('');
 
-    // Reset context question per nuova richiesta
+    // Reset context/entertain per nuova richiesta
     setContextQuestion('');
+    setEntertainQuestions('');
     setPendingContextAnswer('');
 
     // Aggiungi un messaggio assistente placeholder che si aggiorna in tempo reale
