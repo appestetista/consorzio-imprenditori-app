@@ -394,32 +394,37 @@ export default function Home() {
     setInputText('');
     setIsTyping(true);
 
-    // Se è una nuova conversazione, creala
+    // Fire-and-forget: salva conversazione in parallelo, non blocca la pipeline AI
     let convId = activeConversationId;
-    if (!convId) {
-      const titolo = msg.length > 50 ? msg.substring(0, 50) + '...' : msg;
-      const conv = await base44.entities.ChatConversation.create({
-        user_email: effectiveUser.email,
-        titolo,
-        messages: newMessages
-      });
-      convId = conv.id;
-      setActiveConversationId(convId);
-      queryClient.invalidateQueries({ queryKey: ['chatConversations'] });
-    } else {
-      await base44.entities.ChatConversation.update(convId, { messages: newMessages });
-    }
+    const convPromise = (async () => {
+      if (!convId) {
+        const titolo = msg.length > 50 ? msg.substring(0, 50) + '...' : msg;
+        const conv = await base44.entities.ChatConversation.create({
+          user_email: effectiveUser.email,
+          titolo,
+          messages: newMessages
+        });
+        convId = conv.id;
+        setActiveConversationId(convId);
+        queryClient.invalidateQueries({ queryKey: ['chatConversations'] });
+      } else {
+        base44.entities.ChatConversation.update(convId, { messages: newMessages }).catch(() => {});
+      }
+      return convId;
+    })();
 
     try {
-      // Chiamata diretta all'AI — nessun condizionamento
-      await runAnalysis({ msg, newMessages, convId });
+      // Lancia la pipeline AI subito, senza aspettare il DB
+      // convPromise viene passata per il salvataggio finale
+      await runAnalysis({ msg, newMessages, convPromise });
     } catch (e) {
       console.error('>>> ERRORE:', e?.message || e);
       console.error('>>> DETTAGLIO:', JSON.stringify(e));
       const errMsg = { role: 'assistant', content: 'Mi dispiace, si è verificato un errore. Riprova tra un momento.' };
       const updatedMessages = [...newMessages, errMsg];
       setMessages(updatedMessages);
-      await base44.entities.ChatConversation.update(convId, { messages: updatedMessages });
+      const resolvedId = await convPromise.catch(() => convId);
+      if (resolvedId) await base44.entities.ChatConversation.update(resolvedId, { messages: updatedMessages }).catch(() => {});
     } finally {
       setIsTyping(false);
     }
