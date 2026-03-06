@@ -208,6 +208,25 @@ export default function Home() {
     }
   }, [effectiveUser?.email]);
 
+  // Ascolta evento globale per caricare conversazione dalla sidebar del Layout
+  useEffect(() => {
+    const handleLoadConv = (e) => {
+      const conv = e.detail;
+      if (conv && conv.id) {
+        handleSelectConversation(conv);
+      }
+    };
+    const handleNewChatEvent = () => {
+      handleNewChat();
+    };
+    window.addEventListener('load-conversation', handleLoadConv);
+    window.addEventListener('new-chat', handleNewChatEvent);
+    return () => {
+      window.removeEventListener('load-conversation', handleLoadConv);
+      window.removeEventListener('new-chat', handleNewChatEvent);
+    };
+  }, []);
+
   const buildHistoryBlock = (msgs) => {
     const previousMsgs = msgs.slice(0, -1);
     if (previousMsgs.length === 0) return '';
