@@ -131,17 +131,13 @@ export default function SimpleAIResponse({ content, onFollowup, conversationId, 
   const prevLengthRef = useRef(0);
   const typewriterRef = useRef(null);
 
-  // Quando il thinking finisce (timer o testo arrivato), inizia il typewriter
+  // Quando il thinking finisce, inizia il typewriter
   const handleThinkingFinished = useCallback(() => {
     setThinkingDone(true);
   }, []);
 
-  // CRITICO: se arriva testo dal backend mentre thinking è attivo, termina thinking subito
-  useEffect(() => {
-    if (!thinkingDone && fullRisposta && fullRisposta.length > 0) {
-      setThinkingDone(true);
-    }
-  }, [thinkingDone, fullRisposta]);
+  // L'animazione viene chiusa (dismiss) solo quando arriva testo reale dal backend
+  const shouldDismissThinking = !thinkingDone && !!fullRisposta && fullRisposta.length > 0;
 
   // Typewriter: rivela il testo carattere per carattere man mano che arriva
   useEffect(() => {
@@ -208,7 +204,7 @@ export default function SimpleAIResponse({ content, onFollowup, conversationId, 
     return (
       <div className="space-y-4">
         {/* Animazione centrale con frasi */}
-        <AIThinkingAnimation onFinished={handleThinkingFinished} />
+        <AIThinkingAnimation onFinished={handleThinkingFinished} dismiss={shouldDismissThinking} />
         {/* Domande propositives — appaiono durante l'attesa */}
         {contextQuestion && (
           <ContextFollowup
