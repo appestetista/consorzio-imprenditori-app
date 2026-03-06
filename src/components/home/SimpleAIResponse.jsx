@@ -79,14 +79,14 @@ function RatingInline({ conversationId }) {
 }
 
 const markdownComponents = {
-  p: ({ children }) => <p className="my-2 leading-relaxed">{children}</p>,
-  ul: ({ children }) => <ul className="my-2 ml-4 list-disc space-y-1">{children}</ul>,
-  ol: ({ children }) => <ol className="my-2 ml-4 list-decimal space-y-1">{children}</ol>,
-  li: ({ children }) => <li className="my-0.5 leading-relaxed">{children}</li>,
-  strong: ({ children }) => <strong className="text-white font-semibold">{children}</strong>,
-  h1: ({ children }) => <h1 className="text-xl font-bold text-white mt-4 mb-2">{children}</h1>,
-  h2: ({ children }) => <h2 className="text-lg font-bold text-[#d4af37] mt-4 mb-2">{children}</h2>,
-  h3: ({ children }) => <h3 className="text-base font-semibold text-white mt-3 mb-1.5">{children}</h3>,
+  p: ({ children }) => <p className="my-2 text-[17px] leading-[1.7]">{children}</p>,
+  ul: ({ children }) => <ul className="my-2 ml-4 list-disc space-y-1.5">{children}</ul>,
+  ol: ({ children }) => <ol className="my-2 ml-4 list-decimal space-y-1.5">{children}</ol>,
+  li: ({ children }) => <li className="my-0.5 text-[17px] leading-[1.7]">{children}</li>,
+  strong: ({ children }) => <strong className="text-white font-bold">{children}</strong>,
+  h1: ({ children }) => <h1 className="text-xl font-bold text-white mt-5 mb-2">{children}</h1>,
+  h2: ({ children }) => <h2 className="text-lg font-bold text-[#d4af37] mt-5 mb-2">{children}</h2>,
+  h3: ({ children }) => <h3 className="text-[17px] font-semibold text-white mt-4 mb-1.5">{children}</h3>,
   a: ({ children, ...props }) => (
     <a {...props} className="text-[#d4af37] underline" target="_blank" rel="noopener noreferrer">{children}</a>
   ),
@@ -244,7 +244,7 @@ export default function SimpleAIResponse({ content, onFollowup, conversationId, 
             {displayedText ? (
               <div className="relative">
                 <ReactMarkdown
-                  className="text-base text-slate-200 leading-relaxed prose prose-base prose-invert max-w-none [&>*:first-child]:mt-0 [&>*:last-child]:mb-0"
+                  className="text-[17px] text-slate-200 leading-[1.7] prose prose-base prose-invert max-w-none [&>*:first-child]:mt-0 [&>*:last-child]:mb-0"
                   components={markdownComponents}
                 >
                   {displayedText}
@@ -273,7 +273,7 @@ export default function SimpleAIResponse({ content, onFollowup, conversationId, 
       <div className="flex-1 max-w-[92%] space-y-3">
         <div className="rounded-2xl bg-slate-800/50 border border-slate-700/40 px-5 py-4">
           <ReactMarkdown
-            className="text-base text-slate-200 leading-relaxed prose prose-base prose-invert max-w-none [&>*:first-child]:mt-0 [&>*:last-child]:mb-0"
+            className="text-[17px] text-slate-200 leading-[1.7] prose prose-base prose-invert max-w-none [&>*:first-child]:mt-0 [&>*:last-child]:mb-0"
             components={markdownComponents}
           >
             {fullRisposta}

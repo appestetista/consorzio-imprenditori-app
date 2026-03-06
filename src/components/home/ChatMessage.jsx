@@ -9,7 +9,7 @@ export default function ChatMessage({ message }) {
     return (
       <div className="flex justify-end">
         <div className="max-w-[85%] bg-[#d4af37] text-slate-900 rounded-2xl rounded-tr-sm px-4 py-3">
-          <p className="text-base leading-relaxed font-medium">{message.content}</p>
+          <p className="text-lg leading-relaxed font-medium">{message.content}</p>
         </div>
       </div>
     );

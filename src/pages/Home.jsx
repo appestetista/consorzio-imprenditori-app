@@ -771,7 +771,7 @@ export default function Home() {
                   onKeyDown={handleKeyDown}
                   placeholder={isRecording ? "Sto ascoltando..." : "Chiedi qualsiasi cosa..."}
                   rows={1}
-                  className="flex-1 bg-transparent text-white text-sm px-2 py-2.5 resize-none outline-none placeholder:text-slate-500 max-h-28"
+                  className="flex-1 bg-transparent text-white text-base px-2 py-2.5 resize-none outline-none placeholder:text-slate-500 max-h-28"
                   style={{ scrollbarWidth: 'none' }}
                 />
                 <button
