@@ -149,7 +149,7 @@ export default function Layout({ children, currentPageName }) {
           onSelectConversation={handleSelectConversation}
           onNewChat={handleNewChat}
         />
-        {/* Nessuno spacer necessario: l'header scorre con la pagina */}
+        <ImpersonationBanner />
         {children}
         {currentPageName === 'Home' && <GlobalSearchBar currentPageName={currentPageName} />}
         <VantaggiSideTab />
