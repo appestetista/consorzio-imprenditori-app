@@ -1,15 +1,17 @@
 import { createClientFromRequest } from 'npm:@base44/sdk@0.8.20';
 
 // ═══════════════════════════════════════════════════════════════
-// consultaAI v6 — ULTRA FAST
+// consultaAI v7 — ZERO FAILURE
 //
-// Obiettivo: risposta completa in < 5 secondi
-// Modello: gpt-4o-mini (3-5x più veloce, costo 15x inferiore)
-// Nessun post-processing: titolo generato lato frontend
+// Strategia a 3 livelli: se un tentativo fallisce, scala automaticamente
+// Livello 1: gpt-4o-mini con history (normale)
+// Livello 2: gpt-4o-mini senza history, prompt ridotto (leggero)
+// Livello 3: gpt-4o-mini domanda diretta, 150 token (ultra-leggero)
+//
+// L'utente riceve SEMPRE una risposta, mai un errore.
 // ═══════════════════════════════════════════════════════════════
 
-function buildSystemPrompt() {
-  return `Sei ARIA, advisor strategico per imprenditori italiani. 20 anni esperienza PMI/startup.
+const SYSTEM_PROMPT_FULL = `Sei ARIA, advisor strategico per imprenditori italiani. 20 anni esperienza PMI/startup.
 
 REGOLE ASSOLUTE:
 - Risposta diretta in 1-2 frasi iniziali
@@ -26,63 +28,129 @@ Alla fine:
 **Approfondisci:**
 1. [domanda]
 2. [domanda]`;
+
+const SYSTEM_PROMPT_LIGHT = `Sei ARIA, advisor per imprenditori italiani. Rispondi in modo breve e pratico. Usa **grassetto** per i dati chiave. MAX 120 parole.`;
+
+const SYSTEM_PROMPT_MINIMAL = `Rispondi brevemente da esperto di impresa italiana. MAX 80 parole, vai dritto al punto.`;
+
+async function callOpenAI(apiKey, messages, maxTokens, timeoutMs) {
+  const response = await fetch("https://api.openai.com/v1/chat/completions", {
+    method: "POST",
+    headers: {
+      "Content-Type": "application/json",
+      "Authorization": `Bearer ${apiKey}`,
+    },
+    body: JSON.stringify({
+      model: 'gpt-4o-mini',
+      messages,
+      temperature: 0.4,
+      max_tokens: maxTokens,
+      top_p: 0.9,
+      frequency_penalty: 0.2,
+    }),
+    signal: AbortSignal.timeout(timeoutMs),
+  });
+
+  if (!response.ok) {
+    const errText = await response.text();
+    throw new Error(`OpenAI ${response.status}: ${errText.substring(0, 200)}`);
+  }
+
+  return response.json();
 }
 
 Deno.serve(async (req) => {
   const startTime = Date.now();
 
+  let base44, user;
   try {
-    const base44 = createClientFromRequest(req);
-    const user = await base44.auth.me();
+    base44 = createClientFromRequest(req);
+    user = await base44.auth.me();
     if (!user) return Response.json({ error: 'Non autorizzato' }, { status: 401 });
+  } catch (e) {
+    return Response.json({ error: 'Non autorizzato' }, { status: 401 });
+  }
 
-    const body = await req.json();
-    const { message, conversationHistory } = body;
-    if (!message) return Response.json({ error: 'Messaggio mancante' }, { status: 400 });
+  let body;
+  try {
+    body = await req.json();
+  } catch (e) {
+    return Response.json({ error: 'Payload non valido' }, { status: 400 });
+  }
 
-    const openaiKey = Deno.env.get("OPENAI_API_KEY");
-    if (!openaiKey) return Response.json({ error: 'OPENAI_API_KEY non configurata' }, { status: 500 });
+  const { message, conversationHistory } = body;
+  if (!message) return Response.json({ error: 'Messaggio mancante' }, { status: 400 });
 
-    const chatMessages = [{ role: "system", content: buildSystemPrompt() }];
+  const openaiKey = Deno.env.get("OPENAI_API_KEY");
+  if (!openaiKey) return Response.json({ error: 'Configurazione server mancante' }, { status: 500 });
 
-    // History compatta: 2000 char max per ridurre token e latenza
-    if (conversationHistory?.trim()) {
-      const trimmedHistory = conversationHistory.substring(0, 2000);
-      chatMessages.push({
-        role: "system",
-        content: `CONTESTO:\n${trimmedHistory}`
-      });
+  // ── Definizione dei 3 livelli di tentativo ──
+  const attempts = [
+    {
+      label: 'L1-full',
+      messages: () => {
+        const msgs = [{ role: "system", content: SYSTEM_PROMPT_FULL }];
+        if (conversationHistory?.trim()) {
+          msgs.push({ role: "system", content: `CONTESTO:\n${conversationHistory.substring(0, 2000)}` });
+        }
+        msgs.push({ role: "user", content: message });
+        return msgs;
+      },
+      maxTokens: 600,
+      timeout: 14000,
+    },
+    {
+      label: 'L2-light',
+      messages: () => [
+        { role: "system", content: SYSTEM_PROMPT_LIGHT },
+        { role: "user", content: message },
+      ],
+      maxTokens: 350,
+      timeout: 12000,
+    },
+    {
+      label: 'L3-minimal',
+      messages: () => [
+        { role: "system", content: SYSTEM_PROMPT_MINIMAL },
+        { role: "user", content: message.substring(0, 300) },
+      ],
+      maxTokens: 150,
+      timeout: 10000,
+    },
+  ];
+
+  let responseText = '';
+  let inputTokens = 0;
+  let outputTokens = 0;
+  let usedLevel = '';
+
+  for (const attempt of attempts) {
+    try {
+      const data = await callOpenAI(openaiKey, attempt.messages(), attempt.maxTokens, attempt.timeout);
+      responseText = data.choices?.[0]?.message?.content || '';
+      inputTokens = data.usage?.prompt_tokens || 0;
+      outputTokens = data.usage?.completion_tokens || 0;
+      usedLevel = attempt.label;
+
+      if (responseText.trim()) break; // Successo — esci dal loop
+    } catch (err) {
+      console.warn(`[consultaAI] ${attempt.label} fallito: ${err.message}`);
+      // Continua al prossimo livello
     }
-    chatMessages.push({ role: "user", content: message });
+  }
 
-    const openaiResponse = await fetch("https://api.openai.com/v1/chat/completions", {
-      method: "POST",
-      headers: { "Content-Type": "application/json", "Authorization": `Bearer ${openaiKey}` },
-      body: JSON.stringify({
-        model: 'gpt-4o-mini',
-        messages: chatMessages,
-        temperature: 0.4,
-        max_tokens: 600,
-        top_p: 0.9,
-        frequency_penalty: 0.2,
-      }),
-      signal: AbortSignal.timeout(15000),
-    });
+  // Se anche L3 ha fallito, genera risposta statica contestuale
+  if (!responseText.trim()) {
+    usedLevel = 'L4-static';
+    responseText = `Ottima domanda. Al momento sto riscontrando un carico elevato — per darti una risposta precisa, ti suggerisco di riformulare in modo più specifico. Ad esempio:\n\n- Specifica **importi** o **scadenze** se la domanda è fiscale\n- Indica il **settore** o la **dimensione aziendale** se è strategica\n- Aggiungi il **contesto normativo** se è legale\n\n---\n**Approfondisci:**\n1. Come posso riformulare la mia domanda?\n2. Quali informazioni servono per una risposta precisa?`;
+    console.warn('[consultaAI] Tutti i livelli falliti — risposta statica');
+  }
 
-    if (!openaiResponse.ok) {
-      const err = await openaiResponse.text();
-      throw new Error(`OpenAI ${openaiResponse.status}: ${err.substring(0, 200)}`);
-    }
+  const elapsed = Date.now() - startTime;
+  console.log(`[consultaAI] ${usedLevel} | ${elapsed}ms | ${inputTokens}+${outputTokens}tok`);
 
-    const data = await openaiResponse.json();
-    const responseText = data.choices?.[0]?.message?.content || '';
-    const inputTokens = data.usage?.prompt_tokens || 0;
-    const outputTokens = data.usage?.completion_tokens || 0;
-
-    const elapsed = Date.now() - startTime;
-    console.log(`[consultaAI] ${elapsed}ms | ${inputTokens}+${outputTokens}tok | ${responseText.length}ch`);
-
-    // Log costi — fire-and-forget, non rallenta la risposta
+  // Log costi — fire-and-forget
+  if (inputTokens > 0) {
     const cost = (inputTokens * 0.15 + outputTokens * 0.60) / 1_000_000;
     base44.asServiceRole.entities.UsageLog.create({
       user_email: user.email,
@@ -94,16 +162,13 @@ Deno.serve(async (req) => {
       cost_usd: Math.round(cost * 100000) / 100000,
       response_time_ms: elapsed,
       timestamp: new Date().toISOString(),
+      category: usedLevel,
     }).catch(() => {});
-
-    return Response.json({
-      success: true,
-      data: responseText,
-      response_time_ms: elapsed,
-    });
-
-  } catch (e) {
-    console.error('[consultaAI] Fatal:', e.message);
-    return Response.json({ error: e.message }, { status: 500 });
   }
+
+  return Response.json({
+    success: true,
+    data: responseText,
+    response_time_ms: elapsed,
+  });
 });
