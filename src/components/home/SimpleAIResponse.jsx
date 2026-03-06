@@ -185,8 +185,8 @@ export default function SimpleAIResponse({ content, onFollowup, onRegenerate, co
   if (isStreaming && !thinkingDone) {
     return (
       <div className="space-y-4">
-        {/* Animazione centrale con frasi */}
-        <AIThinkingAnimation onFinished={handleThinkingFinished} dismiss={shouldDismissThinking} />
+        {/* Animazione centrale con frasi contestuali */}
+        <AIThinkingAnimation onFinished={handleThinkingFinished} dismiss={shouldDismissThinking} userMessage={userMessage} />
         {/* Domande propositive — intrattenimento durante l'attesa */}
         {entertainQuestions && (
           <EntertainQuestions
