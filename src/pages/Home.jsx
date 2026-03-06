@@ -318,7 +318,9 @@ export default function Home() {
           setIsStreaming(false);
           setStreamingText('');
 
-          await saveConversation(updatedMessages, convId);
+          // Attendi il convId dal salvataggio parallelo
+          const resolvedConvId = await convPromise;
+          await saveConversation(updatedMessages, resolvedConvId);
           setConsulenzeUsate(newCount);
           await base44.auth.updateMe({ consulenze_usate_mese: newCount });
 
