@@ -250,8 +250,9 @@ FORMATTAZIONE
             headers: { "Content-Type": "application/json" },
             body: JSON.stringify({
               contents: [{ parts: [{ text: `Domanda: "${message}"${conversationHistory ? `\nContesto: ${conversationHistory.substring(0, 300)}` : ''}` }] }],
-              systemInstruction: { parts: [{ text: `Genera UNA SOLA domanda di approfondimento che l'utente probabilmente vorrà fare DOPO aver ricevuto la risposta alla sua domanda.
-REGOLE: collegata al tema, aspetto CONCRETO (costi, tempistiche, normativa, procedure, calcoli), 10-20 parole in italiano con "?", NON generica, NON riformulare la domanda.
+              systemInstruction: { parts: [{ text: `Genera UNA SOLA domanda di approfondimento propositiva che offra aiuto concreto all'utente.
+TONO OBBLIGATORIO: inizia SEMPRE con formule come "Posso aiutarti a calcolare...", "Vuoi che approfondisca...", "Posso cercare...", "Ti serve sapere...", "Posso verificare...".
+REGOLE: collegata al tema, aspetto CONCRETO (costi, tempistiche, normativa, procedure, calcoli), 10-20 parole in italiano con "?", NON generica, NON riformulare la domanda originale.
 Rispondi SOLO con la domanda, nient'altro.` }] },
               generationConfig: { temperature: 0.7, maxOutputTokens: 80 },
             }),
