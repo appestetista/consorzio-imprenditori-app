@@ -34,13 +34,21 @@ export default function Layout({ children, currentPageName }) {
 
   const handleSelectConversation = (conv) => {
     setChatSidebarOpen(false);
-    // Naviga a Home con l'ID conversazione per caricarla
-    navigate(createPageUrl('Home') + '?loadConv=' + conv.id);
+    // Se siamo già su Home, emetti evento diretto (evita reload)
+    if (currentPageName === 'Home') {
+      window.dispatchEvent(new CustomEvent('load-conversation', { detail: conv }));
+    } else {
+      navigate(createPageUrl('Home') + '?loadConv=' + conv.id);
+    }
   };
 
   const handleNewChat = () => {
     setChatSidebarOpen(false);
-    navigate(createPageUrl('Home') + '?newChat=1');
+    if (currentPageName === 'Home') {
+      window.dispatchEvent(new CustomEvent('new-chat'));
+    } else {
+      navigate(createPageUrl('Home') + '?newChat=1');
+    }
   };
 
   useEffect(() => {
