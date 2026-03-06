@@ -45,11 +45,12 @@ Deno.serve(async (req) => {
 
     const chatMessages = [{ role: "system", content: buildSystemPrompt() }];
 
-    // History minima: 3000 char bastano per contesto
+    // History compatta: 2000 char max per ridurre token e latenza
     if (conversationHistory?.trim()) {
+      const trimmedHistory = conversationHistory.substring(0, 2000);
       chatMessages.push({
         role: "system",
-        content: `CONTESTO PRECEDENTE:\n${conversationHistory.substring(0, 3000)}`
+        content: `CONTESTO:\n${trimmedHistory}`
       });
     }
     chatMessages.push({ role: "user", content: message });
