@@ -1,6 +1,6 @@
 import React, { useState, useEffect, useCallback, useRef, useMemo } from 'react';
 import ReactMarkdown from 'react-markdown';
-import { Sparkles, Star, Send, Loader2, Copy, Check, RefreshCw } from 'lucide-react';
+import { Sparkles, Star, Send, Loader2, Copy, Check } from 'lucide-react';
 import { toast } from 'sonner';
 import { base44 } from '@/api/base44Client';
 import StreamingReveal from './StreamingReveal';
@@ -152,25 +152,25 @@ function extractSuggestions(text) {
   return { cleanText, suggestions: suggestions.slice(0, 2) };
 }
 
-export default function SimpleAIResponse({ content, onFollowup, onRegenerate, conversationId, isNew = false, isStreaming = false, contextQuestion = '', entertainQuestions = '', onContextSelect }) {
+export default function SimpleAIResponse({ content, onFollowup, conversationId, isNew = false, isStreaming = false, contextQuestion = '', entertainQuestions = '', onContextSelect }) {
   const rawRisposta = content?.risposta || '';
   const { cleanText: fullRisposta, suggestions } = useMemo(() => extractSuggestions(rawRisposta), [rawRisposta]);
   const followups = content?.followup_questions || [];
-  const [copied, setCopied] = useState(false);
-
-  const handleCopy = useCallback(() => {
-    navigator.clipboard.writeText(fullRisposta || rawRisposta || '');
-    setCopied(true);
-    toast.success('Copiato negli appunti');
-    setTimeout(() => setCopied(false), 2000);
-  }, [fullRisposta, rawRisposta]);
 
   // ── Stato per animazione "pensiero" + typewriter ──
   const [thinkingDone, setThinkingDone] = useState(!isStreaming && !isNew);
   const [displayedText, setDisplayedText] = useState(!isStreaming && !isNew ? fullRisposta : '');
   const [typewriterDone, setTypewriterDone] = useState(!isStreaming && !isNew);
+  const [copied, setCopied] = useState(false);
   const prevLengthRef = useRef(0);
   const typewriterRef = useRef(null);
+
+  const handleCopy = useCallback(() => {
+    navigator.clipboard.writeText(fullRisposta || '');
+    setCopied(true);
+    toast.success('Copiato negli appunti');
+    setTimeout(() => setCopied(false), 2000);
+  }, [fullRisposta]);
 
   // Quando il thinking finisce, inizia il typewriter
   const handleThinkingFinished = useCallback(() => {
@@ -330,6 +330,14 @@ export default function SimpleAIResponse({ content, onFollowup, onRegenerate, co
           </ReactMarkdown>
         </div>
 
+        {/* Azioni: copia + rating */}
+        <div className="flex items-center gap-2 ml-1">
+          <button onClick={handleCopy} className="p-1.5 rounded-lg text-slate-500 hover:text-slate-300 hover:bg-slate-800/50 transition-colors" title="Copia risposta">
+            {copied ? <Check className="w-3.5 h-3.5 text-green-400" /> : <Copy className="w-3.5 h-3.5" />}
+          </button>
+          <RatingInline conversationId={conversationId} />
+        </div>
+
         {suggestions.length > 0 && (
           <div className="flex flex-col gap-2">
             {suggestions.map((q, idx) => (
@@ -343,8 +351,6 @@ export default function SimpleAIResponse({ content, onFollowup, onRegenerate, co
             ))}
           </div>
         )}
-
-        <RatingInline conversationId={conversationId} />
       </div>
     </div>
   );
