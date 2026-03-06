@@ -2,7 +2,7 @@ import React, { useState, useEffect } from 'react';
 import { motion, AnimatePresence } from 'framer-motion';
 import { Sparkles } from 'lucide-react';
 
-const thinkingPhrases = [
+const genericPhrases = [
   "Analizzo la tua richiesta…",
   "Cerco fonti aggiornate…",
   "Verifico i dati sul web…",
@@ -12,12 +12,38 @@ const thinkingPhrases = [
   "Quasi pronto…",
 ];
 
+// Frasi contestuali basate su keyword nel messaggio utente
+const contextRules = [
+  { keywords: ['fattura', 'fatturazione', 'iva', 'scontrino', 'ricevuta'], phrases: ['Verifico la normativa fiscale…', 'Controllo le aliquote IVA…', 'Cerco le ultime circolari…'] },
+  { keywords: ['dipendente', 'assunzione', 'stipendio', 'busta paga', 'tfr', 'personale'], phrases: ['Calcolo i costi del personale…', 'Verifico i contributi INPS…', 'Analizzo il CCNL di riferimento…'] },
+  { keywords: ['srl', 'società', 'costituzione', 'statuto', 'socio'], phrases: ['Analizzo la forma societaria…', 'Verifico gli adempimenti…', 'Controllo la normativa…'] },
+  { keywords: ['bando', 'finanziamento', 'agevolazione', 'contributo', 'fondo perduto'], phrases: ['Cerco i bandi attivi…', 'Verifico i requisiti…', 'Analizzo le opportunità…'] },
+  { keywords: ['tasse', 'irpef', 'irap', 'regime', 'forfettario', 'fiscale'], phrases: ['Calcolo il carico fiscale…', 'Verifico le aliquote…', 'Confronto i regimi…'] },
+  { keywords: ['contratto', 'clausola', 'penale', 'recesso'], phrases: ['Analizzo le clausole…', 'Verifico la normativa contrattuale…', 'Valuto i rischi legali…'] },
+  { keywords: ['export', 'import', 'estero', 'dogana', 'internazionale'], phrases: ['Analizzo i mercati esteri…', 'Verifico le normative doganali…', 'Cerco dati commerciali…'] },
+  { keywords: ['energia', 'bolletta', 'luce', 'gas', 'fotovoltaico'], phrases: ['Analizzo i consumi energetici…', 'Verifico le tariffe…', 'Cerco soluzioni di risparmio…'] },
+];
+
+function getContextualPhrases(userMessage) {
+  if (!userMessage) return genericPhrases;
+  const lower = userMessage.toLowerCase();
+  for (const rule of contextRules) {
+    if (rule.keywords.some(kw => lower.includes(kw))) {
+      // Mescola frasi contestuali + alcune generiche
+      return [...rule.phrases, 'Incrocio le informazioni…', 'Organizzo la risposta…', 'Quasi pronto…'];
+    }
+  }
+  return genericPhrases;
+}
+
 /**
  * Animazione "sto pensando" — NON ha timer fisso.
  * Si chiude solo quando il parent chiama dismiss (via prop `dismiss`).
  * Fallback massimo a 30s per evitare blocchi.
+ * `userMessage` opzionale per frasi contestuali.
  */
-export default function AIThinkingAnimation({ onFinished, dismiss = false }) {
+export default function AIThinkingAnimation({ onFinished, dismiss = false, userMessage = '' }) {
+  const phrases = React.useMemo(() => getContextualPhrases(userMessage), [userMessage]);
   const [phraseIndex, setPhraseIndex] = useState(0);
   const [visible, setVisible] = useState(true);
 
