@@ -461,7 +461,7 @@ Deno.serve(async (req) => {
 
           // ── NO CACHE: Process GPT-4o stream ──
           // Resolve remaining lightweight tasks (non-blocking)
-          const [routerResult, clarification, entertainResult] = await Promise.all([routerPromise, clarificationPromise, entertainPromise]);
+          const [routerResult, entertainResult] = await Promise.all([routerPromise, entertainPromise]);
           totalInput += routerResult.inputTokens || 0;
           totalOutput += routerResult.outputTokens || 0;
           totalCost += calcCost('gemini-flash', routerResult.inputTokens || 0, routerResult.outputTokens || 0);
