@@ -721,7 +721,7 @@ export default function Home() {
                 }
                 return (
                   <div key={i} ref={isLastUser ? lastUserMsgRef : null}>
-                    <ChatMessage message={msg} />
+                    <ChatMessage message={msg} onEdit={(text) => setInputText(text)} />
                   </div>
                 );
               })}
