@@ -459,11 +459,20 @@ Deno.serve(async (req) => {
 
           // ── NO CACHE: Process GPT-4o stream ──
           // Resolve remaining lightweight tasks (non-blocking)
-          const [routerResult, clarification] = await Promise.all([routerPromise, clarificationPromise]);
+          const [routerResult, clarification, entertainResult] = await Promise.all([routerPromise, clarificationPromise, entertainPromise]);
           totalInput += routerResult.inputTokens || 0;
           totalOutput += routerResult.outputTokens || 0;
           totalCost += calcCost('gemini-flash', routerResult.inputTokens || 0, routerResult.outputTokens || 0);
           console.log(`[consultaAI] Router: ${routerResult.complexity}/${routerResult.category}`);
+
+          // Send entertain questions FIRST — shown immediately during wait
+          if (entertainResult?.text) {
+            totalInput += entertainResult.inputTokens || 0;
+            totalOutput += entertainResult.outputTokens || 0;
+            totalCost += calcCost('gemini-flash', entertainResult.inputTokens || 0, entertainResult.outputTokens || 0);
+            await sendSSE({ entertain_questions: entertainResult.text });
+            console.log(`[consultaAI] Entertain questions sent: ${entertainResult.text.substring(0, 60)}...`);
+          }
 
           if (clarification) {
             await sendSSE({ context_question: clarification });
