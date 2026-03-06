@@ -311,9 +311,9 @@ export default function SimpleAIResponse({ content, onFollowup, conversationId, 
           </ReactMarkdown>
         </div>
 
-        {followups.length > 0 && (
+        {suggestions.length > 0 && (
           <div className="flex flex-col gap-2">
-            {followups.map((q, idx) => (
+            {suggestions.map((q, idx) => (
               <button
                 key={idx}
                 onClick={() => onFollowup?.(q)}
