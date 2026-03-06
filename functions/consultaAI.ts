@@ -226,6 +226,23 @@ Restituisci solo il titolo.`,
   return result;
 }
 
+// ── Entertain questions (shown during wait) ──
+async function generateEntertainQuestions(geminiKey, message) {
+  const result = await geminiFlash(geminiKey,
+    `Genera ESATTAMENTE 2 domande curiose correlate all'argomento dell'utente per stimolare la sua curiosità.
+Formato: domanda1|||domanda2
+Regole:
+- Ogni domanda max 12 parole
+- Frasi complete pronte come nuovo prompt
+- Specifiche, curiose e stimolanti
+- Correlate al tema ma diverse dalla domanda originale
+Rispondi SOLO con: domanda1|||domanda2`,
+    message,
+    { temperature: 0.7, maxOutputTokens: 80, timeout: 4000 }
+  );
+  return result;
+}
+
 // ── Build system prompt based on router result ──
 function buildSystemPrompt(routerResult) {
   const { category } = routerResult;
