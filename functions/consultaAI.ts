@@ -365,10 +365,10 @@ Deno.serve(async (req) => {
           const gptAbort = new AbortController();
           const defaultSystemPrompt = buildSystemPrompt({ category: 'SPIEGAZIONE' });
           const chatMessages = [{ role: "system", content: defaultSystemPrompt }];
-          if (conversationHistory && conversationHistory.trim()) {
+          if (truncatedHistory.trim()) {
             chatMessages.push({
               role: "system",
-              content: `CONTESTO CONVERSAZIONE PRECEDENTE (rispondi SOLO alla domanda corrente):\n${conversationHistory}`
+              content: `CONTESTO CONVERSAZIONE PRECEDENTE (rispondi SOLO alla domanda corrente):\n${truncatedHistory}`
             });
           }
           chatMessages.push({ role: "user", content: message });
