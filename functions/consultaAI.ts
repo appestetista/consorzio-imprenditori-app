@@ -1,61 +1,31 @@
 import { createClientFromRequest } from 'npm:@base44/sdk@0.8.20';
 
 // ═══════════════════════════════════════════════════════════════
-// PIPELINE: Gemini Flash (intro veloce) + Gemini Search → GPT-4o STREAMING
-// Last deploy: 2026-03-05T20:00
+// PIPELINE v2 — 8-Step Architecture
+// 1. Cache Normalization (Gemini Flash)
+// 2. Cache Lookup
+// 3. Cache Hit → immediate response
+// 4. Router Prompt (Gemini Flash) — SIMPLE/STANDARD/ADVANCED + category
+// 5. Clarification Question (Gemini Flash) — parallel
+// 6. Fast Response (Gemini Flash) — parallel
+// 7. Main Response (GPT-4o streaming)
+// 8. Final Suggestions + Title (Gemini Flash) — post-stream
+// 9. Cache Save
 // ═══════════════════════════════════════════════════════════════
 
-async function callGeminiSearch(apiKey, userPrompt) {
-  const url = `https://generativelanguage.googleapis.com/v1beta/models/gemini-2.5-flash:generateContent?key=${apiKey}`;
-  const response = await fetch(url, {
-    method: "POST",
-    headers: { "Content-Type": "application/json" },
-    body: JSON.stringify({
-      contents: [{ parts: [{ text: userPrompt }] }],
-      systemInstruction: { parts: [{ text: `Cerca su internet i dati più aggiornati e verificati per rispondere alla domanda. Trova numeri concreti, fonti ufficiali, link. Non riassumere, dai tutti i dettagli trovati.` }] },
-      generationConfig: { temperature: 0.2, maxOutputTokens: 4000 },
-      tools: [{ googleSearch: {} }],
-    }),
-    signal: AbortSignal.timeout(15000),
-  });
-  if (!response.ok) {
-    const err = await response.text();
-    throw new Error(`Gemini error ${response.status}: ${err.substring(0, 300)}`);
-  }
-  const data = await response.json();
-  const text = data.candidates?.[0]?.content?.parts?.[0]?.text || '';
-  const usage = data.usageMetadata || {};
-  return {
-    content: text,
-    inputTokens: usage.promptTokenCount || 0,
-    outputTokens: usage.candidatesTokenCount || 0,
-  };
-}
-
-function calcCost(model, inputTokens, outputTokens) {
-  const rates = {
-    'gpt-4o':      { input: 2.50 / 1_000_000, output: 10.00 / 1_000_000 },
-    'gpt-4o-mini': { input: 0.15 / 1_000_000, output: 0.60  / 1_000_000 },
-    'gemini':      { input: 0.15 / 1_000_000, output: 0.60  / 1_000_000 },
-    'deepseek':    { input: 0.14 / 1_000_000, output: 0.28  / 1_000_000 },
-  };
-  const r = rates[model] || rates['gpt-4o-mini'];
-  return (inputTokens * r.input) + (outputTokens * r.output);
-}
-
-async function callGeminiFlashQuickIntro(apiKey, userMessage, webContext) {
-  const systemPrompt = `Sei ARIA, consulente strategico italiano. Genera SOLO la sezione "## 1. Introduzione Breve" (100-200 parole) per la domanda dell'utente. Spiega in modo semplice e diretto cosa significa l'argomento richiesto e perché è rilevante oggi. Scrivi in italiano professionale, con dati concreti. Non aggiungere altre sezioni. Vai dritto al punto, niente frasi vuote.${webContext ? `\n\nDATI WEB AGGIORNATI:\n${webContext.substring(0, 2000)}` : ''}`;
-  
+// ── Gemini Flash helper ──
+async function geminiFlash(apiKey, systemPrompt, userPrompt, opts = {}) {
+  const { temperature = 0.3, maxOutputTokens = 200, timeout = 8000 } = opts;
   const url = `https://generativelanguage.googleapis.com/v1beta/models/gemini-2.0-flash:generateContent?key=${apiKey}`;
   const response = await fetch(url, {
     method: "POST",
     headers: { "Content-Type": "application/json" },
     body: JSON.stringify({
-      contents: [{ parts: [{ text: userMessage }] }],
+      contents: [{ parts: [{ text: userPrompt }] }],
       systemInstruction: { parts: [{ text: systemPrompt }] },
-      generationConfig: { temperature: 0.4, maxOutputTokens: 800 },
+      generationConfig: { temperature, maxOutputTokens },
     }),
-    signal: AbortSignal.timeout(10000),
+    signal: AbortSignal.timeout(timeout),
   });
   if (!response.ok) {
     const err = await response.text();
@@ -64,15 +34,210 @@ async function callGeminiFlashQuickIntro(apiKey, userMessage, webContext) {
   const data = await response.json();
   const text = data.candidates?.[0]?.content?.parts?.[0]?.text || '';
   const usage = data.usageMetadata || {};
-  return {
-    content: text,
-    inputTokens: usage.promptTokenCount || 0,
-    outputTokens: usage.candidatesTokenCount || 0,
-  };
+  return { text: text.trim(), inputTokens: usage.promptTokenCount || 0, outputTokens: usage.candidatesTokenCount || 0 };
 }
 
+// ── Cost calculation ──
+function calcCost(model, inputTokens, outputTokens) {
+  const rates = {
+    'gpt-4o':      { input: 2.50 / 1_000_000, output: 10.00 / 1_000_000 },
+    'gemini-flash': { input: 0.15 / 1_000_000, output: 0.60  / 1_000_000 },
+  };
+  const r = rates[model] || rates['gemini-flash'];
+  return (inputTokens * r.input) + (outputTokens * r.output);
+}
+
+// ── STEP 1: Normalize query ──
+async function normalizeQuery(geminiKey, message) {
+  const result = await geminiFlash(geminiKey,
+    `Riscrivi la richiesta dell'utente in una forma standardizzata e sintetica che rappresenti il vero significato della domanda.
+Regole:
+- massimo 15 parole
+- elimina parole inutili
+- mantieni il significato principale
+- usa linguaggio neutro
+- tutto in minuscolo
+- niente punteggiatura finale
+- niente spiegazioni
+Restituisci solo la frase normalizzata.`,
+    message,
+    { temperature: 0, maxOutputTokens: 60, timeout: 5000 }
+  );
+  return result;
+}
+
+// ── STEP 4: Router ──
+async function routeQuery(geminiKey, message, conversationHistory) {
+  const result = await geminiFlash(geminiKey,
+    `Classifica questa domanda. Rispondi SOLO con un JSON valido, nient'altro.
+Formato: {"complexity":"SIMPLE|STANDARD|ADVANCED","category":"PROCEDURA|SPIEGAZIONE|DECISIONE|CONFRONTO|IDEA"}
+
+Regole:
+- SIMPLE: saluti, ringraziamenti, domande banali con risposta in 1-2 frasi
+- STANDARD: domande specifiche con risposta strutturata (80% dei casi)
+- ADVANCED: analisi multi-variabile, scenari complessi, confronti dettagliati
+- PROCEDURA: l'utente chiede come fare qualcosa, iter, passaggi
+- SPIEGAZIONE: l'utente vuole capire un concetto, cos'è qualcosa
+- DECISIONE: l'utente deve scegliere tra opzioni
+- CONFRONTO: l'utente chiede un paragone esplicito
+- IDEA: l'utente cerca ispirazione, suggerimenti, brainstorming`,
+    `${conversationHistory ? `Contesto: ${conversationHistory.substring(0, 300)}\n` : ''}Domanda: "${message}"`,
+    { temperature: 0, maxOutputTokens: 60, timeout: 5000 }
+  );
+  try {
+    const parsed = JSON.parse(result.text.replace(/```json\n?/g, '').replace(/```/g, '').trim());
+    return { ...parsed, inputTokens: result.inputTokens, outputTokens: result.outputTokens };
+  } catch {
+    return { complexity: 'STANDARD', category: 'SPIEGAZIONE', inputTokens: result.inputTokens, outputTokens: result.outputTokens };
+  }
+}
+
+// ── STEP 5: Clarification question ──
+async function generateClarification(geminiKey, message, conversationHistory) {
+  const result = await geminiFlash(geminiKey,
+    `Analizza la domanda. Se può essere interpretata in più modi o manca un'informazione chiave, genera una domanda di chiarimento con 3 opzioni.
+FORMATO JSON: {"question":"domanda breve max 12 parole","options":["opzione 1","opzione 2","opzione 3"]}
+Se la domanda è già chiara, rispondi: {"question":"","options":[]}
+Regole: ogni opzione max 8 parole. Rispondi SOLO con JSON.`,
+    `${conversationHistory ? `Contesto: ${conversationHistory.substring(0, 300)}\n` : ''}Domanda: "${message}"`,
+    { temperature: 0.5, maxOutputTokens: 120, timeout: 6000 }
+  );
+  try {
+    const parsed = JSON.parse(result.text.replace(/```json\n?/g, '').replace(/```/g, '').trim());
+    if (parsed.question && parsed.options?.length >= 2) return JSON.stringify(parsed);
+  } catch {}
+  return '';
+}
+
+// ── STEP 6: Fast response (preview) ──
+async function generateFastResponse(geminiKey, message, category) {
+  const categoryHint = category === 'PROCEDURA' ? 'Anticipa brevemente cosa serve per iniziare.' :
+    category === 'DECISIONE' ? 'Anticipa brevemente il criterio chiave per decidere.' :
+    category === 'CONFRONTO' ? 'Anticipa brevemente la differenza principale.' :
+    'Anticipa brevemente il concetto chiave.';
+  
+  const result = await geminiFlash(geminiKey,
+    `Genera un'anteprima della risposta in ESATTAMENTE 2 frasi (max 40 parole totali).
+${categoryHint}
+Regole:
+- Prima frase: inquadra il tema in modo diretto
+- Seconda frase: anticipa la soluzione o il punto chiave
+- Tono professionale, italiano, niente emoji
+- Vai dritto al punto, niente preamboli
+Restituisci solo le 2 frasi.`,
+    message,
+    { temperature: 0.4, maxOutputTokens: 100, timeout: 5000 }
+  );
+  return result;
+}
+
+// ── STEP 8a: Final suggestions ──
+async function generateSuggestions(geminiKey, message, responseText) {
+  const result = await geminiFlash(geminiKey,
+    `Genera ESATTAMENTE 2 suggerimenti di approfondimento basati sulla domanda e risposta.
+Formato: una riga per suggerimento, separati da |||
+Regole:
+- Ogni suggerimento max 10 parole
+- Frasi complete pronte come nuovo prompt
+- Specifici e curiosi, NON generici
+- Devono ampliare l'argomento in modo stimolante
+Rispondi SOLO con: suggerimento1|||suggerimento2`,
+    `Domanda: "${message}"\nRisposta (estratto): "${responseText.substring(0, 500)}"`,
+    { temperature: 0.5, maxOutputTokens: 80, timeout: 5000 }
+  );
+  return result;
+}
+
+// ── STEP 8b: Cache title ──
+async function generateTitle(geminiKey, message, responseText) {
+  const result = await geminiFlash(geminiKey,
+    `Genera un titolo breve che descriva la domanda e la risposta.
+Regole:
+- massimo 10 parole
+- deve rappresentare il tema principale
+- niente punteggiatura inutile
+Restituisci solo il titolo.`,
+    `Domanda: "${message}"\nRisposta (estratto): "${responseText.substring(0, 300)}"`,
+    { temperature: 0.3, maxOutputTokens: 40, timeout: 5000 }
+  );
+  return result;
+}
+
+// ── Build system prompt based on router result ──
+function buildSystemPrompt(routerResult) {
+  const { category } = routerResult;
+
+  const baseIdentity = `Sei ARIA (Assistente per Ricerca, Innovazione e Analisi), un consulente strategico italiano.
+
+REGOLE DI COMUNICAZIONE:
+- Rispondi SEMPRE in italiano professionale
+- Tono autorevole ma accessibile, diretto, mai sbrigativo
+- Mai frasi vuote ("Certo!", "Ottima domanda!"). Vai dritto al punto
+- Non usare emoji. Dai del "tu" professionale
+- Usa **grassetto** molto frequentemente per concetti chiave, cifre, termini tecnici
+- Paragrafi brevi (max 3-4 frasi), poi vai a capo
+- Elenchi puntati/numerati il più possibile`;
+
+  const structurePrompt = `
+
+STRUTTURA OBBLIGATORIA — 5 SEZIONI (rispetta ESATTAMENTE questo ordine):
+
+## Risposta Rapida
+2-3 frasi che rispondono direttamente alla domanda. Sintesi immediata del punto chiave.
+
+## Come Funziona
+Spiega il meccanismo, il concetto o il processo. Usa sotto-sezioni ### se servono. Dati concreti, numeri, percentuali.
+
+## Applicazione Pratica
+Esempio concreto, caso d'uso reale, configurazione pratica. Numeri reali, scenari plausibili, nomi di strumenti. Tabelle markdown per confronti.
+
+## Passi Operativi
+Elenco numerato di azioni concrete da fare. Ogni passo deve essere immediatamente eseguibile.
+
+## Attenzione
+Rischi, errori comuni, avvertenze legali/fiscali se pertinenti. Cosa NON fare.`;
+
+  const proceduralOverride = category === 'PROCEDURA' ? `
+
+OVERRIDE PROCEDURA — adatta le sezioni così:
+- "Risposta Rapida" → obiettivo della procedura e chi può farla
+- "Come Funziona" → requisiti e documenti necessari
+- "Applicazione Pratica" → la procedura passo-passo dettagliata con nomi esatti di moduli, portali, URL
+- "Passi Operativi" → tempi, costi, scadenze in formato tabella
+- "Attenzione" → errori comuni e quando serve un professionista` : '';
+
+  const decisionOverride = category === 'DECISIONE' ? `
+
+OVERRIDE DECISIONE — adatta le sezioni così:
+- "Risposta Rapida" → la raccomandazione diretta
+- "Come Funziona" → criteri di valutazione
+- "Applicazione Pratica" → confronto pro/contro in tabella
+- "Passi Operativi" → come procedere con l'opzione consigliata
+- "Attenzione" → rischi della scelta sbagliata` : '';
+
+  const confrontoOverride = category === 'CONFRONTO' ? `
+
+OVERRIDE CONFRONTO — adatta le sezioni così:
+- "Risposta Rapida" → quale opzione è migliore e perché (1 frase)
+- "Come Funziona" → tabella comparativa con metriche (costo, tempo, rischio, ROI)
+- "Applicazione Pratica" → scenario reale per ciascuna opzione
+- "Passi Operativi" → come implementare l'opzione raccomandata
+- "Attenzione" → condizioni in cui la scelta opposta sarebbe migliore` : '';
+
+  return `${baseIdentity}${structurePrompt}${proceduralOverride}${decisionOverride}${confrontoOverride}
+
+CONTESTO ITALIA/EUROPA: GDPR, normative AGID, fatturazione elettronica, PEC, SPID/CIE, regime forfettario, crediti d'imposta, PMI italiane.
+
+REGOLE INVIOLABILI:
+1. MAI risposte superficiali — ogni affermazione va supportata da dati concreti
+2. SEMPRE elenchi con spiegazione (2-4 frasi per punto)
+3. SEMPRE confronti tra alternative quando esistono
+4. Per temi legali/fiscali/normativi, menziona sempre le implicazioni`;
+}
+
+
 // ═══════════════════════════════════════════════════════════════
-// HANDLER — SSE STREAMING
+// MAIN HANDLER
 // ═══════════════════════════════════════════════════════════════
 Deno.serve(async (req) => {
   const startTime = Date.now();
@@ -86,407 +251,195 @@ Deno.serve(async (req) => {
     const { message, conversationHistory, stream } = body;
     if (!message) return Response.json({ error: 'Messaggio mancante' }, { status: 400 });
 
-    // ── Detect PROCEDURA OPERATIVA ──
-    const msgLower = message.toLowerCase();
-    const proceduralKeywords = [
-      'procedura','iter','passaggi','fasi','step','workflow','processo','metodo','istruzioni','guida',
-      'come fare','come si fa','come ottenere','come richiedere','come attivare','come configurare','come installare',
-      'richiedere','ottenere','registrare','attivare','aprire','presentare','depositare','trasmettere',
-      'inviare','compilare','configurare','installare','abilitare','verificare','validare','certificare',
-      'integrare','implementare','aggiornare','avviare','eseguire',
-      'autorizzazione','permesso','licenza','certificazione','conformità','adempimento','regolamento',
-      'normativa','requisiti','documentazione','istanza','domanda',
-      'prima','poi','successivamente','quindi','infine','fase','passaggio','livello','stadio'
-    ];
-    const hasKeyword = proceduralKeywords.some(kw => msgLower.includes(kw));
-    // Detect intento operativo semantico anche senza parole chiave esplicite
-    const operationalPatterns = [
-      /come\s+(?:posso|faccio|devo|si\s+pu[oò])/,
-      /(?:voglio|vorrei|devo|ho bisogno di|mi serve)\s+(?:\w+\s+){0,3}(?:aprire|creare|fare|ottenere|attivare|configurare|installare|registrare|avviare|inviare|risolvere|cambiare|modificare|impostare|settare|preparare|organizzare|gestire|completare|chiudere|trasferire|migrare|convertire|spostare)/,
-      /(?:cosa\s+(?:serve|devo|mi\s+serve)\s+per)/,
-      /(?:quali\s+(?:sono\s+(?:i\s+passaggi|le\s+fasi|gli\s+step)))/,
-      /(?:aiut(?:ami|o)\s+(?:a|con))\s+/,
-      /(?:dove|quando|a chi)\s+(?:devo|bisogna|si deve)\s+/,
-      /(?:per\s+(?:aprire|creare|ottenere|attivare|registrare|avviare|richiedere|fare|configurare|installare))/,
-    ];
-    const hasOperationalIntent = operationalPatterns.some(rx => rx.test(msgLower));
-    const isProcedural = hasKeyword || hasOperationalIntent;
-    console.log(`[consultaAI] Procedural mode: ${isProcedural} (keyword=${hasKeyword}, intent=${hasOperationalIntent})`);
-
     const openaiKey = Deno.env.get("OPENAI_API_KEY");
     const geminiKey = Deno.env.get("GEMINI_API_KEY");
     if (!openaiKey) return Response.json({ error: 'OPENAI_API_KEY non configurata' }, { status: 500 });
+    if (!geminiKey) return Response.json({ error: 'GEMINI_API_KEY non configurata' }, { status: 500 });
 
     let totalInput = 0;
     let totalOutput = 0;
     let totalCost = 0;
-    let webSearchUsed = false;
-    let webContext = '';
 
-    // ── STEP 1: Gemini Search (con timeout aggressivo, NON bloccante) ──
-    // Context question DeepSeek viene lanciata in parallelo allo streaming
-    let contextQuestion = '';
-    
-    // Lancia Gemini Search con timeout ridotto (12s) — non blocca se lento
-    if (geminiKey) {
-      console.log('[consultaAI] Gemini Search in corso...');
+    // ══════════════════════════════════════
+    // STEP 1: Normalize query for cache
+    // ══════════════════════════════════════
+    let normalizedQuery = '';
+    try {
+      const normResult = await normalizeQuery(geminiKey, message);
+      normalizedQuery = normResult.text.toLowerCase().replace(/[.!?;:,]$/g, '').trim();
+      totalInput += normResult.inputTokens;
+      totalOutput += normResult.outputTokens;
+      totalCost += calcCost('gemini-flash', normResult.inputTokens, normResult.outputTokens);
+      console.log(`[consultaAI] Normalized: "${normalizedQuery}"`);
+    } catch (e) {
+      console.log('[consultaAI] Normalization failed:', e.message);
+      normalizedQuery = message.toLowerCase().substring(0, 100).trim();
+    }
+
+    // ══════════════════════════════════════
+    // STEP 2-3: Cache lookup
+    // ══════════════════════════════════════
+    let cacheHit = null;
+    // Only use cache for first message in conversation (no history)
+    const isFirstMessage = !conversationHistory || conversationHistory.trim() === '';
+    if (isFirstMessage && normalizedQuery.length > 5) {
       try {
-        const geminiResult = await callGeminiSearch(geminiKey, message);
-        if (geminiResult && geminiResult.content && geminiResult.content.length > 50) {
-          webContext = geminiResult.content;
-          webSearchUsed = true;
-          totalInput += geminiResult.inputTokens;
-          totalOutput += geminiResult.outputTokens;
-          totalCost += calcCost('gemini', geminiResult.inputTokens, geminiResult.outputTokens);
-          console.log(`[consultaAI] Gemini Search OK: ${geminiResult.content.length} chars`);
+        const cached = await base44.asServiceRole.entities.AIResponseCache.filter({ normalized_query: normalizedQuery });
+        if (cached.length > 0) {
+          cacheHit = cached[0];
+          console.log(`[consultaAI] CACHE HIT! id=${cacheHit.id}, hits=${cacheHit.hit_count || 0}`);
+          // Update hit count async
+          base44.asServiceRole.entities.AIResponseCache.update(cacheHit.id, {
+            hit_count: (cacheHit.hit_count || 0) + 1,
+            last_hit_at: new Date().toISOString(),
+          }).catch(() => {});
         }
       } catch (e) {
-        console.log('[consultaAI] Gemini Search fallito:', e.message);
+        console.log('[consultaAI] Cache lookup error:', e.message);
       }
     }
 
-    // ── STEP 2: Build messages ──
-    const chatMessages = [];
-    chatMessages.push({
-      role: "system",
-      content: `Sei ARIA (Assistente per Ricerca, Innovazione e Analisi), un consulente strategico e tecnico di altissimo livello che opera in lingua italiana.
+    // ══════════════════════════════════════
+    // STEP 3: Cache hit → immediate response
+    // ══════════════════════════════════════
+    if (cacheHit) {
+      const elapsed = Date.now() - startTime;
 
-IDENTITÀ E TONO
-- Rispondi SEMPRE in italiano professionale. Usa termini tecnici inglesi solo quando sono standard di settore, affiancandoli con la traduzione italiana alla prima occorrenza.
-- Tono da senior consultant esperto che insegna: autorevole ma accessibile, diretto ma mai sbrigativo.
-- Mai frasi vuote ("Certo!", "Ottima domanda!"). Vai dritto al punto.
-- Non usare emoji. Dai del "tu" professionale.
+      if (stream) {
+        const encoder = new TextEncoder();
+        const { readable, writable } = new TransformStream();
+        const writer = writable.getWriter();
 
-LUNGHEZZA E PROFONDITÀ
-- Per domande di merito: risposte di ALMENO 800-1200 parole. Non esiste "troppo lungo" — esiste solo "incompleto".
-- Ogni argomento va esplorato da TUTTI gli angoli rilevanti.
-- Ogni affermazione va supportata da dati concreti: numeri, percentuali, range, benchmark, stime, date.
-- Includi SEMPRE esempi concreti, scenari reali, casi d'uso specifici.
+        (async () => {
+          try {
+            // Send suggestions if available
+            if (cacheHit.suggestions) {
+              try {
+                const sugs = JSON.parse(cacheHit.suggestions);
+                if (sugs.length > 0) {
+                  await writer.write(encoder.encode(`data: ${JSON.stringify({ entertain_questions: sugs.join('|||') })}\n\n`));
+                }
+              } catch {}
+            }
+            // Send cached text
+            await writer.write(encoder.encode(`data: ${JSON.stringify({ text: cacheHit.response_text })}\n\n`));
+            await writer.write(encoder.encode(`data: ${JSON.stringify({ done: true, web_search_used: false, response_time_ms: elapsed, cache_hit: true })}\n\n`));
+          } catch {} finally {
+            try { await writer.close(); } catch {}
+          }
+        })();
 
-═══════════════════════════════════════════════════════
-STRUTTURA OBBLIGATORIA DELLE RISPOSTE — 7 SEZIONI
-═══════════════════════════════════════════════════════
+        // Log usage
+        base44.asServiceRole.entities.UsageLog.create({
+          user_email: user.email, action_type: 'chat_ai_cache', model_used: 'cache',
+          provider: 'cache', input_tokens: 0, output_tokens: 0, cost_usd: 0,
+          category: cacheHit.category || 'Generale', response_time_ms: elapsed,
+          timestamp: new Date().toISOString(),
+        }).catch(() => {});
 
-Ogni risposta DEVE seguire ESATTAMENTE questa struttura, nell'ordine indicato:
+        return new Response(readable, {
+          headers: { 'Content-Type': 'text/event-stream', 'Cache-Control': 'no-cache', 'Connection': 'keep-alive' },
+        });
+      }
 
-## 1. Introduzione Breve
-Spiega in modo semplice e diretto cosa significa l'argomento richiesto. Massimo 3-4 frasi. Contestualizza perché è rilevante oggi per un imprenditore italiano.
-
-## 2. Struttura / Architettura
-Mostra gli elementi principali che compongono il sistema, il concetto o il processo. Usa elenchi o tabelle per evidenziare i blocchi fondamentali e come si collegano tra loro.
-
-## 3. Spiegazione dei Componenti
-Descrivi i componenti o i concetti fondamentali uno per uno, in sotto-sezioni:
-- Ogni componente ha il proprio ### titolo
-- Per ogni componente: 2-4 frasi di spiegazione chiara + dati concreti
-- Se ci sono alternative, confrontale TUTTE con pro, contro, costi, tempi
-
-## 4. Esempio Pratico / Configurazione
-Mostra un esempio concreto, una configurazione reale o un caso d'uso specifico. Usa numeri reali, scenari plausibili, nomi di strumenti. Se applicabile, usa tabelle o schemi per chiarezza.
-
-## 5. Costi / Risorse / Strumenti
-Indica valori indicativi, strumenti necessari, tempo richiesto, budget stimato. Usa tabelle markdown quando ci sono più voci. Distingui chiaramente tra dati certi e stime.
-
-## 6. Schema Semplificato
-Se il concetto lo richiede, crea una rappresentazione visiva:
-- Tabelle markdown per confronti
-- Diagrammi ASCII/Unicode con box drawing (┌─┐│└─┘, frecce →←↑↓⇒)
-- Indicatori visivi (█ ▓ ░ per barre, ↑↓→ per tendenze)
-- Se non serve uno schema visivo, usa questa sezione per un riepilogo sintetico a punti
-
-## 7. Conclusione Operativa
-Riassumi cosa serve per iniziare realmente. Passi concreti numerati, priorità, primo passo da fare domani. Massimo 5-8 punti azionabili.
-
-═══════════════════════════════════════════════════════
-SEZIONE FINALE OBBLIGATORIA — DOMANDA IMPORTANTE
-═══════════════════════════════════════════════════════
-
-Dopo la Conclusione Operativa, aggiungi SEMPRE questa sezione:
-
----
-**DOMANDA IMPORTANTE**
-
-Per aiutarti meglio devo capire una cosa:
-
-[domanda specifica e mirata sull'obiettivo dell'utente]
-
-Proponi da 3 a 5 opzioni plausibili come elenco numerato. Ogni opzione deve essere concreta e autosufficiente.
-
----
-**Se vuoi posso anche spiegarti:**
-
-- [suggerimento 1 — frase breve, specifica, stimolante]
-- [suggerimento 2 — frase breve, specifica, stimolante]
-
-═══════════════════════════════════════════════════════
-SEZIONE FINALE OBBLIGATORIA — SUGGERIMENTI
-═══════════════════════════════════════════════════════
-
-Alla fine di OGNI risposta, DOPO la domanda importante, aggiungi SEMPRE:
-
----
-**SUGGERIMENTI**
-
-1. [suggerimento 1]
-2. [suggerimento 2]
-
-REGOLE per i suggerimenti:
-- Esattamente 2 suggerimenti, mai di più, mai di meno
-- Frasi brevi (max 15 parole), autosufficienti, scritte come richieste complete pronte all'uso come nuovo prompt
-- Devono ampliare o approfondire l'argomento trattato in modo interessante e stimolante
-- Evita domande generiche tipo "Dimmi di più" — sii specifico e concreto
-- Ogni suggerimento deve poter generare autonomamente una risposta completa se usato come prompt
-
-═══════════════════════════════════════════════════════
-REGOLE DI FORMATTAZIONE
-═══════════════════════════════════════════════════════
-
-- **Paragrafi brevi**: max 3-4 frasi per paragrafo, poi vai a capo
-- **Titoli chiari**: ## per sezioni principali, ### per sotto-sezioni
-- **Elenchi**: usa elenchi puntati e numerati il più possibile. Evita muri di testo
-- **Grassetto**: usa **grassetto** MOLTO frequentemente per concetti chiave, cifre, nomi di legge, termini tecnici, conclusioni, deadline, percentuali. Chi legge deve capire il 70% leggendo solo i grassetti e i titoli
-- **Termini tecnici**: seguiti sempre da una breve spiegazione tra parentesi alla prima occorrenza
-- **Tabelle markdown** per confronti
-- **Blocchi di codice** per snippet tecnici
-- > per citazioni o note importanti
-
-CONTESTO ITALIA / EUROPA
-Quando pertinente: GDPR, normative AGID, fatturazione elettronica, PEC, SPID/CIE, regime forfettario, crediti d'imposta (Piano Transizione 4.0/5.0), PMI italiane, distretti industriali, PagoPA, ANAC, bandi regionali.
-
-REGOLE INVIOLABILI
-1. MAI risposte superficiali o generiche
-2. MAI elenchi senza spiegazione — ogni punto deve contenere 2-4 frasi
-3. SEMPRE confronti tra alternative quando esistono più approcci
-4. SEMPRE dati numerici concreti
-5. SEMPRE almeno un esempio pratico
-6. SEMPRE la DOMANDA IMPORTANTE alla fine
-7. SEMPRE i SUGGERIMENTI alla fine
-8. Per temi con implicazioni legali/fiscali/normative, menzionale sempre`
-    });
-
-    // ── Iniezione prompt PROCEDURA OPERATIVA se rilevato ──
-    if (isProcedural) {
-      chatMessages.push({
-        role: "system",
-        content: `MODALITÀ PROCEDURA OPERATIVA ATTIVA — L'utente chiede un iter, una procedura o passaggi operativi concreti.
-
-STRUTTURA OBBLIGATORIA DELLA RISPOSTA (rispetta ESATTAMENTE queste sezioni in questo ordine):
-
-## Obiettivo
-Descrizione chiara e concreta del risultato che l'utente vuole ottenere. Spiega cosa si ottiene al termine della procedura.
-
-## Requisiti
-Cosa serve PRIMA di iniziare la procedura:
-- Documenti da procurare (con nomi esatti)
-- Requisiti soggettivi (chi può fare domanda)
-- Prerequisiti tecnici/legali
-- Eventuali verifiche preventive
-
-## Procedura Passo-Passo
-
-1. **Primo passaggio operativo** — descrizione dettagliata dell'azione, dove farla, come farla
-2. **Secondo passaggio operativo** — descrizione dettagliata
-3. **Terzo passaggio operativo** — descrizione dettagliata
-4. Continuare fino al completamento della procedura
-
-Ogni passaggio deve essere autosufficiente: chi legge deve poter eseguirlo senza cercare altrove. Includi nomi esatti di moduli, piattaforme, portali, URL quando noti. Se esistono percorsi alternativi (online vs cartaceo, diretto vs tramite professionista), descrivili entrambi.
-
-## Documenti o Strumenti Necessari
-Elencare TUTTI i documenti, moduli, software o strumenti richiesti. Usa una tabella markdown se possibile: Documento | Dove ottenerlo | Costo | Validità
-
-## Tempi e Costi
-- **Tempi medi**: durata complessiva (best case / worst case)
-- **Costi**: bolli, diritti, compensi professionali, eventuali spese accessorie. Usa tabella markdown se ci sono più voci.
-
-## Errori Comuni da Evitare
-Elenco dei problemi frequenti o passaggi critici, con spiegazione delle conseguenze e come evitarli.
-
-REGOLE DI STILE PROCEDURA:
-- **Evita spiegazioni teoriche lunghe** — vai dritto all'azione pratica
-- **Frasi brevi e dirette** — ogni frase deve dire cosa fare, non perché
-- **Ogni passaggio deve essere immediatamente eseguibile** dall'utente senza interpretazioni
-- **Usa SEMPRE elenchi numerati** per i passaggi operativi
-- Usa il **grassetto** per OGNI nome di documento, ente, scadenza, importo, termine tecnico
-- Indica quando è consigliabile rivolgersi a un professionista e di che tipo
-- Niente preamboli, niente introduzioni generiche — parti subito con l'Obiettivo
-
-REGOLE PER AMBITI TECNICI, AMMINISTRATIVI O NORMATIVI:
-- **Privilegia SEMPRE fonti ufficiali**: Gazzetta Ufficiale, siti istituzionali (.gov.it), normativa vigente, circolari ministeriali, FAQ ufficiali degli enti
-- **Cita la base normativa**: indica articoli di legge, decreti, regolamenti UE, circolari specifiche quando disponibili
-- **Evita informazioni speculative** — se un dato non è verificabile, non includerlo
-- **Se non sei sicuro di un passaggio, dichiaralo esplicitamente**: usa formule come "⚠️ Da verificare con [ente competente]" oppure "Dato indicativo, confermare su [fonte ufficiale]"
-- **Non inventare scadenze, importi o requisiti** — se non hai il dato aggiornato, scrivi "verificare sul sito ufficiale [nome ente]"
-- **Distingui chiaramente** tra informazioni certe (da normativa) e stime/approssimazioni`
+      // Non-streaming cache hit
+      return Response.json({
+        success: true, data: cacheHit.response_text, model_used: 'cache',
+        provider: 'cache', tokens: { input: 0, output: 0 }, cost_usd: 0,
+        response_time_ms: elapsed, web_search_used: false, cache_hit: true,
       });
     }
-
-    if (webContext) {
-      chatMessages.push({
-        role: "system",
-        content: `DATI AGGIORNATI DA RICERCA WEB (usa questi dati per arricchire la risposta con informazioni verificate e attuali — cita le fonti quando possibile):\n\n${webContext}`
-      });
-    }
-
-    if (conversationHistory && conversationHistory.trim()) {
-      chatMessages.push({
-        role: "system",
-        content: `CONTESTO CONVERSAZIONE PRECEDENTE (usa per coerenza, rispondi SOLO alla domanda corrente):\n${conversationHistory}`
-      });
-    }
-
-    chatMessages.push({ role: "user", content: message });
 
     // ══════════════════════════════════════
-    // STREAMING MODE
+    // STREAMING MODE (cache miss)
     // ══════════════════════════════════════
     if (stream) {
       const encoder = new TextEncoder();
-
-      // Strategia: Gemini Flash genera il Quadro Generale veloce,
-      // poi GPT-4o completa con l'analisi approfondita.
-      // Entrambi partono in parallelo.
-
-      const gptMessages = [...chatMessages];
-
-      // Lancia TUTTO in parallelo: Gemini Flash intro + GPT-4o streaming + Context question
-      const flashIntroPromise = geminiKey ? callGeminiFlashQuickIntro(geminiKey, message, webContext).catch(e => {
-        console.log('[consultaAI] Gemini Flash intro fallito:', e.message);
-        return null;
-      }) : Promise.resolve(null);
-
-      // Domanda di chiarimento con 2 opzioni — se la richiesta è ambigua
-      const clarificationPromise = geminiKey ? (async () => {
-        try {
-          const cqUrl = `https://generativelanguage.googleapis.com/v1beta/models/gemini-2.0-flash:generateContent?key=${geminiKey}`;
-          const cqResp = await fetch(cqUrl, {
-            method: "POST",
-            headers: { "Content-Type": "application/json" },
-            body: JSON.stringify({
-              contents: [{ parts: [{ text: `Domanda dell'utente: "${message}"${conversationHistory ? `\nContesto precedente: ${conversationHistory.substring(0, 300)}` : ''}` }] }],
-              systemInstruction: { parts: [{ text: `Analizza la domanda dell'utente. Se può essere interpretata in più modi oppure se manca un'informazione chiave che migliorerebbe la risposta, genera una domanda di chiarimento con 2 opzioni.
-
-      FORMATO OBBLIGATORIO (JSON):
-      {"question":"domanda breve e specifica","options":["opzione 1","opzione 2"]}
-
-      REGOLE:
-      - La domanda deve essere breve (max 15 parole), specifica, NON generica
-      - Le 2 opzioni devono rappresentare le interpretazioni più probabili della richiesta
-      - Ogni opzione max 8 parole, chiara e autosufficiente
-      - Se la domanda è già chiara e non ambigua, rispondi con: {"question":"","options":[]}
-      - Rispondi SOLO con il JSON, nient'altro` }] },
-              generationConfig: { temperature: 0.5, maxOutputTokens: 120 },
-            }),
-            signal: AbortSignal.timeout(8000),
-          });
-          if (cqResp.ok) {
-            const cqData = await cqResp.json();
-            const raw = (cqData.candidates?.[0]?.content?.parts?.[0]?.text || '').trim();
-            try {
-              const parsed = JSON.parse(raw.replace(/```json\n?/g, '').replace(/```/g, '').trim());
-              if (parsed.question && parsed.options && parsed.options.length >= 2) {
-                return JSON.stringify(parsed);
-              }
-            } catch {
-              console.log('[consultaAI] Clarification parse failed:', raw.substring(0, 100));
-            }
-          }
-        } catch (e) {
-          console.log('[consultaAI] Clarification skip:', e.message);
-        }
-        return '';
-      })() : Promise.resolve('');
-
-      // Domande propositive per intrattenere l'utente durante l'attesa
-      const entertainPromise = geminiKey ? (async () => {
-        try {
-          const eUrl = `https://generativelanguage.googleapis.com/v1beta/models/gemini-2.0-flash:generateContent?key=${geminiKey}`;
-          const eResp = await fetch(eUrl, {
-            method: "POST",
-            headers: { "Content-Type": "application/json" },
-            body: JSON.stringify({
-              contents: [{ parts: [{ text: `Domanda: "${message}"${conversationHistory ? `\nContesto: ${conversationHistory.substring(0, 300)}` : ''}` }] }],
-              systemInstruction: { parts: [{ text: `Genera ESATTAMENTE 2 domande di approfondimento propositivo che offrano aiuto concreto all'utente, separate da |||.
-TONO OBBLIGATORIO: inizia SEMPRE con formule come "Posso aiutarti a calcolare...", "Vuoi che approfondisca...", "Posso cercare...", "Ti serve sapere...", "Posso verificare...", "Vuoi che analizzi...".
-REGOLE: collegate al tema, aspetti CONCRETI diversi tra loro (costi, tempistiche, normativa, procedure, calcoli), 10-20 parole ciascuna in italiano con "?", NON generiche, NON riformulare la domanda originale.
-FORMATO ESATTO: domanda1|||domanda2
-Rispondi SOLO con le due domande separate da |||, nient'altro.` }] },
-              generationConfig: { temperature: 0.7, maxOutputTokens: 80 },
-            }),
-            signal: AbortSignal.timeout(8000),
-          });
-          if (eResp.ok) {
-            const eData = await eResp.json();
-            return (eData.candidates?.[0]?.content?.parts?.[0]?.text || '').trim().replace(/^["']|["']$/g, '');
-          }
-        } catch (e) {
-          console.log('[consultaAI] Entertain questions skip:', e.message);
-        }
-        return '';
-      })() : Promise.resolve('');
-
-      // GPT-4o streaming — parte subito senza aspettare nessuno
-      const openaiResponsePromise = fetch("https://api.openai.com/v1/chat/completions", {
-        method: "POST",
-        headers: { "Content-Type": "application/json", "Authorization": `Bearer ${openaiKey}` },
-        body: JSON.stringify({
-          model: 'gpt-4o',
-          messages: gptMessages,
-          temperature: 0.45,
-          max_tokens: 16384,
-          top_p: 0.95,
-          frequency_penalty: 0.3,
-          presence_penalty: 0.2,
-          stream: true,
-        }),
-        signal: AbortSignal.timeout(120000),
-      });
-
-      // Aspetta Gemini Flash intro (veloce, ~1-3s)
-      const flashResult = await flashIntroPromise;
-      let flashSent = false;
-
       const { readable, writable } = new TransformStream();
       const writer = writable.getWriter();
 
-      // Funzione helper per scrivere SSE
       const sendSSE = async (data) => {
         await writer.write(encoder.encode(`data: ${JSON.stringify(data)}\n\n`));
       };
 
-      // Processa tutto in background
       (async () => {
         try {
-          // 1a. Domanda di chiarimento — arriva async
-          clarificationPromise.then(async (cq) => {
-            if (cq) {
-              contextQuestion = cq;
-              console.log(`[consultaAI] Clarification: "${cq}"`);
-              try { await sendSSE({ context_question: cq }); } catch {}
-            }
+          // ── STEP 4+5+6: Launch router, clarification, fast response IN PARALLEL ──
+          const routerPromise = routeQuery(geminiKey, message, conversationHistory).catch(e => {
+            console.log('[consultaAI] Router failed:', e.message);
+            return { complexity: 'STANDARD', category: 'SPIEGAZIONE', inputTokens: 0, outputTokens: 0 };
           });
 
-          // 1b. Domande propositive per intrattenere — arrivano async
-          entertainPromise.then(async (eq) => {
-            if (eq) {
-              console.log(`[consultaAI] Entertain: "${eq}"`);
-              try { await sendSSE({ entertain_questions: eq }); } catch {}
-            }
-          });
+          const clarificationPromise = generateClarification(geminiKey, message, conversationHistory).catch(() => '');
 
-          // 2. Invia il Quadro Generale da Gemini Flash immediatamente
-          if (flashResult && flashResult.content && flashResult.content.length > 50) {
-            flashSent = true;
-            totalInput += flashResult.inputTokens;
-            totalOutput += flashResult.outputTokens;
-            totalCost += calcCost('gemini', flashResult.inputTokens, flashResult.outputTokens);
-            console.log(`[consultaAI] Gemini Flash intro OK: ${flashResult.content.length} chars`);
-            
-            // Invia il testo Gemini Flash come chunk di testo
-            await sendSSE({ text: flashResult.content + '\n\n' });
+          const fastResponsePromise = (async () => {
+            // We need router result for category, but start with default
+            try {
+              return await generateFastResponse(geminiKey, message, 'SPIEGAZIONE');
+            } catch (e) {
+              console.log('[consultaAI] Fast response failed:', e.message);
+              return null;
+            }
+          })();
+
+          // Wait for all parallel tasks
+          const [routerResult, clarification, fastResult] = await Promise.all([
+            routerPromise, clarificationPromise, fastResponsePromise
+          ]);
+
+          // Track costs
+          totalInput += routerResult.inputTokens || 0;
+          totalOutput += routerResult.outputTokens || 0;
+          totalCost += calcCost('gemini-flash', routerResult.inputTokens || 0, routerResult.outputTokens || 0);
+
+          console.log(`[consultaAI] Router: ${routerResult.complexity}/${routerResult.category}`);
+
+          // ── Send clarification question ──
+          if (clarification) {
+            console.log(`[consultaAI] Clarification: ${clarification}`);
+            await sendSSE({ context_question: clarification });
           }
 
-          // 3. Ora processa lo stream GPT-4o
-          const openaiResponse = await openaiResponsePromise;
+          // ── Send fast response as initial text ──
+          let fullContent = '';
+          if (fastResult && fastResult.text && fastResult.text.length > 20) {
+            totalInput += fastResult.inputTokens;
+            totalOutput += fastResult.outputTokens;
+            totalCost += calcCost('gemini-flash', fastResult.inputTokens, fastResult.outputTokens);
+            console.log(`[consultaAI] Fast response: ${fastResult.text.length} chars`);
+            fullContent = fastResult.text + '\n\n';
+            await sendSSE({ text: fullContent });
+          }
+
+          // ── STEP 7: GPT-4o streaming (main response) ──
+          const systemPrompt = buildSystemPrompt(routerResult);
+          const chatMessages = [{ role: "system", content: systemPrompt }];
+
+          if (conversationHistory && conversationHistory.trim()) {
+            chatMessages.push({
+              role: "system",
+              content: `CONTESTO CONVERSAZIONE PRECEDENTE (rispondi SOLO alla domanda corrente):\n${conversationHistory}`
+            });
+          }
+
+          chatMessages.push({ role: "user", content: message });
+
+          const openaiResponse = await fetch("https://api.openai.com/v1/chat/completions", {
+            method: "POST",
+            headers: { "Content-Type": "application/json", "Authorization": `Bearer ${openaiKey}` },
+            body: JSON.stringify({
+              model: 'gpt-4o',
+              messages: chatMessages,
+              temperature: 0.3,
+              max_tokens: 1000,
+              top_p: 0.9,
+              frequency_penalty: 0.2,
+              presence_penalty: 0.1,
+              stream: true,
+            }),
+            signal: AbortSignal.timeout(120000),
+          });
+
           if (!openaiResponse.ok) {
             const err = await openaiResponse.text();
             await sendSSE({ error: `OpenAI error ${openaiResponse.status}` });
@@ -494,11 +447,11 @@ Rispondi SOLO con le due domande separate da |||, nient'altro.` }] },
             return;
           }
 
+          // Process GPT-4o stream
           const decoder = new TextDecoder();
           const reader = openaiResponse.body.getReader();
-          let skipIntroSection = flashSent;
+          let skipFastSection = !!fastResult?.text;
           let skipping = false;
-          let fullContent = flashSent ? flashResult.content + '\n\n' : '';
           let gptBuffer = '';
 
           while (true) {
@@ -507,64 +460,115 @@ Rispondi SOLO con le due domande separate da |||, nient'altro.` }] },
 
             const text = decoder.decode(value, { stream: true });
             const lines = text.split('\n');
-            
+
             for (const line of lines) {
               if (!line.startsWith('data: ')) continue;
               const data = line.slice(6).trim();
               if (data === '[DONE]') {
-                const elapsed = Date.now() - startTime;
-                await sendSSE({ done: true, web_search_used: webSearchUsed, response_time_ms: elapsed });
+                // Stream complete — now do post-processing
 
-                try {
-                  await base44.asServiceRole.entities.UsageLog.create({
-                    user_email: user.email,
-                    action_type: 'chat_ai',
-                    model_used: flashSent ? 'gemini-flash+gpt-4o' : 'gpt-4o',
-                    provider: 'openai',
-                    input_tokens: totalInput,
-                    output_tokens: totalOutput,
-                    cost_usd: Math.round(totalCost * 100000) / 100000,
-                    category: 'Generale',
-                    response_time_ms: elapsed,
-                    timestamp: new Date().toISOString(),
-                  });
-                } catch (e) {
-                  console.log('[consultaAI] UsageLog error:', e.message);
+                // Flush any remaining buffer
+                if (gptBuffer) {
+                  fullContent += gptBuffer;
+                  await sendSSE({ text: gptBuffer });
+                  gptBuffer = '';
                 }
+
+                // ── STEP 8: Suggestions + Title (parallel, post-stream) ──
+                const suggestionsPromise = generateSuggestions(geminiKey, message, fullContent).catch(() => null);
+                const titlePromise = generateTitle(geminiKey, message, fullContent).catch(() => null);
+
+                const [sugResult, titleResult] = await Promise.all([suggestionsPromise, titlePromise]);
+
+                let suggestionsText = '';
+                if (sugResult?.text) {
+                  totalInput += sugResult.inputTokens;
+                  totalOutput += sugResult.outputTokens;
+                  totalCost += calcCost('gemini-flash', sugResult.inputTokens, sugResult.outputTokens);
+                  suggestionsText = sugResult.text;
+
+                  // Append suggestions to content
+                  const sugLines = suggestionsText.split('|||').map(s => s.trim()).filter(s => s.length > 3);
+                  if (sugLines.length > 0) {
+                    const sugBlock = '\n\n---\n**SUGGERIMENTI**\n\n' + sugLines.map((s, i) => `${i + 1}. ${s}`).join('\n');
+                    fullContent += sugBlock;
+                    await sendSSE({ text: sugBlock });
+                  }
+                }
+
+                let generatedTitle = '';
+                if (titleResult?.text) {
+                  totalInput += titleResult.inputTokens;
+                  totalOutput += titleResult.outputTokens;
+                  totalCost += calcCost('gemini-flash', titleResult.inputTokens, titleResult.outputTokens);
+                  generatedTitle = titleResult.text;
+                }
+
+                const elapsed = Date.now() - startTime;
+                await sendSSE({ 
+                  done: true, web_search_used: false, response_time_ms: elapsed,
+                  generated_title: generatedTitle || null,
+                });
+
+                // ── STEP 9: Save to cache ──
+                if (isFirstMessage && normalizedQuery.length > 5 && fullContent.length > 100) {
+                  const sugArray = suggestionsText ? suggestionsText.split('|||').map(s => s.trim()).filter(s => s.length > 3) : [];
+                  base44.asServiceRole.entities.AIResponseCache.create({
+                    normalized_query: normalizedQuery,
+                    response_text: fullContent,
+                    suggestions: JSON.stringify(sugArray),
+                    title: generatedTitle || '',
+                    category: routerResult.category || 'SPIEGAZIONE',
+                    complexity: routerResult.complexity || 'STANDARD',
+                    hit_count: 0,
+                  }).catch(e => console.log('[consultaAI] Cache save error:', e.message));
+                }
+
+                // Log usage
+                base44.asServiceRole.entities.UsageLog.create({
+                  user_email: user.email, action_type: 'chat_ai',
+                  model_used: 'gemini-flash+gpt-4o', provider: 'multi',
+                  input_tokens: totalInput, output_tokens: totalOutput,
+                  cost_usd: Math.round(totalCost * 100000) / 100000,
+                  category: routerResult.category || 'Generale',
+                  response_time_ms: elapsed, timestamp: new Date().toISOString(),
+                }).catch(e => console.log('[consultaAI] UsageLog error:', e.message));
+
                 continue;
               }
+
               try {
                 const parsed = JSON.parse(data);
                 const delta = parsed.choices?.[0]?.delta?.content;
                 if (delta) {
-                  // Se Gemini Flash ha già inviato l'Introduzione,
-                  // saltiamo la sezione 1 dal stream GPT-4o
-                  if (skipIntroSection) {
+                  // Skip the "Risposta Rapida" section from GPT-4o if we already sent fast response
+                  if (skipFastSection) {
                     gptBuffer += delta;
-                    // Cerca l'inizio della sezione Introduzione nel buffer
-                    if (!skipping && (gptBuffer.includes('## 1.') || gptBuffer.includes('## Quadro Generale'))) {
+                    // Look for "## Risposta Rapida" in buffer
+                    if (!skipping && gptBuffer.includes('## Risposta Rapida')) {
                       skipping = true;
                     }
                     if (skipping) {
-                      // Cerca la prossima sezione ## dopo l'Introduzione
-                      const introIdx = gptBuffer.search(/## (?:1\.|Quadro Generale)/);
+                      // Look for the NEXT ## section after Risposta Rapida
+                      const introIdx = gptBuffer.indexOf('## Risposta Rapida');
                       if (introIdx !== -1) {
-                        const restAfterIntro = gptBuffer.substring(introIdx + 5);
-                        const nextSection = restAfterIntro.search(/\n## /);
+                        const afterIntro = gptBuffer.substring(introIdx + 20);
+                        const nextSection = afterIntro.search(/\n## /);
                         if (nextSection !== -1) {
-                          const toSend = restAfterIntro.substring(nextSection);
+                          const toSend = afterIntro.substring(nextSection);
                           fullContent += toSend;
                           await sendSSE({ text: toSend });
-                          skipIntroSection = false;
+                          skipFastSection = false;
                           skipping = false;
                           gptBuffer = '';
                         }
                       }
                     } else {
-                      if (gptBuffer.length > 2000) {
+                      // No section header found yet — if buffer gets too large, send it all
+                      if (gptBuffer.length > 1500) {
                         fullContent += gptBuffer;
                         await sendSSE({ text: gptBuffer });
-                        skipIntroSection = false;
+                        skipFastSection = false;
                         gptBuffer = '';
                       }
                     }
@@ -582,7 +586,7 @@ Rispondi SOLO con le due domande separate da |||, nient'altro.` }] },
             }
           }
 
-          // Se c'è buffer residuo non inviato, invialo
+          // Flush residual buffer
           if (gptBuffer) {
             fullContent += gptBuffer;
             await sendSSE({ text: gptBuffer });
@@ -597,28 +601,34 @@ Rispondi SOLO con le due domande separate da |||, nient'altro.` }] },
       })();
 
       return new Response(readable, {
-        headers: {
-          'Content-Type': 'text/event-stream',
-          'Cache-Control': 'no-cache',
-          'Connection': 'keep-alive',
-        },
+        headers: { 'Content-Type': 'text/event-stream', 'Cache-Control': 'no-cache', 'Connection': 'keep-alive' },
       });
     }
 
     // ══════════════════════════════════════
     // NON-STREAMING MODE (fallback)
     // ══════════════════════════════════════
+    const routerResult = await routeQuery(geminiKey, message, conversationHistory).catch(() => ({
+      complexity: 'STANDARD', category: 'SPIEGAZIONE', inputTokens: 0, outputTokens: 0
+    }));
+    totalInput += routerResult.inputTokens || 0;
+    totalOutput += routerResult.outputTokens || 0;
+    totalCost += calcCost('gemini-flash', routerResult.inputTokens || 0, routerResult.outputTokens || 0);
+
+    const systemPrompt = buildSystemPrompt(routerResult);
+    const chatMessages = [{ role: "system", content: systemPrompt }];
+    if (conversationHistory && conversationHistory.trim()) {
+      chatMessages.push({ role: "system", content: `CONTESTO CONVERSAZIONE:\n${conversationHistory}` });
+    }
+    chatMessages.push({ role: "user", content: message });
+
     const openaiResponse = await fetch("https://api.openai.com/v1/chat/completions", {
       method: "POST",
       headers: { "Content-Type": "application/json", "Authorization": `Bearer ${openaiKey}` },
       body: JSON.stringify({
-        model: 'gpt-4o',
-        messages: chatMessages,
-        temperature: 0.45,
-        max_tokens: 16384,
-        top_p: 0.95,
-        frequency_penalty: 0.3,
-        presence_penalty: 0.2,
+        model: 'gpt-4o', messages: chatMessages,
+        temperature: 0.3, max_tokens: 1000, top_p: 0.9,
+        frequency_penalty: 0.2, presence_penalty: 0.1,
       }),
       signal: AbortSignal.timeout(120000),
     });
@@ -629,41 +639,24 @@ Rispondi SOLO con le due domande separate da |||, nient'altro.` }] },
     }
 
     const data = await openaiResponse.json();
-    const response_data = data.choices?.[0]?.message?.content || '';
+    const responseData = data.choices?.[0]?.message?.content || '';
     totalInput += data.usage?.prompt_tokens || 0;
     totalOutput += data.usage?.completion_tokens || 0;
     totalCost += calcCost('gpt-4o', data.usage?.prompt_tokens || 0, data.usage?.completion_tokens || 0);
 
     const elapsed = Date.now() - startTime;
-    console.log(`[consultaAI] Done in ${elapsed}ms | cost=$${totalCost.toFixed(5)}`);
 
-    try {
-      await base44.asServiceRole.entities.UsageLog.create({
-        user_email: user.email,
-        action_type: 'chat_ai',
-        model_used: 'gpt-4o',
-        provider: 'openai',
-        input_tokens: totalInput,
-        output_tokens: totalOutput,
-        cost_usd: Math.round(totalCost * 100000) / 100000,
-        category: 'Generale',
-        response_time_ms: elapsed,
-        timestamp: new Date().toISOString(),
-      });
-    } catch (e) {
-      console.log('[consultaAI] UsageLog error:', e.message);
-    }
+    base44.asServiceRole.entities.UsageLog.create({
+      user_email: user.email, action_type: 'chat_ai', model_used: 'gpt-4o',
+      provider: 'openai', input_tokens: totalInput, output_tokens: totalOutput,
+      cost_usd: Math.round(totalCost * 100000) / 100000, category: routerResult.category || 'Generale',
+      response_time_ms: elapsed, timestamp: new Date().toISOString(),
+    }).catch(() => {});
 
     return Response.json({
-      success: true,
-      data: response_data,
-      model_used: 'gpt-4o',
-      provider: 'openai',
-      tokens: { input: totalInput, output: totalOutput },
-      cost_usd: totalCost,
-      response_time_ms: elapsed,
-      web_search_used: webSearchUsed,
-      context_question: contextQuestion || null,
+      success: true, data: responseData, model_used: 'gpt-4o', provider: 'openai',
+      tokens: { input: totalInput, output: totalOutput }, cost_usd: totalCost,
+      response_time_ms: elapsed, web_search_used: false,
     });
 
   } catch (e) {
