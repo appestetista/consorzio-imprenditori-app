@@ -476,8 +476,12 @@ Deno.serve(async (req) => {
             console.log(`[consultaAI] Entertain questions sent: ${entertainResult.text.substring(0, 60)}...`);
           }
 
-          if (clarification) {
-            await sendSSE({ context_question: clarification });
+          // Clarification solo per domande ADVANCED/ambigue — lanciata DOPO router per non rallentare
+          if (routerResult.complexity === 'ADVANCED') {
+            const clarification = await generateClarification(geminiKey, message, truncatedHistory).catch(() => '');
+            if (clarification) {
+              await sendSSE({ context_question: clarification });
+            }
           }
 
           if (!openaiResponse.ok) {
