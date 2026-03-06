@@ -1,7 +1,7 @@
 import { createClientFromRequest } from 'npm:@base44/sdk@0.8.20';
 
 // ═══════════════════════════════════════════════════════════════
-// PIPELINE v2 — 8-Step Architecture
+// PIPELINE v2 — 10-Step Architecture
 // 1. Cache Normalization (Gemini Flash)
 // 2. Cache Lookup
 // 3. Cache Hit → immediate response
@@ -9,6 +9,7 @@ import { createClientFromRequest } from 'npm:@base44/sdk@0.8.20';
 // 5. Clarification Question (Gemini Flash) — parallel
 // 6. Fast Response (Gemini Flash) — parallel
 // 7. Main Response (GPT-4o streaming)
+// 7b. SELF_CHECK (GPT-4o-mini) — quality gate, solo se ≥120 parole
 // 8. Final Suggestions + Title (Gemini Flash) — post-stream
 // 9. Cache Save
 // ═══════════════════════════════════════════════════════════════
@@ -40,7 +41,8 @@ async function geminiFlash(apiKey, systemPrompt, userPrompt, opts = {}) {
 // ── Cost calculation ──
 function calcCost(model, inputTokens, outputTokens) {
   const rates = {
-    'gpt-4o':      { input: 2.50 / 1_000_000, output: 10.00 / 1_000_000 },
+    'gpt-4o':       { input: 2.50 / 1_000_000, output: 10.00 / 1_000_000 },
+    'gpt-4o-mini':  { input: 0.15 / 1_000_000, output: 0.60  / 1_000_000 },
     'gemini-flash': { input: 0.15 / 1_000_000, output: 0.60  / 1_000_000 },
   };
   const r = rates[model] || rates['gemini-flash'];
@@ -129,6 +131,66 @@ Restituisci solo le 2 frasi.`,
     { temperature: 0.4, maxOutputTokens: 100, timeout: 5000 }
   );
   return result;
+}
+
+// ── STEP 7b: SELF_CHECK — quality gate ──
+async function selfCheck(openaiKey, responseText) {
+  const wordCount = responseText.split(/\s+/).filter(w => w.length > 0).length;
+  if (wordCount < 120) {
+    console.log(`[consultaAI] SELF_CHECK skipped (${wordCount} words < 120)`);
+    return { text: responseText, inputTokens: 0, outputTokens: 0, skipped: true };
+  }
+
+  console.log(`[consultaAI] SELF_CHECK running (${wordCount} words)`);
+  const response = await fetch("https://api.openai.com/v1/chat/completions", {
+    method: "POST",
+    headers: { "Content-Type": "application/json", "Authorization": `Bearer ${openaiKey}` },
+    body: JSON.stringify({
+      model: 'gpt-4o-mini',
+      messages: [
+        {
+          role: "system",
+          content: `Analizza la risposta generata per l'utente.
+
+Verifica se la risposta è:
+* chiara
+* concreta
+* utile per un imprenditore
+* priva di frasi vaghe
+* contiene azioni pratiche o passaggi operativi
+
+Se la risposta è già chiara e utile, restituiscila **identica**.
+
+Se trovi problemi (vaghezza, teoria inutile, mancanza di passi operativi), riscrivila migliorandola.
+
+Regole:
+* mantieni la stessa struttura delle sezioni
+* massimo **400 parole**
+* privilegia esempi concreti
+* evita frasi generiche
+* rendi la risposta più pratica e operativa
+
+Restituisci solo la risposta finale.`
+        },
+        { role: "user", content: responseText }
+      ],
+      temperature: 0.1,
+      max_tokens: 600,
+    }),
+    signal: AbortSignal.timeout(30000),
+  });
+
+  if (!response.ok) {
+    console.log(`[consultaAI] SELF_CHECK failed: ${response.status}`);
+    return { text: responseText, inputTokens: 0, outputTokens: 0, skipped: true };
+  }
+
+  const data = await response.json();
+  const checkedText = data.choices?.[0]?.message?.content || responseText;
+  const inputTokens = data.usage?.prompt_tokens || 0;
+  const outputTokens = data.usage?.completion_tokens || 0;
+  console.log(`[consultaAI] SELF_CHECK done: ${inputTokens}in/${outputTokens}out`);
+  return { text: checkedText, inputTokens, outputTokens, skipped: false };
 }
 
 // ── STEP 8a: Final suggestions ──
