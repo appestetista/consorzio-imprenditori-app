@@ -447,7 +447,7 @@ Deno.serve(async (req) => {
               model: 'gpt-4o',
               messages: chatMessages,
               temperature: 0.3,
-              max_tokens: 1000,
+              max_tokens: 2000,
               top_p: 0.9,
               frequency_penalty: 0.2,
               presence_penalty: 0.1,
