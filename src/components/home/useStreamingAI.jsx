@@ -34,7 +34,7 @@ export default function useStreamingAI() {
     
     // Prova lo streaming diretto via fetch
     const streamingSuccess = await tryStreaming({ 
-      message, conversationHistory, token, controller, onChunk, onDone, onContextQuestion 
+      message, conversationHistory, token, controller, onChunk, onDone, onContextQuestion, onEntertainQuestions 
     });
     
     if (streamingSuccess) return;
