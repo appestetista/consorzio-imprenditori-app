@@ -138,6 +138,9 @@ async function tryStreaming({ message, conversationHistory, token, controller, o
                 metadata = parsed;
               } else if (parsed.generated_title) {
                 // Title is part of done event, handled in metadata
+              } else if (parsed.started) {
+                // Backend is alive and processing — notify frontend immediately
+                onStarted?.();
               } else if (parsed.context_question) {
                 onContextQuestion?.(parsed.context_question);
               } else if (parsed.entertain_questions) {
