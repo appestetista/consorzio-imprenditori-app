@@ -41,17 +41,10 @@ export default function useStreamingAI() {
   }) => {
     const controller = new AbortController();
     abortRef.current = controller;
-    const token = getAuthToken();
 
-    // ── TENTATIVO 1: Streaming SSE diretto ──
-    const streamOk = await tryStreaming({
-      message, conversationHistory, token, controller,
-      onChunk, onDone, onContextQuestion, onEntertainQuestions, onStarted,
-    });
-    if (streamOk) return;
-
-    // ── TENTATIVO 2: Fallback SDK (nessun typewriter, risposta immediata) ──
-    console.log('[streaming] Fallback to SDK invoke');
+    // Usa direttamente l'SDK (non-streaming) — lo streaming SSE
+    // supera i limiti CPU di Deno Deploy e causa 502 timeout.
+    onStarted?.();
     try {
       const aiResponse = await base44.functions.invoke('consultaAI', {
         message,
@@ -60,7 +53,6 @@ export default function useStreamingAI() {
 
       if (aiResponse.data?.success && aiResponse.data?.data) {
         const fullText = aiResponse.data.data;
-        // Mostra tutto subito — niente typewriter artificiale
         onChunk(fullText, fullText);
         onDone(fullText, {
           response_time_ms: aiResponse.data.response_time_ms,
