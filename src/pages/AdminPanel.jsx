@@ -38,6 +38,7 @@ import AdminRisparmioGrid from '../components/admin/AdminRisparmioGrid';
 import AdminAltreSezGrid from '../components/admin/AdminAltreSezGrid';
 import { AdminMessagesDialog, ConsultationMessagesDialog, VideoRequestsDialog } from '../components/admin/AdminDialogs';
 import GlobalTopIcons from '../components/layout/GlobalTopIcons';
+import { Sheet, SheetContent, SheetTrigger } from '@/components/ui/sheet';
 
 const CONSULTANT_CATEGORIES = [
   "Stampa Digitale e Cataloghi", "Assicurazioni Aziendali", "Agenzia di Comunicazione",
