@@ -29,27 +29,54 @@ export default function VantaggiSideTab() {
 
   return (
     <>
-      {/* Linguetta VANTAGGI - in sovraimpressione sul lato sinistro */}
+      {/* Linguetta VANTAGGI - stile 3D premium come il calendario */}
       <button
         onClick={togglePanel}
         className={cn(
           "fixed left-0 z-40 transition-all duration-300",
-          "bg-gradient-to-r from-[#b8860b] to-[#d4af37] text-slate-900",
-          "rounded-r-xl shadow-lg shadow-[#d4af37]/20",
-          "flex items-center justify-center",
-          "hover:pl-2 active:scale-95",
+          "flex flex-col items-center justify-center",
+          "active:scale-[0.96]",
           isOpen ? "opacity-0 pointer-events-none" : "opacity-100"
         )}
         style={{
           width: '42px',
-          height: '140px',
-          writingMode: 'vertical-rl',
-          textOrientation: 'mixed',
+          height: '120px',
           bottom: '0px',
           top: 'auto',
+          transform: 'none'
         }}
       >
-        <span className="text-[13px] font-bold tracking-wider leading-none whitespace-nowrap" style={{ transform: 'rotate(180deg)' }}>VANTAGGI</span>
+        {/* Ombra esterna flottante */}
+        <div 
+          className="absolute inset-0 rounded-r-[14px]"
+          style={{
+            boxShadow: '0 6px 20px rgba(0,0,0,0.5), 0 3px 8px rgba(0,0,0,0.3)'
+          }}
+        />
+        {/* Cornice metallica oro */}
+        <div 
+          className="absolute inset-0 rounded-r-[14px] p-[2.5px]"
+          style={{
+            background: 'linear-gradient(145deg, #d4af37 0%, #b8860b 25%, #8b7355 50%, #d4af37 75%, #f0e68c 100%)'
+          }}
+        >
+          {/* Superficie interna scura */}
+          <div 
+            className="relative w-full h-full rounded-r-[12px] flex flex-col items-center justify-center gap-1.5 overflow-hidden"
+            style={{
+              background: 'linear-gradient(160deg, #1a1a1a 0%, #001d3b 50%, #001530 100%)',
+              boxShadow: 'inset 0 2px 4px rgba(0,0,0,0.5), inset 0 -1px 2px rgba(255,255,255,0.05)'
+            }}
+          >
+            {/* Testo VANTAGGI */}
+            <span 
+              className="text-[14px] font-bold tracking-wider leading-none whitespace-nowrap text-[#d4af37]"
+              style={{ writingMode: 'vertical-rl', textOrientation: 'mixed', transform: 'rotate(180deg)', filter: 'drop-shadow(0 0 6px rgba(212,175,55,0.5))' }}
+            >
+              VANTAGGI
+            </span>
+          </div>
+        </div>
       </button>
 
       {/* Linguetta CHIUDI - visibile solo quando il pannello è aperto */}
