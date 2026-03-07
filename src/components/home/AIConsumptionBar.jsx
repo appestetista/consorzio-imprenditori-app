@@ -61,7 +61,7 @@ export default function AIConsumptionBar({ userEmail }) {
   const costDisplay = costEur < 0.01 ? costEur.toFixed(4) : costEur.toFixed(2);
 
   return (
-    <div className="flex flex-col items-center w-full gap-1">
+    <div className="flex flex-col items-center w-full gap-0.5">
       {/* Barra + label AI a destra */}
       <div className="flex items-center gap-2 w-full">
         <div className="flex-1 relative">
