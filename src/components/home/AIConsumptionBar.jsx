@@ -61,53 +61,46 @@ export default function AIConsumptionBar({ userEmail }) {
   const costDisplay = costEur < 0.01 ? costEur.toFixed(4) : costEur.toFixed(2);
 
   return (
-    <div className="flex items-center gap-2 w-full">
-      {/* Label AI */}
-      <div className="flex flex-col items-center flex-shrink-0">
-        <span className="text-[10px] font-bold tracking-wider" style={{ color: '#39ff14' }}>AI</span>
-        <span className="text-[7px] text-slate-500 leading-none whitespace-nowrap">consumo</span>
-      </div>
+    <div className="flex flex-col items-center w-full gap-1">
+      {/* Label centrata */}
+      <span className="text-[11px] font-semibold tracking-wide text-slate-400">consumo mese</span>
 
-      {/* Barra lunga con bordi verde fluo */}
-      <div className="flex-1 relative">
-        <div 
-          className="relative h-[8px] rounded-full overflow-hidden"
-          style={{
-            background: 'linear-gradient(180deg, #0a0f1a 0%, #111827 100%)',
-            border: '1px solid rgba(57,255,20,0.4)',
-            boxShadow: '0 0 6px rgba(57,255,20,0.15), inset 0 1px 3px rgba(0,0,0,0.6)',
-          }}
-        >
-          {/* Barra interna verde fluo */}
-          <div
-            className="absolute inset-y-0 left-0 rounded-full transition-all duration-1000 ease-out"
-            style={{
-              width: `${Math.max(pct, 1)}%`,
-              background: isExhausted
-                ? 'linear-gradient(90deg, #ef4444 0%, #dc2626 100%)'
-                : isNearLimit
-                  ? 'linear-gradient(90deg, #39ff14 0%, #f97316 100%)'
-                  : 'linear-gradient(90deg, #1a8a09 0%, #39ff14 50%, #7fff6a 100%)',
-              boxShadow: isExhausted
-                ? '0 0 8px rgba(239,68,68,0.6)'
-                : `0 0 8px rgba(57,255,20,${0.3 + pct * 0.005}), 0 0 3px rgba(57,255,20,0.6)`,
-            }}
-          />
-
-          {/* Scanline effect */}
+      {/* Barra + label AI a destra */}
+      <div className="flex items-center gap-2 w-full">
+        <div className="flex-1 relative">
           <div 
-            className="absolute inset-0 pointer-events-none"
+            className="relative h-[8px] rounded-full overflow-hidden"
             style={{
-              background: 'repeating-linear-gradient(90deg, transparent, transparent 3px, rgba(255,255,255,0.03) 3px, rgba(255,255,255,0.03) 4px)',
+              background: 'linear-gradient(180deg, #0a0f1a 0%, #111827 100%)',
+              border: '1px solid rgba(57,255,20,0.4)',
+              boxShadow: '0 0 6px rgba(57,255,20,0.15), inset 0 1px 3px rgba(0,0,0,0.6)',
             }}
-          />
+          >
+            <div
+              className="absolute inset-y-0 left-0 rounded-full transition-all duration-1000 ease-out"
+              style={{
+                width: `${Math.max(pct, 1)}%`,
+                background: isExhausted
+                  ? 'linear-gradient(90deg, #ef4444 0%, #dc2626 100%)'
+                  : isNearLimit
+                    ? 'linear-gradient(90deg, #39ff14 0%, #f97316 100%)'
+                    : 'linear-gradient(90deg, #1a8a09 0%, #39ff14 50%, #7fff6a 100%)',
+                boxShadow: isExhausted
+                  ? '0 0 8px rgba(239,68,68,0.6)'
+                  : `0 0 8px rgba(57,255,20,${0.3 + pct * 0.005}), 0 0 3px rgba(57,255,20,0.6)`,
+              }}
+            />
+            <div 
+              className="absolute inset-0 pointer-events-none"
+              style={{
+                background: 'repeating-linear-gradient(90deg, transparent, transparent 3px, rgba(255,255,255,0.03) 3px, rgba(255,255,255,0.03) 4px)',
+              }}
+            />
+          </div>
         </div>
 
-        {/* Costo sotto */}
-        <div className="flex justify-between mt-0.5">
-          <span className="text-[7px] text-slate-500">€{costDisplay}</span>
-          <span className="text-[7px] text-slate-500">€{MONTHLY_BUDGET_EUR}</span>
-        </div>
+        {/* AI a destra */}
+        <span className="text-[11px] font-bold tracking-wider flex-shrink-0" style={{ color: '#39ff14' }}>AI</span>
       </div>
     </div>
   );
