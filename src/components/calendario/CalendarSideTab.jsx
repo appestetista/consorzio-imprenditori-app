@@ -281,36 +281,56 @@ export default function CalendarSideTab({ selectedDate, onDateSelect, forceOpen,
 
   return (
     <>
-      {/* Linguetta MIO CALENDARIO - in sovraimpressione sul lato destro */}
+      {/* Linguetta MIO CALENDARIO - stile 3D premium come i pulsantoni */}
       <button
         onClick={toggleCalendar}
         className={cn(
           "fixed right-0 z-40 transition-all duration-300",
-          "bg-gradient-to-l from-lime-400 to-lime-500 text-slate-900",
-          "rounded-l-xl shadow-lg shadow-lime-400/20",
-          "flex flex-col items-center",
-          "hover:pr-2 active:scale-95",
+          "flex flex-col items-center justify-center",
+          "active:scale-[0.96]",
           isOpen ? "opacity-0 pointer-events-none" : "opacity-100"
         )}
         style={{
           width: '42px',
-          height: '140px',
+          height: '120px',
           bottom: '0px',
           top: 'auto',
           transform: 'none'
         }}
       >
-        {/* Campanella in alto */}
-        <div className="flex-shrink-0 pt-2 pb-1">
-          <Bell className="w-5 h-5 text-slate-900" strokeWidth={2.5} />
-        </div>
-        {/* Testo CALENDARIO sotto */}
-        <span 
-          className="text-[13px] font-bold tracking-wider leading-none whitespace-nowrap flex-1 flex items-center"
-          style={{ writingMode: 'vertical-rl', textOrientation: 'mixed' }}
+        {/* Ombra esterna flottante */}
+        <div 
+          className="absolute inset-0 rounded-l-[14px]"
+          style={{
+            boxShadow: '0 6px 20px rgba(0,0,0,0.5), 0 3px 8px rgba(0,0,0,0.3)'
+          }}
+        />
+        {/* Cornice metallica argento */}
+        <div 
+          className="absolute inset-0 rounded-l-[14px] p-[2.5px]"
+          style={{
+            background: 'linear-gradient(145deg, #c0c0c0 0%, #a8a8a8 25%, #808080 50%, #c0c0c0 75%, #e8e8e8 100%)'
+          }}
         >
-          CALENDARIO
-        </span>
+          {/* Superficie interna scura */}
+          <div 
+            className="relative w-full h-full rounded-l-[12px] flex flex-col items-center justify-center gap-1.5 overflow-hidden"
+            style={{
+              background: 'linear-gradient(160deg, #1a1a1a 0%, #001d3b 50%, #001530 100%)',
+              boxShadow: 'inset 0 2px 4px rgba(0,0,0,0.5), inset 0 -1px 2px rgba(255,255,255,0.05)'
+            }}
+          >
+            {/* Campanella */}
+            <Bell className="w-5 h-5 text-[#a0a0a0]" strokeWidth={2.5} />
+            {/* Testo CALENDARIO */}
+            <span 
+              className="text-[11px] font-semibold tracking-wider leading-none whitespace-nowrap text-[#909090]"
+              style={{ writingMode: 'vertical-rl', textOrientation: 'mixed' }}
+            >
+              CALENDARIO
+            </span>
+          </div>
+        </div>
       </button>
 
       {/* Linguetta CHIUDI - visibile solo quando il pannello è aperto, stessa posizione/dimensione della linguetta CALENDARIO */}
