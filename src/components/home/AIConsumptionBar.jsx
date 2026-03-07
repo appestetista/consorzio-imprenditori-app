@@ -76,15 +76,6 @@ export default function AIConsumptionBar({ userEmail }) {
       {/* Barra + label AI a destra */}
       <div className="flex items-center gap-2 w-full">
         <div className="flex-1 relative">
-          {/* Token counter posizionato alla fine della barra di avanzamento */}
-          <div 
-            className="absolute -top-[14px] transition-all duration-1000 ease-out"
-            style={{ left: `${Math.max(pct, 3)}%`, transform: 'translateX(-50%)' }}
-          >
-            <span className="text-[8px] font-bold tracking-wide" style={{ color: 'rgba(57,255,20,0.7)' }}>
-              {tokenDisplay} tk
-            </span>
-          </div>
           <div 
             className="relative h-[8px] rounded-full overflow-hidden"
             style={{
