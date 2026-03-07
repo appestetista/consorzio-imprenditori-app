@@ -18,17 +18,21 @@ export default function AIConsumptionBar({ userEmail }) {
     
     const fetchCost = async () => {
       try {
-        // Inizio mese corrente (UTC)
+        // Inizio mese corrente
         const now = new Date();
-        const monthStart = new Date(Date.UTC(now.getFullYear(), now.getMonth(), 1)).toISOString();
+        const monthStart = new Date(now.getFullYear(), now.getMonth(), 1);
         
+        // Recupera tutti i log dell'utente e filtra per mese lato client
         const logs = await base44.entities.UsageLog.filter({
           user_email: userEmail,
-          action_type: 'chat_ai',
-          timestamp: { $gte: monthStart },
+        }, '-created_date', 500);
+        
+        const monthLogs = logs.filter(log => {
+          const logDate = new Date(log.timestamp || log.created_date);
+          return logDate >= monthStart;
         });
         
-        const totalUsd = logs.reduce((sum, log) => sum + (log.cost_usd || 0), 0);
+        const totalUsd = monthLogs.reduce((sum, log) => sum + (log.cost_usd || 0), 0);
         setCostEur(totalUsd * USD_TO_EUR);
       } catch (e) {
         console.warn('[AIConsumption] Errore fetch:', e?.message);
