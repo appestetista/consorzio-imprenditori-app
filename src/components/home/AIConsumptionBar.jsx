@@ -61,25 +61,24 @@ export default function AIConsumptionBar({ userEmail }) {
   const costDisplay = costEur < 0.01 ? costEur.toFixed(4) : costEur.toFixed(2);
 
   return (
-    <div className="flex items-center gap-2.5 w-full max-w-[220px]">
+    <div className="flex items-center gap-2 w-full">
       {/* Label AI */}
       <div className="flex flex-col items-center flex-shrink-0">
-        <span className="text-[10px] font-bold tracking-wider" style={{ color: '#d4af37' }}>AI</span>
-        <span className="text-[7px] text-slate-500 leading-none whitespace-nowrap">consumo mese</span>
+        <span className="text-[10px] font-bold tracking-wider" style={{ color: '#39ff14' }}>AI</span>
+        <span className="text-[7px] text-slate-500 leading-none whitespace-nowrap">consumo</span>
       </div>
 
-      {/* Barra futuristica */}
+      {/* Barra lunga con bordi verde fluo */}
       <div className="flex-1 relative">
-        {/* Track esterno con bordo sottile */}
         <div 
-          className="relative h-[10px] rounded-full overflow-hidden"
+          className="relative h-[8px] rounded-full overflow-hidden"
           style={{
             background: 'linear-gradient(180deg, #0a0f1a 0%, #111827 100%)',
-            border: '1px solid rgba(212,175,55,0.15)',
-            boxShadow: 'inset 0 1px 3px rgba(0,0,0,0.6)',
+            border: '1px solid rgba(57,255,20,0.4)',
+            boxShadow: '0 0 6px rgba(57,255,20,0.15), inset 0 1px 3px rgba(0,0,0,0.6)',
           }}
         >
-          {/* Barra interna con glow oro */}
+          {/* Barra interna verde fluo */}
           <div
             className="absolute inset-y-0 left-0 rounded-full transition-all duration-1000 ease-out"
             style={{
@@ -87,11 +86,11 @@ export default function AIConsumptionBar({ userEmail }) {
               background: isExhausted
                 ? 'linear-gradient(90deg, #ef4444 0%, #dc2626 100%)'
                 : isNearLimit
-                  ? 'linear-gradient(90deg, #d4af37 0%, #f97316 100%)'
-                  : 'linear-gradient(90deg, #b8860b 0%, #d4af37 50%, #f0e68c 100%)',
+                  ? 'linear-gradient(90deg, #39ff14 0%, #f97316 100%)'
+                  : 'linear-gradient(90deg, #1a8a09 0%, #39ff14 50%, #7fff6a 100%)',
               boxShadow: isExhausted
-                ? '0 0 8px rgba(239,68,68,0.6), 0 0 2px rgba(239,68,68,0.8)'
-                : `0 0 8px rgba(212,175,55,${0.3 + pct * 0.005}), 0 0 2px rgba(212,175,55,0.8)`,
+                ? '0 0 8px rgba(239,68,68,0.6)'
+                : `0 0 8px rgba(57,255,20,${0.3 + pct * 0.005}), 0 0 3px rgba(57,255,20,0.6)`,
             }}
           />
 
@@ -106,8 +105,8 @@ export default function AIConsumptionBar({ userEmail }) {
 
         {/* Costo sotto */}
         <div className="flex justify-between mt-0.5">
-          <span className="text-[7px] text-slate-600">€{costDisplay}</span>
-          <span className="text-[7px] text-slate-600">€{MONTHLY_BUDGET_EUR}</span>
+          <span className="text-[7px] text-slate-500">€{costDisplay}</span>
+          <span className="text-[7px] text-slate-500">€{MONTHLY_BUDGET_EUR}</span>
         </div>
       </div>
     </div>
