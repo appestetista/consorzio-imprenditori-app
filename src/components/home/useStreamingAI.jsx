@@ -41,10 +41,26 @@ export default function useStreamingAI() {
 
     if (needsWebSearch) {
       onWebSearchStart?.();
+      const webStartTime = Date.now();
       // Lancia ricerca web in parallelo — non blocca la risposta LLM
       webSearchPromise = base44.integrations.Core.InvokeLLM({
         prompt: `Rispondi in italiano. Cerca informazioni aggiornate e affidabili su: ${message}\n\nFornisci dati concreti con **fonti** e **link** quando disponibili. Usa grassetto per i dati chiave. MAX 300 parole.`,
         add_context_from_internet: true,
+      }).then(result => {
+        // Log consumo ricerca web (stima: ~0.002 USD per InvokeLLM con web)
+        base44.entities.UsageLog.create({
+          user_email: '', // verrà impostato dal created_by
+          action_type: 'web_search',
+          model_used: 'invoke_llm_web',
+          provider: 'base44',
+          input_tokens: 0,
+          output_tokens: 0,
+          cost_usd: 0.002,
+          response_time_ms: Date.now() - webStartTime,
+          timestamp: new Date().toISOString(),
+          category: 'web_search',
+        }).catch(() => {});
+        return result;
       }).catch(err => {
         console.warn('[WebSearch] Fallita:', err?.message);
         return null;
