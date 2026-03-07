@@ -111,8 +111,11 @@ export default function AIConsumptionBar({ userEmail }) {
         <span className="text-[11px] font-bold tracking-wider flex-shrink-0" style={{ color: '#39ff14' }}>AI</span>
       </div>
 
-      {/* Label sotto la barra */}
-      <span className="text-[9px] font-medium tracking-wide uppercase" style={{ color: '#39ff14' }}>AI consumata questo mese</span>
+      {/* Label sotto la barra con token */}
+      <div className="flex items-center gap-1.5">
+        <span className="text-[9px] font-medium tracking-wide uppercase" style={{ color: '#39ff14' }}>AI consumata questo mese</span>
+        <span className="text-[9px] font-bold" style={{ color: 'rgba(57,255,20,0.7)' }}>• {tokenDisplay} tk</span>
+      </div>
     </div>
   );
 }
