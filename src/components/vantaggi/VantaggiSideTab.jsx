@@ -79,23 +79,49 @@ export default function VantaggiSideTab() {
         </div>
       </button>
 
-      {/* Linguetta CHIUDI - visibile solo quando il pannello è aperto */}
-      {isOpen && (
-        <button
-          onClick={() => { setIsOpen(false); showHeader(); }}
-          className="fixed left-0 z-[60] bg-gradient-to-r from-[#b8860b] to-[#d4af37] text-slate-900 rounded-r-xl shadow-lg shadow-[#d4af37]/20 flex items-center justify-center hover:opacity-70 active:scale-95"
+      {/* Linguetta CHIUDI - stile 3D premium */}
+      <div
+        className={cn(
+          "fixed left-0 z-[60] transition-all duration-300",
+          "flex flex-col items-center justify-center",
+          isOpen ? "opacity-100" : "opacity-0 pointer-events-none"
+        )}
+        style={{
+          width: '42px',
+          height: '120px',
+          bottom: '0px',
+          top: 'auto',
+          transform: 'none'
+        }}
+      >
+        {/* Ombra esterna */}
+        <div 
+          className="absolute inset-0 rounded-r-[14px]"
           style={{
-            width: '42px',
-            height: '140px',
-            bottom: '0px',
-            top: 'auto',
-            writingMode: 'vertical-rl',
-            textOrientation: 'mixed',
+            boxShadow: '0 6px 20px rgba(0,0,0,0.5), 0 3px 8px rgba(0,0,0,0.3)'
+          }}
+        />
+        {/* Cornice metallica oro (attivo) */}
+        <div 
+          className="absolute inset-0 rounded-r-[14px] p-[2.5px]"
+          style={{
+            background: 'linear-gradient(145deg, #d4af37 0%, #b8860b 25%, #8b7355 50%, #d4af37 75%, #f0e68c 100%)'
           }}
         >
-          <span className="text-[13px] font-bold tracking-wider leading-none whitespace-nowrap" style={{ transform: 'rotate(180deg)' }}>CHIUDI</span>
-        </button>
-      )}
+          <button
+            onClick={() => { setIsOpen(false); showHeader(); }}
+            className="relative w-full h-full rounded-r-[12px] flex items-center justify-center active:scale-[0.96] overflow-hidden"
+            style={{
+              background: 'linear-gradient(160deg, #2a2a2a 0%, #152040 50%, #1a2850 100%)',
+              boxShadow: 'inset 0 2px 4px rgba(0,0,0,0.5), inset 0 -1px 2px rgba(255,255,255,0.05)',
+              writingMode: 'vertical-rl',
+              textOrientation: 'mixed'
+            }}
+          >
+            <span className="text-[13px] font-bold tracking-widest leading-none whitespace-nowrap text-[#d4af37]" style={{ transform: 'rotate(180deg)', filter: 'drop-shadow(0 0 6px rgba(212,175,55,0.5))' }}>CHIUDI</span>
+          </button>
+        </div>
+      </div>
 
       {/* Pannello Vantaggi - scorre da sinistra a destra (speculare al calendario) */}
       <div
