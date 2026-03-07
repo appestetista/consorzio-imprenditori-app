@@ -11,6 +11,7 @@ const USD_TO_EUR = 0.92; // Approssimazione stabile
  */
 export default function AIConsumptionBar({ userEmail }) {
   const [costEur, setCostEur] = useState(0);
+  const [totalTokens, setTotalTokens] = useState(0);
   const [loading, setLoading] = useState(true);
 
   useEffect(() => {
