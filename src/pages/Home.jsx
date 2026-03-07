@@ -724,16 +724,18 @@ export default function Home() {
                     : (msg.content || '');
                   
                   return (
-                    <div key={i} ref={isLastAssistant ? lastAssistantMsgRef : null} className="space-y-3">
-                      <SimpleAIResponse 
-                        content={{ risposta: textContent }} 
-                        onFollowup={(text) => handleSend(text)} 
-                        conversationId={activeConversationId}
-                        isNew={!!msg.isNew && !msg.isStreaming}
-                        isStreaming={!!msg.isStreaming}
-                        entertainQuestions={isLastAssistant && msg.isStreaming ? entertainQuestions : ''}
-                        contextQuestion={isLastAssistant && (msg.isStreaming || msg.isNew) ? contextQuestion : ''}
-                        userMessage={(() => { const prevUser = messages.slice(0, i).filter(m => m.role === 'user').pop(); return prevUser?.content || ''; })()}
+                  <div key={i} ref={isLastAssistant ? lastAssistantMsgRef : null} className="space-y-3">
+                  <SimpleAIResponse 
+                    content={{ risposta: textContent }} 
+                    onFollowup={(text) => handleSend(text)} 
+                    conversationId={activeConversationId}
+                    isNew={!!msg.isNew && !msg.isStreaming}
+                    isStreaming={!!msg.isStreaming}
+                    entertainQuestions={isLastAssistant && msg.isStreaming ? entertainQuestions : ''}
+                    contextQuestion={isLastAssistant && (msg.isStreaming || msg.isNew) ? contextQuestion : ''}
+                    userMessage={(() => { const prevUser = messages.slice(0, i).filter(m => m.role === 'user').pop(); return prevUser?.content || ''; })()}
+                    webSearchLoading={isLastAssistant ? webSearchLoading : false}
+                    webSearchResult={isLastAssistant ? webSearchResult : null}
                         onContextSelect={(q) => {
                           if (isStreaming || isTyping) {
                             // L'utente ha scelto un'opzione mentre l'AI sta ancora rispondendo
