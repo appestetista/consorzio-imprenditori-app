@@ -64,6 +64,13 @@ export default function AIConsumptionBar({ userEmail }) {
   // Formatta il costo con 4 decimali
   const costDisplay = costEur < 0.01 ? costEur.toFixed(4) : costEur.toFixed(2);
 
+  // Formatta i token in modo leggibile (es. 12.4k)
+  const tokenDisplay = totalTokens >= 1000000
+    ? (totalTokens / 1000000).toFixed(1) + 'M'
+    : totalTokens >= 1000
+      ? (totalTokens / 1000).toFixed(1) + 'k'
+      : totalTokens.toString();
+
   return (
     <div className="flex flex-col items-center w-full gap-0.5">
       {/* Barra + label AI a destra */}
