@@ -2,28 +2,35 @@ import React, { useState, useEffect, useMemo } from 'react';
 import { base44 } from '@/api/base44Client';
 import { Sparkles } from 'lucide-react';
 
-const MONTHLY_BUDGET_EUR = 10;
-const USD_TO_EUR = 0.92; // Approssimazione stabile
+const DEFAULT_TOKEN_LIMIT = 500000; // 500k token/mese default
+const USD_TO_EUR = 0.92;
 
 /**
  * Barra futuristica di consumo AI mensile.
- * Calcola il consumo reale da UsageLog (cost_usd) per l'utente corrente nel mese in corso.
+ * Mostra token usati / limite personalizzato per utente (gpt-4o-mini).
  */
 export default function AIConsumptionBar({ userEmail }) {
-  const [costEur, setCostEur] = useState(0);
   const [totalTokens, setTotalTokens] = useState(0);
+  const [tokenLimit, setTokenLimit] = useState(DEFAULT_TOKEN_LIMIT);
   const [loading, setLoading] = useState(true);
 
   useEffect(() => {
     if (!userEmail) return;
     
-    const fetchCost = async () => {
+    const fetchData = async () => {
       try {
+        // Carica limite personalizzato dall'utente
+        const me = await base44.auth.me();
+        const limit = me?.monthly_token_limit;
+        // 0 = illimitato, null/undefined = default
+        if (limit !== null && limit !== undefined) {
+          setTokenLimit(limit === 0 ? Infinity : limit);
+        }
+
         // Inizio mese corrente
         const now = new Date();
         const monthStart = new Date(now.getFullYear(), now.getMonth(), 1);
         
-        // Recupera tutti i log dell'utente e filtra per mese lato client
         const logs = await base44.entities.UsageLog.filter({
           user_email: userEmail,
         }, '-created_date', 500);
@@ -33,9 +40,7 @@ export default function AIConsumptionBar({ userEmail }) {
           return logDate >= monthStart;
         });
         
-        const totalUsd = monthLogs.reduce((sum, log) => sum + (log.cost_usd || 0), 0);
         const tokens = monthLogs.reduce((sum, log) => sum + (log.input_tokens || 0) + (log.output_tokens || 0), 0);
-        setCostEur(totalUsd * USD_TO_EUR);
         setTotalTokens(tokens);
       } catch (e) {
         console.warn('[AIConsumption] Errore fetch:', e?.message);
@@ -44,12 +49,11 @@ export default function AIConsumptionBar({ userEmail }) {
       }
     };
     
-    fetchCost();
+    fetchData();
 
     // Sottoscrivi aggiornamenti in tempo reale
     const unsub = base44.entities.UsageLog.subscribe((event) => {
       if (event.type === 'create' && event.data?.user_email === userEmail) {
-        setCostEur(prev => prev + (event.data.cost_usd || 0) * USD_TO_EUR);
         setTotalTokens(prev => prev + (event.data.input_tokens || 0) + (event.data.output_tokens || 0));
       }
     });
@@ -57,19 +61,22 @@ export default function AIConsumptionBar({ userEmail }) {
     return unsub;
   }, [userEmail]);
 
-  const pct = useMemo(() => Math.min((costEur / MONTHLY_BUDGET_EUR) * 100, 100), [costEur]);
+  const pct = useMemo(() => {
+    if (tokenLimit === Infinity) return Math.min((totalTokens / DEFAULT_TOKEN_LIMIT) * 100, 100);
+    return Math.min((totalTokens / tokenLimit) * 100, 100);
+  }, [totalTokens, tokenLimit]);
   const isNearLimit = pct >= 80;
   const isExhausted = pct >= 100;
 
-  // Formatta il costo con 4 decimali
-  const costDisplay = costEur < 0.01 ? costEur.toFixed(4) : costEur.toFixed(2);
-
   // Formatta i token in modo leggibile (es. 12.4k)
-  const tokenDisplay = totalTokens >= 1000000
-    ? (totalTokens / 1000000).toFixed(1) + 'M'
-    : totalTokens >= 1000
-      ? (totalTokens / 1000).toFixed(1) + 'k'
-      : totalTokens.toString();
+  const formatTokens = (n) => {
+    if (n === Infinity) return '∞';
+    if (n >= 1000000) return (n / 1000000).toFixed(1) + 'M';
+    if (n >= 1000) return (n / 1000).toFixed(1) + 'k';
+    return n.toString();
+  };
+  const tokenDisplay = formatTokens(totalTokens);
+  const limitDisplay = formatTokens(tokenLimit);
 
   return (
     <div className="flex flex-col items-center w-full gap-0.5">
@@ -113,11 +120,11 @@ export default function AIConsumptionBar({ userEmail }) {
 
       {/* Label sotto la barra con token */}
       <div className="flex items-center gap-1.5">
-        <span className="text-[9px] font-medium tracking-wide uppercase" style={{ color: '#39ff14' }}>AI consumata questo mese</span>
-        <span className="text-[9px] font-bold" style={{ color: 'rgba(57,255,20,0.7)' }}>• {tokenDisplay} tk</span>
+        <span className="text-[9px] font-medium tracking-wide uppercase" style={{ color: '#39ff14' }}>AI questo mese</span>
+        <span className="text-[9px] font-bold" style={{ color: isExhausted ? 'rgba(239,68,68,0.9)' : 'rgba(57,255,20,0.7)' }}>• {tokenDisplay} / {limitDisplay} tk</span>
       </div>
     </div>
   );
 }
 
-export { MONTHLY_BUDGET_EUR, USD_TO_EUR };
+export { DEFAULT_TOKEN_LIMIT, USD_TO_EUR };
