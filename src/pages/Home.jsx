@@ -46,6 +46,8 @@ export default function Home() {
   const [contextQuestion, setContextQuestion] = useState('');
   const [entertainQuestions, setEntertainQuestions] = useState('');
   const [pendingContextAnswer, setPendingContextAnswer] = useState('');
+  const [webSearchLoading, setWebSearchLoading] = useState(false);
+  const [webSearchResult, setWebSearchResult] = useState(null);
   const { streamAI } = useStreamingAI();
   const recognitionRef = useRef(null);
   const pendingContextRef = useRef('');
@@ -275,10 +277,12 @@ export default function Home() {
     setIsStreaming(true);
     setStreamingText('');
 
-    // Reset context/entertain per nuova richiesta
+    // Reset context/entertain/web per nuova richiesta
     setContextQuestion('');
     setEntertainQuestions('');
     setPendingContextAnswer('');
+    setWebSearchLoading(false);
+    setWebSearchResult(null);
 
     // Aggiungi un messaggio assistente placeholder che si aggiorna in tempo reale
     const streamingMsg = { role: 'assistant', content: '', isAI: true, usageCount: newCount, isNew: true, isStreaming: true };
@@ -351,12 +355,24 @@ export default function Home() {
           }
           resolve();
         },
+        onWebSearchStart: () => {
+          console.log('[AI] Web search started in parallel');
+          setWebSearchLoading(true);
+        },
+        onWebSearchDone: (result) => {
+          console.log('[AI] Web search done', result ? 'with result' : 'no result');
+          setWebSearchLoading(false);
+          if (result) {
+            setWebSearchResult(result);
+          }
+        },
         onError: async (error) => {
           console.error('[AI] Streaming error:', error?.message);
           setIsStreaming(false);
           setStreamingText('');
           setContextQuestion('');
           setEntertainQuestions('');
+          setWebSearchLoading(false);
           
           // Fallback rapido: un solo retry con history ridotta, poi messaggio chiaro
           let parsed = null;
