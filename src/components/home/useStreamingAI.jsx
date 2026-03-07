@@ -19,6 +19,7 @@ export default function useStreamingAI() {
   const streamAI = useCallback(async ({
     message,
     conversationHistory,
+    userEmail,
     onChunk,
     onDone,
     onError,
@@ -49,7 +50,7 @@ export default function useStreamingAI() {
       }).then(result => {
         // Log consumo ricerca web (stima: ~0.002 USD per InvokeLLM con web)
         base44.entities.UsageLog.create({
-          user_email: '', // verrà impostato dal created_by
+          user_email: userEmail || '',
           action_type: 'web_search',
           model_used: 'invoke_llm_web',
           provider: 'base44',
