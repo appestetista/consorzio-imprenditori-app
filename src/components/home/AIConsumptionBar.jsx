@@ -62,9 +62,6 @@ export default function AIConsumptionBar({ userEmail }) {
 
   return (
     <div className="flex flex-col items-center w-full gap-1">
-      {/* Label centrata */}
-      <span className="text-[11px] font-semibold tracking-wide text-slate-400">consumo mese</span>
-
       {/* Barra + label AI a destra */}
       <div className="flex items-center gap-2 w-full">
         <div className="flex-1 relative">
