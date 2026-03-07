@@ -34,7 +34,9 @@ export default function AIConsumptionBar({ userEmail }) {
         });
         
         const totalUsd = monthLogs.reduce((sum, log) => sum + (log.cost_usd || 0), 0);
+        const tokens = monthLogs.reduce((sum, log) => sum + (log.input_tokens || 0) + (log.output_tokens || 0), 0);
         setCostEur(totalUsd * USD_TO_EUR);
+        setTotalTokens(tokens);
       } catch (e) {
         console.warn('[AIConsumption] Errore fetch:', e?.message);
       } finally {
