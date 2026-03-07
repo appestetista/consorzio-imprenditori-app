@@ -891,7 +891,7 @@ export default function Home() {
       {/* Pannelli messaggi/notifiche gestiti globalmente nel Layout */}
 
       {/* Bottom Nav */}
-      <BottomNav currentPage="Home" onMenuOpen={() => window.location.href = createPageUrl('MyProfile')} menuOpen={false} bgColor="#0a0f1a" consulenzeUsate={consulenzeUsate} maxConsulenze={50} />
+      <BottomNav currentPage="Home" onMenuOpen={() => window.location.href = createPageUrl('MyProfile')} menuOpen={false} bgColor="#0a0f1a" consulenzeUsate={consulenzeUsate} maxConsulenze={50} userEmail={effectiveUser?.email} />
 
 
     </div>
