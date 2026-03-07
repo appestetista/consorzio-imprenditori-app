@@ -3,6 +3,7 @@ import { base44 } from '@/api/base44Client';
 import { Link } from 'react-router-dom';
 import { createPageUrl } from '@/utils';
 import { Check, ChevronDown, ChevronUp, ArrowLeft, Sparkles, Crown, Shield, Zap, X, Loader2, MessageCircle } from 'lucide-react';
+import EuroTokenConverter from '../components/pricing/EuroTokenConverter';
 
 const FEATURES = [
   "50 consulenze AI al mese con dati verificati",
