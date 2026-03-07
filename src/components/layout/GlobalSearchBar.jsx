@@ -15,7 +15,7 @@ export default function GlobalSearchBar({ currentPageName }) {
   };
 
   return (
-    <div className="fixed z-40 px-1 pb-1 pt-1" style={{ left: '44px', right: '44px', bottom: '141px' }}>
+    <div className="fixed z-40 px-1 pb-1 pt-1" style={{ left: '44px', right: '44px', bottom: '155px' }}>
       <div className="max-w-2xl mx-auto">
         <button
           onClick={handleFocus}
