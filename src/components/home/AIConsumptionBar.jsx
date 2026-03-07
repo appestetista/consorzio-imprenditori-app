@@ -1,6 +1,8 @@
 import React, { useState, useEffect, useMemo } from 'react';
 import { base44 } from '@/api/base44Client';
-import { Sparkles } from 'lucide-react';
+import { Link } from 'react-router-dom';
+import { createPageUrl } from '@/utils';
+import { Sparkles, ArrowRight } from 'lucide-react';
 
 const DEFAULT_TOKEN_LIMIT = 500000; // 500k token/mese default
 const USD_TO_EUR = 0.92;
@@ -78,8 +80,24 @@ export default function AIConsumptionBar({ userEmail }) {
   const tokenDisplay = formatTokens(totalTokens);
   const limitDisplay = formatTokens(tokenLimit);
 
+  const planLabel = tokenLimit === Infinity ? 'Illimitato' : `${limitDisplay} token`;
+
   return (
-    <div className="flex flex-col items-center w-full gap-0.5">
+    <div className="flex flex-col items-center w-full gap-1">
+      {/* Riga piano + CTA sopra la barra */}
+      <div className="flex items-center justify-between w-full px-0.5">
+        <span className="text-[9px] font-medium text-slate-400">
+          Il tuo piano: <span className="font-bold text-white">{planLabel}</span>
+        </span>
+        <Link 
+          to={createPageUrl('Pricing')}
+          className="flex items-center gap-0.5 text-[9px] font-bold uppercase tracking-wider"
+          style={{ color: '#d4af37' }}
+        >
+          Passa a PRO <ArrowRight className="w-2.5 h-2.5" />
+        </Link>
+      </div>
+
       {/* Barra + label AI a destra */}
       <div className="flex items-center gap-2 w-full">
         <div className="flex-1 relative">
