@@ -101,7 +101,7 @@ export default function AIConsumptionBar({ userEmail }) {
       </div>
 
       {/* Label sotto la barra */}
-      <span className="text-[9px] font-medium tracking-wide text-slate-500 uppercase">AI consumata questo mese</span>
+      <span className="text-[9px] font-medium tracking-wide uppercase" style={{ color: '#39ff14' }}>AI consumata questo mese</span>
     </div>
   );
 }
