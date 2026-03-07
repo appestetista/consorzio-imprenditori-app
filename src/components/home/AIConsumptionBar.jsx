@@ -50,6 +50,7 @@ export default function AIConsumptionBar({ userEmail }) {
     const unsub = base44.entities.UsageLog.subscribe((event) => {
       if (event.type === 'create' && event.data?.user_email === userEmail) {
         setCostEur(prev => prev + (event.data.cost_usd || 0) * USD_TO_EUR);
+        setTotalTokens(prev => prev + (event.data.input_tokens || 0) + (event.data.output_tokens || 0));
       }
     });
 
