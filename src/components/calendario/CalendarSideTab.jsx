@@ -320,11 +320,9 @@ export default function CalendarSideTab({ selectedDate, onDateSelect, forceOpen,
               boxShadow: 'inset 0 2px 4px rgba(0,0,0,0.5), inset 0 -1px 2px rgba(255,255,255,0.05)'
             }}
           >
-            {/* Campanella */}
-            <Bell className="w-5 h-5 text-[#a0a0a0]" strokeWidth={2.5} />
             {/* Testo CALENDARIO */}
             <span 
-              className="text-[11px] font-semibold tracking-wider leading-none whitespace-nowrap text-[#909090]"
+              className="text-[14px] font-bold tracking-wider leading-none whitespace-nowrap text-[#909090]"
               style={{ writingMode: 'vertical-rl', textOrientation: 'mixed' }}
             >
               CALENDARIO
