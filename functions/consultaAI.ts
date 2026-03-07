@@ -84,6 +84,39 @@ Deno.serve(async (req) => {
   const openaiKey = Deno.env.get("OPENAI_API_KEY");
   if (!openaiKey) return Response.json({ error: 'Configurazione server mancante' }, { status: 500 });
 
+  // ── Controllo limite token mensile ──
+  const DEFAULT_TOKEN_LIMIT = 500000;
+  const userTokenLimit = user.monthly_token_limit;
+  // 0 = illimitato, null/undefined = default
+  const effectiveLimit = (userTokenLimit === null || userTokenLimit === undefined) 
+    ? DEFAULT_TOKEN_LIMIT 
+    : (userTokenLimit === 0 ? Infinity : userTokenLimit);
+
+  if (effectiveLimit !== Infinity) {
+    try {
+      const now = new Date();
+      const monthStart = new Date(now.getFullYear(), now.getMonth(), 1);
+      const logs = await base44.asServiceRole.entities.UsageLog.filter({ user_email: user.email }, '-created_date', 500);
+      const monthLogs = logs.filter(log => {
+        const logDate = new Date(log.timestamp || log.created_date);
+        return logDate >= monthStart;
+      });
+      const usedTokens = monthLogs.reduce((sum, log) => sum + (log.input_tokens || 0) + (log.output_tokens || 0), 0);
+      if (usedTokens >= effectiveLimit) {
+        return Response.json({
+          success: false,
+          error: 'token_limit_reached',
+          data: `Hai raggiunto il limite mensile di ${(effectiveLimit / 1000).toFixed(0)}k token AI. Il contatore si resetterà il 1° del prossimo mese.\n\nContatta l'amministratore per aumentare il tuo limite.`,
+          used: usedTokens,
+          limit: effectiveLimit,
+        });
+      }
+    } catch (e) {
+      console.warn('[consultaAI] Errore controllo limite token:', e.message);
+      // Non bloccare se il controllo fallisce
+    }
+  }
+
   // ── Definizione dei 3 livelli di tentativo ──
   const attempts = [
     {
