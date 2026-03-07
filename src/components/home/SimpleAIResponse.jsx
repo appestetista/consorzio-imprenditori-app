@@ -8,6 +8,7 @@ import AIThinkingAnimation from './AIThinkingAnimation';
 import ContextFollowup from './ContextFollowup';
 import EntertainQuestions from './EntertainQuestions';
 import ThinkingProgressBar from './ThinkingProgressBar';
+import WebSearchBanner from './WebSearchBanner';
 
 function RatingInline({ conversationId }) {
   const [rating, setRating] = useState(0);
@@ -153,7 +154,7 @@ function extractSuggestions(text) {
   return { cleanText, suggestions: suggestions.slice(0, 2) };
 }
 
-export default function SimpleAIResponse({ content, onFollowup, onRegenerate, conversationId, isNew = false, isStreaming = false, contextQuestion = '', entertainQuestions = '', onContextSelect, userMessage = '' }) {
+export default function SimpleAIResponse({ content, onFollowup, onRegenerate, conversationId, isNew = false, isStreaming = false, contextQuestion = '', entertainQuestions = '', onContextSelect, userMessage = '', webSearchLoading = false, webSearchResult = null }) {
   const rawRisposta = content?.risposta || '';
   const { cleanText: fullRisposta, suggestions } = useMemo(() => extractSuggestions(rawRisposta), [rawRisposta]);
   const followups = content?.followup_questions || [];
@@ -270,6 +271,9 @@ export default function SimpleAIResponse({ content, onFollowup, onRegenerate, co
             {fullRisposta}
           </ReactMarkdown>
         </div>
+
+        {/* Banner ricerca web */}
+        <WebSearchBanner loading={webSearchLoading} result={webSearchResult} />
 
         {/* Barra azioni: Copia + Rigenera */}
         <div className="flex items-center gap-1 ml-1">
