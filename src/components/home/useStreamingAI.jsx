@@ -1,13 +1,15 @@
 import { useRef, useCallback } from 'react';
 import { base44 } from '@/api/base44Client';
+import { detectWebTrigger } from './webSearchTriggers';
 
 /**
- * useStreamingAI v5 — TYPEWRITER
+ * useStreamingAI v6 — TYPEWRITER + RICERCA WEB PARALLELA
  *
  * Flusso:
  * 1. Chiama consultaAI via SDK (non-streaming, affidabile)
  * 2. Simula typewriter effect nel frontend (feedback visivo immediato)
- * 3. ~3-6 secondi per la risposta completa
+ * 3. Se rilevato trigger web → lancia ricerca web in parallelo
+ * 4. Il risultato web arriva dopo via onWebSearchStart/onWebSearchDone
  */
 
 export default function useStreamingAI() {
@@ -24,11 +26,30 @@ export default function useStreamingAI() {
     // onContextQuestion e onEntertainQuestions mantenuti per compatibilità
     onContextQuestion,
     onEntertainQuestions,
+    // Nuove callback per ricerca web parallela
+    onWebSearchStart,
+    onWebSearchDone,
   }) => {
     const controller = new AbortController();
     abortRef.current = controller;
 
     onStarted?.();
+
+    // Rileva se serve ricerca web parallela
+    const needsWebSearch = detectWebTrigger(message);
+    let webSearchPromise = null;
+
+    if (needsWebSearch) {
+      onWebSearchStart?.();
+      // Lancia ricerca web in parallelo — non blocca la risposta LLM
+      webSearchPromise = base44.integrations.Core.InvokeLLM({
+        prompt: `Rispondi in italiano. Cerca informazioni aggiornate e affidabili su: ${message}\n\nFornisci dati concreti con **fonti** e **link** quando disponibili. Usa grassetto per i dati chiave. MAX 300 parole.`,
+        add_context_from_internet: true,
+      }).catch(err => {
+        console.warn('[WebSearch] Fallita:', err?.message);
+        return null;
+      });
+    }
 
     try {
       const aiResponse = await base44.functions.invoke('consultaAI', {
@@ -111,6 +132,17 @@ export default function useStreamingAI() {
         // Fine: invia il testo completo + metadata
         onChunk(fullText, '');
         onDone(fullText, metadata);
+
+        // Se c'è una ricerca web in corso, attendi il risultato
+        if (webSearchPromise) {
+          const webResult = await webSearchPromise;
+          if (webResult && !controller.signal.aborted) {
+            const webText = typeof webResult === 'string' ? webResult : webResult?.toString?.() || '';
+            onWebSearchDone?.(webText);
+          } else {
+            onWebSearchDone?.(null);
+          }
+        }
       } else {
         throw new Error(aiResponse.data?.error || 'Risposta vuota dal server');
       }
