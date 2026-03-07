@@ -17,8 +17,8 @@ export default function BottomNav({ currentPage, unreadMessages = 0, activeTab =
         {/* Sfondo solido che arriva fino alla barra di ricerca */}
         <div className="absolute inset-0 pointer-events-none" style={{ background: `linear-gradient(to top, ${bgColor || '#0a0f1a'} 75%, transparent 100%)` }} />
         
-        {/* Barra consumo AI futuristica */}
-        <div className="relative z-10 w-full flex justify-center mb-2 px-4">
+        {/* Barra consumo AI — stessa larghezza dei 3 pulsanti */}
+        <div className="relative z-10 w-full flex justify-center mb-2" style={{ maxWidth: '260px', margin: '0 auto 8px auto', paddingLeft: '4px', paddingRight: '4px' }}>
           <AIConsumptionBar userEmail={userEmail} />
         </div>
 
