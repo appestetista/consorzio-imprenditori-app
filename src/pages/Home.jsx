@@ -292,6 +292,7 @@ export default function Home() {
       streamAI({
         message: msg,
         conversationHistory: historyBlock,
+        userEmail: effectiveUser?.email || '',
         onContextQuestion: (question) => {
           console.log('[AI] Context question received:', question);
           setContextQuestion(question);
