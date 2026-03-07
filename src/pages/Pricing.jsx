@@ -217,6 +217,12 @@ export default function Pricing() {
           </>
         )}
 
+        {/* Convertitore Euro → Token */}
+        <div className="mt-10">
+          <h3 className="text-sm font-bold text-slate-300 uppercase tracking-wider mb-4 text-center">Quanto vale il tuo investimento?</h3>
+          <EuroTokenConverter />
+        </div>
+
         {/* FAQ */}
         <div className="mt-10">
           <h3 className="text-sm font-bold text-slate-300 uppercase tracking-wider mb-4 text-center">Domande frequenti</h3>
