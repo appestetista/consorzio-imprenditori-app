@@ -13,7 +13,7 @@ export default function BottomNav({ currentPage, unreadMessages = 0, activeTab =
   ];
 
   return (
-    <nav className="fixed bottom-0 left-0 right-0 z-30" style={{ height: '200px', display: 'flex', flexDirection: 'column', alignItems: 'center', justifyContent: 'flex-end', paddingBottom: '20px' }}>
+    <nav className="fixed bottom-0 left-0 right-0 z-30" style={{ height: '215px', display: 'flex', flexDirection: 'column', alignItems: 'center', justifyContent: 'flex-end', paddingBottom: '20px' }}>
         {/* Sfondo solido che arriva fino alla barra di ricerca */}
         <div className="absolute inset-0 pointer-events-none" style={{ background: `linear-gradient(to top, ${bgColor || '#0a0f1a'} 75%, transparent 100%)` }} />
         
