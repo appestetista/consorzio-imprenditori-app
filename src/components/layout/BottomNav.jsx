@@ -40,13 +40,14 @@ export default function BottomNav({ currentPage, unreadMessages = 0, activeTab =
 
   return (
     <>
-      {/* Barra consumo AI — SEMPRE visibile fissa in basso */}
+      {/* Barra consumo AI — fissa in basso, si nasconde sotto la search bar quando expanded */}
       <div 
         className="fixed left-0 right-0 z-30 flex flex-col items-center"
         style={{ 
           bottom: expanded ? `${PANEL_HEIGHT}px` : '0px',
-          transition: 'bottom 0.4s cubic-bezier(0.25, 0.1, 0.25, 1)',
+          transition: 'bottom 0.4s cubic-bezier(0.25, 0.1, 0.25, 1), opacity 0.3s ease',
           pointerEvents: 'none',
+          opacity: expanded ? 0 : 1,
         }}
       >
         <div 
