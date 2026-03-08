@@ -64,40 +64,40 @@ export default function VantaggiSideTab() {
         <VantaggiPanelContent onClose={() => setIsOpen(false)} />
       </div>
 
-      {/* Pulsante CHIUDI laterale — sul bordo destro del pannello Vantaggi */}
+      {/* Pulsante CHIUDI 3D — in basso a sinistra */}
       {isOpen && (
         <button
           onClick={() => {
             setIsOpen(false);
             showHeader();
           }}
-          className="fixed z-[56] flex items-center justify-center"
+          className="fixed z-[56] active:scale-95 transition-transform duration-100"
           style={{
-            right: 0,
-            top: '50%',
-            transform: 'translateY(-50%)',
-            width: '42px',
-            height: '120px',
-            background: 'linear-gradient(180deg, #1e293b 0%, #0f172a 100%)',
-            borderTopLeftRadius: '12px',
-            borderBottomLeftRadius: '12px',
-            borderLeft: '2px solid rgba(212,175,55,0.27)',
-            borderTop: '1px solid rgba(212,175,55,0.2)',
-            borderBottom: '1px solid rgba(212,175,55,0.2)',
-            boxShadow: '-4px 0 12px rgba(0,0,0,0.3)',
+            left: '16px',
+            bottom: '24px',
           }}
         >
-          <span 
-            className="text-[10px] font-bold tracking-widest"
-            style={{ 
-              writingMode: 'vertical-rl',
-              textOrientation: 'mixed',
-              color: '#d4af37',
-              letterSpacing: '0.15em'
-            }}
-          >
-            CHIUDI
-          </span>
+          <div style={{
+            boxShadow: '0 6px 18px rgba(0,0,0,0.5), 0 3px 8px rgba(0,0,0,0.3)',
+            borderRadius: '14px',
+          }}>
+            <div style={{
+              borderRadius: '14px',
+              padding: '2px',
+              background: 'linear-gradient(145deg, #d4af37 0%, #b8860b 25%, #8b7355 50%, #d4af37 75%, #f0e68c 100%)',
+            }}>
+              <div style={{
+                borderRadius: '12px',
+                padding: '10px 24px',
+                background: 'linear-gradient(160deg, #2a2a2a 0%, #152040 50%, #1a2850 100%)',
+                boxShadow: 'inset 0 2px 4px rgba(0,0,0,0.5), inset 0 -1px 2px rgba(255,255,255,0.05)',
+              }}>
+                <span className="text-[12px] font-bold tracking-widest text-[#d4af37]" style={{ filter: 'drop-shadow(0 0 4px rgba(212,175,55,0.5))' }}>
+                  CHIUDI
+                </span>
+              </div>
+            </div>
+          </div>
         </button>
       )}
     </>
