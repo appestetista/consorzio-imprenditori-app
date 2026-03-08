@@ -253,7 +253,7 @@ export default function ToolsDrawer() {
                   className="flex flex-col items-center w-full active:scale-[0.97] transition-transform duration-100"
                 >
                   <div 
-                    className="w-full rounded-[14px] flex flex-col items-center justify-center py-3"
+                    className="w-[140px] mx-auto rounded-[14px] flex flex-col items-center justify-center py-5"
                     style={{
                       background: 'linear-gradient(160deg, #1a1a1a 0%, #001d3b 50%, #001530 100%)',
                       boxShadow: '0 6px 16px rgba(0,0,0,0.5), 0 2px 6px rgba(0,0,0,0.3), inset 0 2px 4px rgba(0,0,0,0.4), inset 0 -1px 2px rgba(255,255,255,0.05)',
@@ -261,7 +261,7 @@ export default function ToolsDrawer() {
                       outlineOffset: '-2px',
                     }}
                   >
-                    <Icon className="w-7 h-7 text-[#d4af37] mb-1.5" style={{ filter: 'drop-shadow(0 0 4px rgba(212,175,55,0.3))' }} />
+                    <Icon className="w-8 h-8 text-[#d4af37] mb-2" style={{ filter: 'drop-shadow(0 0 4px rgba(212,175,55,0.3))' }} />
                     <span className="text-slate-300 text-[11px] font-semibold">{tool.title}</span>
                   </div>
                 </Link>
