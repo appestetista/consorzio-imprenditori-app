@@ -40,35 +40,34 @@ export default function BottomNav({ currentPage, unreadMessages = 0, activeTab =
 
   return (
     <>
-      {/* Barra consumo AI — si nasconde quando expanded */}
+      {/* Barra AI + HOME + Freccia — blocco unico in basso */}
       <div 
-        className="fixed left-0 right-0 z-30 flex flex-col items-center"
+        className="fixed left-0 right-0 flex flex-col items-center"
         style={{ 
           bottom: expanded ? `${PANEL_HEIGHT}px` : '0px',
-          transition: 'bottom 0.4s cubic-bezier(0.25, 0.1, 0.25, 1), opacity 0.3s ease',
+          transition: 'bottom 0.4s cubic-bezier(0.25, 0.1, 0.25, 1)',
+          zIndex: 31,
           pointerEvents: 'none',
-          opacity: expanded ? 0 : 1,
         }}
       >
         <div 
           className="absolute inset-0 pointer-events-none"
           style={{ background: `linear-gradient(to top, ${bgColor || '#0a0f1a'} 70%, transparent 100%)` }} 
         />
-        <div className="relative z-10 w-full flex justify-center" style={{ maxWidth: '260px', paddingLeft: '4px', paddingRight: '4px', paddingTop: '12px', paddingBottom: '10px', pointerEvents: 'auto' }}>
+        {/* Barra AI — si nasconde quando expanded */}
+        <div 
+          className="relative z-10 w-full flex justify-center transition-opacity duration-300"
+          style={{ 
+            maxWidth: '260px', paddingLeft: '4px', paddingRight: '4px', paddingTop: '12px', paddingBottom: '4px', 
+            pointerEvents: expanded ? 'none' : 'auto',
+            opacity: expanded ? 0 : 1,
+          }}
+        >
           <AIConsumptionBar userEmail={userEmail} />
         </div>
-      </div>
 
-      {/* HOME + Freccia — SEMPRE visibili, salgono sopra il pannello */}
-      <div 
-        className="fixed left-0 right-0 z-31 flex justify-center"
-        style={{ 
-          bottom: expanded ? `${PANEL_HEIGHT}px` : '0px',
-          transition: 'bottom 0.4s cubic-bezier(0.25, 0.1, 0.25, 1)',
-          zIndex: 31,
-        }}
-      >
-        <div className="flex items-center justify-center gap-2 mb-2">
+        {/* HOME + Freccia — sempre visibili sotto la barra AI */}
+        <div className="relative z-10 flex items-center justify-center gap-2 mb-2" style={{ pointerEvents: 'auto' }}>
           {/* Pulsante HOME */}
           <Link
             to={createPageUrl('Home')}
