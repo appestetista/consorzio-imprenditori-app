@@ -79,7 +79,7 @@ export default function ToolsDrawer() {
   const tabRef = useRef(null);
   const swipeStartX = useRef(null);
   const [swipeOffset, setSwipeOffset] = useState(0);
-  const DRAWER_WIDTH = 280;
+  const DRAWER_WIDTH = 220;
 
   const handleTouchStartTab = (e) => {
     swipeStartX.current = e.touches[0].clientX;
@@ -222,56 +222,52 @@ export default function ToolsDrawer() {
 
         <p className="text-slate-500 text-[9px] px-3 py-1">Tieni premuto ≡ per riordinare</p>
 
-        {/* Griglia strumenti scrollabile */}
-        <div ref={listRef} className="flex-1 overflow-y-auto py-2 px-2">
-          <div className="grid grid-cols-3 gap-2">
-            {tools.map((tool, idx) => {
-              const Icon = ICON_MAP[tool.icon] || FileSearch;
-              const isDragging = dragIdx === idx;
-              const isDragOver = dragOverIdx === idx && dragIdx !== idx;
+        {/* Lista strumenti scrollabile — pulsanti grandi 3D verticali */}
+        <div ref={listRef} className="flex-1 overflow-y-auto py-2 px-2 space-y-2">
+          {tools.map((tool, idx) => {
+            const Icon = ICON_MAP[tool.icon] || FileSearch;
+            const isDragging = dragIdx === idx;
+            const isDragOver = dragOverIdx === idx && dragIdx !== idx;
 
-              return (
+            return (
+              <div
+                key={tool.id}
+                data-tool-idx={idx}
+                className={cn(
+                  "relative transition-all duration-100",
+                  isDragging && "opacity-50 scale-95",
+                  isDragOver && "border-t-2 border-[#d4af37]",
+                )}
+              >
+                {/* Grip handle a sinistra */}
                 <div
-                  key={tool.id}
-                  data-tool-idx={idx}
-                  className={cn(
-                    "relative transition-all duration-100",
-                    isDragging && "opacity-50 scale-90",
-                    isDragOver && "ring-2 ring-[#d4af37] rounded-[16px]",
-                  )}
+                  onTouchStart={(e) => handleDragTouchStart(e, idx)}
+                  className="absolute top-1/2 -translate-y-1/2 left-1 z-10 touch-none cursor-grab active:cursor-grabbing p-1"
                 >
-                  {/* Grip — angolo in alto a destra */}
-                  <div
-                    onTouchStart={(e) => handleDragTouchStart(e, idx)}
-                    className="absolute top-0.5 right-0.5 z-10 touch-none cursor-grab active:cursor-grabbing p-1"
-                  >
-                    <GripVertical className="w-3 h-3 text-slate-600/50" />
-                  </div>
-
-                  <Link
-                    to={createPageUrl(tool.page)}
-                    onClick={() => setIsOpen(false)}
-                    className="flex flex-col items-center text-center active:scale-[0.95] transition-transform duration-100"
-                  >
-                    <div 
-                      className="w-[72px] h-[72px] rounded-[16px] flex items-center justify-center mb-1"
-                      style={{
-                        background: 'linear-gradient(160deg, #1a1a1a 0%, #001d3b 50%, #001530 100%)',
-                        border: '2.5px solid transparent',
-                        backgroundClip: 'padding-box',
-                        boxShadow: '0 6px 16px rgba(0,0,0,0.5), 0 2px 6px rgba(0,0,0,0.3), inset 0 2px 4px rgba(0,0,0,0.4), inset 0 -1px 2px rgba(255,255,255,0.05)',
-                        outline: '2.5px solid rgba(192,192,192,0.35)',
-                        outlineOffset: '-2.5px',
-                      }}
-                    >
-                      <Icon className="w-7 h-7 text-[#d4af37]" style={{ filter: 'drop-shadow(0 0 4px rgba(212,175,55,0.3))' }} />
-                    </div>
-                    <span className="text-slate-300 text-[10px] font-medium leading-tight max-w-[76px] line-clamp-2">{tool.title}</span>
-                  </Link>
+                  <GripVertical className="w-3 h-3 text-slate-600/40" />
                 </div>
-              );
-            })}
-          </div>
+
+                <Link
+                  to={createPageUrl(tool.page)}
+                  onClick={() => setIsOpen(false)}
+                  className="flex flex-col items-center w-full active:scale-[0.97] transition-transform duration-100"
+                >
+                  <div 
+                    className="w-full rounded-[14px] flex flex-col items-center justify-center py-3"
+                    style={{
+                      background: 'linear-gradient(160deg, #1a1a1a 0%, #001d3b 50%, #001530 100%)',
+                      boxShadow: '0 6px 16px rgba(0,0,0,0.5), 0 2px 6px rgba(0,0,0,0.3), inset 0 2px 4px rgba(0,0,0,0.4), inset 0 -1px 2px rgba(255,255,255,0.05)',
+                      outline: '2px solid rgba(192,192,192,0.3)',
+                      outlineOffset: '-2px',
+                    }}
+                  >
+                    <Icon className="w-7 h-7 text-[#d4af37] mb-1.5" style={{ filter: 'drop-shadow(0 0 4px rgba(212,175,55,0.3))' }} />
+                    <span className="text-slate-300 text-[11px] font-semibold">{tool.title}</span>
+                  </div>
+                </Link>
+              </div>
+            );
+          })}
         </div>
       </div>
     </>
