@@ -210,7 +210,7 @@ export default function ToolsDrawer() {
         }}
       >
         {/* Header */}
-        <div className="flex items-center justify-between px-3 pt-12 pb-2 border-b border-[#d4af37]/15">
+        <div className="flex items-center justify-between px-3 pt-16 pb-2 border-b border-[#d4af37]/15">
           <span className="text-[#d4af37] text-xs font-bold tracking-wider">STRUMENTI</span>
           <button 
             onClick={() => setIsOpen(false)}
@@ -239,18 +239,11 @@ export default function ToolsDrawer() {
                   isDragOver && "border-t-2 border-[#d4af37]",
                 )}
               >
-                {/* Grip handle a sinistra */}
-                <div
-                  onTouchStart={(e) => handleDragTouchStart(e, idx)}
-                  className="absolute top-1/2 -translate-y-1/2 left-1 z-10 touch-none cursor-grab active:cursor-grabbing p-1"
-                >
-                  <GripVertical className="w-3 h-3 text-slate-600/40" />
-                </div>
-
                 <Link
                   to={createPageUrl(tool.page)}
                   onClick={() => setIsOpen(false)}
-                  className="flex flex-col items-center w-full active:scale-[0.97] transition-transform duration-100"
+                  onTouchStart={(e) => handleDragTouchStart(e, idx)}
+                  className="flex flex-col items-center w-full active:scale-[0.97] transition-transform duration-100 touch-none"
                 >
                   <div 
                     className="w-[140px] mx-auto rounded-[14px] flex flex-col items-center justify-center py-5"
