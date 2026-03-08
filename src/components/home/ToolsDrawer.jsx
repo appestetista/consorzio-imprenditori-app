@@ -332,9 +332,10 @@ export default function ToolsDrawer() {
                 >
                   <div className="w-[140px]" style={{ boxShadow: '0 6px 18px rgba(0,0,0,0.5), 0 3px 8px rgba(0,0,0,0.3)' }}>
                     <div className="rounded-[14px] p-[2px]" style={{
-                      background: isDragging && dragActive
+                      background: (isDragging && dragActive) || isJustDropped
                         ? 'linear-gradient(145deg, #d4af37 0%, #b8860b 25%, #8b7355 50%, #d4af37 75%, #f0e68c 100%)'
-                        : 'linear-gradient(145deg, #c0c0c0 0%, #a8a8a8 25%, #808080 50%, #c0c0c0 75%, #e8e8e8 100%)'
+                        : 'linear-gradient(145deg, #c0c0c0 0%, #a8a8a8 25%, #808080 50%, #c0c0c0 75%, #e8e8e8 100%)',
+                      transition: 'background 0.6s ease',
                     }}>
                       <div className="rounded-[12px] flex flex-col items-center justify-center py-5" style={{
                         background: 'linear-gradient(160deg, #1a1a1a 0%, #001d3b 50%, #001530 100%)',
