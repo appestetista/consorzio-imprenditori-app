@@ -803,7 +803,7 @@ export default function Home() {
       )}
 
       {/* Campo di input */}
-      <div className="fixed z-40 px-2 pb-2 pt-8 left-0 right-0" style={{ bottom: '52px', background: 'linear-gradient(to top, #0a0f1a 60%, transparent 100%)' }}>
+      <div className="fixed z-40 px-2 pb-2 pt-8 left-0 right-0 transition-[bottom] duration-400 ease-[cubic-bezier(0.25,0.1,0.25,1)]" style={{ bottom: bottomNavExpanded ? '172px' : '52px', background: 'linear-gradient(to top, #0a0f1a 60%, transparent 100%)' }}>
         <div className="max-w-2xl mx-auto space-y-1">
           {!compareMode ? (
             <>
