@@ -103,7 +103,7 @@ export default function ToolsDrawer() {
     swipeStartX.current = null;
   };
 
-  // Long-press (3s) per attivare drag
+  // Long-press (2s) per attivare drag
   const handleItemTouchStart = (e, idx) => {
     const touch = e.touches[0];
     touchStartY.current = touch.clientY;
@@ -115,7 +115,7 @@ export default function ToolsDrawer() {
       ghostOrigin.current = { x: touch.clientX, y: touch.clientY };
       setGhostPos({ x: touch.clientX, y: touch.clientY });
       if (navigator.vibrate) navigator.vibrate(50);
-    }, 3000);
+    }, 2000);
   };
 
   const handleItemTouchMove = (e) => {
