@@ -280,25 +280,38 @@ export default function ToolsDrawer() {
         <p className="text-slate-500 text-[9px] px-3 py-1">Tieni premuto 2 sec. per riordinare</p>
 
         {/* Lista strumenti scrollabile — pulsanti grandi 3D verticali */}
-        <div ref={listRef} className="flex-1 overflow-y-auto py-2 px-2 space-y-1.5">
+        <div ref={listRef} className="flex-1 overflow-y-auto py-2 px-2">
           {tools.map((tool, idx) => {
             const Icon = ICON_MAP[tool.icon] || FileSearch;
             const isDragging = dragIdx === idx;
-            const isDragOver = dragOverIdx === idx && dragIdx !== idx;
+            // Calcola se questo item deve spostarsi per fare posto al drop
+            const shouldMakeSpace = dragActive && dragIdx !== null && dragOverIdx !== null && idx !== dragIdx;
+            // Se l'item draggato viene inserito PRIMA di questo idx, questo deve scendere
+            // Se viene inserito DOPO, quelli tra dragIdx e dragOverIdx salgono
+            let translateY = 0;
+            if (shouldMakeSpace) {
+              const ITEM_HEIGHT = 82; // altezza approssimativa di ogni item con margine
+              if (dragIdx < dragOverIdx) {
+                // Drag verso il basso: gli item tra dragIdx+1 e dragOverIdx salgono
+                if (idx > dragIdx && idx <= dragOverIdx) translateY = -ITEM_HEIGHT;
+              } else if (dragIdx > dragOverIdx) {
+                // Drag verso l'alto: gli item tra dragOverIdx e dragIdx-1 scendono
+                if (idx >= dragOverIdx && idx < dragIdx) translateY = ITEM_HEIGHT;
+              }
+            }
 
             return (
               <div
                 key={tool.id}
                 data-tool-idx={idx}
-                className="relative transition-all duration-150"
+                className="relative"
                 style={{
-                  opacity: isDragging ? 0.25 : 1,
+                  opacity: isDragging ? 0.15 : 1,
+                  transform: `translateY(${translateY}px)`,
+                  transition: dragActive ? 'transform 0.3s cubic-bezier(0.25,0.1,0.25,1), opacity 0.2s ease' : 'none',
+                  marginBottom: '6px',
                 }}
               >
-                {/* Linea indicatore drop sopra */}
-                {isDragOver && (
-                  <div className="absolute -top-1 left-4 right-4 h-[2px] rounded-full bg-[#d4af37]" style={{ boxShadow: '0 0 8px rgba(212,175,55,0.6)' }} />
-                )}
                 <div
                   role="button"
                   onClick={() => { if (dragActive) return; setIsOpen(false); navigate(createPageUrl(tool.page)); }}
@@ -310,7 +323,9 @@ export default function ToolsDrawer() {
                 >
                   <div className="w-[140px]" style={{ boxShadow: '0 6px 18px rgba(0,0,0,0.5), 0 3px 8px rgba(0,0,0,0.3)' }}>
                     <div className="rounded-[14px] p-[2px]" style={{
-                      background: 'linear-gradient(145deg, #c0c0c0 0%, #a8a8a8 25%, #808080 50%, #c0c0c0 75%, #e8e8e8 100%)'
+                      background: isDragging && dragActive
+                        ? 'linear-gradient(145deg, #d4af37 0%, #b8860b 25%, #8b7355 50%, #d4af37 75%, #f0e68c 100%)'
+                        : 'linear-gradient(145deg, #c0c0c0 0%, #a8a8a8 25%, #808080 50%, #c0c0c0 75%, #e8e8e8 100%)'
                     }}>
                       <div className="rounded-[12px] flex flex-col items-center justify-center py-5" style={{
                         background: 'linear-gradient(160deg, #1a1a1a 0%, #001d3b 50%, #001530 100%)',
