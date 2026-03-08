@@ -277,7 +277,7 @@ export default function ToolsDrawer() {
           </button>
         </div>
 
-        <p className="text-slate-500 text-[9px] px-3 py-1">Tieni premuto 3 sec. per riordinare</p>
+        <p className="text-slate-500 text-[9px] px-3 py-1">Tieni premuto 2 sec. per riordinare</p>
 
         {/* Lista strumenti scrollabile — pulsanti grandi 3D verticali */}
         <div ref={listRef} className="flex-1 overflow-y-auto py-2 px-2 space-y-1.5">
