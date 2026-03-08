@@ -84,20 +84,6 @@ export default function AIConsumptionBar({ userEmail }) {
 
   return (
     <div className="flex flex-col items-center w-full gap-1">
-      {/* Riga piano + CTA sopra la barra */}
-      <div className="flex items-center justify-between w-full px-0.5">
-        <span className="text-[9px] font-medium text-slate-400">
-          Il tuo piano: <span className="font-bold text-white">{planLabel}</span>
-        </span>
-        <Link 
-          to={createPageUrl('Pricing')}
-          className="flex items-center gap-0.5 text-[9px] font-bold uppercase tracking-wider"
-          style={{ color: '#d4af37' }}
-        >
-          Passa a PRO <ArrowRight className="w-2.5 h-2.5" />
-        </Link>
-      </div>
-
       {/* Barra + label AI a destra */}
       <div className="flex items-center gap-2 w-full">
         <div className="flex-1 relative">
@@ -136,10 +122,19 @@ export default function AIConsumptionBar({ userEmail }) {
         <span className="text-[11px] font-bold tracking-wider flex-shrink-0" style={{ color: '#39ff14' }}>AI</span>
       </div>
 
-      {/* Label sotto la barra con token */}
-      <div className="flex items-center gap-1.5">
-        <span className="text-[9px] font-medium tracking-wide uppercase" style={{ color: '#39ff14' }}>AI questo mese</span>
-        <span className="text-[9px] font-bold" style={{ color: isExhausted ? 'rgba(239,68,68,0.9)' : 'rgba(57,255,20,0.7)' }}>• {tokenDisplay} / {limitDisplay} tk</span>
+      {/* Label sotto la barra: token + Passa a PRO */}
+      <div className="flex items-center justify-between w-full px-0.5">
+        <div className="flex items-center gap-1.5">
+          <span className="text-[9px] font-medium tracking-wide uppercase" style={{ color: '#39ff14' }}>AI questo mese</span>
+          <span className="text-[9px] font-bold" style={{ color: isExhausted ? 'rgba(239,68,68,0.9)' : 'rgba(57,255,20,0.7)' }}>• {tokenDisplay} / {limitDisplay} tk</span>
+        </div>
+        <Link 
+          to={createPageUrl('Pricing')}
+          className="flex items-center gap-0.5 text-[9px] font-bold uppercase tracking-wider"
+          style={{ color: '#d4af37' }}
+        >
+          PRO <ArrowRight className="w-2.5 h-2.5" />
+        </Link>
       </div>
     </div>
   );
