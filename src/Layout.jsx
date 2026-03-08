@@ -11,6 +11,7 @@ import CalendarSideTab from './components/calendario/CalendarSideTab';
 import VantaggiSideTab from './components/vantaggi/VantaggiSideTab';
 import GlobalSearchBar from './components/layout/GlobalSearchBar';
 import ChatSidebar from './components/home/ChatSidebar';
+import ToolsDrawer from './components/home/ToolsDrawer';
 import { createPageUrl } from '@/utils';
 import { useNavigate } from 'react-router-dom';
 
