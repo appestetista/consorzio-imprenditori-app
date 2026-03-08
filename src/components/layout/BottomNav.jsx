@@ -53,12 +53,12 @@ export default function BottomNav({ currentPage, unreadMessages = 0, activeTab =
           className="absolute inset-0 pointer-events-none"
           style={{ background: `linear-gradient(to top, ${bgColor || '#0a0f1a'} 70%, transparent 100%)` }} 
         />
-        <div className="relative z-10 w-full flex justify-center" style={{ maxWidth: '260px', paddingLeft: '4px', paddingRight: '4px', paddingTop: '12px', paddingBottom: '4px', pointerEvents: 'auto' }}>
+        <div className="relative z-10 w-full flex justify-center" style={{ maxWidth: '260px', paddingLeft: '4px', paddingRight: '4px', paddingTop: '12px', paddingBottom: '10px', pointerEvents: 'auto' }}>
           <AIConsumptionBar userEmail={userEmail} />
         </div>
 
         {/* Riga con pulsante HOME + freccia toggle */}
-        <div className="relative z-10 flex items-center justify-center gap-2 mb-1" style={{ pointerEvents: 'auto' }}>
+        <div className="relative z-10 flex items-center justify-center gap-2 mb-2" style={{ pointerEvents: 'auto' }}>
           {/* Pulsante HOME — stesso stile della freccia ma più largo, solo scritta */}
           <Link
             to={createPageUrl('Home')}
