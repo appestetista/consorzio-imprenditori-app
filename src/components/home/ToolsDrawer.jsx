@@ -349,15 +349,12 @@ export default function ToolsDrawer() {
         const GhostIcon = ICON_MAP[tool?.icon] || FileSearch;
         return (
           <div
-            className="fixed pointer-events-none"
+            className="fixed pointer-events-none will-change-transform"
             style={{
               zIndex: 9999,
-              left: ghostPos.x - 70,
-              top: ghostPos.y - 40,
+              transform: `translate3d(${ghostPos.x - 70}px, ${ghostPos.y - 40}px, 0) scale(1.08) rotate(-1.5deg)`,
               width: '140px',
-              opacity: 0.9,
-              transform: 'scale(1.1) rotate(-2deg)',
-              transition: 'transform 0.1s ease-out',
+              opacity: 0.92,
               filter: 'drop-shadow(0 12px 24px rgba(212,175,55,0.4)) drop-shadow(0 6px 12px rgba(0,0,0,0.6))',
             }}
           >
