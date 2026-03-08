@@ -27,6 +27,18 @@ export default function VantaggiSideTab() {
     return () => showHeader();
   }, []);
 
+  // Ascolta evento globale dal BottomNav per aprire il pannello
+  useEffect(() => {
+    const handler = () => {
+      if (!isOpen) {
+        setIsOpen(true);
+        hideHeader();
+      }
+    };
+    window.addEventListener('open-vantaggi-panel', handler);
+    return () => window.removeEventListener('open-vantaggi-panel', handler);
+  }, [isOpen]);
+
   const togglePanel = () => {
     const newOpen = !isOpen;
     setIsOpen(newOpen);
