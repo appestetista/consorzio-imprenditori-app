@@ -55,6 +55,14 @@ export default function Home() {
   const messagesContainerRef = useRef(null);
   const inputRef = useRef(null);
   const [showScrollDown, setShowScrollDown] = useState(false);
+  const [bottomNavExpanded, setBottomNavExpanded] = useState(false);
+
+  // Ascolta espansione BottomNav per spostare la barra input
+  useEffect(() => {
+    const handler = (e) => setBottomNavExpanded(!!e.detail?.expanded);
+    window.addEventListener('bottomnav-toggle', handler);
+    return () => window.removeEventListener('bottomnav-toggle', handler);
+  }, []);
 
   // Caricamento utente
   useEffect(() => {
