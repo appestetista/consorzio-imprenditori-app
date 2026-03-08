@@ -881,7 +881,7 @@ export default function HorizontalDatePicker({ selectedDate, onDateSelect, onGoT
       </div>
 
       {/* Barra mesi dell'anno - in basso */}
-      <div className="pl-2 pr-0 py-1 pb-2" style={{ marginRight: '42px' }}>
+      <div className="pl-2 pr-2 py-1 pb-2">
         {/* Etichette mesi */}
         <div className="flex items-center mb-1">
           {MONTHS_SHORT.map((m, idx) => {

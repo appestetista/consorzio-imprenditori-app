@@ -319,7 +319,7 @@ export default function CalendarSideTab({ selectedDate, onDateSelect, forceOpen,
       >
         {/* VerticalTimePicker - occupa lo spazio sopra il calendario */}
         {showTimePicker && selectedDate && (
-          <div className="flex-1 min-h-0 flex flex-col" style={{ marginRight: '42px' }}>
+          <div className="flex-1 min-h-0 flex flex-col">
             <VerticalTimePicker 
               selectedDate={selectedDate}
               visibleDay={visibleDay}
