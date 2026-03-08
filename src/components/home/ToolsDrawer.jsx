@@ -31,9 +31,6 @@ const DEFAULT_TOOLS = [
   { id: 'contatta_imprenditori', title: 'Contatta Imprenditori', icon: 'User', page: 'GestioneMembri' },
   { id: 'consigli', title: 'Consigli Imprenditori', icon: 'Handshake', page: 'Imprenditori' },
   { id: 'aste', title: 'Aste Immobiliari', icon: 'Gavel', page: 'AsteImmobiliari' },
-  { id: 'calendario', title: 'Calendario', icon: 'Calendar', page: 'CalendarioIncontri' },
-  { id: 'contatta_consorzio', title: 'Contatta Consorzio', icon: 'Phone', page: 'ContattaConsorzio' },
-  { id: 'prenotazioni', title: 'Le Mie Prenotazioni', icon: 'Gift', page: 'MiePrenotazioniVantaggi' },
   { id: 'profilo', title: 'Il Mio Profilo', icon: 'User', page: 'MyProfile' },
 ];
 
@@ -82,7 +79,7 @@ export default function ToolsDrawer() {
   const tabRef = useRef(null);
   const swipeStartX = useRef(null);
   const [swipeOffset, setSwipeOffset] = useState(0);
-  const DRAWER_WIDTH = 220;
+  const DRAWER_WIDTH = 170;
 
   const handleTouchStartTab = (e) => {
     swipeStartX.current = e.touches[0].clientX;
@@ -241,9 +238,9 @@ export default function ToolsDrawer() {
           <span className="text-[#d4af37] text-xs font-bold tracking-wider">STRUMENTI</span>
           <button 
             onClick={() => setIsOpen(false)}
-            className="w-6 h-6 rounded-full flex items-center justify-center bg-slate-800 hover:bg-slate-700"
+            className="w-9 h-9 rounded-full flex items-center justify-center bg-slate-800 hover:bg-slate-700 active:scale-95 transition-transform"
           >
-            <X className="w-3.5 h-3.5 text-slate-400" />
+            <X className="w-5 h-5 text-slate-300" />
           </button>
         </div>
 
