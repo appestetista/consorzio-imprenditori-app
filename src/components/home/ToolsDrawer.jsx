@@ -115,7 +115,7 @@ export default function ToolsDrawer() {
       ghostOrigin.current = { x: touch.clientX, y: touch.clientY };
       setGhostPos({ x: touch.clientX, y: touch.clientY });
       if (navigator.vibrate) navigator.vibrate(50);
-    }, 2000);
+    }, 1000);
   };
 
   const handleItemTouchMove = (e) => {
