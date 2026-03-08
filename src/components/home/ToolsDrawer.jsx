@@ -71,8 +71,10 @@ export default function ToolsDrawer() {
   // Drag state
   const [dragIdx, setDragIdx] = useState(null);
   const [dragOverIdx, setDragOverIdx] = useState(null);
+  const [dragActive, setDragActive] = useState(false); // true dopo long-press
   const touchStartY = useRef(null);
   const dragItemRef = useRef(null);
+  const longPressTimer = useRef(null);
   const listRef = useRef(null);
 
   // Swipe-to-open state
@@ -101,11 +103,34 @@ export default function ToolsDrawer() {
     swipeStartX.current = null;
   };
 
-  // Drag-and-drop via touch
-  const handleDragTouchStart = (e, idx) => {
+  // Long-press (3s) per attivare drag
+  const handleItemTouchStart = (e, idx) => {
     touchStartY.current = e.touches[0].clientY;
-    setDragIdx(idx);
     dragItemRef.current = idx;
+    longPressTimer.current = setTimeout(() => {
+      setDragIdx(idx);
+      setDragActive(true);
+      // Vibrazione feedback se disponibile
+      if (navigator.vibrate) navigator.vibrate(50);
+    }, 3000);
+  };
+
+  const handleItemTouchMove = (e) => {
+    // Se non è ancora in drag mode, cancella il timer (l'utente sta scrollando)
+    if (!dragActive && longPressTimer.current) {
+      const dy = Math.abs(e.touches[0].clientY - touchStartY.current);
+      if (dy > 10) {
+        clearTimeout(longPressTimer.current);
+        longPressTimer.current = null;
+      }
+    }
+  };
+
+  const handleItemTouchEnd = () => {
+    if (longPressTimer.current) {
+      clearTimeout(longPressTimer.current);
+      longPressTimer.current = null;
+    }
   };
 
   const handleDragTouchMove = useCallback((e) => {
@@ -133,12 +158,13 @@ export default function ToolsDrawer() {
     }
     setDragIdx(null);
     setDragOverIdx(null);
+    setDragActive(false);
     touchStartY.current = null;
     dragItemRef.current = null;
   }, [dragIdx, dragOverIdx]);
 
   useEffect(() => {
-    if (dragIdx !== null) {
+    if (dragActive) {
       document.addEventListener('touchmove', handleDragTouchMove, { passive: false });
       document.addEventListener('touchend', handleDragTouchEnd);
       return () => {
@@ -146,7 +172,7 @@ export default function ToolsDrawer() {
         document.removeEventListener('touchend', handleDragTouchEnd);
       };
     }
-  }, [dragIdx, handleDragTouchMove, handleDragTouchEnd]);
+  }, [dragActive, handleDragTouchMove, handleDragTouchEnd]);
 
   // Actual drawer translateX
   const drawerX = isOpen ? 0 : (swipeOffset > 0 ? swipeOffset - DRAWER_WIDTH : -DRAWER_WIDTH);
@@ -220,10 +246,10 @@ export default function ToolsDrawer() {
           </button>
         </div>
 
-        <p className="text-slate-500 text-[9px] px-3 py-1">Tieni premuto per riordinare</p>
+        <p className="text-slate-500 text-[9px] px-3 py-1">Tieni premuto 3 sec. per riordinare</p>
 
         {/* Lista strumenti scrollabile — pulsanti grandi 3D verticali */}
-        <div ref={listRef} className="flex-1 overflow-y-auto py-2 px-2 space-y-2">
+        <div ref={listRef} className="flex-1 overflow-y-auto py-2 px-2 space-y-1.5">
           {tools.map((tool, idx) => {
             const Icon = ICON_MAP[tool.icon] || FileSearch;
             const isDragging = dragIdx === idx;
@@ -241,9 +267,11 @@ export default function ToolsDrawer() {
               >
                 <Link
                   to={createPageUrl(tool.page)}
-                  onClick={() => setIsOpen(false)}
-                  onTouchStart={(e) => handleDragTouchStart(e, idx)}
-                  className="flex justify-center w-full active:scale-[0.96] transition-transform duration-100 touch-none"
+                  onClick={(e) => { if (dragActive) { e.preventDefault(); return; } setIsOpen(false); }}
+                  onTouchStart={(e) => handleItemTouchStart(e, idx)}
+                  onTouchMove={handleItemTouchMove}
+                  onTouchEnd={handleItemTouchEnd}
+                  className={cn("flex justify-center w-full active:scale-[0.96] transition-transform duration-100", dragActive && "pointer-events-none")}
                 >
                   {/* Contenitore 3D stile BottomNav */}
                   <div className="w-[160px]" style={{ boxShadow: '0 6px 18px rgba(0,0,0,0.5), 0 3px 8px rgba(0,0,0,0.3)' }}>
