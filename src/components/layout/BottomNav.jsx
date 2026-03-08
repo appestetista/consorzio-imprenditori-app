@@ -8,6 +8,11 @@ import AIConsumptionBar from '../home/AIConsumptionBar';
 export default function BottomNav({ currentPage, unreadMessages = 0, activeTab = null, isAdmin = false, onMenuOpen, menuOpen = false, hideBackground = false, bgColor = null, consulenzeUsate = 0, maxConsulenze = 50, userEmail = '' }) {
   const [expanded, setExpanded] = useState(false);
 
+  // Broadcast stato expanded per i pannelli laterali
+  React.useEffect(() => {
+    window.dispatchEvent(new CustomEvent('bottomnav-toggle', { detail: { expanded } }));
+  }, [expanded]);
+
   const navItems = [
     { name: 'home', label: 'Home', icon: Home, page: 'Home', tab: null },
     { name: 'strumenti', label: 'Strumenti', icon: Wrench, page: 'Esplora?tab=strumenti', tab: 'strumenti' },
