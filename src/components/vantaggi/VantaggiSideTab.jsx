@@ -5,7 +5,15 @@ import { usePanels } from '../layout/GlobalTopIcons';
 
 export default function VantaggiSideTab() {
   const [isOpen, setIsOpen] = useState(false);
+  const [navExpanded, setNavExpanded] = useState(false);
   const { hideHeader, showHeader } = usePanels();
+
+  // Ascolta toggle della bottom nav
+  useEffect(() => {
+    const handler = (e) => setNavExpanded(e.detail?.expanded ?? false);
+    window.addEventListener('bottomnav-toggle', handler);
+    return () => window.removeEventListener('bottomnav-toggle', handler);
+  }, []);
 
   // Quando il pannello si chiude (anche per navigazione), ripristina l'header
   useEffect(() => {

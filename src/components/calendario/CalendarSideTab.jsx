@@ -41,7 +41,15 @@ export default function CalendarSideTab({ selectedDate, onDateSelect, forceOpen,
     const [showTimePicker, setShowTimePicker] = useState(false);
     const [showFatturato, setShowFatturato] = useState(false);
     const [showWeekView, setShowWeekView] = useState(false);
+    const [navExpanded, setNavExpanded] = useState(false);
     const { hideHeader, showHeader } = usePanels();
+
+    // Ascolta toggle della bottom nav
+    useEffect(() => {
+      const handler = (e) => setNavExpanded(e.detail?.expanded ?? false);
+      window.addEventListener('bottomnav-toggle', handler);
+      return () => window.removeEventListener('bottomnav-toggle', handler);
+    }, []);
     const [weekViewColor, setWeekViewColor] = useState(null);
     const [weekViewMonth, setWeekViewMonth] = useState(new Date().getMonth());
     const weekViewMonthSelectRef = useRef(null);
