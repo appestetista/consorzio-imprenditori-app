@@ -292,6 +292,7 @@ export default function ToolsDrawer() {
           {tools.map((tool, idx) => {
             const Icon = ICON_MAP[tool.icon] || FileSearch;
             const isDragging = dragIdx === idx;
+            const isJustDropped = justDroppedId === tool.id;
             // Calcola se questo item deve spostarsi per fare posto al drop
             const shouldMakeSpace = dragActive && dragIdx !== null && dragOverIdx !== null && idx !== dragIdx;
             // Se l'item draggato viene inserito PRIMA di questo idx, questo deve scendere
