@@ -24,12 +24,12 @@ export default function BottomNav({ currentPage, unreadMessages = 0, activeTab =
   const PANEL_HEIGHT = 120;
 
   const handleNavClick = (item) => {
+    setTappedItem(item.name);
+    setTimeout(() => setTappedItem(null), 600);
     if (item.action === 'vantaggi') {
-      // Emetti evento globale per aprire il pannello Vantaggi
       window.dispatchEvent(new CustomEvent('open-vantaggi-panel'));
       setExpanded(false);
     } else if (item.action === 'calendario') {
-      // Emetti evento globale per aprire il pannello Calendario
       window.dispatchEvent(new CustomEvent('open-calendario-panel'));
       setExpanded(false);
     } else if (item.page) {
