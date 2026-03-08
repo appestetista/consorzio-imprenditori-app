@@ -260,12 +260,17 @@ export default function ToolsDrawer() {
               <div
                 key={tool.id}
                 data-tool-idx={idx}
-                className={cn(
-                  "relative transition-all duration-100",
-                  isDragging && "opacity-50 scale-95",
-                  isDragOver && "border-t-2 border-[#d4af37]",
-                )}
+                className="relative transition-all duration-200"
+                style={{
+                  transform: isDragging ? 'scale(1.05)' : isDragOver ? 'translateY(4px)' : 'none',
+                  zIndex: isDragging ? 50 : 1,
+                  opacity: isDragging ? 0.85 : 1,
+                }}
               >
+                {/* Linea indicatore drop sopra */}
+                {isDragOver && (
+                  <div className="absolute -top-1 left-4 right-4 h-[2px] rounded-full bg-[#d4af37]" style={{ boxShadow: '0 0 8px rgba(212,175,55,0.6)' }} />
+                )}
                 <div
                   role="button"
                   onClick={() => { if (dragActive) return; setIsOpen(false); navigate(createPageUrl(tool.page)); }}
@@ -273,19 +278,20 @@ export default function ToolsDrawer() {
                   onTouchStart={(e) => handleItemTouchStart(e, idx)}
                   onTouchMove={handleItemTouchMove}
                   onTouchEnd={handleItemTouchEnd}
-                  className={cn("flex justify-center w-full active:scale-[0.96] transition-transform duration-100 cursor-pointer select-none", dragActive && "pointer-events-none")}
+                  className={cn("flex justify-center w-full active:scale-[0.96] transition-transform duration-100 cursor-pointer select-none", dragActive && !isDragging && "pointer-events-none")}
                 >
-                  {/* Contenitore 3D stile BottomNav */}
-                  <div className="w-[160px]" style={{ boxShadow: '0 6px 18px rgba(0,0,0,0.5), 0 3px 8px rgba(0,0,0,0.3)' }}>
+                  <div className="w-[140px]" style={{ boxShadow: isDragging ? '0 10px 30px rgba(212,175,55,0.3), 0 4px 12px rgba(0,0,0,0.5)' : '0 6px 18px rgba(0,0,0,0.5), 0 3px 8px rgba(0,0,0,0.3)' }}>
                     <div className="rounded-[14px] p-[2px]" style={{
-                      background: 'linear-gradient(145deg, #c0c0c0 0%, #a8a8a8 25%, #808080 50%, #c0c0c0 75%, #e8e8e8 100%)'
+                      background: isDragging
+                        ? 'linear-gradient(145deg, #d4af37 0%, #b8860b 25%, #8b7355 50%, #d4af37 75%, #f0e68c 100%)'
+                        : 'linear-gradient(145deg, #c0c0c0 0%, #a8a8a8 25%, #808080 50%, #c0c0c0 75%, #e8e8e8 100%)'
                     }}>
-                      <div className="rounded-[12px] flex flex-col items-center justify-center py-4" style={{
+                      <div className="rounded-[12px] flex flex-col items-center justify-center py-5" style={{
                         background: 'linear-gradient(160deg, #1a1a1a 0%, #001d3b 50%, #001530 100%)',
                         boxShadow: 'inset 0 2px 4px rgba(0,0,0,0.5), inset 0 -1px 2px rgba(255,255,255,0.05)'
                       }}>
                         <Icon className="w-6 h-6 text-[#d4af37] mb-1.5" style={{ filter: 'drop-shadow(0 0 5px rgba(212,175,55,0.4))' }} />
-                        <span className="text-slate-200 text-[10px] font-semibold tracking-wide">{tool.title}</span>
+                        <span className="text-slate-200 text-[11px] font-semibold tracking-wide">{tool.title}</span>
                       </div>
                     </div>
                   </div>
