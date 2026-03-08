@@ -1,5 +1,5 @@
 import React, { useState, useRef, useEffect, useCallback } from 'react';
-import { Link } from 'react-router-dom';
+import { useNavigate } from 'react-router-dom';
 import { createPageUrl } from '@/utils';
 import { 
   FileSearch, Shield, PiggyBank, Euro, Globe, Calculator, Briefcase, Heart, 
@@ -52,6 +52,7 @@ function saveOrder(order) {
 }
 
 export default function ToolsDrawer() {
+  const navigate = useNavigate();
   const [isOpen, setIsOpen] = useState(false);
   const [tools, setTools] = useState(() => {
     const stored = getStoredOrder();
@@ -265,13 +266,14 @@ export default function ToolsDrawer() {
                   isDragOver && "border-t-2 border-[#d4af37]",
                 )}
               >
-                <Link
-                  to={createPageUrl(tool.page)}
-                  onClick={(e) => { if (dragActive) { e.preventDefault(); return; } setIsOpen(false); }}
+                <div
+                  role="button"
+                  onClick={() => { if (dragActive) return; setIsOpen(false); navigate(createPageUrl(tool.page)); }}
+                  onContextMenu={(e) => e.preventDefault()}
                   onTouchStart={(e) => handleItemTouchStart(e, idx)}
                   onTouchMove={handleItemTouchMove}
                   onTouchEnd={handleItemTouchEnd}
-                  className={cn("flex justify-center w-full active:scale-[0.96] transition-transform duration-100", dragActive && "pointer-events-none")}
+                  className={cn("flex justify-center w-full active:scale-[0.96] transition-transform duration-100 cursor-pointer select-none", dragActive && "pointer-events-none")}
                 >
                   {/* Contenitore 3D stile BottomNav */}
                   <div className="w-[160px]" style={{ boxShadow: '0 6px 18px rgba(0,0,0,0.5), 0 3px 8px rgba(0,0,0,0.3)' }}>
@@ -287,7 +289,7 @@ export default function ToolsDrawer() {
                       </div>
                     </div>
                   </div>
-                </Link>
+                </div>
               </div>
             );
           })}
