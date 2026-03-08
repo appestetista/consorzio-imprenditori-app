@@ -7,6 +7,7 @@ import AIConsumptionBar from '../home/AIConsumptionBar';
 
 export default function BottomNav({ currentPage, unreadMessages = 0, activeTab = null, isAdmin = false, onMenuOpen, menuOpen = false, hideBackground = false, bgColor = null, consulenzeUsate = 0, maxConsulenze = 50, userEmail = '' }) {
   const [expanded, setExpanded] = useState(false);
+  const [tappedItem, setTappedItem] = useState(null);
   const navigate = useNavigate();
 
   React.useEffect(() => {
