@@ -40,7 +40,7 @@ export default function BottomNav({ currentPage, unreadMessages = 0, activeTab =
 
   return (
     <>
-      {/* Barra consumo AI — fissa in basso, si nasconde sotto la search bar quando expanded */}
+      {/* Barra consumo AI — si nasconde quando expanded */}
       <div 
         className="fixed left-0 right-0 z-30 flex flex-col items-center"
         style={{ 
@@ -57,10 +57,19 @@ export default function BottomNav({ currentPage, unreadMessages = 0, activeTab =
         <div className="relative z-10 w-full flex justify-center" style={{ maxWidth: '260px', paddingLeft: '4px', paddingRight: '4px', paddingTop: '12px', paddingBottom: '10px', pointerEvents: 'auto' }}>
           <AIConsumptionBar userEmail={userEmail} />
         </div>
+      </div>
 
-        {/* Riga con pulsante HOME + freccia toggle */}
-        <div className="relative z-10 flex items-center justify-center gap-2 mb-2" style={{ pointerEvents: 'auto' }}>
-          {/* Pulsante HOME — stesso stile della freccia ma più largo, solo scritta */}
+      {/* HOME + Freccia — SEMPRE visibili, salgono sopra il pannello */}
+      <div 
+        className="fixed left-0 right-0 z-31 flex justify-center"
+        style={{ 
+          bottom: expanded ? `${PANEL_HEIGHT}px` : '0px',
+          transition: 'bottom 0.4s cubic-bezier(0.25, 0.1, 0.25, 1)',
+          zIndex: 31,
+        }}
+      >
+        <div className="flex items-center justify-center gap-2 mb-2">
+          {/* Pulsante HOME */}
           <Link
             to={createPageUrl('Home')}
             className="flex items-center justify-center rounded-full transition-all duration-300 active:scale-[0.96]"
