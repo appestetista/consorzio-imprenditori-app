@@ -8,7 +8,6 @@ import AIConsumptionBar from '../home/AIConsumptionBar';
 export default function BottomNav({ currentPage, unreadMessages = 0, activeTab = null, isAdmin = false, onMenuOpen, menuOpen = false, hideBackground = false, bgColor = null, consulenzeUsate = 0, maxConsulenze = 50, userEmail = '' }) {
   const [expanded, setExpanded] = useState(false);
 
-  // Broadcast stato expanded per i pannelli laterali
   React.useEffect(() => {
     window.dispatchEvent(new CustomEvent('bottomnav-toggle', { detail: { expanded } }));
   }, [expanded]);
@@ -19,8 +18,7 @@ export default function BottomNav({ currentPage, unreadMessages = 0, activeTab =
     { name: 'menu', label: 'My Profilo', icon: UserRound, page: 'MyProfile', tab: null },
   ];
 
-  // Altezza pannello pulsanti (senza barra AI)
-  const PANEL_HEIGHT = 120; // px: pulsanti + padding
+  const PANEL_HEIGHT = 120;
 
   return (
     <>
@@ -33,18 +31,13 @@ export default function BottomNav({ currentPage, unreadMessages = 0, activeTab =
           pointerEvents: 'none',
         }}
       >
-        {/* Sfondo sfumato dietro barra AI */}
         <div 
           className="absolute inset-0 pointer-events-none"
-          style={{ 
-            background: `linear-gradient(to top, ${bgColor || '#0a0f1a'} 70%, transparent 100%)`,
-          }} 
+          style={{ background: `linear-gradient(to top, ${bgColor || '#0a0f1a'} 70%, transparent 100%)` }} 
         />
-        {/* Barra AI */}
         <div className="relative z-10 w-full flex justify-center" style={{ maxWidth: '260px', paddingLeft: '4px', paddingRight: '4px', paddingTop: '12px', paddingBottom: '4px', pointerEvents: 'auto' }}>
           <AIConsumptionBar userEmail={userEmail} />
         </div>
-        {/* Handle / freccia toggle — sotto la barra AI */}
         <button
           onClick={() => setExpanded(prev => !prev)}
           className="relative z-10 flex items-center justify-center mb-1"
@@ -71,7 +64,7 @@ export default function BottomNav({ currentPage, unreadMessages = 0, activeTab =
 
       {/* Pannello pulsanti — sale dal basso */}
       <nav 
-        className="fixed left-0 right-0 z-29"
+        className="fixed left-0 right-0"
         style={{ 
           bottom: expanded ? '0px' : `-${PANEL_HEIGHT}px`,
           height: `${PANEL_HEIGHT}px`,
@@ -79,23 +72,71 @@ export default function BottomNav({ currentPage, unreadMessages = 0, activeTab =
           display: 'flex', 
           flexDirection: 'column', 
           alignItems: 'center', 
-          justifyContent: 'center', 
+          justifyContent: 'center',
+          zIndex: 29,
         }}
       >
-        {/* Sfondo solido */}
-        <div 
-          className="absolute inset-0 pointer-events-none" 
-          style={{ background: bgColor || '#0a0f1a' }} 
-        />
+        <div className="absolute inset-0 pointer-events-none" style={{ background: bgColor || '#0a0f1a' }} />
 
-        {/* Pulsanti navigazione */}
         <div className="px-2 relative z-10">
-          <div>
-            <div className="flex justify-center items-center gap-1">
-              {navItems.map((item) => {
-...
-              })}
-            </div>
+          <div className="flex justify-center items-center gap-1">
+            {navItems.map((item) => {
+              const isActive = item.name === 'home'
+                ? currentPage === 'Home'
+                : item.name === 'menu'
+                  ? currentPage === 'MyProfile'
+                  : activeTab === item.tab;
+              
+              const Wrapper = item.disabled ? 'div' : Link;
+              const wrapperProps = item.disabled ? {} : { to: createPageUrl(item.page) };
+              
+              return (
+                <Wrapper key={item.name} {...wrapperProps} className="flex-1 flex justify-center">
+                  <div className={cn(
+                    "relative w-[80px] h-[80px] transition-transform duration-100 ease-out",
+                    !item.disabled && "active:scale-[0.96]",
+                    item.disabled && "opacity-40"
+                  )}>
+                    <div className="absolute inset-0 rounded-[16px]" style={{ boxShadow: '0 6px 20px rgba(0,0,0,0.5), 0 3px 8px rgba(0,0,0,0.3)' }} />
+                    <div className="absolute inset-0 rounded-[16px] p-[2.5px]" style={{
+                      background: isActive 
+                        ? 'linear-gradient(145deg, #d4af37 0%, #b8860b 25%, #8b7355 50%, #d4af37 75%, #f0e68c 100%)'
+                        : 'linear-gradient(145deg, #c0c0c0 0%, #a8a8a8 25%, #808080 50%, #c0c0c0 75%, #e8e8e8 100%)'
+                    }}>
+                      <div className="relative w-full h-full rounded-[14px] flex flex-col items-center justify-center overflow-hidden" style={{
+                        background: isActive 
+                          ? 'linear-gradient(160deg, #2a2a2a 0%, #152040 50%, #1a2850 100%)' 
+                          : 'linear-gradient(160deg, #1a1a1a 0%, #001d3b 50%, #001530 100%)',
+                        boxShadow: 'inset 0 2px 4px rgba(0,0,0,0.5), inset 0 -1px 2px rgba(255,255,255,0.05)'
+                      }}>
+                        {item.icon && (
+                          <item.icon 
+                            className={cn(
+                              "w-7 h-7 mb-1 relative z-10 transition-all duration-150",
+                              isActive ? "text-[#d4af37] stroke-[2px]" : "text-[#a0a0a0]"
+                            )}
+                            style={{ filter: isActive ? 'drop-shadow(0 0 6px rgba(212,175,55,0.5))' : 'none' }}
+                          />
+                        )}
+                        {item.label && (
+                          <span className={cn(
+                            "text-[11px] font-semibold relative z-10 tracking-wide",
+                            isActive ? "text-[#d4af37]" : "text-[#909090]"
+                          )}>
+                            {item.label}
+                          </span>
+                        )}
+                        {item.badge > 0 && (
+                          <span className="absolute top-1 right-1 bg-red-500 text-white text-[8px] rounded-full min-w-[16px] h-4 px-1 flex items-center justify-center font-bold z-20" style={{ boxShadow: '0 2px 4px rgba(0,0,0,0.4)' }}>
+                            {item.badge > 99 ? '99+' : item.badge}
+                          </span>
+                        )}
+                      </div>
+                    </div>
+                  </div>
+                </Wrapper>
+              );
+            })}
           </div>
         </div>
       </nav>
