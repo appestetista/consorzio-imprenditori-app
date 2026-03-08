@@ -49,9 +49,10 @@ export default function VantaggiSideTab() {
         style={{
           width: '42px',
           height: '120px',
-          bottom: '0px',
+          bottom: navExpanded ? '195px' : '0px',
           top: 'auto',
-          transform: 'none'
+          transform: 'none',
+          transition: 'bottom 0.4s cubic-bezier(0.25, 0.1, 0.25, 1)'
         }}
       >
         {/* Ombra esterna flottante */}
@@ -97,9 +98,10 @@ export default function VantaggiSideTab() {
         style={{
           width: '42px',
           height: '120px',
-          bottom: '0px',
+          bottom: navExpanded ? '195px' : '0px',
           top: 'auto',
-          transform: 'none'
+          transform: 'none',
+          transition: 'bottom 0.4s cubic-bezier(0.25, 0.1, 0.25, 1), opacity 0.3s'
         }}
       >
         {/* Ombra esterna */}
