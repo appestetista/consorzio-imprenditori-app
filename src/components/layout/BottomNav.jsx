@@ -93,7 +93,7 @@ export default function BottomNav({ currentPage, unreadMessages = 0, activeTab =
             <div 
               className="flex items-center justify-center rounded-full transition-all duration-300"
               style={{
-                width: '48px',
+                width: '80px',
                 height: '22px',
                 background: 'linear-gradient(145deg, #1e293b 0%, #0f172a 100%)',
                 border: '1px solid rgba(212,175,55,0.35)',
