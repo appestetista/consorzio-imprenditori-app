@@ -301,7 +301,7 @@ export default function CalendarSideTab({ selectedDate, onDateSelect, forceOpen,
         style={{
           width: '42px',
           height: '120px',
-          bottom: navExpanded ? '195px' : '0px',
+          bottom: navExpanded ? '120px' : '0px',
           top: 'auto',
           transform: 'none',
           transition: 'bottom 0.4s cubic-bezier(0.25, 0.1, 0.25, 1)'
@@ -350,7 +350,7 @@ export default function CalendarSideTab({ selectedDate, onDateSelect, forceOpen,
         style={{
           width: '42px',
           height: '120px',
-          bottom: navExpanded ? '195px' : '0px',
+          bottom: navExpanded ? '120px' : '0px',
           top: 'auto',
           transform: 'none',
           transition: 'bottom 0.4s cubic-bezier(0.25, 0.1, 0.25, 1), opacity 0.3s'
