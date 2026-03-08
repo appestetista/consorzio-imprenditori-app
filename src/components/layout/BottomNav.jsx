@@ -144,6 +144,8 @@ export default function BottomNav({ currentPage, unreadMessages = 0, activeTab =
                 : item.name === 'strumenti'
                   ? activeTab === item.tab
                   : false;
+              const isTapped = tappedItem === item.name;
+              const isHighlighted = isActive || isTapped;
 
               const isLink = item.page && !item.action;
 
