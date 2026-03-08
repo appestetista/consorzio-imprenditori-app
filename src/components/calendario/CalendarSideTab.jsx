@@ -50,6 +50,22 @@ export default function CalendarSideTab({ selectedDate, onDateSelect, forceOpen,
       window.addEventListener('bottomnav-toggle', handler);
       return () => window.removeEventListener('bottomnav-toggle', handler);
     }, []);
+
+    // Ascolta evento globale dal BottomNav per aprire il calendario
+    useEffect(() => {
+      const handler = () => {
+        if (!isOpen) {
+          const today = new Date();
+          today.setHours(0, 0, 0, 0);
+          if (onDateSelect) onDateSelect(today);
+          setIsOpen(true);
+          setShowTimePicker(true);
+          hideHeader();
+        }
+      };
+      window.addEventListener('open-calendario-panel', handler);
+      return () => window.removeEventListener('open-calendario-panel', handler);
+    }, [isOpen]);
     const [weekViewColor, setWeekViewColor] = useState(null);
     const [weekViewMonth, setWeekViewMonth] = useState(new Date().getMonth());
     const weekViewMonthSelectRef = useRef(null);
