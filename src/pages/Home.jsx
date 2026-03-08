@@ -795,7 +795,7 @@ export default function Home() {
       )}
 
       {/* Campo di input */}
-      <div className="fixed z-40 px-2 pb-1 pt-1 left-0 right-0" style={{ bottom: '165px', backgroundColor: '#0a0f1a' }}>
+      <div className="fixed z-40 px-2 pb-2 pt-8 left-0 right-0" style={{ bottom: '44px', background: 'linear-gradient(to top, #0a0f1a 60%, transparent 100%)' }}>
         <div className="max-w-2xl mx-auto space-y-1">
           {!compareMode ? (
             <>
