@@ -796,7 +796,7 @@ export default function Home() {
             setShowScrollDown(false);
           }}
           className="fixed z-50 left-1/2 -translate-x-1/2 w-9 h-9 rounded-full bg-slate-700/90 border border-slate-600/50 flex items-center justify-center shadow-lg backdrop-blur-sm transition-all hover:bg-slate-600/90"
-          style={{ bottom: '140px' }}
+          style={{ bottom: bottomNavExpanded ? '260px' : '140px', transition: 'bottom 0.4s cubic-bezier(0.25,0.1,0.25,1)' }}
         >
           <ArrowUp className="w-4 h-4 text-slate-200 rotate-180" />
         </button>
