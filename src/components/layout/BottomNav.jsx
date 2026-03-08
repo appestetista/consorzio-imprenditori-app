@@ -101,9 +101,9 @@ export default function BottomNav({ currentPage, unreadMessages = 0, activeTab =
               }}
             >
               {expanded ? (
-                <ChevronDown className="w-4 h-4 text-[#d4af37]" />
+                <ChevronDown className="w-6 h-6 text-[#d4af37]" />
               ) : (
-                <ChevronUp className="w-4 h-4 text-[#d4af37] animate-bounce" />
+                <ChevronUp className="w-6 h-6 text-[#d4af37] animate-bounce" />
               )}
             </div>
           </button>
