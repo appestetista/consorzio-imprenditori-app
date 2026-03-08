@@ -155,26 +155,27 @@ export default function BottomNav({ currentPage, unreadMessages = 0, activeTab =
                 )}>
                   <div className="absolute inset-0 rounded-[16px]" style={{ boxShadow: '0 6px 20px rgba(0,0,0,0.5), 0 3px 8px rgba(0,0,0,0.3)' }} />
                   <div className="absolute inset-0 rounded-[16px] p-[2.5px]" style={{
-                    background: isActive 
+                    background: isHighlighted 
                       ? 'linear-gradient(145deg, #d4af37 0%, #b8860b 25%, #8b7355 50%, #d4af37 75%, #f0e68c 100%)'
-                      : 'linear-gradient(145deg, #c0c0c0 0%, #a8a8a8 25%, #808080 50%, #c0c0c0 75%, #e8e8e8 100%)'
+                      : 'linear-gradient(145deg, #c0c0c0 0%, #a8a8a8 25%, #808080 50%, #c0c0c0 75%, #e8e8e8 100%)',
+                    transition: 'background 0.3s ease'
                   }}>
                     <div className="relative w-full h-full rounded-[14px] flex flex-col items-center justify-center overflow-hidden" style={{
-                      background: isActive 
+                      background: isHighlighted 
                         ? 'linear-gradient(160deg, #2a2a2a 0%, #152040 50%, #1a2850 100%)' 
                         : 'linear-gradient(160deg, #1a1a1a 0%, #001d3b 50%, #001530 100%)',
                       boxShadow: 'inset 0 2px 4px rgba(0,0,0,0.5), inset 0 -1px 2px rgba(255,255,255,0.05)'
                     }}>
                       <item.icon 
                         className={cn(
-                          "w-7 h-7 mb-1 relative z-10 transition-all duration-150",
-                          isActive ? "text-[#d4af37] stroke-[2px]" : "text-[#a0a0a0]"
+                          "w-9 h-9 mb-0.5 relative z-10 transition-all duration-200",
+                          isHighlighted ? "text-[#d4af37] stroke-[2px]" : "text-slate-400"
                         )}
-                        style={{ filter: isActive ? 'drop-shadow(0 0 6px rgba(212,175,55,0.5))' : 'none' }}
+                        style={{ filter: isHighlighted ? 'drop-shadow(0 0 6px rgba(212,175,55,0.5))' : 'none' }}
                       />
                       <span className={cn(
-                        "text-[11px] font-semibold relative z-10 tracking-wide",
-                        isActive ? "text-[#d4af37]" : "text-[#909090]"
+                        "text-[11px] font-semibold relative z-10 tracking-wide transition-colors duration-200",
+                        isHighlighted ? "text-[#d4af37]" : "text-slate-400"
                       )}>
                         {item.label}
                       </span>
