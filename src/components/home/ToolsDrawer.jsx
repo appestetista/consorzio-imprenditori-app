@@ -66,14 +66,17 @@ export default function ToolsDrawer() {
     return DEFAULT_TOOLS;
   });
 
-  // Drag state
+  // Drag state — ghost follows finger anywhere on screen
   const [dragIdx, setDragIdx] = useState(null);
   const [dragOverIdx, setDragOverIdx] = useState(null);
-  const [dragActive, setDragActive] = useState(false); // true dopo long-press
+  const [dragActive, setDragActive] = useState(false);
+  const [ghostPos, setGhostPos] = useState({ x: 0, y: 0 }); // posizione fantasma
   const touchStartY = useRef(null);
+  const touchStartX = useRef(null);
   const dragItemRef = useRef(null);
   const longPressTimer = useRef(null);
   const listRef = useRef(null);
+  const ghostOrigin = useRef({ x: 0, y: 0 }); // punto di partenza per offset
 
   // Swipe-to-open state
   const tabRef = useRef(null);
@@ -103,21 +106,24 @@ export default function ToolsDrawer() {
 
   // Long-press (3s) per attivare drag
   const handleItemTouchStart = (e, idx) => {
-    touchStartY.current = e.touches[0].clientY;
+    const touch = e.touches[0];
+    touchStartY.current = touch.clientY;
+    touchStartX.current = touch.clientX;
     dragItemRef.current = idx;
     longPressTimer.current = setTimeout(() => {
       setDragIdx(idx);
       setDragActive(true);
-      // Vibrazione feedback se disponibile
+      ghostOrigin.current = { x: touch.clientX, y: touch.clientY };
+      setGhostPos({ x: touch.clientX, y: touch.clientY });
       if (navigator.vibrate) navigator.vibrate(50);
     }, 3000);
   };
 
   const handleItemTouchMove = (e) => {
-    // Se non è ancora in drag mode, cancella il timer (l'utente sta scrollando)
     if (!dragActive && longPressTimer.current) {
       const dy = Math.abs(e.touches[0].clientY - touchStartY.current);
-      if (dy > 10) {
+      const dx = Math.abs(e.touches[0].clientX - touchStartX.current);
+      if (dy > 10 || dx > 10) {
         clearTimeout(longPressTimer.current);
         longPressTimer.current = null;
       }
@@ -131,15 +137,27 @@ export default function ToolsDrawer() {
     }
   };
 
+  // Ghost drag: segue il dito ovunque sullo schermo, calcola drop target dalla lista
   const handleDragTouchMove = useCallback((e) => {
-    if (dragIdx === null || !listRef.current) return;
+    if (dragIdx === null) return;
     const touch = e.touches[0];
-    const items = listRef.current.querySelectorAll('[data-tool-idx]');
-    for (let i = 0; i < items.length; i++) {
-      const rect = items[i].getBoundingClientRect();
-      if (touch.clientY >= rect.top && touch.clientY <= rect.bottom) {
-        setDragOverIdx(i);
-        break;
+    setGhostPos({ x: touch.clientX, y: touch.clientY });
+
+    // Calcola drop target in base alla Y del dito rispetto agli item nella lista
+    if (listRef.current) {
+      const items = listRef.current.querySelectorAll('[data-tool-idx]');
+      let found = false;
+      for (let i = 0; i < items.length; i++) {
+        const rect = items[i].getBoundingClientRect();
+        const midY = rect.top + rect.height / 2;
+        if (touch.clientY < midY) {
+          setDragOverIdx(i);
+          found = true;
+          break;
+        }
+      }
+      if (!found && items.length > 0) {
+        setDragOverIdx(items.length - 1);
       }
     }
   }, [dragIdx]);
@@ -157,7 +175,9 @@ export default function ToolsDrawer() {
     setDragIdx(null);
     setDragOverIdx(null);
     setDragActive(false);
+    setGhostPos({ x: 0, y: 0 });
     touchStartY.current = null;
+    touchStartX.current = null;
     dragItemRef.current = null;
   }, [dragIdx, dragOverIdx]);
 
