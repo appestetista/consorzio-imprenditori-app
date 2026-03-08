@@ -243,19 +243,21 @@ export default function ToolsDrawer() {
                   to={createPageUrl(tool.page)}
                   onClick={() => setIsOpen(false)}
                   onTouchStart={(e) => handleDragTouchStart(e, idx)}
-                  className="flex flex-col items-center w-full active:scale-[0.97] transition-transform duration-100 touch-none"
+                  className="flex justify-center w-full active:scale-[0.96] transition-transform duration-100 touch-none"
                 >
-                  <div 
-                    className="w-[140px] mx-auto rounded-[14px] flex flex-col items-center justify-center py-5"
-                    style={{
-                      background: 'linear-gradient(160deg, #1a1a1a 0%, #001d3b 50%, #001530 100%)',
-                      boxShadow: '0 6px 16px rgba(0,0,0,0.5), 0 2px 6px rgba(0,0,0,0.3), inset 0 2px 4px rgba(0,0,0,0.4), inset 0 -1px 2px rgba(255,255,255,0.05)',
-                      outline: '2px solid rgba(192,192,192,0.3)',
-                      outlineOffset: '-2px',
-                    }}
-                  >
-                    <Icon className="w-8 h-8 text-[#d4af37] mb-2" style={{ filter: 'drop-shadow(0 0 4px rgba(212,175,55,0.3))' }} />
-                    <span className="text-slate-300 text-[11px] font-semibold">{tool.title}</span>
+                  {/* Contenitore 3D stile BottomNav */}
+                  <div className="w-[160px]" style={{ boxShadow: '0 6px 18px rgba(0,0,0,0.5), 0 3px 8px rgba(0,0,0,0.3)' }}>
+                    <div className="rounded-[14px] p-[2px]" style={{
+                      background: 'linear-gradient(145deg, #c0c0c0 0%, #a8a8a8 25%, #808080 50%, #c0c0c0 75%, #e8e8e8 100%)'
+                    }}>
+                      <div className="rounded-[12px] flex flex-col items-center justify-center py-4" style={{
+                        background: 'linear-gradient(160deg, #1a1a1a 0%, #001d3b 50%, #001530 100%)',
+                        boxShadow: 'inset 0 2px 4px rgba(0,0,0,0.5), inset 0 -1px 2px rgba(255,255,255,0.05)'
+                      }}>
+                        <Icon className="w-6 h-6 text-[#d4af37] mb-1.5" style={{ filter: 'drop-shadow(0 0 5px rgba(212,175,55,0.4))' }} />
+                        <span className="text-slate-200 text-[10px] font-semibold tracking-wide">{tool.title}</span>
+                      </div>
+                    </div>
                   </div>
                 </Link>
               </div>
