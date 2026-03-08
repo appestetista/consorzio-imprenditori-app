@@ -153,6 +153,7 @@ export default function Layout({ children, currentPageName }) {
         <ImpersonationBanner />
         {children}
         {currentPageName === 'Home' && <GlobalSearchBar currentPageName={currentPageName} />}
+        {currentPageName === 'Home' && <ToolsDrawer />}
         <VantaggiSideTab />
         <CalendarSideTab 
           selectedDate={selectedDate}
