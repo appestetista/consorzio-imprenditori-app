@@ -925,13 +925,24 @@ export default function HorizontalDatePicker({ selectedDate, onDateSelect, onGoT
             </div>
           )}
           
-          {/* VISIONE MENSILE - occupa tutto lo spazio restante, con margine destro per staccarsi da CHIUDI */}
+          {/* VISIONE MENSILE */}
           {onToggleFatturato && (
             <button
               onClick={onToggleFatturato}
-              className="flex-1 h-8 rounded-md transition-all touch-manipulation active:scale-90 flex items-center justify-center bg-white mr-2"
+              className="flex-1 h-8 rounded-md transition-all touch-manipulation active:scale-90 flex items-center justify-center bg-white"
             >
               <span className="text-[12px] font-bold uppercase text-black">Visione Mensile</span>
+            </button>
+          )}
+
+          {/* CHIUDI - verde fluo pieno, verticale, affianco visione mensile */}
+          {onClose && (
+            <button
+              onClick={onClose}
+              className="flex-shrink-0 h-8 w-8 rounded-md transition-all touch-manipulation active:scale-90 flex items-center justify-center ml-2"
+              style={{ backgroundColor: '#a3e635' }}
+            >
+              <X className="w-5 h-5 text-slate-900" strokeWidth={3} />
             </button>
           )}
         </div>
