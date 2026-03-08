@@ -172,6 +172,19 @@ export default function ToolsDrawer() {
     }
   }, [dragActive, handleDragTouchMove, handleDragTouchEnd]);
 
+  // Chiudi drawer se si clicca/tocca ovunque fuori dal drawer (incluso BottomNav, etc.)
+  const drawerRef = useRef(null);
+  useEffect(() => {
+    if (!isOpen) return;
+    const handleOutsideClick = (e) => {
+      if (drawerRef.current && !drawerRef.current.contains(e.target)) {
+        setIsOpen(false);
+      }
+    };
+    document.addEventListener('pointerdown', handleOutsideClick, true);
+    return () => document.removeEventListener('pointerdown', handleOutsideClick, true);
+  }, [isOpen]);
+
   // Actual drawer translateX
   const drawerX = isOpen ? 0 : (swipeOffset > 0 ? swipeOffset - DRAWER_WIDTH : -DRAWER_WIDTH);
 
@@ -222,6 +235,7 @@ export default function ToolsDrawer() {
 
       {/* Drawer */}
       <div
+        ref={drawerRef}
         className="fixed top-0 bottom-0 z-[50] flex flex-col"
         style={{
           left: 0,
