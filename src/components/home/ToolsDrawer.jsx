@@ -163,10 +163,12 @@ export default function ToolsDrawer() {
   }, [dragIdx]);
 
   const handleDragTouchEnd = useCallback(() => {
+    let movedToolId = null;
     if (dragIdx !== null && dragOverIdx !== null && dragIdx !== dragOverIdx) {
       setTools(prev => {
         const newTools = [...prev];
         const [moved] = newTools.splice(dragIdx, 1);
+        movedToolId = moved.id;
         newTools.splice(dragOverIdx, 0, moved);
         saveOrder(newTools.map(t => t.id));
         return newTools;
@@ -179,6 +181,11 @@ export default function ToolsDrawer() {
     touchStartY.current = null;
     touchStartX.current = null;
     dragItemRef.current = null;
+    // Evidenzia il pulsante spostato con bordo dorato per 1.5s
+    if (movedToolId) {
+      setJustDroppedId(movedToolId);
+      setTimeout(() => setJustDroppedId(null), 1500);
+    }
   }, [dragIdx, dragOverIdx]);
 
   useEffect(() => {
