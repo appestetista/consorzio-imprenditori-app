@@ -63,6 +63,43 @@ export default function VantaggiSideTab() {
       >
         <VantaggiPanelContent onClose={() => setIsOpen(false)} />
       </div>
+
+      {/* Pulsante CHIUDI laterale — sul bordo destro del pannello Vantaggi */}
+      {isOpen && (
+        <button
+          onClick={() => {
+            setIsOpen(false);
+            showHeader();
+          }}
+          className="fixed z-[56] flex items-center justify-center"
+          style={{
+            right: 0,
+            top: '50%',
+            transform: 'translateY(-50%)',
+            width: '42px',
+            height: '120px',
+            background: 'linear-gradient(180deg, #1e293b 0%, #0f172a 100%)',
+            borderTopLeftRadius: '12px',
+            borderBottomLeftRadius: '12px',
+            borderLeft: '2px solid rgba(212,175,55,0.27)',
+            borderTop: '1px solid rgba(212,175,55,0.2)',
+            borderBottom: '1px solid rgba(212,175,55,0.2)',
+            boxShadow: '-4px 0 12px rgba(0,0,0,0.3)',
+          }}
+        >
+          <span 
+            className="text-[10px] font-bold tracking-widest"
+            style={{ 
+              writingMode: 'vertical-rl',
+              textOrientation: 'mixed',
+              color: '#d4af37',
+              letterSpacing: '0.15em'
+            }}
+          >
+            CHIUDI
+          </span>
+        </button>
+      )}
     </>
   );
 }
