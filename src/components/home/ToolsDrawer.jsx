@@ -31,7 +31,6 @@ const DEFAULT_TOOLS = [
   { id: 'contatta_imprenditori', title: 'Contatta Imprenditori', icon: 'User', page: 'GestioneMembri' },
   { id: 'consigli', title: 'Consigli Imprenditori', icon: 'Handshake', page: 'Imprenditori' },
   { id: 'aste', title: 'Aste Immobiliari', icon: 'Gavel', page: 'AsteImmobiliari' },
-  { id: 'profilo', title: 'Il Mio Profilo', icon: 'User', page: 'MyProfile' },
 ];
 
 const STORAGE_KEY = 'tools_drawer_order';
