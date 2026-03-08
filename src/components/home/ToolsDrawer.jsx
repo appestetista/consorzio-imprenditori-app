@@ -70,6 +70,7 @@ export default function ToolsDrawer() {
   const [dragOverIdx, setDragOverIdx] = useState(null);
   const [dragActive, setDragActive] = useState(false);
   const [ghostPos, setGhostPos] = useState({ x: 0, y: 0 }); // posizione fantasma
+  const [justDroppedId, setJustDroppedId] = useState(null); // id del tool appena spostato (resta dorato)
   const touchStartY = useRef(null);
   const touchStartX = useRef(null);
   const dragItemRef = useRef(null);
