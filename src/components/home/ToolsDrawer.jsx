@@ -79,7 +79,7 @@ export default function ToolsDrawer() {
   const tabRef = useRef(null);
   const swipeStartX = useRef(null);
   const [swipeOffset, setSwipeOffset] = useState(0);
-  const DRAWER_WIDTH = 220;
+  const DRAWER_WIDTH = 280;
 
   const handleTouchStartTab = (e) => {
     swipeStartX.current = e.touches[0].clientX;
@@ -222,52 +222,56 @@ export default function ToolsDrawer() {
 
         <p className="text-slate-500 text-[9px] px-3 py-1">Tieni premuto ≡ per riordinare</p>
 
-        {/* Lista strumenti scrollabile */}
-        <div ref={listRef} className="flex-1 overflow-y-auto py-1 px-1.5">
-          {tools.map((tool, idx) => {
-            const Icon = ICON_MAP[tool.icon] || FileSearch;
-            const isDragging = dragIdx === idx;
-            const isDragOver = dragOverIdx === idx && dragIdx !== idx;
+        {/* Griglia strumenti scrollabile */}
+        <div ref={listRef} className="flex-1 overflow-y-auto py-2 px-2">
+          <div className="grid grid-cols-3 gap-2">
+            {tools.map((tool, idx) => {
+              const Icon = ICON_MAP[tool.icon] || FileSearch;
+              const isDragging = dragIdx === idx;
+              const isDragOver = dragOverIdx === idx && dragIdx !== idx;
 
-            return (
-              <div
-                key={tool.id}
-                data-tool-idx={idx}
-                className={cn(
-                  "flex items-center gap-2.5 px-2 py-2 rounded-lg transition-all mb-0.5",
-                  isDragging && "opacity-50 scale-95 bg-[#d4af37]/10",
-                  isDragOver && "border-t-2 border-[#d4af37]",
-                  !isDragging && !isDragOver && "active:bg-white/5"
-                )}
-              >
-                {/* Grip handle */}
+              return (
                 <div
-                  onTouchStart={(e) => handleDragTouchStart(e, idx)}
-                  className="flex-shrink-0 touch-none cursor-grab active:cursor-grabbing p-1"
+                  key={tool.id}
+                  data-tool-idx={idx}
+                  className={cn(
+                    "relative transition-all duration-100",
+                    isDragging && "opacity-50 scale-90",
+                    isDragOver && "ring-2 ring-[#d4af37] rounded-[16px]",
+                  )}
                 >
-                  <GripVertical className="w-3.5 h-3.5 text-slate-600" />
-                </div>
-
-                {/* Tool button */}
-                <Link
-                  to={createPageUrl(tool.page)}
-                  onClick={() => setIsOpen(false)}
-                  className="flex items-center gap-2.5 flex-1 min-w-0"
-                >
-                  <div 
-                    className="w-8 h-8 rounded-lg flex items-center justify-center flex-shrink-0"
-                    style={{
-                      background: 'linear-gradient(145deg, rgba(212,175,55,0.15) 0%, rgba(212,175,55,0.05) 100%)',
-                      border: '1px solid rgba(212,175,55,0.2)',
-                    }}
+                  {/* Grip — angolo in alto a destra */}
+                  <div
+                    onTouchStart={(e) => handleDragTouchStart(e, idx)}
+                    className="absolute top-0.5 right-0.5 z-10 touch-none cursor-grab active:cursor-grabbing p-1"
                   >
-                    <Icon className="w-4 h-4 text-[#d4af37]" />
+                    <GripVertical className="w-3 h-3 text-slate-600/50" />
                   </div>
-                  <span className="text-slate-200 text-xs font-medium truncate">{tool.title}</span>
-                </Link>
-              </div>
-            );
-          })}
+
+                  <Link
+                    to={createPageUrl(tool.page)}
+                    onClick={() => setIsOpen(false)}
+                    className="flex flex-col items-center text-center active:scale-[0.95] transition-transform duration-100"
+                  >
+                    <div 
+                      className="w-[72px] h-[72px] rounded-[16px] flex items-center justify-center mb-1"
+                      style={{
+                        background: 'linear-gradient(160deg, #1a1a1a 0%, #001d3b 50%, #001530 100%)',
+                        border: '2.5px solid transparent',
+                        backgroundClip: 'padding-box',
+                        boxShadow: '0 6px 16px rgba(0,0,0,0.5), 0 2px 6px rgba(0,0,0,0.3), inset 0 2px 4px rgba(0,0,0,0.4), inset 0 -1px 2px rgba(255,255,255,0.05)',
+                        outline: '2.5px solid rgba(192,192,192,0.35)',
+                        outlineOffset: '-2.5px',
+                      }}
+                    >
+                      <Icon className="w-7 h-7 text-[#d4af37]" style={{ filter: 'drop-shadow(0 0 4px rgba(212,175,55,0.3))' }} />
+                    </div>
+                    <span className="text-slate-300 text-[10px] font-medium leading-tight max-w-[76px] line-clamp-2">{tool.title}</span>
+                  </Link>
+                </div>
+              );
+            })}
+          </div>
         </div>
       </div>
     </>
