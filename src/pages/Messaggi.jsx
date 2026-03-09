@@ -842,7 +842,7 @@ export default function Messaggi() {
           </div>
 
           {/* Colonna destra - Lista messaggi */}
-          <div className="flex-1 overflow-y-auto">
+          <div className="flex-1 overflow-y-auto" style={{ overscrollBehavior: 'contain' }}>
             {isLoading ? (
               <div className="flex items-center justify-center h-full">
                 <div className="animate-spin w-8 h-8 border-2 border-lime-400 border-t-transparent rounded-full"></div>
