@@ -367,7 +367,7 @@ export default function ToolsDrawer() {
         <p className="text-slate-500 text-[9px] px-3 py-1">Tieni premuto 1 sec. per riordinare</p>
 
         {/* Lista strumenti scrollabile — pulsanti grandi 3D verticali */}
-        <div ref={listRef} className="flex-1 overflow-y-auto py-2 px-2">
+        <div ref={listRef} className="flex-1 overflow-y-auto py-2 px-2 pb-40">
           {tools.map((tool, idx) => {
             const Icon = ICON_MAP[tool.icon] || FileSearch;
             const isDragging = dragIdx === idx;
