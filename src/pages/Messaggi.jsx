@@ -31,6 +31,9 @@ export default function Messaggi() {
   const [attachments, setAttachments] = useState([]);
   const [activeFilter, setActiveFilter] = useState('all');
   const [filtersCollapsed, setFiltersCollapsed] = useState(false);
+  const [arrowTop, setArrowTop] = useState(0);
+  const filterButtonRefs = useRef({});
+  const filterContainerRef = useRef(null);
 
   const messagesEndRef = useRef(null);
   const fileInputRef = useRef(null);
