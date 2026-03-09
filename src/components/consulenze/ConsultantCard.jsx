@@ -45,7 +45,7 @@ export default function ConsultantCard({
       {/* Avatar a sinistra */}
       <div className="flex-shrink-0 flex flex-col items-center pt-1 w-24">
         <img 
-          src={AVATAR_URL}
+          src={consultant.avatar_url || AVATAR_URL}
           alt="Consulente"
           className="w-40 h-40 object-contain drop-shadow-[0_4px_15px_rgba(212,175,55,0.3)] -mx-8"
         />
