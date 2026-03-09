@@ -257,24 +257,23 @@ export default function MemberView({ user, consultants, isLoading }) {
     return requestedConsultants.includes(consultantId);
   };
 
-  // Mostra TUTTI i consulenti non bloccati — la zona non è più un filtro esclusivo
-  // I consulenti della stessa zona dell'utente vengono mostrati per primi
+  // Mostra solo consulenti NON bloccati e ASSEGNATI alla zona dell'utente dall'admin
+  // Se un consulente non ha zone_assegnate né zona, non viene mostrato a nessuno
   const userZona = user?.zona?.toLowerCase()?.trim();
-  const filteredConsultants = consultants
-    .filter(c => !c.is_blocked) // Escludi solo quelli bloccati dall'admin
-    .sort((a, b) => {
-      // Priorità: consulenti della zona dell'utente prima
-      const aZones = a.zone_assegnate?.map(z => z.toLowerCase().trim()) || [];
-      const aMatch = aZones.includes(userZona) || a.zona?.toLowerCase()?.trim() === userZona;
-      const bZones = b.zone_assegnate?.map(z => z.toLowerCase().trim()) || [];
-      const bMatch = bZones.includes(userZona) || b.zona?.toLowerCase()?.trim() === userZona;
-      if (aMatch && !bMatch) return -1;
-      if (!aMatch && bMatch) return 1;
-      return (a.category || '').localeCompare(b.category || '');
-    });
+  const filteredConsultants = consultants.filter(c => {
+    if (c.is_blocked) return false;
+    // Il consulente DEVE avere almeno una zona assegnata dall'admin
+    const hasZones = (c.zone_assegnate?.length > 0) || !!c.zona;
+    if (!hasZones) return false;
+    // Se l'utente non ha zona, non può vedere nessun consulente zonale
+    if (!userZona) return false;
+    const consultantZones = c.zone_assegnate?.map(z => z.toLowerCase().trim()) || [];
+    const singleZona = c.zona?.toLowerCase()?.trim();
+    return consultantZones.includes(userZona) || singleZona === userZona;
+  });
 
-  // Estrai dinamicamente le categorie dai consulenti (ordine di apparizione dopo sort)
-  const visibleCategories = [...new Set(filteredConsultants.map(c => c.category).filter(Boolean))];
+  // Estrai dinamicamente le categorie dai consulenti filtrati (ordine alfabetico)
+  const visibleCategories = [...new Set(filteredConsultants.map(c => c.category).filter(Boolean))].sort();
 
   // Calcola il totale delle consulenze disponibili solo dai consulenti mostrati
   const visibleConsultantIds = filteredConsultants.map(c => c.id);
