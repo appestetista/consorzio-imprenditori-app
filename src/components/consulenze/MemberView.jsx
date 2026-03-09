@@ -1,7 +1,7 @@
 import React, { useState, useEffect, useMemo } from 'react';
 import { useMutation, useQueryClient, useQuery } from '@tanstack/react-query';
 import { base44 } from '@/api/base44Client';
-import { Gift, Users } from 'lucide-react';
+import { Gift } from 'lucide-react';
 import useNotificationSound from '../hooks/useNotificationSound';
 
 import PendingConfirmations from './PendingConfirmations';
