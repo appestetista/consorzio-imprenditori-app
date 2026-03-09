@@ -432,7 +432,7 @@ export default function Messaggi() {
     const otherUser = getOtherUser(otherEmail);
 
     return (
-      <div className="h-screen bg-slate-900 flex flex-col overflow-hidden">
+      <div className="h-screen bg-slate-900 flex flex-col overflow-hidden pt-14">
         {/* Chat Header */}
         <div className="bg-slate-800 py-4 px-4 flex items-center gap-3 border-b border-slate-700 flex-shrink-0">
           <button onClick={() => setSelectedConversation(null)} className="text-lime-400">
