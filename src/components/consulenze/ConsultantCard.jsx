@@ -1,5 +1,5 @@
-import React, { useState } from 'react';
-import { Phone, Check, Video, Building2, Briefcase, Calendar, ChevronDown, ChevronUp, Send } from 'lucide-react';
+import React from 'react';
+import { Phone, Check, Video, Building2, Briefcase, Calendar, Send } from 'lucide-react';
 import { Button } from '@/components/ui/button';
 import { Textarea } from '@/components/ui/textarea';
 import { Input } from '@/components/ui/input';
@@ -26,7 +26,6 @@ export default function ConsultantCard({
   onSubmit,
   isSubmitting,
 }) {
-  const [expanded, setExpanded] = useState(false);
   const hasAvailable = availableConsultations > 0;
 
   return (
@@ -90,17 +89,7 @@ export default function ConsultantCard({
           <p className="text-slate-500 text-xs italic">Nessuna consulenza gratuita disponibile</p>
         ) : (
           <>
-            {/* Toggle per espandere il form */}
-            <button
-              onClick={() => setExpanded(!expanded)}
-              className="flex items-center gap-1 text-lime-400 text-xs font-medium hover:text-lime-300 transition-colors mb-2"
-            >
-              {expanded ? <ChevronUp className="w-3.5 h-3.5" /> : <ChevronDown className="w-3.5 h-3.5" />}
-              {expanded ? 'Chiudi' : 'Richiedi consulenza'}
-            </button>
-
-            {expanded && (
-              <div className="space-y-2 animate-in slide-in-from-top-2">
+              <div className="space-y-2">
                 <Textarea
                   placeholder="Oggetto della consulenza..."
                   value={consultationMessage || ''}
@@ -137,7 +126,7 @@ export default function ConsultantCard({
                   <div className="flex items-center gap-1.5">
                     <RadioGroupItem value="sede_consulente" id={`sc-${consultant.id}`} className="border-lime-400 text-lime-400 data-[state=checked]:bg-lime-400 w-3.5 h-3.5" />
                     <Label htmlFor={`sc-${consultant.id}`} className="text-white text-xs flex items-center gap-1 cursor-pointer">
-                      <Briefcase className="w-3 h-3 text-purple-400" /> Studio
+                      <Briefcase className="w-3 h-3 text-purple-400" /> Sede consulente
                     </Label>
                   </div>
                 </RadioGroup>
@@ -182,7 +171,6 @@ export default function ConsultantCard({
                   )}
                 </div>
               </div>
-            )}
           </>
         )}
       </div>
