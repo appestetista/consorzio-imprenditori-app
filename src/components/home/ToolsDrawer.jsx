@@ -6,7 +6,7 @@ import { useQuery } from '@tanstack/react-query';
 import { 
   FileSearch, Shield, PiggyBank, Euro, Globe, Calculator, Briefcase, Heart, 
   Users, Truck, ShoppingBag, Star, Video, Megaphone, Monitor, User, Handshake, 
-  TrendingUp, Gavel, X, Calendar, Phone, Gift
+  TrendingUp, Gavel, X, Calendar, Phone, Gift, Bell
 } from 'lucide-react';
 import { cn } from '@/lib/utils';
 
@@ -420,11 +420,15 @@ export default function ToolsDrawer() {
                         background: 'linear-gradient(160deg, #1a1a1a 0%, #001d3b 50%, #001530 100%)',
                         boxShadow: 'inset 0 2px 4px rgba(0,0,0,0.5), inset 0 -1px 2px rgba(255,255,255,0.05)'
                       }}>
-                        {toolBadges[tool.id] > 0 && (
-                          <span className="absolute -top-1.5 -right-1.5 bg-red-500 text-white text-[9px] font-bold rounded-full min-w-[18px] h-[18px] px-1 flex items-center justify-center shadow-lg z-10">
-                            {toolBadges[tool.id] > 99 ? '99+' : toolBadges[tool.id]}
-                          </span>
-                        )}
+                        {/* Campanella notifiche — angolo alto destra */}
+                        <div className="absolute top-1.5 right-1.5 z-10 flex items-center justify-center">
+                          <Bell className={`w-3.5 h-3.5 ${toolBadges[tool.id] > 0 ? 'text-[#d4af37]' : 'text-slate-600'}`} />
+                          {toolBadges[tool.id] > 0 && (
+                            <span className="absolute -top-1.5 -right-1.5 bg-red-500 text-white text-[8px] font-bold rounded-full min-w-[14px] h-[14px] px-0.5 flex items-center justify-center shadow-lg">
+                              {toolBadges[tool.id] > 99 ? '99+' : toolBadges[tool.id]}
+                            </span>
+                          )}
+                        </div>
                         <Icon className="w-6 h-6 text-[#d4af37] mb-1.5" style={{ filter: 'drop-shadow(0 0 5px rgba(212,175,55,0.4))' }} />
                         <span className="text-slate-200 text-[11px] font-semibold tracking-wide">{tool.title}</span>
                       </div>
