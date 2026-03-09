@@ -1,5 +1,7 @@
 import React, { createContext, useContext, useState, useCallback } from 'react';
 import { Bell } from 'lucide-react';
+import { useNavigate } from 'react-router-dom';
+import { createPageUrl } from '@/utils';
 import { useNotificationsBadge } from '../home/NotificationsPanel';
 
 // Context globale per aprire/chiudere pannelli messaggi e notifiche
