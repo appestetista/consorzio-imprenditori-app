@@ -91,7 +91,7 @@ export default function MemberView({ user, consultants, isLoading }) {
       for (const consultant of allConsultants) {
         const hasAssignment = userAssignments.some(a => a.consultant_id === consultant.id);
         // Usa il valore impostato dal consulente, default 1 se non specificato
-        const freeConsultations = consultant.free_consultations_per_user ?? 1;
+        const freeConsultations = Math.max(1, consultant.free_consultations_per_user ?? 1);
         
         // Crea sempre assignment anche se 0 consulenze gratuite (assegna minimo 1)
         if (!hasAssignment) {
