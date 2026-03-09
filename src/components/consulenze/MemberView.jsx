@@ -355,6 +355,8 @@ export default function MemberView({ user, consultants, isLoading }) {
                     link: meetingLinks[consultant.id] || ''
                   })}
                   isSubmitting={bookConsultationMutation.isPending}
+                  unreadCount={unreadCountByEmail[consultant.email] || 0}
+                  onChatOpen={(c) => navigate(createPageUrl('Messaggi') + `?contact=${encodeURIComponent(c.email)}`)}
                 />
               );
             })}
