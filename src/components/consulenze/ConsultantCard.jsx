@@ -170,7 +170,7 @@ export default function ConsultantCard({
                 )}
 
                 {/* Pulsante Invia */}
-                <div className="pt-1">
+                <div className="pt-1 flex justify-end">
                   <Button
                     size="sm"
                     className="bg-lime-400 hover:bg-lime-500 text-slate-900 border-0 h-7 text-xs px-3"
