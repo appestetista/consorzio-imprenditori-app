@@ -718,7 +718,7 @@ export default function Messaggi() {
 
   return (
     <div className="min-h-screen bg-slate-900 pb-64">
-      <main className="px-2 flex flex-col" style={{ height: 'calc(100vh - 115px)' }}>
+      <main className="px-2 flex flex-col" style={{ height: 'calc(100vh - 95px)' }}>
         {/* Header fisso con sezione attiva - SEMPRE VISIBILE */}
         <div className="flex items-center gap-2 px-2 py-1.5 bg-slate-900 flex-shrink-0">
           <h1 className="text-white text-xl font-bold">Messaggi</h1>
