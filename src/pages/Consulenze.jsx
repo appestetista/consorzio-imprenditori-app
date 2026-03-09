@@ -12,6 +12,7 @@ import AdminView from '../components/consulenze/AdminView';
 import { useImpersonation } from '../components/admin/ImpersonationContext';
 import useNotificationSound from '../components/hooks/useNotificationSound';
 import GlobalTopIcons from '../components/layout/GlobalTopIcons';
+import Avatar3DConsulente from '../components/consulenze/Avatar3DConsulente';
 
 export default function Consulenze() {
   const [user, setUser] = useState(null);
