@@ -51,18 +51,7 @@ export default function ConsultantCard({
         <div className={`mt-2 rounded-full px-2.5 py-0.5 text-xs font-bold ${hasAvailable ? 'bg-lime-400/20 text-lime-400' : 'bg-red-500/20 text-red-400'}`}>
           {availableConsultations} disp.
         </div>
-        {/* Pulsante Chiama sotto disponibilità */}
-        {consultant.phone && (
-          <Button
-            variant="outline"
-            size="sm"
-            className="mt-2 bg-slate-700 hover:bg-slate-600 text-white border-slate-600 h-7 text-xs px-3"
-            onClick={() => window.open(`tel:${consultant.phone}`)}
-          >
-            <Phone className="w-3 h-3 mr-1" />
-            Chiama
-          </Button>
-        )}
+
       </div>
 
       {/* Contenuto a destra */}
