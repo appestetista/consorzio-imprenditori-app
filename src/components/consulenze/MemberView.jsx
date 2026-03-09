@@ -3,9 +3,9 @@ import { useMutation, useQueryClient, useQuery } from '@tanstack/react-query';
 import { base44 } from '@/api/base44Client';
 import { Gift, Users } from 'lucide-react';
 import useNotificationSound from '../hooks/useNotificationSound';
-import { Tabs, TabsContent, TabsList, TabsTrigger } from '@/components/ui/tabs';
+
 import PendingConfirmations from './PendingConfirmations';
-import ConsultantsList from './ConsultantsList';
+
 import ConsultantCard from './ConsultantCard';
 import { useNavigate } from 'react-router-dom';
 import { createPageUrl } from '@/utils';
