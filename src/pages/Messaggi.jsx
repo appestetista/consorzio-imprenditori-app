@@ -832,7 +832,7 @@ export default function Messaggi() {
                   return (
                     <Card
                       key={key}
-                      className={`bg-slate-800 border-slate-700 p-3 cursor-pointer hover:bg-slate-700 transition-colors relative ${isStarred ? 'border-l-4 border-l-yellow-500' : ''}`}
+                      className={`bg-slate-800 border-slate-700 p-3 cursor-pointer hover:bg-slate-700 transition-colors relative ${isStarred ? 'border-l-4 border-l-yellow-500' : ''} ${highlightedConversation === key ? 'ring-2 ring-orange-400 bg-slate-700' : ''}`}
                       onClick={() => setSelectedConversation(key)}
                     >
                       {/* Stellina preferiti */}
