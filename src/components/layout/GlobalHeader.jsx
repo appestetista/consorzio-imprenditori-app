@@ -36,9 +36,9 @@ export default function GlobalHeader({ userEmail, userRegime, onMenuClick, onHam
 
         {/* Destra: busta + campanella */}
         <div className="flex items-center gap-2 mr-2">
-          {/* Busta messaggi — toggle pannello slide-up */}
+          {/* Busta messaggi — naviga a pagina Messaggi */}
           <button
-            onPointerUp={(e) => { e.stopPropagation(); toggleMsg(); }}
+            onPointerUp={(e) => { e.stopPropagation(); navigate(createPageUrl('Messaggi')); }}
             className="relative flex items-center gap-0.5 h-12 px-1 rounded-xl active:bg-white/10 transition-colors"
             style={{ touchAction: 'manipulation', WebkitTapHighlightColor: 'transparent' }}
           >
@@ -48,7 +48,6 @@ export default function GlobalHeader({ userEmail, userRegime, onMenuClick, onHam
               className="w-8 h-8 object-contain pointer-events-none select-none"
               draggable={false}
             />
-            <ChevronDown className={`w-3.5 h-3.5 text-slate-400 transition-transform duration-200 pointer-events-none ${msgPanelOpen ? 'rotate-180' : ''}`} />
             {unreadMessageCount > 0 && (
               <span className="absolute top-0.5 right-0.5 bg-red-500 text-white text-[9px] rounded-full min-w-4 h-4 px-1 flex items-center justify-center font-bold pointer-events-none">
                 {unreadMessageCount > 99 ? '99+' : unreadMessageCount}
