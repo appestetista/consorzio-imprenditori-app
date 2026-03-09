@@ -3,7 +3,7 @@ import { base44 } from '@/api/base44Client';
 import { useQuery, useMutation, useQueryClient } from '@tanstack/react-query';
 import { format } from 'date-fns';
 import { it } from 'date-fns/locale';
-import { ArrowLeft, Send, User, X, Paperclip, Camera, FileText, Image as ImageIcon, ShoppingBag, Video, Phone, Briefcase, MessageCircle, Filter, TrendingUp, Ship, FileCheck, Zap, Globe, Check, CheckCheck, ChevronRight, Star, Trash2, Shield, Flame, Leaf, Sun, Wifi, Euro, Heart, Handshake, Truck, Calendar, BookOpen, Gavel, Gift, Bell } from 'lucide-react';
+import { ArrowLeft, Send, User, X, Paperclip, Camera, FileText, Image as ImageIcon, ShoppingBag, Video, Phone, Briefcase, MessageCircle, Filter, TrendingUp, Ship, FileCheck, Zap, Globe, Check, CheckCheck, ChevronRight, ChevronLeft, Star, Trash2, Shield, Flame, Leaf, Sun, Wifi, Euro, Heart, Handshake, Truck, Calendar, BookOpen, Gavel, Gift, Bell } from 'lucide-react';
 import { Link } from 'react-router-dom';
 import { createPageUrl } from '@/utils';
 import { Button } from '@/components/ui/button';
