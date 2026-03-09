@@ -30,7 +30,7 @@ export default function Messaggi() {
   const [uploading, setUploading] = useState(false);
   const [attachments, setAttachments] = useState([]);
   const [activeFilter, setActiveFilter] = useState('all');
-  const [filtersCollapsed, setFiltersCollapsed] = useState(false);
+  const [filtersCollapsed, setFiltersCollapsed] = useState(true);
   const [arrowTop, setArrowTop] = useState(0);
   const filterButtonRefs = useRef({});
   const filterContainerRef = useRef(null);
