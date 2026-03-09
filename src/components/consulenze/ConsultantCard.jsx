@@ -69,7 +69,7 @@ export default function ConsultantCard({
       <div className="flex-1 min-w-0">
         {/* Header: categoria + stato */}
         <div className="flex items-center justify-between gap-2 mb-1">
-          <h3 className="text-lime-400 font-semibold text-sm truncate">{category}</h3>
+          <h3 className="text-lime-400 font-semibold text-sm leading-tight">{category}</h3>
           {isRequested && (
             <Badge className="bg-green-600 text-xs flex-shrink-0">
               <Check className="w-3 h-3 mr-1" />
