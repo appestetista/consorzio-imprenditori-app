@@ -787,6 +787,7 @@ export default function Messaggi() {
                 return (
                   <button
                     key={source.key}
+                    ref={el => filterButtonRefs.current[source.key] = el}
                     onClick={(e) => {
                       if (!filtersCollapsed) {
                         e.stopPropagation();
