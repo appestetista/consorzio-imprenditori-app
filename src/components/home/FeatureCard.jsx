@@ -257,6 +257,23 @@ export default function FeatureCard({
                 </div>
               )}
               
+              {/* Campanella generica per tutte le altre card con notifiche */}
+              {!disabled && !isCalendar && !isVideo && !isConsulenze && !isAnalisiContratti && !isVantaggi && (
+                <div className="absolute top-3 right-3">
+                  <div className={cn(
+                    "relative w-8 h-8 rounded-full flex items-center justify-center transition-colors",
+                    notificationCount > 0 ? "bg-lime-400" : "bg-slate-900/80 border-2 border-slate-500"
+                  )}>
+                    <Bell className={cn("w-4 h-4", notificationCount > 0 ? "text-slate-900 animate-bounce" : "text-slate-400")} />
+                    {notificationCount > 0 && (
+                      <span className="absolute -top-2 -right-2 bg-red-500 text-white text-[11px] font-bold rounded-full min-w-[20px] h-[20px] flex items-center justify-center px-1 shadow-md animate-pulse">
+                        {notificationCount > 99 ? '99+' : notificationCount}
+                      </span>
+                    )}
+                  </div>
+                </div>
+              )}
+              
               {Icon && <Icon className={cn("w-8 h-8 mb-2", disabled ? "text-red-400" : isGold ? "text-[#d4af37]" : "text-white/90")} />}
               <span className={cn("text-sm font-medium text-center leading-tight break-words w-full px-1", disabled ? "text-red-300" : "text-white/95", isAnalisiContratti && "whitespace-nowrap")}>{title}</span>
               
