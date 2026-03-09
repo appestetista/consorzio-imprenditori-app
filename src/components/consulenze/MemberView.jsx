@@ -257,18 +257,24 @@ export default function MemberView({ user, consultants, isLoading }) {
     return requestedConsultants.includes(consultantId);
   };
 
-  // Filtra consulenti che hanno la zona dell'utente nelle zone_assegnate o nella zona singola
-  // Normalizza tutto a lowercase e trimma per evitare mismatch
+  // Mostra TUTTI i consulenti non bloccati — la zona non è più un filtro esclusivo
+  // I consulenti della stessa zona dell'utente vengono mostrati per primi
   const userZona = user?.zona?.toLowerCase()?.trim();
-  const filteredConsultants = consultants.filter(c => {
-    if (!userZona) return true; // Se l'utente non ha zona, mostra tutti
-    const consultantZones = c.zone_assegnate?.map(z => z.toLowerCase().trim()) || [];
-    const singleZona = c.zona?.toLowerCase()?.trim();
-    return consultantZones.includes(userZona) || singleZona === userZona;
-  });
+  const filteredConsultants = consultants
+    .filter(c => !c.is_blocked) // Escludi solo quelli bloccati dall'admin
+    .sort((a, b) => {
+      // Priorità: consulenti della zona dell'utente prima
+      const aZones = a.zone_assegnate?.map(z => z.toLowerCase().trim()) || [];
+      const aMatch = aZones.includes(userZona) || a.zona?.toLowerCase()?.trim() === userZona;
+      const bZones = b.zone_assegnate?.map(z => z.toLowerCase().trim()) || [];
+      const bMatch = bZones.includes(userZona) || b.zona?.toLowerCase()?.trim() === userZona;
+      if (aMatch && !bMatch) return -1;
+      if (!aMatch && bMatch) return 1;
+      return (a.category || '').localeCompare(b.category || '');
+    });
 
-  // Estrai dinamicamente le categorie dai consulenti filtrati (ordine alfabetico)
-  const visibleCategories = [...new Set(filteredConsultants.map(c => c.category).filter(Boolean))].sort();
+  // Estrai dinamicamente le categorie dai consulenti (ordine di apparizione dopo sort)
+  const visibleCategories = [...new Set(filteredConsultants.map(c => c.category).filter(Boolean))];
 
   // Calcola il totale delle consulenze disponibili solo dai consulenti mostrati
   const visibleConsultantIds = filteredConsultants.map(c => c.id);
