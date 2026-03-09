@@ -1,5 +1,7 @@
 import React from 'react';
 import { Menu, Bell, ChevronDown } from 'lucide-react';
+import { useNavigate } from 'react-router-dom';
+import { createPageUrl } from '@/utils';
 import { usePanels } from './GlobalTopIcons';
 import { useNotificationsBadge } from '../home/NotificationsPanel';
 
