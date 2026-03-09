@@ -79,7 +79,8 @@ export default function FeatureCard({
   // Analisi Contratti: campanella con messaggi non letti
   const hasContractMessages = isAnalisiContratti && contractMessagesCount > 0;
   
-  const shouldGlow = (isCalendar && (bellNotificationCount > 0 || hasPendingInvites)) || hasUnseenNewVideos || hasConsulenzeMessages || hasContractMessages || hasVantaggiNotifications;
+  const hasGenericNotifications = !isCalendar && !isVideo && !isConsulenze && !isAnalisiContratti && !isVantaggi && notificationCount > 0;
+  const shouldGlow = (isCalendar && (bellNotificationCount > 0 || hasPendingInvites)) || hasUnseenNewVideos || hasConsulenzeMessages || hasContractMessages || hasVantaggiNotifications || hasGenericNotifications;
   const hasBottomBadge = bottomBadge || (isCalendar && eventCount > 0) || hasUnseenNewVideos;
   
   const navigate = useNavigate();
