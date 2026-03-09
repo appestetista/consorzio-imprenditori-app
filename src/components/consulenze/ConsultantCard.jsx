@@ -1,4 +1,4 @@
-import React from 'react';
+import React, { useState } from 'react';
 import { Phone, Check, Video, Building2, Briefcase, Calendar, Send } from 'lucide-react';
 import { Button } from '@/components/ui/button';
 import { Textarea } from '@/components/ui/textarea';
@@ -26,7 +26,17 @@ export default function ConsultantCard({
   onSubmit,
   isSubmitting,
 }) {
+  const [validationError, setValidationError] = useState('');
   const hasAvailable = availableConsultations > 0;
+
+  const handleSubmit = () => {
+    if (!consultationMessage?.trim() || !meetingPreference) {
+      setValidationError('Completa tutti i campi e seleziona la modalità di incontro');
+      return;
+    }
+    setValidationError('');
+    onSubmit();
+  };
 
   return (
     <div className="flex items-start gap-3 py-6 border-b border-slate-700/50 last:border-b-0">
@@ -152,8 +162,8 @@ export default function ConsultantCard({
                   <Button
                     size="sm"
                     className="bg-lime-400 hover:bg-lime-500 text-slate-900 border-0 h-7 text-xs px-3"
-                    onClick={onSubmit}
-                    disabled={isRequested || isSubmitting || !consultationMessage?.trim() || !meetingPreference}
+                    onClick={handleSubmit}
+                    disabled={isRequested || isSubmitting}
                   >
                     <Send className="w-3 h-3 mr-1" />
                     Invia
@@ -170,6 +180,9 @@ export default function ConsultantCard({
                     </Button>
                   )}
                 </div>
+                {validationError && (
+                  <p className="text-red-400 text-xs mt-1">{validationError}</p>
+                )}
               </div>
           </>
         )}
