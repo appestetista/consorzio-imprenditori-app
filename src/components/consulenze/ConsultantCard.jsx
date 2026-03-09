@@ -114,7 +114,7 @@ export default function ConsultantCard({
                   value={meetingPreference || ''}
                   onValueChange={onPreferenceChange}
                   disabled={isRequested}
-                  className="flex flex-wrap gap-2"
+                  className="flex flex-col gap-2"
                 >
                   <div className="flex items-center gap-1.5">
                     <RadioGroupItem value="online" id={`o-${consultant.id}`} className="border-lime-400 text-lime-400 data-[state=checked]:bg-lime-400 w-3.5 h-3.5" />
