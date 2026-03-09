@@ -358,6 +358,7 @@ export default function Messaggi() {
       queryClient.invalidateQueries({ queryKey: ['all-messages'] });
       queryClient.invalidateQueries({ queryKey: ['unread-messages'] });
       queryClient.invalidateQueries({ queryKey: ['header-notifications'] });
+      queryClient.invalidateQueries({ queryKey: ['home-notifications'] });
       setMessageToDelete(null);
       toast.success('Messaggio eliminato');
     },
@@ -404,6 +405,7 @@ export default function Messaggi() {
       queryClient.invalidateQueries({ queryKey: ['all-messages'] });
       queryClient.invalidateQueries({ queryKey: ['unread-messages'] });
       queryClient.invalidateQueries({ queryKey: ['header-notifications'] });
+      queryClient.invalidateQueries({ queryKey: ['home-notifications'] });
       setConversationToDelete(null);
       toast.success('Conversazione eliminata');
     },
