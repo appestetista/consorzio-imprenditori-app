@@ -226,10 +226,17 @@ export default function Consulenze() {
 
         {/* Avatar 3D Consulenze */}
         <div className="flex flex-col items-center mb-6">
+          <style>{`
+            @keyframes spinY {
+              from { transform: rotateY(0deg); }
+              to { transform: rotateY(360deg); }
+            }
+          `}</style>
           <img 
             src="https://qtrypzzcjebvfcihiynt.supabase.co/storage/v1/object/public/base44-prod/public/695e2f74bb7d2636b5606a98/e2d0a3f74_77e2d0ae-8e3f-4761-9628-f7e9e7372e6f-removebg-preview.png"
             alt="Consulente"
             className="w-40 h-40 object-contain drop-shadow-[0_8px_30px_rgba(212,175,55,0.4)]"
+            style={{ animation: 'spinY 4s linear infinite' }}
           />
           <p className="text-slate-400 text-sm mt-2 text-center">
             {isAdmin ? 'Gestisci tutte le consulenze del consorzio' : isConsultant ? 'Visualizza e gestisci le richieste ricevute' : 'Prenota una consulenza con i nostri esperti'}
