@@ -14,7 +14,7 @@ const CONSULTANT_CATEGORIES = [
   "Agenzia di Comunicazione",
   "Commercialista",
   "Igiene e Sicurezza",
-  "Internazionalizzazione/Export",
+  "Export",
   "Broker Energetico",
   "Avvocato",
   "Bandi Europei",
