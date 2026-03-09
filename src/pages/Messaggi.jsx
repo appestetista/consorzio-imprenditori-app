@@ -725,14 +725,21 @@ export default function Messaggi() {
           {/* Colonna sinistra - Filtri con animazione slide */}
           <div className="flex flex-shrink-0 relative">
             <div 
-              className={`overflow-y-auto overflow-x-hidden bg-slate-800/50 rounded-xl p-2 transition-all duration-300 ease-in-out`}
-              style={{ width: filtersCollapsed ? '48px' : '176px', padding: filtersCollapsed ? '4px' : undefined }}
+              className={`overflow-y-auto bg-slate-800/50 rounded-xl p-2 transition-all duration-300 ease-in-out cursor-pointer`}
+              style={{ 
+                width: filtersCollapsed ? '56px' : '190px',
+                overflow: 'hidden'
+              }}
               onClick={() => filtersCollapsed && setFiltersCollapsed(false)}
             >
-              {/* Contenuto filtri */}
+              {/* Contenuto filtri - allineato a destra così quando chiuso si vede la parte finale */}
               <div 
                 className="flex flex-col gap-1.5"
-                style={{ width: '160px' }}
+                style={{ 
+                  width: '174px',
+                  marginLeft: filtersCollapsed ? '-126px' : '0px',
+                  transition: 'margin-left 0.3s ease-in-out'
+                }}
               >
               {/* Filtro Tutti */}
               <button
@@ -743,15 +750,15 @@ export default function Messaggi() {
                     setFiltersCollapsed(true);
                   }
                 }}
-                className={`flex items-center px-3 py-3 rounded-lg text-xs font-semibold transition-colors whitespace-nowrap ${
+                className={`flex items-center px-3 py-2.5 rounded-lg text-xs font-semibold transition-colors whitespace-nowrap ${
                   activeFilter === 'all' 
                     ? 'bg-lime-400 text-slate-900' 
                     : 'bg-slate-700 text-slate-400 hover:bg-slate-600'
                 }`}
               >
                 <Filter className="w-4 h-4 flex-shrink-0 mr-2" />
-                <span className="w-[80px] text-left truncate">Tutti</span>
-                <span className={`w-6 h-5 flex items-center justify-center rounded-full text-[10px] ${
+                <span className="flex-1 text-left truncate">Tutti</span>
+                <span className={`ml-1 w-6 h-5 flex items-center justify-center rounded-full text-[10px] flex-shrink-0 ${
                   activeFilter === 'all' ? 'bg-slate-900 text-lime-400' : unreadBySource.all > 0 ? 'bg-red-500 text-white' : 'bg-slate-600 text-slate-400'
                 }`}>
                   {unreadBySource.all || 0}
@@ -772,15 +779,15 @@ export default function Messaggi() {
                         setFiltersCollapsed(true);
                       }
                     }}
-                    className={`flex items-center px-3 py-3 rounded-lg text-xs font-semibold transition-colors whitespace-nowrap ${
+                    className={`flex items-center px-3 py-2.5 rounded-lg text-xs font-semibold transition-colors whitespace-nowrap ${
                       activeFilter === source.key 
                         ? `${source.color} text-white` 
                         : 'bg-slate-700 text-slate-400 hover:bg-slate-600'
                     }`}
                   >
                     <SourceIcon className="w-4 h-4 flex-shrink-0 mr-2" />
-                    <span className="w-[80px] text-left truncate">{source.label}</span>
-                    <span className={`w-6 h-5 flex items-center justify-center rounded-full text-[10px] ${
+                    <span className="flex-1 text-left truncate">{source.label}</span>
+                    <span className={`ml-1 w-6 h-5 flex items-center justify-center rounded-full text-[10px] flex-shrink-0 ${
                       activeFilter === source.key ? 'bg-white/20 text-white' : count > 0 ? 'bg-red-500 text-white' : 'bg-slate-600 text-slate-400'
                     }`}>
                       {count}
@@ -791,28 +798,23 @@ export default function Messaggi() {
               </div>
             </div>
 
-            {/* Freccia toggle apri/chiudi filtri + indicatore sezione attiva */}
+            {/* Freccia toggle - posizionata all'altezza del filtro attivo */}
             <button
               onClick={() => setFiltersCollapsed(!filtersCollapsed)}
-              className="flex-shrink-0 w-8 flex flex-col items-center justify-start pt-2 gap-2 self-stretch hover:bg-slate-700/30 transition-colors"
+              className="flex-shrink-0 w-6 flex items-start self-stretch transition-colors"
+              style={{
+                paddingTop: `${(() => {
+                  if (activeFilter === 'all') return 8;
+                  const keys = Object.keys(sourceConfig);
+                  const idx = keys.indexOf(activeFilter);
+                  return 8 + (idx + 1) * 38;
+                })()}px`
+              }}
             >
               {filtersCollapsed ? (
-                <ChevronRight className="w-5 h-5 text-lime-400" />
+                <ChevronRight className="w-4 h-4 text-lime-400" />
               ) : (
-                <ChevronLeft className="w-5 h-5 text-lime-400" />
-              )}
-              {filtersCollapsed && activeFilter !== 'all' && sourceConfig[activeFilter] && (() => {
-                const ActiveIcon = sourceConfig[activeFilter].icon;
-                return (
-                  <div className={`w-7 h-7 rounded-full ${sourceConfig[activeFilter].color} flex items-center justify-center`}>
-                    <ActiveIcon className="w-3.5 h-3.5 text-white" />
-                  </div>
-                );
-              })()}
-              {filtersCollapsed && activeFilter === 'all' && (
-                <div className="w-7 h-7 rounded-full bg-lime-400 flex items-center justify-center">
-                  <Filter className="w-3.5 h-3.5 text-slate-900" />
-                </div>
+                <ChevronLeft className="w-4 h-4 text-lime-400" />
               )}
             </button>
           </div>
