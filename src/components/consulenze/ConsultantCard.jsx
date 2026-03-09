@@ -53,22 +53,22 @@ export default function ConsultantCard({
         <div className={`mt-2 rounded-md px-2 py-0.5 text-[10px] font-bold whitespace-nowrap ${hasAvailable ? 'bg-lime-400/20 text-lime-400' : 'bg-red-500/20 text-red-400'}`}>
           {availableConsultations} {availableConsultations === 1 ? 'consulenza' : 'consulenze'}
         </div>
-        {/* Pulsante Messaggi 3D sotto disp */}
+        {/* Pulsante Messaggi 3D oro — si estende fino in fondo alla card */}
         {consultant.email && onChatOpen && (
           <button
             onClick={() => onChatOpen(consultant)}
-            className="mt-3 relative flex flex-col items-center gap-1 px-3 py-2 rounded-lg
-              bg-gradient-to-b from-amber-400 to-amber-600
-              border border-amber-300/50
-              shadow-[0_4px_0_0_#92400e,0_6px_12px_rgba(0,0,0,0.4)]
-              active:shadow-[0_1px_0_0_#92400e,0_2px_4px_rgba(0,0,0,0.3)]
-              active:translate-y-[3px]
+            className="mt-3 relative flex flex-col items-center justify-center gap-1.5 w-full flex-1 min-h-[120px] rounded-xl
+              bg-gradient-to-b from-[#d4af37] via-[#c5a028] to-[#a68523]
+              border border-[#e8c84a]/60
+              shadow-[0_5px_0_0_#7a5c10,0_8px_16px_rgba(0,0,0,0.45)]
+              active:shadow-[0_1px_0_0_#7a5c10,0_3px_6px_rgba(0,0,0,0.3)]
+              active:translate-y-[4px]
               transition-all duration-100"
           >
-            <MessageCircle className="w-4 h-4 text-slate-900" />
-            <span className="text-[9px] font-bold text-slate-900 leading-none">Messaggi</span>
+            <MessageCircle className="w-6 h-6 text-slate-900" />
+            <span className="text-[11px] font-extrabold text-slate-900 leading-none tracking-wide">MESSAGGI</span>
             {unreadCount > 0 && (
-              <span className="absolute -top-2 -right-2 bg-red-500 text-white text-[9px] font-bold rounded-full w-5 h-5 flex items-center justify-center shadow-md">
+              <span className="absolute -top-2 -right-2 bg-red-500 text-white text-[10px] font-bold rounded-full w-5 h-5 flex items-center justify-center shadow-md animate-pulse">
                 {unreadCount}
               </span>
             )}
