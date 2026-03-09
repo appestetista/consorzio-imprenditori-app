@@ -54,14 +54,15 @@ export function usePanels() {
  * Stesse dimensioni grandi del GlobalHeader.
  */
 export default function GlobalTopIcons({ userEmail, userRegime }) {
-  const { toggleMsg, toggleNotif } = usePanels();
+  const { toggleNotif } = usePanels();
   const { totalBadge, unreadMessageCount } = useNotificationsBadge(userEmail, userRegime);
+  const navigate = useNavigate();
 
   return (
     <div className="flex items-center gap-2">
-      {/* Busta messaggi — toggle pannello */}
+      {/* Busta messaggi — naviga a pagina Messaggi */}
       <button
-        onPointerUp={(e) => { e.stopPropagation(); toggleMsg(); }}
+        onPointerUp={(e) => { e.stopPropagation(); navigate(createPageUrl('Messaggi')); }}
         className="relative w-12 h-12 flex items-center justify-center flex-shrink-0 rounded-xl active:bg-white/10 transition-colors"
         style={{ touchAction: 'manipulation', WebkitTapHighlightColor: 'transparent' }}
       >
