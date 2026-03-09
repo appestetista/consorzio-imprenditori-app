@@ -35,7 +35,7 @@ export default function ConsultantCard({
         <img 
           src={AVATAR_URL}
           alt="Consulente"
-          className="w-20 h-20 object-contain drop-shadow-[0_4px_15px_rgba(212,175,55,0.3)]"
+          className="w-40 h-40 object-contain drop-shadow-[0_4px_15px_rgba(212,175,55,0.3)]"
         />
         {/* Badge disponibilità sotto avatar */}
         <div className={`mt-2 rounded-full px-2.5 py-0.5 text-xs font-bold ${hasAvailable ? 'bg-lime-400/20 text-lime-400' : 'bg-red-500/20 text-red-400'}`}>
