@@ -39,13 +39,13 @@ export default function ConsultantCard({
   };
 
   return (
-    <div className="flex items-start gap-3 py-6 border-b border-slate-700/50 last:border-b-0">
+    <div className="flex items-start gap-1 py-6 border-b border-slate-700/50 last:border-b-0 overflow-visible">
       {/* Avatar a sinistra */}
-      <div className="flex-shrink-0 flex flex-col items-center pt-1">
+      <div className="flex-shrink-0 flex flex-col items-center pt-1 w-24">
         <img 
           src={AVATAR_URL}
           alt="Consulente"
-          className="w-40 h-40 object-contain drop-shadow-[0_4px_15px_rgba(212,175,55,0.3)]"
+          className="w-40 h-40 object-contain drop-shadow-[0_4px_15px_rgba(212,175,55,0.3)] -mx-8"
         />
         {/* Badge disponibilità sotto avatar */}
         <div className={`mt-2 rounded-full px-2.5 py-0.5 text-xs font-bold ${hasAvailable ? 'bg-lime-400/20 text-lime-400' : 'bg-red-500/20 text-red-400'}`}>
@@ -158,7 +158,7 @@ export default function ConsultantCard({
                 )}
 
                 {/* Pulsanti */}
-                <div className="flex gap-2 pt-1">
+                <div className="flex gap-2 pt-1 flex-wrap">
                   <Button
                     size="sm"
                     className="bg-lime-400 hover:bg-lime-500 text-slate-900 border-0 h-7 text-xs px-3"
