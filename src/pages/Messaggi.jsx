@@ -798,30 +798,37 @@ export default function Messaggi() {
             </div>
 
             {/* Freccia toggle - posizionata all'altezza del filtro attivo */}
-            <button
-              onClick={() => setFiltersCollapsed(!filtersCollapsed)}
-              className="flex-shrink-0 w-7 flex items-start self-stretch"
-              style={{
-                paddingTop: `${(() => {
-                  // py-2.5 = 20px + text 16px = 36px per pulsante, gap-1.5 = 6px → step = 42px
-                  // padding container p-2 = 8px top
-                  const step = 42;
-                  const topPad = 8;
-                  const center = 10; // offset per centrare la freccia sul pulsante
-                  if (activeFilter === 'all') return topPad + center;
-                  const keys = Object.keys(sourceConfig);
-                  const idx = keys.indexOf(activeFilter);
-                  if (idx === -1) return topPad + center;
-                  return topPad + (idx + 1) * step + center;
-                })()}px`
-              }}
-            >
-              {filtersCollapsed ? (
-                <ChevronRight className="w-6 h-6 text-lime-400" />
-              ) : (
-                <ChevronLeft className="w-6 h-6 text-lime-400" />
-              )}
-            </button>
+            {(() => {
+              // Calcola indice del filtro attivo: "all" = 0, poi sourceConfig keys
+              const allKeys = ['all', ...Object.keys(sourceConfig)];
+              const activeIdx = allKeys.indexOf(activeFilter);
+              const idx = activeIdx === -1 ? 0 : activeIdx;
+              // Misuriamo dal DOM: ogni btn ha py-2.5 (20px) + line ~16px = 36px, gap-1.5 = 6px
+              // Container padding p-2 = 8px
+              const btnH = 36;
+              const gap = 6;
+              const containerPad = 8;
+              const arrowH = 28; // altezza freccia
+              const top = containerPad + idx * (btnH + gap) + (btnH - arrowH) / 2;
+              return (
+                <button
+                  onClick={() => setFiltersCollapsed(!filtersCollapsed)}
+                  className="flex-shrink-0 w-8 flex items-center justify-center self-stretch relative"
+                  style={{ position: 'relative' }}
+                >
+                  <div 
+                    className="absolute flex items-center justify-center w-8 h-8 rounded-full bg-lime-400/20 transition-all duration-300"
+                    style={{ top: `${top}px` }}
+                  >
+                    {filtersCollapsed ? (
+                      <ChevronRight className="w-5 h-5 text-lime-400" strokeWidth={3} />
+                    ) : (
+                      <ChevronLeft className="w-5 h-5 text-lime-400" strokeWidth={3} />
+                    )}
+                  </div>
+                </button>
+              );
+            })()}
           </div>
 
           {/* Colonna destra - Lista messaggi */}
