@@ -356,7 +356,7 @@ export default function MemberView({ user, consultants, isLoading }) {
                   })}
                   isSubmitting={bookConsultationMutation.isPending}
                   unreadCount={unreadCountByEmail[consultant.email] || 0}
-                  onChatOpen={(c) => navigate(createPageUrl('Messaggi') + `?contact=${encodeURIComponent(c.email)}`)}
+                  onChatOpen={(c) => navigate(createPageUrl('Messaggi') + `?contact=${encodeURIComponent(c.email)}&source=consulenze`)}
                 />
               );
             })}
