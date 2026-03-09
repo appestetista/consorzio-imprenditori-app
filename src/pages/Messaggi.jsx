@@ -738,7 +738,7 @@ export default function Messaggi() {
         <div className="flex gap-0 relative flex-1 min-h-0">
           
           {/* Colonna sinistra - Filtri con animazione slide */}
-          <div className="flex flex-shrink-0 relative">
+          <div className="flex flex-shrink-0 relative" ref={filterContainerRef}>
             <div 
               className={`bg-slate-800/50 rounded-xl p-2 transition-all duration-300 ease-in-out ${filtersCollapsed ? 'overflow-hidden cursor-pointer' : 'overflow-y-auto overflow-x-hidden'}`}
               style={{ 
