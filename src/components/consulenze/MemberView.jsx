@@ -311,7 +311,7 @@ export default function MemberView({ user, consultants, isLoading }) {
           </div>
         ) : (
           <div className="bg-slate-800/40 rounded-xl border border-slate-700/50 px-3">
-            {CONSULTANT_CATEGORIES.map((category, index) => {
+            {visibleCategories.map((category, index) => {
               const consultant = filteredConsultants.find(c => c.category === category);
               if (!consultant) return null;
               
