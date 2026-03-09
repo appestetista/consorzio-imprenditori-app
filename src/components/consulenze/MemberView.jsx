@@ -257,19 +257,21 @@ export default function MemberView({ user, consultants, isLoading }) {
     return requestedConsultants.includes(consultantId);
   };
 
-  // Filtra consulenti che hanno la zona dell'utente nelle zone_assegnate
-  const userZona = user?.zona?.toLowerCase();
+  // Filtra consulenti che hanno la zona dell'utente nelle zone_assegnate o nella zona singola
+  // Normalizza tutto a lowercase e trimma per evitare mismatch
+  const userZona = user?.zona?.toLowerCase()?.trim();
   const filteredConsultants = consultants.filter(c => {
-    // Verifica se il consulente ha la zona dell'utente tra le sue zone_assegnate
-    const consultantZones = c.zone_assegnate?.map(z => z.toLowerCase()) || [];
-    const hasZona = c.zona?.toLowerCase();
-    return consultantZones.includes(userZona) || hasZona === userZona;
+    if (!userZona) return true; // Se l'utente non ha zona, mostra tutti
+    const consultantZones = c.zone_assegnate?.map(z => z.toLowerCase().trim()) || [];
+    const singleZona = c.zona?.toLowerCase()?.trim();
+    return consultantZones.includes(userZona) || singleZona === userZona;
   });
 
+  // Estrai dinamicamente le categorie dai consulenti filtrati (ordine alfabetico)
+  const visibleCategories = [...new Set(filteredConsultants.map(c => c.category).filter(Boolean))].sort();
+
   // Calcola il totale delle consulenze disponibili solo dai consulenti mostrati
-  const visibleConsultantIds = CONSULTANT_CATEGORIES
-    .map(category => filteredConsultants.find(c => c.category === category)?.id)
-    .filter(Boolean);
+  const visibleConsultantIds = filteredConsultants.map(c => c.id);
   
   const totalConsultations = assignments
     .filter(a => visibleConsultantIds.includes(a.consultant_id))
