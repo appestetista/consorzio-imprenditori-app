@@ -847,7 +847,7 @@ export default function Messaggi() {
                 </p>
               </div>
             ) : (
-              <div className="space-y-2 pr-1">
+              <div className="space-y-2 pr-2 pl-1 pt-1">
                 {Object.entries(filteredConversations)
                   .sort((a, b) => {
                     const aStarred = starredConversations.includes(a[0]);
