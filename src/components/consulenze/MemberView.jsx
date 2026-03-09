@@ -15,7 +15,7 @@ const CONSULTANT_CATEGORIES = [
   "Commercialista",
   "Igiene e Sicurezza",
   "Export",
-  "Broker Energetico",
+  "Efficientamento Energetico",
   "Legale",
   "Bandi Europei",
   "Affitto Stampanti/Cyber Sicurezza",
