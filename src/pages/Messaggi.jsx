@@ -733,7 +733,7 @@ export default function Messaggi() {
             >
               {/* Contenuto filtri - allineato a destra così quando chiuso si vede la parte finale */}
               <div 
-                className="flex flex-col gap-1.5"
+                className="flex flex-col gap-1.5 pb-24"
                 style={{ 
                   width: '174px',
                   marginLeft: filtersCollapsed ? '-126px' : '0px',
