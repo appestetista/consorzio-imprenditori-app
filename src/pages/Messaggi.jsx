@@ -743,15 +743,7 @@ export default function Messaggi() {
               className={`bg-slate-800/50 rounded-xl p-2 transition-all duration-300 ease-in-out ${filtersCollapsed ? 'overflow-hidden cursor-pointer' : 'overflow-y-auto overflow-x-hidden'}`}
               style={{ 
                 width: filtersCollapsed ? '56px' : '190px',
-                overscrollBehavior: 'contain',
-                touchAction: 'pan-y'
-              }}
-              onTouchMove={(e) => {
-                // Previeni propagazione dello scroll dalla barra filtri
-                e.stopPropagation();
-              }}
-              style={{ 
-                width: filtersCollapsed ? '56px' : '190px'
+                overscrollBehavior: 'contain'
               }}
               onClick={() => filtersCollapsed && setFiltersCollapsed(false)}
             >
