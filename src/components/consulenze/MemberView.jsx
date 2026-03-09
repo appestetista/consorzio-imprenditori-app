@@ -340,11 +340,6 @@ export default function MemberView({ user, consultants, isLoading }) {
             })}
           </div>
         )}
-      </TabsContent>
-
-      <TabsContent value="consulenti">
-        <ConsultantsList currentUserEmail={user?.email} currentUserLogo={user?.logo_url} showChat={true} userZona={user?.zona} />
-      </TabsContent>
-    </Tabs>
+    </div>
   );
 }
