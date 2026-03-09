@@ -57,7 +57,7 @@ export default function ConsultantCard({
         {consultant.email && onChatOpen && (
           <button
             onClick={() => onChatOpen(consultant)}
-            className="mt-3 relative flex flex-col items-center justify-center gap-1.5 w-full flex-1 min-h-[120px] rounded-xl
+            className="mt-3 relative flex flex-col items-center justify-center gap-1.5 w-full flex-1 min-h-[90px] rounded-xl
               bg-gradient-to-b from-[#d4af37] via-[#c5a028] to-[#a68523]
               border border-[#e8c84a]/60
               shadow-[0_5px_0_0_#7a5c10,0_8px_16px_rgba(0,0,0,0.45)]
