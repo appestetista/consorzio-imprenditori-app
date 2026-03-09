@@ -226,6 +226,9 @@ export default function Consulenze() {
           {/* Icone gestite dal GlobalHeader */}
         </div>
 
+        {/* Banner consulenze gratuite (solo per member) */}
+        {isMember && <ConsulenzeBanner user={effectiveUser} consultants={consultants} />}
+
         {/* Avatar Consulenze */}
         <div className="flex flex-col items-center mb-6">
           <div className="flex items-center justify-center gap-8">
