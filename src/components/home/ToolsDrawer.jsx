@@ -416,10 +416,15 @@ export default function ToolsDrawer() {
                         : 'linear-gradient(145deg, #c0c0c0 0%, #a8a8a8 25%, #808080 50%, #c0c0c0 75%, #e8e8e8 100%)',
                       transition: 'background 0.6s ease',
                     }}>
-                      <div className="rounded-[12px] flex flex-col items-center justify-center py-5" style={{
+                      <div className="rounded-[12px] flex flex-col items-center justify-center py-5 relative" style={{
                         background: 'linear-gradient(160deg, #1a1a1a 0%, #001d3b 50%, #001530 100%)',
                         boxShadow: 'inset 0 2px 4px rgba(0,0,0,0.5), inset 0 -1px 2px rgba(255,255,255,0.05)'
                       }}>
+                        {toolBadges[tool.id] > 0 && (
+                          <span className="absolute -top-1.5 -right-1.5 bg-red-500 text-white text-[9px] font-bold rounded-full min-w-[18px] h-[18px] px-1 flex items-center justify-center shadow-lg z-10">
+                            {toolBadges[tool.id] > 99 ? '99+' : toolBadges[tool.id]}
+                          </span>
+                        )}
                         <Icon className="w-6 h-6 text-[#d4af37] mb-1.5" style={{ filter: 'drop-shadow(0 0 5px rgba(212,175,55,0.4))' }} />
                         <span className="text-slate-200 text-[11px] font-semibold tracking-wide">{tool.title}</span>
                       </div>
