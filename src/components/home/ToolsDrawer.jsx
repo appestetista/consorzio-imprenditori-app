@@ -1,12 +1,47 @@
 import React, { useState, useRef, useEffect, useCallback } from 'react';
 import { useNavigate } from 'react-router-dom';
 import { createPageUrl } from '@/utils';
+import { base44 } from '@/api/base44Client';
+import { useQuery } from '@tanstack/react-query';
 import { 
   FileSearch, Shield, PiggyBank, Euro, Globe, Calculator, Briefcase, Heart, 
   Users, Truck, ShoppingBag, Star, Video, Megaphone, Monitor, User, Handshake, 
   TrendingUp, Gavel, X, Calendar, Phone, Gift
 } from 'lucide-react';
 import { cn } from '@/lib/utils';
+
+// Mappa source messaggi → tool id nel drawer
+const SOURCE_TO_TOOL = {
+  consulenze: 'consulenze',
+  marketplace: 'marketplace',
+  video: 'video_interviste',
+  cultura_aziendale: 'video_recensioni',
+  import_export: 'import_export',
+  analisi_contratti: 'analisi_contratti',
+  calendario: null, // non c'è nel drawer
+  finanziamenti: 'bandi',
+  imprenditori: 'consigli',
+  fornitori: 'fornitori',
+  welfare: 'welfare',
+  compliance: 'compliance',
+  aste: 'aste',
+  vantaggi: null,
+  risparmio_assicurazioni: 'risparmio',
+  risparmio_luce: 'risparmio',
+  risparmio_gas: 'risparmio',
+  risparmio_efficientamento: 'risparmio',
+  risparmio_fotovoltaico: 'risparmio',
+  risparmio_telefonia: 'risparmio',
+  risparmio_internet: 'risparmio',
+  fiscalita_energetica: 'risparmio',
+};
+
+// Mappa tipo notifica → tool id
+const NOTIF_TYPE_TO_TOOL = {
+  consultation: 'consulenze',
+  video: 'video_interviste',
+  cultura_aziendale: 'video_recensioni',
+};
 
 const ICON_MAP = {
   FileSearch, Shield, PiggyBank, Euro, Globe, Calculator, Briefcase, Heart,
