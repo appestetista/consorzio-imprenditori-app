@@ -121,6 +121,19 @@ export default function ConsultantCard({
                   rows={2}
                 />
 
+                {/* Pulsante Invia sotto campo oggetto, a destra */}
+                <div className="flex justify-end">
+                  <Button
+                    size="sm"
+                    className="bg-lime-400 hover:bg-lime-500 text-slate-900 border-0 h-7 text-xs px-3"
+                    onClick={handleSubmit}
+                    disabled={isRequested || isSubmitting}
+                  >
+                    <Send className="w-3 h-3 mr-1" />
+                    Invia
+                  </Button>
+                </div>
+
                 {/* Modalità incontro compatta */}
                 <RadioGroup
                   value={meetingPreference || ''}
@@ -169,18 +182,7 @@ export default function ConsultantCard({
                   />
                 )}
 
-                {/* Pulsante Invia */}
-                <div className="pt-1 flex justify-end">
-                  <Button
-                    size="sm"
-                    className="bg-lime-400 hover:bg-lime-500 text-slate-900 border-0 h-7 text-xs px-3"
-                    onClick={handleSubmit}
-                    disabled={isRequested || isSubmitting}
-                  >
-                    <Send className="w-3 h-3 mr-1" />
-                    Invia
-                  </Button>
-                </div>
+
                 {validationError && (
                   <p className="text-red-400 text-xs mt-1">{validationError}</p>
                 )}
