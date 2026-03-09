@@ -38,6 +38,18 @@ export default function Messaggi() {
   const messagesEndRef = useRef(null);
   const fileInputRef = useRef(null);
   const cameraInputRef = useRef(null);
+
+  // Misura posizione reale del pulsante filtro attivo per posizionare la freccia
+  useEffect(() => {
+    const btn = filterButtonRefs.current[activeFilter];
+    const container = filterContainerRef.current;
+    if (btn && container) {
+      const btnRect = btn.getBoundingClientRect();
+      const containerRect = container.getBoundingClientRect();
+      const top = btnRect.top - containerRect.top + btnRect.height / 2 - 16; // 16 = metà freccia (h-8 = 32px/2)
+      setArrowTop(top);
+    }
+  }, [activeFilter, filtersCollapsed]);
   const queryClient = useQueryClient();
   
   const { impersonation, appMode } = useImpersonation();
