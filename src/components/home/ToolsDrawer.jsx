@@ -85,6 +85,50 @@ function saveOrder(order) {
 export default function ToolsDrawer() {
   const navigate = useNavigate();
   const [isOpen, setIsOpen] = useState(false);
+  const [currentEmail, setCurrentEmail] = useState(null);
+
+  useEffect(() => {
+    base44.auth.me().then(u => setCurrentEmail(u?.email)).catch(() => {});
+  }, []);
+
+  // Messaggi non letti per l'utente corrente
+  const { data: unreadMessages = [] } = useQuery({
+    queryKey: ['drawer-unread-messages', currentEmail],
+    queryFn: () => base44.entities.Message.filter({ to_email: currentEmail, is_read: false }),
+    enabled: !!currentEmail,
+    refetchInterval: 15000,
+  });
+
+  // Notifiche non lette (non-message) per l'utente corrente
+  const { data: unreadNotifs = [] } = useQuery({
+    queryKey: ['drawer-unread-notifs', currentEmail],
+    queryFn: () => base44.entities.Notification.filter({ user_email: currentEmail, is_read: false }),
+    enabled: !!currentEmail,
+    refetchInterval: 15000,
+  });
+
+  // Calcola badge per ogni tool
+  const toolBadges = React.useMemo(() => {
+    const counts = {};
+    // Conta messaggi non letti per source
+    for (const msg of unreadMessages) {
+      const source = msg.source || 'diretto';
+      const toolId = SOURCE_TO_TOOL[source];
+      if (toolId) {
+        counts[toolId] = (counts[toolId] || 0) + 1;
+      }
+    }
+    // Conta notifiche non lette per tipo (escluse message, già coperte sopra)
+    for (const notif of unreadNotifs) {
+      if (notif.type === 'message') continue;
+      const toolId = NOTIF_TYPE_TO_TOOL[notif.type];
+      if (toolId) {
+        counts[toolId] = (counts[toolId] || 0) + 1;
+      }
+    }
+    return counts;
+  }, [unreadMessages, unreadNotifs]);
+
   const [tools, setTools] = useState(() => {
     const stored = getStoredOrder();
     if (stored) {
