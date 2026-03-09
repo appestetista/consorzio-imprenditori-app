@@ -53,15 +53,22 @@ export default function ConsultantCard({
         <div className={`mt-2 rounded-md px-2 py-0.5 text-[10px] font-bold whitespace-nowrap ${hasAvailable ? 'bg-lime-400/20 text-lime-400' : 'bg-red-500/20 text-red-400'}`}>
           {availableConsultations} {availableConsultations === 1 ? 'consulenza' : 'consulenze'}
         </div>
-        {/* Icona messaggi sotto disp */}
+        {/* Pulsante Messaggi 3D sotto disp */}
         {consultant.email && onChatOpen && (
           <button
             onClick={() => onChatOpen(consultant)}
-            className="mt-2 relative"
+            className="mt-3 relative flex flex-col items-center gap-1 px-3 py-2 rounded-lg
+              bg-gradient-to-b from-amber-400 to-amber-600
+              border border-amber-300/50
+              shadow-[0_4px_0_0_#92400e,0_6px_12px_rgba(0,0,0,0.4)]
+              active:shadow-[0_1px_0_0_#92400e,0_2px_4px_rgba(0,0,0,0.3)]
+              active:translate-y-[3px]
+              transition-all duration-100"
           >
-            <MessageCircle className="w-5 h-5 text-amber-400" />
+            <MessageCircle className="w-4 h-4 text-slate-900" />
+            <span className="text-[9px] font-bold text-slate-900 leading-none">Messaggi</span>
             {unreadCount > 0 && (
-              <span className="absolute -top-1.5 -right-1.5 bg-red-500 text-white text-[9px] font-bold rounded-full w-4 h-4 flex items-center justify-center">
+              <span className="absolute -top-2 -right-2 bg-red-500 text-white text-[9px] font-bold rounded-full w-5 h-5 flex items-center justify-center shadow-md">
                 {unreadCount}
               </span>
             )}
