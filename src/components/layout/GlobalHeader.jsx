@@ -49,7 +49,7 @@ export default function GlobalHeader({ userEmail, userRegime, onMenuClick, onHam
               draggable={false}
             />
             {unreadMessageCount > 0 && (
-              <span className="absolute top-0.5 right-0.5 bg-red-500 text-white text-[9px] rounded-full min-w-4 h-4 px-1 flex items-center justify-center font-bold pointer-events-none">
+              <span className="absolute -top-0.5 -right-0.5 bg-red-500 text-white text-[11px] rounded-full min-w-[22px] h-[22px] px-1 flex items-center justify-center font-bold pointer-events-none shadow-lg">
                 {unreadMessageCount > 99 ? '99+' : unreadMessageCount}
               </span>
             )}
