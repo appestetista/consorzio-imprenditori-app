@@ -50,7 +50,7 @@ export default function ConsultantCard({
           className="w-40 h-40 object-contain drop-shadow-[0_4px_15px_rgba(212,175,55,0.3)] -mx-8"
         />
         {/* Badge disponibilità sotto avatar */}
-        <div className={`mt-2 rounded-full px-2.5 py-0.5 text-xs font-bold ${hasAvailable ? 'bg-lime-400/20 text-lime-400' : 'bg-red-500/20 text-red-400'}`}>
+        <div className={`mt-2 rounded-md px-2 py-0.5 text-[10px] font-bold whitespace-nowrap ${hasAvailable ? 'bg-lime-400/20 text-lime-400' : 'bg-red-500/20 text-red-400'}`}>
           {availableConsultations} {availableConsultations === 1 ? 'consulenza' : 'consulenze'}
         </div>
         {/* Icona messaggi sotto disp */}
