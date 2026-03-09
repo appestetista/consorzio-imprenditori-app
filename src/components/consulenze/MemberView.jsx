@@ -1,18 +1,12 @@
 import React, { useState, useEffect } from 'react';
 import { useMutation, useQueryClient, useQuery } from '@tanstack/react-query';
 import { base44 } from '@/api/base44Client';
-import { Phone, Check, Gift, Users, MessageCircle, Clock, Calendar, Video, Building2, Briefcase } from 'lucide-react';
+import { Gift, Users } from 'lucide-react';
 import useNotificationSound from '../hooks/useNotificationSound';
-import { Button } from '@/components/ui/button';
-import { Card, CardContent, CardHeader, CardTitle } from '@/components/ui/card';
-import { Textarea } from '@/components/ui/textarea';
-import { Input } from '@/components/ui/input';
-import { Label } from '@/components/ui/label';
-import { RadioGroup, RadioGroupItem } from '@/components/ui/radio-group';
-import { Badge } from '@/components/ui/badge';
 import { Tabs, TabsContent, TabsList, TabsTrigger } from '@/components/ui/tabs';
 import PendingConfirmations from './PendingConfirmations';
 import ConsultantsList from './ConsultantsList';
+import ConsultantCard from './ConsultantCard';
 
 const CONSULTANT_CATEGORIES = [
   "Stampa Digitale e Cataloghi",
