@@ -84,12 +84,23 @@ export default function ConsultantCard({
             <span className="text-slate-400 text-[10px] uppercase tracking-wider font-medium">Consulenza</span>
             <h3 className="text-lime-400 font-semibold text-sm leading-tight">{category}</h3>
           </div>
-          {isRequested && (
-            <Badge className="bg-green-600 text-xs flex-shrink-0">
-              <Check className="w-3 h-3 mr-1" />
-              Inviata
-            </Badge>
-          )}
+          <div className="flex items-center gap-2 flex-shrink-0">
+            {consultant.phone && (
+              <a
+                href={`tel:${consultant.phone}`}
+                className="w-9 h-9 rounded-full bg-green-500/20 border border-green-500/40 flex items-center justify-center active:bg-green-500/40 transition-colors"
+                title={`Chiama ${consultant.phone}`}
+              >
+                <Phone className="w-4 h-4 text-green-400" />
+              </a>
+            )}
+            {isRequested && (
+              <Badge className="bg-green-600 text-xs">
+                <Check className="w-3 h-3 mr-1" />
+                Inviata
+              </Badge>
+            )}
+          </div>
         </div>
 
         {/* Info consulente compatte */}
