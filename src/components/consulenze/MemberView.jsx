@@ -10,7 +10,7 @@ import ConsultantCard from './ConsultantCard';
 import { useNavigate } from 'react-router-dom';
 import { createPageUrl } from '@/utils';
 
-// Nessuna lista hardcoded — mostra dinamicamente tutte le categorie dei consulenti filtrati per zona
+// Mostra dinamicamente tutte le categorie dei consulenti filtrati per zona
 
 export default function MemberView({ user, consultants, isLoading }) {
   const [consultationMessages, setConsultationMessages] = useState({});
