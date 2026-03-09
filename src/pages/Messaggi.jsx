@@ -789,8 +789,19 @@ export default function Messaggi() {
                 );
               })}
             </div>
-            
+          </div>
 
+          {/* Freccia toggle apri/chiudi filtri */}
+          <button
+            onClick={() => setFiltersCollapsed(!filtersCollapsed)}
+            className="flex-shrink-0 w-6 flex items-start justify-center pt-2 self-stretch hover:bg-slate-700/50 transition-colors rounded-r-lg"
+          >
+            {filtersCollapsed ? (
+              <ChevronRight className="w-5 h-5 text-lime-400" />
+            ) : (
+              <ChevronLeft className="w-5 h-5 text-lime-400" />
+            )}
+          </button>
           </div>
 
           {/* Colonna destra - Lista messaggi */}
