@@ -287,24 +287,7 @@ export default function MemberView({ user, consultants, isLoading }) {
   const completedCount = bookings.length;
 
   return (
-    <Tabs defaultValue="consulenze" className="w-full">
-      <TabsList className="w-full bg-slate-800 border border-slate-700 mb-4">
-        <TabsTrigger value="consulenze" className="flex-1 data-[state=active]:bg-lime-400 data-[state=active]:text-slate-900">
-          <Gift className="w-4 h-4 mr-2" />
-          Consulenze
-        </TabsTrigger>
-        <TabsTrigger value="consulenti" className="flex-1 data-[state=active]:bg-amber-500 data-[state=active]:text-white">
-          <Users className="w-4 h-4 mr-2" />
-          Consulenti
-          {unreadConsultationMessages > 0 && (
-            <span className="ml-2 bg-red-500 text-white text-xs rounded-full w-5 h-5 flex items-center justify-center font-bold">
-              {unreadConsultationMessages}
-            </span>
-          )}
-        </TabsTrigger>
-      </TabsList>
-
-      <TabsContent value="consulenze">
+    <div className="w-full">
         {/* Mostra consulenze in attesa di conferma */}
         <PendingConfirmations userEmail={user?.email} />
 
