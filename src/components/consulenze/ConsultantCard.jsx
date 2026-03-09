@@ -1,5 +1,5 @@
 import React, { useState } from 'react';
-import { Phone, Check, Video, Building2, Briefcase, Calendar, Send } from 'lucide-react';
+import { Phone, Check, Video, Building2, Briefcase, Calendar, Send, MessageCircle } from 'lucide-react';
 import { Button } from '@/components/ui/button';
 import { Textarea } from '@/components/ui/textarea';
 import { Input } from '@/components/ui/input';
@@ -25,6 +25,8 @@ export default function ConsultantCard({
   onLinkChange,
   onSubmit,
   isSubmitting,
+  unreadCount = 0,
+  onChatOpen,
 }) {
   const [validationError, setValidationError] = useState('');
   const hasAvailable = availableConsultations > 0;
@@ -51,7 +53,20 @@ export default function ConsultantCard({
         <div className={`mt-2 rounded-full px-2.5 py-0.5 text-xs font-bold ${hasAvailable ? 'bg-lime-400/20 text-lime-400' : 'bg-red-500/20 text-red-400'}`}>
           {availableConsultations} disp.
         </div>
-
+        {/* Icona messaggi sotto disp */}
+        {consultant.email && onChatOpen && (
+          <button
+            onClick={() => onChatOpen(consultant)}
+            className="mt-2 relative"
+          >
+            <MessageCircle className="w-5 h-5 text-amber-400" />
+            {unreadCount > 0 && (
+              <span className="absolute -top-1.5 -right-1.5 bg-red-500 text-white text-[9px] font-bold rounded-full w-4 h-4 flex items-center justify-center">
+                {unreadCount}
+              </span>
+            )}
+          </button>
+        )}
       </div>
 
       {/* Contenuto a destra */}
