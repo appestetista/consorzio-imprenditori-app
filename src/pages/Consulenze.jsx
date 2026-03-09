@@ -231,7 +231,7 @@ export default function Consulenze() {
 
         {/* Avatar Consulenze */}
         <div className="flex flex-col items-center mb-6">
-          <div className="flex items-center justify-center gap-8">
+          <div className="flex flex-col items-center gap-4">
             {[0, 1, 2].map(i => (
               <img 
                 key={i}
