@@ -801,20 +801,24 @@ export default function Messaggi() {
             {/* Freccia toggle - posizionata all'altezza del filtro attivo */}
             <button
               onClick={() => setFiltersCollapsed(!filtersCollapsed)}
-              className="flex-shrink-0 w-6 flex items-start self-stretch transition-colors"
+              className="flex-shrink-0 w-7 flex items-start self-stretch"
               style={{
                 paddingTop: `${(() => {
-                  if (activeFilter === 'all') return 8;
+                  // Ogni pulsante: py-2.5 (10px top+bottom) + text ~16px + gap 6px ≈ 36px totali
+                  // padding container 8px top
+                  const btnHeight = 36;
+                  if (activeFilter === 'all') return 8 + 8;
                   const keys = Object.keys(sourceConfig);
                   const idx = keys.indexOf(activeFilter);
-                  return 8 + (idx + 1) * 38;
+                  if (idx === -1) return 8 + 8;
+                  return 8 + (idx + 1) * btnHeight + 8;
                 })()}px`
               }}
             >
               {filtersCollapsed ? (
-                <ChevronRight className="w-4 h-4 text-lime-400" />
+                <ChevronRight className="w-6 h-6 text-lime-400" />
               ) : (
-                <ChevronLeft className="w-4 h-4 text-lime-400" />
+                <ChevronLeft className="w-6 h-6 text-lime-400" />
               )}
             </button>
           </div>
