@@ -41,7 +41,17 @@ export default function ConsultantCard({
   };
 
   return (
-    <div className="flex items-start gap-1 py-6 border-b border-slate-700/50 last:border-b-0 overflow-visible">
+    <div className="relative flex items-start gap-1 py-6 border-b border-slate-700/50 last:border-b-0 overflow-visible">
+      {/* Cornetta telefono — angolo alto destra della card */}
+      {consultant.phone && (
+        <a
+          href={`tel:${consultant.phone}`}
+          className="absolute top-4 right-1 w-10 h-10 rounded-full bg-green-500/20 border border-green-500/40 flex items-center justify-center active:bg-green-500/40 transition-colors z-10"
+          title={`Chiama ${consultant.phone}`}
+        >
+          <Phone className="w-5 h-5 text-green-400" />
+        </a>
+      )}
       {/* Avatar a sinistra */}
       <div className="flex-shrink-0 flex flex-col items-center pt-1 w-24">
         <img 
@@ -85,15 +95,6 @@ export default function ConsultantCard({
             <h3 className="text-lime-400 font-semibold text-sm leading-tight">{category}</h3>
           </div>
           <div className="flex items-center gap-2 flex-shrink-0">
-            {consultant.phone && (
-              <a
-                href={`tel:${consultant.phone}`}
-                className="w-9 h-9 rounded-full bg-green-500/20 border border-green-500/40 flex items-center justify-center active:bg-green-500/40 transition-colors"
-                title={`Chiama ${consultant.phone}`}
-              >
-                <Phone className="w-4 h-4 text-green-400" />
-              </a>
-            )}
             {isRequested && (
               <Badge className="bg-green-600 text-xs">
                 <Check className="w-3 h-3 mr-1" />
@@ -159,37 +160,40 @@ export default function ConsultantCard({
                   </Button>
                 </div>
 
-                {/* Modalità incontro compatta */}
-                <RadioGroup
-                  value={meetingPreference || ''}
-                  onValueChange={onPreferenceChange}
-                  disabled={isRequested}
-                  className="flex flex-col gap-2"
-                >
-                  <div className="flex items-center gap-1.5">
-                    <RadioGroupItem value="online" id={`o-${consultant.id}`} className="border-lime-400 text-lime-400 data-[state=checked]:bg-lime-400 w-3.5 h-3.5" />
-                    <Label htmlFor={`o-${consultant.id}`} className="text-white text-xs flex items-center gap-1 cursor-pointer">
-                      <Video className="w-3 h-3 text-blue-400" /> Online
-                    </Label>
-                  </div>
-                  <div className="flex items-center gap-1.5">
-                    <RadioGroupItem 
-                      value="sede_azienda" 
-                      id={`sa-${consultant.id}`} 
-                      className="border-lime-400 text-lime-400 data-[state=checked]:bg-lime-400 w-3.5 h-3.5" 
-                      disabled={consultant.sede_azienda_disabled} 
-                    />
-                    <Label htmlFor={`sa-${consultant.id}`} className={`text-xs flex items-center gap-1 cursor-pointer ${consultant.sede_azienda_disabled ? 'text-slate-500' : 'text-white'}`}>
-                      <Building2 className="w-3 h-3 text-amber-400" /> Sede azienda
-                    </Label>
-                  </div>
-                  <div className="flex items-center gap-1.5">
-                    <RadioGroupItem value="sede_consulente" id={`sc-${consultant.id}`} className="border-lime-400 text-lime-400 data-[state=checked]:bg-lime-400 w-3.5 h-3.5" />
-                    <Label htmlFor={`sc-${consultant.id}`} className="text-white text-xs flex items-center gap-1 cursor-pointer">
-                      <Briefcase className="w-3 h-3 text-purple-400" /> Sede consulente
-                    </Label>
-                  </div>
-                </RadioGroup>
+                {/* Modalità incontro */}
+                <div className="flex flex-col gap-1.5">
+                  {[
+                    { value: 'online', id: `o-${consultant.id}`, icon: Video, iconColor: 'text-blue-400', label: 'Online', disabled: false },
+                    { value: 'sede_azienda', id: `sa-${consultant.id}`, icon: Building2, iconColor: 'text-amber-400', label: 'Sede azienda', disabled: consultant.sede_azienda_disabled },
+                    { value: 'sede_consulente', id: `sc-${consultant.id}`, icon: Briefcase, iconColor: 'text-purple-400', label: 'Sede consulente', disabled: false },
+                  ].map((opt) => {
+                    const isSelected = meetingPreference === opt.value;
+                    const OptIcon = opt.icon;
+                    return (
+                      <button
+                        key={opt.value}
+                        type="button"
+                        disabled={isRequested || opt.disabled}
+                        onClick={() => !opt.disabled && onPreferenceChange(opt.value)}
+                        className={`flex items-center gap-2 px-2.5 py-2 rounded-lg border transition-all text-left ${
+                          opt.disabled
+                            ? 'border-slate-700 opacity-40 cursor-not-allowed'
+                            : isSelected
+                              ? 'border-lime-400 bg-lime-400/10'
+                              : 'border-slate-700 bg-slate-800/50 active:bg-slate-700'
+                        }`}
+                      >
+                        <div className={`w-4 h-4 rounded-full border-2 flex items-center justify-center flex-shrink-0 transition-all ${
+                          isSelected ? 'border-lime-400 bg-lime-400' : 'border-slate-500 bg-transparent'
+                        }`}>
+                          {isSelected && <div className="w-1.5 h-1.5 rounded-full bg-slate-900" />}
+                        </div>
+                        <OptIcon className={`w-3.5 h-3.5 ${opt.disabled ? 'text-slate-500' : opt.iconColor}`} />
+                        <span className={`text-xs font-medium ${opt.disabled ? 'text-slate-500' : isSelected ? 'text-lime-400' : 'text-white'}`}>{opt.label}</span>
+                      </button>
+                    );
+                  })}
+                </div>
 
                 {meetingPreference === 'sede_azienda' && !consultant.sede_azienda_disabled && consultant.rimborso_carburante > 0 && (
                   <p className="text-amber-400 text-xs">
