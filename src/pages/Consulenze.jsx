@@ -226,13 +226,7 @@ export default function Consulenze() {
 
         {/* Avatar 3D Consulenze */}
         <div className="flex flex-col items-center mb-6">
-          <div className="w-40 h-40 rounded-full bg-slate-900 flex items-center justify-center overflow-hidden">
-            <img 
-              src="https://qtrypzzcjebvfcihiynt.supabase.co/storage/v1/object/public/base44-prod/public/695e2f74bb7d2636b5606a98/367107848_generated_image.png"
-              alt="Consulente 3D"
-              className="w-full h-full object-contain drop-shadow-[0_8px_30px_rgba(212,175,55,0.4)]"
-            />
-          </div>
+          <Avatar3DConsulente size={160} />
           <p className="text-slate-400 text-sm mt-2 text-center">
             {isAdmin ? 'Gestisci tutte le consulenze del consorzio' : isConsultant ? 'Visualizza e gestisci le richieste ricevute' : 'Prenota una consulenza con i nostri esperti'}
           </p>
