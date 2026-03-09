@@ -808,8 +808,8 @@ export default function Messaggi() {
               const btnH = 36;
               const gap = 6;
               const containerPad = 8;
-              const arrowH = 28; // altezza freccia
-              const top = containerPad + idx * (btnH + gap) + (btnH - arrowH) / 2;
+              const arrowH = 32; // altezza freccia (w-8 h-8)
+              const top = containerPad + idx * (btnH + gap) + (btnH - arrowH) / 2 + 2;
               return (
                 <button
                   onClick={() => setFiltersCollapsed(!filtersCollapsed)}
