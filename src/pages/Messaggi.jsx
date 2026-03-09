@@ -725,10 +725,9 @@ export default function Messaggi() {
           {/* Colonna sinistra - Filtri con animazione slide */}
           <div className="flex flex-shrink-0 relative">
             <div 
-              className={`overflow-y-auto bg-slate-800/50 rounded-xl p-2 transition-all duration-300 ease-in-out cursor-pointer`}
+              className={`bg-slate-800/50 rounded-xl p-2 transition-all duration-300 ease-in-out ${filtersCollapsed ? 'overflow-hidden cursor-pointer' : 'overflow-y-auto overflow-x-hidden'}`}
               style={{ 
-                width: filtersCollapsed ? '56px' : '190px',
-                overflow: 'hidden'
+                width: filtersCollapsed ? '56px' : '190px'
               }}
               onClick={() => filtersCollapsed && setFiltersCollapsed(false)}
             >
