@@ -726,7 +726,7 @@ export default function Messaggi() {
           <div className="flex flex-shrink-0 relative">
             <div 
               className={`overflow-y-auto overflow-x-hidden bg-slate-800/50 rounded-xl p-2 transition-all duration-300 ease-in-out`}
-              style={{ width: filtersCollapsed ? '0px' : '176px', opacity: filtersCollapsed ? 0 : 1, padding: filtersCollapsed ? '0px' : undefined }}
+              style={{ width: filtersCollapsed ? '48px' : '176px', padding: filtersCollapsed ? '4px' : undefined }}
               onClick={() => filtersCollapsed && setFiltersCollapsed(false)}
             >
               {/* Contenuto filtri */}
