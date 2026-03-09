@@ -307,186 +307,42 @@ export default function MemberView({ user, consultants, isLoading }) {
             <div className="animate-spin w-8 h-8 border-2 border-lime-400 border-t-transparent rounded-full mx-auto"></div>
           </div>
         ) : (
-          <div className="space-y-4">
+          <div className="bg-slate-800/40 rounded-xl border border-slate-700/50 px-3">
             {CONSULTANT_CATEGORIES.map((category, index) => {
               const consultant = filteredConsultants.find(c => c.category === category);
-              
-              // Non mostrare la categoria se non c'è un consulente disponibile
               if (!consultant) return null;
               
               const assignment = assignments.find(a => a.consultant_id === consultant.id && a.is_assigned);
               const isRequested = hasRequestedThisSession(consultant.id);
-              // Usa il valore dell'assignment, oppure free_consultations_per_user del consulente
               const defaultConsultations = consultant.free_consultations_per_user ?? 1;
               const availableConsultations = assignment ? assignment.available_consultations : defaultConsultations;
-              const completedBookings = bookings.filter(b => b.consultant_id === consultant.id).length;
-              
-              const hasAvailable = availableConsultations > 0;
+              const completedCount = bookings.filter(b => b.consultant_id === consultant.id).length;
+              const activeBooking = activeBookings.find(b => b.consultant_id === consultant.id);
               
               return (
-                <Card key={index} className={`border-slate-700 ${hasAvailable ? 'bg-green-900/20 border-green-500/30' : 'bg-red-900/20 border-red-500/30'}`}>
-                  <CardHeader className="pb-2">
-                    <div className="flex items-center justify-between">
-                      <CardTitle className="text-lime-400 text-base">{category}</CardTitle>
-                      {isRequested && (
-                        <Badge className="bg-green-600">
-                          <Check className="w-3 h-3 mr-1" />
-                          Richiesta inviata
-                        </Badge>
-                      )}
-                    </div>
-                  </CardHeader>
-                  <CardContent>
-                    <div className="flex items-start justify-between gap-3 mb-3">
-                      <div className="flex items-start gap-3 flex-1">
-                        {consultant.logo_url && (
-                          <img 
-                            src={consultant.logo_url} 
-                            alt={`Logo ${consultant.name}`}
-                            className="w-14 h-14 object-contain rounded-lg bg-slate-800 border border-slate-700 flex-shrink-0"
-                          />
-                        )}
-                        <div className="flex-1">
-                          <p className="text-slate-400 text-xs mb-0.5">Consulente:</p>
-                          <p className="text-white font-medium text-base mb-2">{consultant.name}</p>
-                          <p className="text-slate-400 text-xs mb-0.5">Referente:</p>
-                          <p className="text-lime-400 text-sm">{consultant.referente || 'N/A'}</p>
-                        </div>
-                      </div>
-                      <div className="flex-shrink-0 text-right">
-                        <p className="text-lime-400 text-xl font-bold">{availableConsultations}</p>
-                        <p className="text-slate-400 text-xs">disponibili</p>
-                        <p className="text-green-400 text-sm mt-1">{completedBookings} completate</p>
-                      </div>
-                    </div>
-
-                    {availableConsultations === 0 ? (
-                      <div className="bg-slate-700/50 rounded-lg p-3 text-center">
-                        <p className="text-slate-400 text-sm">
-                          Non hai consulenze gratuite disponibili presso questo consulente
-                        </p>
-                      </div>
-                    ) : (
-                      <>
-                        <Textarea
-                          placeholder="Scrivi qui brevemente l'oggetto della consulenza..."
-                          value={consultationMessages[consultant.id] || ''}
-                          onChange={(e) => setConsultationMessages(prev => ({
-                            ...prev,
-                            [consultant.id]: e.target.value
-                          }))}
-                          disabled={isRequested}
-                          className="bg-slate-900 border-lime-400/30 text-white min-h-[80px] mb-3"
-                        />
-
-                        {/* Preferenza modalità incontro */}
-                        <div className="mb-3">
-                          <Label className="text-slate-300 text-sm mb-2 block">Preferenza modalità:</Label>
-                          <RadioGroup
-                            value={meetingPreferences[consultant.id] || ''}
-                            onValueChange={(value) => setMeetingPreferences(prev => ({
-                              ...prev,
-                              [consultant.id]: value
-                            }))}
-                            disabled={isRequested}
-                            className="space-y-2"
-                          >
-                            <div className="flex items-center space-x-2">
-                              <RadioGroupItem value="online" id={`online-${consultant.id}`} className="border-lime-400 text-lime-400 data-[state=checked]:bg-lime-400" />
-                              <Label htmlFor={`online-${consultant.id}`} className="text-white flex items-center gap-2 cursor-pointer">
-                                <Video className="w-4 h-4 text-blue-400" />
-                                Online (videochiamata)
-                              </Label>
-                            </div>
-                            <div className="flex flex-col">
-                              <div className="flex items-center space-x-2">
-                                <RadioGroupItem value="sede_azienda" id={`sede_azienda-${consultant.id}`} className="border-lime-400 text-lime-400 data-[state=checked]:bg-lime-400" disabled={consultant.sede_azienda_disabled} />
-                                <Label htmlFor={`sede_azienda-${consultant.id}`} className={`flex items-center gap-2 cursor-pointer ${consultant.sede_azienda_disabled ? 'text-slate-500' : 'text-white'}`}>
-                                  <Building2 className={`w-4 h-4 ${consultant.sede_azienda_disabled ? 'text-slate-500' : 'text-amber-400'}`} />
-                                  In presenza presso la nostra azienda
-                                  {consultant.sede_azienda_disabled && <span className="text-xs text-red-400">(non disponibile)</span>}
-                                </Label>
-                              </div>
-                              {meetingPreferences[consultant.id] === 'sede_azienda' && !consultant.sede_azienda_disabled && consultant.rimborso_carburante > 0 && (
-                                <p className="text-amber-400 text-xs mt-1 ml-6">
-                                  ⚠️ Il consulente, anche se la consulenza è gratuita, richiede un piccolo rimborso carburante di €{consultant.rimborso_carburante}
-                                </p>
-                              )}
-                            </div>
-                            <div className="flex items-center space-x-2">
-                              <RadioGroupItem value="sede_consulente" id={`sede_consulente-${consultant.id}`} className="border-lime-400 text-lime-400 data-[state=checked]:bg-lime-400" />
-                              <Label htmlFor={`sede_consulente-${consultant.id}`} className="text-white flex items-center gap-2 cursor-pointer">
-                                <Briefcase className="w-4 h-4 text-purple-400" />
-                                In presenza presso il nostro studio
-                              </Label>
-                            </div>
-                          </RadioGroup>
-                          
-                          {meetingPreferences[consultant.id] === 'online' && (
-                            <Input
-                              placeholder="Inserisci il link per la call (es. Google Meet, Zoom...)"
-                              value={meetingLinks[consultant.id] || ''}
-                              onChange={(e) => setMeetingLinks(prev => ({
-                                ...prev,
-                                [consultant.id]: e.target.value
-                              }))}
-                              disabled={isRequested}
-                              className="bg-slate-900 border-blue-400/30 text-white mt-2"
-                            />
-                          )}
-                        </div>
-
-                        <div className="flex gap-2">
-                          <Button
-                            size="sm"
-                            className="bg-lime-400 hover:bg-lime-500 text-slate-900 border-0"
-                            onClick={() => bookConsultationMutation.mutate({ 
-                              consultantId: consultant.id, 
-                              message: consultationMessages[consultant.id] || '',
-                              preference: meetingPreferences[consultant.id],
-                              link: meetingLinks[consultant.id] || ''
-                            })}
-                            disabled={isRequested || bookConsultationMutation.isPending || !consultationMessages[consultant.id]?.trim() || !meetingPreferences[consultant.id]}
-                          >
-                            invia
-                          </Button>
-                          {consultant.phone && (
-                            <Button
-                              variant="outline"
-                              size="sm"
-                              className="bg-slate-700 hover:bg-slate-600 text-white border-slate-600"
-                              onClick={() => window.open(`tel:${consultant.phone}`)}
-                            >
-                              <Phone className="w-4 h-4 mr-1" />
-                              chiama
-                            </Button>
-                          )}
-                        </div>
-                      </>
-                    )}
-
-                    {/* Mostra appuntamento se programmato */}
-                    {(() => {
-                      const activeBooking = activeBookings.find(b => b.consultant_id === consultant.id);
-                      if (activeBooking?.scheduled_date) {
-                        return (
-                          <div className="mt-3 bg-blue-500/20 border border-blue-500/50 rounded-lg p-2">
-                            <div className="flex items-center gap-2 text-blue-400 text-xs">
-                              <Calendar className="w-3 h-3" />
-                              <span>Appuntamento: {new Date(activeBooking.scheduled_date).toLocaleString('it-IT', {
-                                day: '2-digit',
-                                month: '2-digit',
-                                hour: '2-digit',
-                                minute: '2-digit'
-                              })}</span>
-                            </div>
-                          </div>
-                        );
-                      }
-                      return null;
-                    })()}
-                    </CardContent>
-                    </Card>
+                <ConsultantCard
+                  key={index}
+                  consultant={consultant}
+                  category={category}
+                  assignment={assignment}
+                  availableConsultations={availableConsultations}
+                  completedBookings={completedCount}
+                  isRequested={isRequested}
+                  activeBooking={activeBooking}
+                  consultationMessage={consultationMessages[consultant.id]}
+                  meetingPreference={meetingPreferences[consultant.id]}
+                  meetingLink={meetingLinks[consultant.id]}
+                  onMessageChange={(val) => setConsultationMessages(prev => ({ ...prev, [consultant.id]: val }))}
+                  onPreferenceChange={(val) => setMeetingPreferences(prev => ({ ...prev, [consultant.id]: val }))}
+                  onLinkChange={(val) => setMeetingLinks(prev => ({ ...prev, [consultant.id]: val }))}
+                  onSubmit={() => bookConsultationMutation.mutate({ 
+                    consultantId: consultant.id, 
+                    message: consultationMessages[consultant.id] || '',
+                    preference: meetingPreferences[consultant.id],
+                    link: meetingLinks[consultant.id] || ''
+                  })}
+                  isSubmitting={bookConsultationMutation.isPending}
+                />
               );
             })}
           </div>
