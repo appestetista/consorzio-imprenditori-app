@@ -1,4 +1,4 @@
-import React, { useState, useEffect } from 'react';
+import React, { useState, useEffect, useMemo } from 'react';
 import { useMutation, useQueryClient, useQuery } from '@tanstack/react-query';
 import { base44 } from '@/api/base44Client';
 import { Gift, Users } from 'lucide-react';
@@ -7,6 +7,8 @@ import { Tabs, TabsContent, TabsList, TabsTrigger } from '@/components/ui/tabs';
 import PendingConfirmations from './PendingConfirmations';
 import ConsultantsList from './ConsultantsList';
 import ConsultantCard from './ConsultantCard';
+import { useNavigate } from 'react-router-dom';
+import { createPageUrl } from '@/utils';
 
 const CONSULTANT_CATEGORIES = [
   "Stampa Digitale e Cataloghi",
@@ -31,20 +33,31 @@ export default function MemberView({ user, consultants, isLoading }) {
   const [bookings, setBookings] = useState([]);
   const queryClient = useQueryClient();
   const { playSound } = useNotificationSound();
+  const navigate = useNavigate();
 
-  // Conta messaggi non letti dai consulenti
-  const { data: unreadConsultationMessages = 0 } = useQuery({
+  // Carica messaggi non letti dai consulenti (con dettaglio per mittente)
+  const { data: unreadMessages = [] } = useQuery({
     queryKey: ['unread-consultation-messages-member', user?.email],
     queryFn: async () => {
-      const messages = await base44.entities.Message.filter({ 
+      return await base44.entities.Message.filter({ 
         to_email: user?.email, 
         source: 'consulenze',
         is_read: false 
       });
-      return messages.length;
     },
     enabled: !!user?.email
   });
+
+  const unreadConsultationMessages = unreadMessages.length;
+
+  // Conta messaggi non letti per email del mittente
+  const unreadCountByEmail = useMemo(() => {
+    const counts = {};
+    unreadMessages.forEach(msg => {
+      counts[msg.from_email] = (counts[msg.from_email] || 0) + 1;
+    });
+    return counts;
+  }, [unreadMessages]);
 
   // Subscribe real-time ai messaggi consulenze
   useEffect(() => {
