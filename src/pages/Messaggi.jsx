@@ -705,7 +705,7 @@ export default function Messaggi() {
     <div className="min-h-screen bg-slate-900 pb-64">
       <main className="px-2 flex flex-col" style={{ height: 'calc(100vh - 120px)' }}>
         {/* Header fisso con sezione attiva - SEMPRE VISIBILE */}
-        <div className="flex items-center gap-2 px-2 py-3 bg-slate-900 flex-shrink-0">
+        <div className="flex items-center gap-2 px-2 py-1.5 bg-slate-900 flex-shrink-0">
           <h1 className="text-white text-xl font-bold">Messaggi</h1>
           {activeFilter !== 'all' && (
             <>
@@ -803,14 +803,16 @@ export default function Messaggi() {
               className="flex-shrink-0 w-7 flex items-start self-stretch"
               style={{
                 paddingTop: `${(() => {
-                  // Ogni pulsante: py-2.5 (10px top+bottom) + text ~16px + gap 6px ≈ 36px totali
-                  // padding container 8px top
-                  const btnHeight = 36;
-                  if (activeFilter === 'all') return 8 + 8;
+                  // py-2.5 = 20px + text 16px = 36px per pulsante, gap-1.5 = 6px → step = 42px
+                  // padding container p-2 = 8px top
+                  const step = 42;
+                  const topPad = 8;
+                  const center = 10; // offset per centrare la freccia sul pulsante
+                  if (activeFilter === 'all') return topPad + center;
                   const keys = Object.keys(sourceConfig);
                   const idx = keys.indexOf(activeFilter);
-                  if (idx === -1) return 8 + 8;
-                  return 8 + (idx + 1) * btnHeight + 8;
+                  if (idx === -1) return topPad + center;
+                  return topPad + (idx + 1) * step + center;
                 })()}px`
               }}
             >
