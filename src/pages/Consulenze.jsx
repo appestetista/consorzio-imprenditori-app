@@ -12,6 +12,7 @@ import AdminView from '../components/consulenze/AdminView';
 import { useImpersonation } from '../components/admin/ImpersonationContext';
 import useNotificationSound from '../components/hooks/useNotificationSound';
 import GlobalTopIcons from '../components/layout/GlobalTopIcons';
+import ConsulenzeBanner from '../components/consulenze/ConsulenzeBanner';
 
 
 
