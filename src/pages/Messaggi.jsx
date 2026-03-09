@@ -65,20 +65,22 @@ export default function Messaggi() {
     loadUser();
   }, []);
 
-  // Controlla se c'è un contact e/o source nell'URL per aprire direttamente la chat
+  const [highlightedConversation, setHighlightedConversation] = useState(null);
+
+  // Controlla se c'è un contact e/o source nell'URL per filtrare e evidenziare
   useEffect(() => {
     const urlParams = new URLSearchParams(window.location.search);
     const contactEmail = urlParams.get('contact');
     const sourceParam = urlParams.get('source');
     if (sourceParam && sourceConfig[sourceParam]) {
       setActiveFilter(sourceParam);
+      setFiltersCollapsed(true);
     }
     if (contactEmail) {
       const decodedEmail = decodeURIComponent(contactEmail);
       const source = sourceParam || 'consulenze';
-      // Prova la chiave con source, fallback a solo email
       const convKey = `${decodedEmail}_${source}`;
-      setSelectedConversation(convKey);
+      setHighlightedConversation(convKey);
     }
   }, []);
 
