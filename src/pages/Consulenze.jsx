@@ -226,9 +226,9 @@ export default function Consulenze() {
         {/* Avatar 3D Consulenze */}
         <div className="flex flex-col items-center mb-6">
           <img 
-            src="https://qtrypzzcjebvfcihiynt.supabase.co/storage/v1/object/public/base44-prod/public/695e2f74bb7d2636b5606a98/0489319a7_generated_image.png"
+            src="https://qtrypzzcjebvfcihiynt.supabase.co/storage/v1/object/public/base44-prod/public/695e2f74bb7d2636b5606a98/367107848_generated_image.png"
             alt="Consulente 3D"
-            className="w-36 h-36 object-contain drop-shadow-[0_4px_20px_rgba(212,175,55,0.3)]"
+            className="w-40 h-40 object-contain drop-shadow-[0_8px_30px_rgba(212,175,55,0.4)]"
           />
           <p className="text-slate-400 text-sm mt-2 text-center">
             {isAdmin ? 'Gestisci tutte le consulenze del consorzio' : isConsultant ? 'Visualizza e gestisci le richieste ricevute' : 'Prenota una consulenza con i nostri esperti'}
