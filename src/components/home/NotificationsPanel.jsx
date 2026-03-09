@@ -292,10 +292,19 @@ export default function NotificationsPanel({ open, onClose, userEmail, userRegim
 }
 
 // Export helper per badge count
+// Campanella = notifiche non lette ESCLUSE quelle di tipo "message" + scadenze urgenti
+// Busta = messaggi non letti dall'entità Message (non dalle Notification)
 export function useNotificationsBadge(userEmail, userRegime) {
   const { data: unreadNotifs = [] } = useQuery({
     queryKey: ['home-notifications', userEmail],
     queryFn: () => base44.entities.Notification.filter({ user_email: userEmail, is_read: false }),
+    enabled: !!userEmail,
+    refetchInterval: 10000,
+  });
+
+  const { data: unreadMessages = [] } = useQuery({
+    queryKey: ['unread-messages-badge', userEmail],
+    queryFn: () => base44.entities.Message.filter({ to_email: userEmail, is_read: false }),
     enabled: !!userEmail,
     refetchInterval: 10000,
   });
@@ -308,7 +317,7 @@ export function useNotificationsBadge(userEmail, userRegime) {
   });
 
   const urgentCount = getUpcomingScadenze(scadenzeRaw, userRegime).filter(s => s.daysLeft < 7).length;
-  const unreadMessageCount = unreadNotifs.filter(n => n.type === 'message').length;
+  const nonMessageNotifs = unreadNotifs.filter(n => n.type !== 'message');
 
-  return { totalBadge: unreadNotifs.length + urgentCount, unreadMessageCount };
+  return { totalBadge: nonMessageNotifs.length + urgentCount, unreadMessageCount: unreadMessages.length };
 }
