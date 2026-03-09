@@ -791,15 +791,29 @@ export default function Messaggi() {
             </div>
           </div>
 
-          {/* Freccia toggle apri/chiudi filtri */}
+          {/* Freccia toggle apri/chiudi filtri + indicatore sezione attiva */}
           <button
             onClick={() => setFiltersCollapsed(!filtersCollapsed)}
-            className="flex-shrink-0 w-6 flex items-start justify-center pt-2 self-stretch hover:bg-slate-700/50 transition-colors rounded-r-lg"
+            className="flex-shrink-0 w-8 flex flex-col items-center justify-start pt-2 gap-2 self-stretch hover:bg-slate-700/30 transition-colors"
           >
             {filtersCollapsed ? (
               <ChevronRight className="w-5 h-5 text-lime-400" />
             ) : (
               <ChevronLeft className="w-5 h-5 text-lime-400" />
+            )}
+            {/* Indicatore sezione attiva quando chiuso */}
+            {filtersCollapsed && activeFilter !== 'all' && sourceConfig[activeFilter] && (() => {
+              const ActiveIcon = sourceConfig[activeFilter].icon;
+              return (
+                <div className={`w-7 h-7 rounded-full ${sourceConfig[activeFilter].color} flex items-center justify-center`}>
+                  <ActiveIcon className="w-3.5 h-3.5 text-white" />
+                </div>
+              );
+            })()}
+            {filtersCollapsed && activeFilter === 'all' && (
+              <div className="w-7 h-7 rounded-full bg-lime-400 flex items-center justify-center">
+                <Filter className="w-3.5 h-3.5 text-slate-900" />
+              </div>
             )}
           </button>
           </div>
