@@ -720,22 +720,20 @@ export default function Messaggi() {
         </div>
 
         {/* Layout a 2 colonne con animazione */}
-        <div className="flex gap-2 relative flex-1 min-h-0">
+        <div className="flex gap-0 relative flex-1 min-h-0">
           
           {/* Colonna sinistra - Filtri con animazione slide */}
-          <div 
-            className={`flex-shrink-0 overflow-y-auto overflow-x-hidden bg-slate-800/50 rounded-xl p-2 transition-all duration-300 ease-in-out cursor-pointer`}
-            style={{ width: filtersCollapsed ? '52px' : '176px' }}
-            onClick={() => filtersCollapsed && setFiltersCollapsed(false)}
-          >
-            {/* Contenuto filtri */}
+          <div className="flex flex-shrink-0 relative">
             <div 
-              className="flex flex-col gap-1.5 transition-all duration-300 ease-in-out"
-              style={{ 
-                transform: filtersCollapsed ? 'translateX(-124px)' : 'translateX(0)',
-                width: '160px'
-              }}
+              className={`overflow-y-auto overflow-x-hidden bg-slate-800/50 rounded-xl p-2 transition-all duration-300 ease-in-out`}
+              style={{ width: filtersCollapsed ? '0px' : '176px', opacity: filtersCollapsed ? 0 : 1, padding: filtersCollapsed ? '0px' : undefined }}
+              onClick={() => filtersCollapsed && setFiltersCollapsed(false)}
             >
+              {/* Contenuto filtri */}
+              <div 
+                className="flex flex-col gap-1.5"
+                style={{ width: '160px' }}
+              >
               {/* Filtro Tutti */}
               <button
                 onClick={(e) => {
