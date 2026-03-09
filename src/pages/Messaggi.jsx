@@ -757,6 +757,7 @@ export default function Messaggi() {
               >
               {/* Filtro Tutti */}
               <button
+                ref={el => filterButtonRefs.current['all'] = el}
                 onClick={(e) => {
                   if (!filtersCollapsed) {
                     e.stopPropagation();
