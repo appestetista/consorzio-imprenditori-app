@@ -51,7 +51,7 @@ export default function ConsultantCard({
         />
         {/* Badge disponibilità sotto avatar */}
         <div className={`mt-2 rounded-full px-2.5 py-0.5 text-xs font-bold ${hasAvailable ? 'bg-lime-400/20 text-lime-400' : 'bg-red-500/20 text-red-400'}`}>
-          {availableConsultations} disp.
+          {availableConsultations} {availableConsultations === 1 ? 'consulenza' : 'consulenze'}
         </div>
         {/* Icona messaggi sotto disp */}
         {consultant.email && onChatOpen && (
