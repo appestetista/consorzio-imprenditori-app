@@ -10,19 +10,7 @@ import ConsultantCard from './ConsultantCard';
 import { useNavigate } from 'react-router-dom';
 import { createPageUrl } from '@/utils';
 
-const CONSULTANT_CATEGORIES = [
-  "Stampa Digitale e Cataloghi",
-  "Assicurazioni Aziendali",
-  "Agenzia di Comunicazione",
-  "Commercialista",
-  "Igiene e Sicurezza",
-  "Export",
-  "Efficientamento Energetico",
-  "Legale",
-  "Bandi Europei",
-  "Affitto Stampanti/Cyber Sicurezza",
-  "Efficientamento Energetico/Centralini"
-];
+// Nessuna lista hardcoded — mostra dinamicamente tutte le categorie dei consulenti filtrati per zona
 
 export default function MemberView({ user, consultants, isLoading }) {
   const [consultationMessages, setConsultationMessages] = useState({});
