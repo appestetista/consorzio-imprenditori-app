@@ -45,6 +45,15 @@ const brandLogos = {
   "Old Wild West": "https://upload.wikimedia.org/wikipedia/commons/thumb/1/15/Old_Wild_West_logo.svg/200px-Old_Wild_West_logo.svg.png",
   "GameStop": "https://upload.wikimedia.org/wikipedia/commons/thumb/4/4f/GameStop_logo.svg/200px-GameStop_logo.svg.png",
   "Roadhouse": "https://upload.wikimedia.org/wikipedia/commons/thumb/a/a1/Roadhouse_Restaurant_logo.svg/200px-Roadhouse_Restaurant_logo.svg.png",
+  "Bimbostore": "https://upload.wikimedia.org/wikipedia/commons/thumb/1/1e/Bimbostore_logo.svg/200px-Bimbostore_logo.svg.png",
+  "la Feltrinelli": "https://upload.wikimedia.org/wikipedia/commons/thumb/a/a4/La_Feltrinelli_logo.svg/200px-La_Feltrinelli_logo.svg.png",
+  "Prénatal": "https://upload.wikimedia.org/wikipedia/commons/thumb/3/37/Prenatal_logo.svg/200px-Prenatal_logo.svg.png",
+  "Toys": "https://upload.wikimedia.org/wikipedia/commons/thumb/6/6e/Toys_%22R%22_Us_logo.svg/200px-Toys_%22R%22_Us_logo.svg.png",
+  "Nintendo": "https://upload.wikimedia.org/wikipedia/commons/thumb/0/0d/Nintendo.svg/200px-Nintendo.svg.png",
+  "PlayStation": "https://upload.wikimedia.org/wikipedia/commons/thumb/4/4e/PlayStation_logo.svg/200px-PlayStation_logo.svg.png",
+  "Xbox Game Pass Ultimate": "https://upload.wikimedia.org/wikipedia/commons/thumb/f/f9/Xbox_one_logo.svg/200px-Xbox_one_logo.svg.png",
+  "Xbox Live": "https://upload.wikimedia.org/wikipedia/commons/thumb/f/f9/Xbox_one_logo.svg/200px-Xbox_one_logo.svg.png",
+  "FAO Schwarz": "https://upload.wikimedia.org/wikipedia/commons/thumb/a/a0/FAO_Schwarz_logo.svg/200px-FAO_Schwarz_logo.svg.png",
 };
 
 // Colori pastello per le iniziali di brand senza logo
