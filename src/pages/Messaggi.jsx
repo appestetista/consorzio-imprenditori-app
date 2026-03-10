@@ -293,6 +293,13 @@ export default function Messaggi() {
     setAttachments(prev => prev.filter((_, i) => i !== index));
   };
 
+  // Carica consulenti per notifiche WhatsApp
+  const { data: allConsultants = [] } = useQuery({
+    queryKey: ['consultants-for-whatsapp'],
+    queryFn: () => base44.entities.Consultant.list(),
+    enabled: !!effectiveEmail,
+  });
+
   const sendMessageMutation = useMutation({
     mutationFn: async () => {
       const conv = conversations[selectedConversation];
@@ -321,6 +328,19 @@ export default function Messaggi() {
         reference_id: message.id,
         is_read: false
       });
+
+      // Invia notifica WhatsApp se il destinatario è un consulente con whatsapp_number
+      const consultant = allConsultants.find(c => c.email === toEmail && c.whatsapp_number);
+      if (consultant) {
+        try {
+          await base44.functions.invoke('sendWhatsApp', {
+            to: consultant.whatsapp_number,
+            message: `💬 *Nuovo messaggio* da ${senderName}\n\nSezione: ${sourceInfo.label}\n${newMessage.substring(0, 200)}${newMessage.length > 200 ? '...' : ''}\n\nAccedi all'app per rispondere.`
+          });
+        } catch (e) {
+          console.log('Errore invio WhatsApp:', e);
+        }
+      }
     },
     onSuccess: () => {
       queryClient.invalidateQueries({ queryKey: ['all-messages'] });

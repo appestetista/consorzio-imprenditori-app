@@ -214,6 +214,20 @@ export default function MemberView({ user, consultants, isLoading }) {
           reference_id: consultantId
         });
       }
+
+      // Invia notifica WhatsApp al consulente (se ha il numero configurato)
+      if (consultant?.whatsapp_number) {
+        const senderName = user.company_name || user.full_name || user.email;
+        const waMessage = `📋 *Nuova richiesta di consulenza*\n\nDa: ${senderName}\nOggetto: ${message}\nModalità: ${preferenceLabel}\n\nAccedi all'app per rispondere.`;
+        try {
+          await base44.functions.invoke('sendWhatsApp', {
+            to: consultant.whatsapp_number,
+            message: waMessage
+          });
+        } catch (e) {
+          console.log('[MemberView] Errore invio WhatsApp:', e);
+        }
+      }
       
       // Diminuisci le consulenze disponibili per questo specifico consulente-utente
       const assignment = assignments.find(a => a.consultant_id === consultantId);

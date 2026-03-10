@@ -302,6 +302,7 @@ function ConsultantProfileCard({ consultantData, setConsultantData, savingConsul
       setLocalData({
         name: consultantData.name || '',
         phone: consultantData.phone || '',
+        whatsapp_number: consultantData.whatsapp_number || '',
         city: consultantData.city || '',
         referente: consultantData.referente || '',
         cellulare_referente: consultantData.cellulare_referente || '',
@@ -557,6 +558,18 @@ function ConsultantProfileCard({ consultantData, setConsultantData, savingConsul
             onChange={(e) => setLocalData({ ...localData, city: e.target.value })}
             className="bg-lime-400/10 border-lime-400 text-white placeholder:text-lime-400/50"
           />
+        </div>
+
+        {/* WhatsApp */}
+        <div>
+          <Label className="text-slate-400 text-sm mb-1 block">Numero WhatsApp (per notifiche automatiche)</Label>
+          <Input
+            placeholder="Es: +393291234567"
+            value={localData.whatsapp_number}
+            onChange={(e) => setLocalData({ ...localData, whatsapp_number: e.target.value })}
+            className="bg-slate-900 border-slate-700 text-white"
+          />
+          <p className="text-slate-500 text-xs mt-1">Riceverai notifiche WhatsApp quando un utente ti prenota o ti scrive. Formato internazionale (+39...)</p>
         </div>
 
         {/* Referente */}
