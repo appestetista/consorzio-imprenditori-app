@@ -14,7 +14,7 @@ const brandPerCategoria = {
   "Esperienze": ["Global Experiences Card","Smartbox","Snowit","QC Terme","Activitygift"],
   "Giochi": ["Bimbostore","GameStop","la Feltrinelli","Prénatal","Toys","Nintendo","PlayStation","Xbox Game Pass Ultimate","FAO Schwarz","Lego"],
   "Infanzia": ["Bimbostore","Coin","OVS","Prénatal","Scalo Milano","Toys","Chicco","Upim","FAO Schwarz","Lego"],
-  "Intrattenimento": ["la Feltrinelli","Unieuro","PlayStation","Spotify","Xbox Live","Dazn","UCI Cinemas","PhotoSi","Lego"],
+  "Intrattenimento": ["La Feltrinelli","Unieuro","PlayStation","Spotify","Xbox Live","Dazn","UCI Cinemas","Photosì","Lego"],
   "Libri": ["la Feltrinelli","Mondadori","Giunti al punto","Happy Card IBS","Libraccio.it","PhotoSi"],
   "Salute e Benessere": ["Acqua & Sapone","EsserBella","Tigotà","L'Erbolario","NaturaSi","Salmoiraghi e Viganò","Salute Semplice","VisionOttica","Nau","Pharmanow"],
   "Sport": ["Asos","Decathlon","Scalo Milano","Snowit","AW LAB"],

@@ -81,6 +81,12 @@ const brandLogos = {
   "Q8": "https://media.base44.com/images/public/695e2f74bb7d2636b5606a98/9e2324f91_generated_image.png",
   "Tamoil": "https://media.base44.com/images/public/695e2f74bb7d2636b5606a98/22e85185e_generated_image.png",
   "Swish": "https://media.base44.com/images/public/695e2f74bb7d2636b5606a98/254848c9d_generated_image.png",
+  // === INTRATTENIMENTO ===
+  "PlayStation": "https://media.base44.com/images/public/695e2f74bb7d2636b5606a98/575c09bd4_generated_image.png",
+  "Xbox Live": "https://media.base44.com/images/public/695e2f74bb7d2636b5606a98/927bd342f_generated_image.png",
+  "Dazn": "https://media.base44.com/images/public/695e2f74bb7d2636b5606a98/c4c1080b9_generated_image.png",
+  "UCI Cinemas": "https://media.base44.com/images/public/695e2f74bb7d2636b5606a98/cdd5f5ec1_generated_image.png",
+  "Lego": "https://media.base44.com/images/public/695e2f74bb7d2636b5606a98/3a7cb80b9_generated_image.png",
   // === BELLEZZA (nuovi) ===
   "EsserBella": "https://media.base44.com/images/public/695e2f74bb7d2636b5606a98/9cae8d121_generated_image.png",
   // === ALIMENTARI (nuovi) ===
