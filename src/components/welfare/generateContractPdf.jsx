@@ -45,6 +45,8 @@ function drawCompanyData(doc, formData, startY) {
   drawField(doc, 'Prov.', formData.provincia, 60, y, 20);
   drawField(doc, 'P.IVA', formData.piva, 90, y, 100);
   y += 14;
+  drawField(doc, 'Codice Fiscale', formData.codice_fiscale, 20, y, 170);
+  y += 14;
   drawField(doc, 'Nome Referente', formData.nome_referente, 20, y, 80);
   drawField(doc, 'Cellulare', formData.cellulare, 110, y, 80);
   y += 14;
