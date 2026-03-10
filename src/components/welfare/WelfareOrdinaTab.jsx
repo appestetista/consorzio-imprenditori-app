@@ -146,30 +146,13 @@ export default function WelfareOrdinaTab({ user, tipo = 'buoni_pasto' }) {
               <span className="text-green-400 text-xs">Dati compilati</span>
             </div>
           )}
-          {showForm && (
-            <div className="mt-3">
-              <ContractFormFields formData={formData} setFormData={setFormData} />
-              {extraFields.length > 0 && (
-                <div className="mt-3 space-y-3">
-                  {extraFields.map(f => (
-                    <div key={f.key}>
-                      <label className="text-slate-300 text-xs">{f.label}</label>
-                      <input
-                        value={formData[f.key] || ''}
-                        onChange={e => setFormData(p => ({ ...p, [f.key]: e.target.value }))}
-                        className="w-full bg-slate-800 border border-slate-600 text-white text-sm h-9 rounded-md px-3 mt-1"
-                        placeholder={f.placeholder}
-                      />
-                    </div>
-                  ))}
-                </div>
-              )}
-              <Button onClick={handleGeneratePdf} className="w-full mt-4 bg-pink-500 hover:bg-pink-600 text-white font-bold text-xs">
-                <Download className="w-4 h-4 mr-2" />
-                Genera e Scarica PDF Contratto {labels[tipo]}
-              </Button>
-            </div>
-          )}
+          <div className="mt-3">
+            <ContractFormFields formData={formData} setFormData={setFormData} extraFields={extraFields} />
+            <Button onClick={handleGeneratePdf} className="w-full mt-4 bg-pink-500 hover:bg-pink-600 text-white font-bold text-xs">
+              <Download className="w-4 h-4 mr-2" />
+              Genera e Scarica PDF Contratto {labels[tipo]}
+            </Button>
+          </div>
         </CardContent>
       </Card>
 
