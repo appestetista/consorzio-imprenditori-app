@@ -55,6 +55,8 @@ const brandLogos = {
   "RayBan": "https://qtrypzzcjebvfcihiynt.supabase.co/storage/v1/object/public/base44-prod/public/695e2f74bb7d2636b5606a98/f077e057c_generated_image.png",
   "QC Terme": "https://qtrypzzcjebvfcihiynt.supabase.co/storage/v1/object/public/base44-prod/public/695e2f74bb7d2636b5606a98/70a88d92e_generated_image.png",
   "Snowit": "https://qtrypzzcjebvfcihiynt.supabase.co/storage/v1/object/public/base44-prod/public/695e2f74bb7d2636b5606a98/97370d3ae_generated_image.png",
+  // === BELLEZZA (nuovi) ===
+  "EsserBella": "https://media.base44.com/images/public/695e2f74bb7d2636b5606a98/aec216928_generated_image.png",
   // === ALIMENTARI (nuovi) ===
   "Ali Supermercati": "https://qtrypzzcjebvfcihiynt.supabase.co/storage/v1/object/public/base44-prod/public/695e2f74bb7d2636b5606a98/69e2612f7_generated_image.png",
   "Almasicily": "https://qtrypzzcjebvfcihiynt.supabase.co/storage/v1/object/public/base44-prod/public/695e2f74bb7d2636b5606a98/5d55ea95d_generated_image.png",
