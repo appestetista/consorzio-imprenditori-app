@@ -160,56 +160,107 @@ export default function ConsultantCard({
                   </Button>
                 </div>
 
-                {/* Modalità incontro */}
+                {/* Modalità incontro — ogni opzione con sotto-contenuto contestuale */}
                 <div className="flex flex-col gap-1.5">
-                  {[
-                    { value: 'online', id: `o-${consultant.id}`, icon: Video, iconColor: 'text-blue-400', label: 'Online', disabled: false },
-                    { value: 'sede_azienda', id: `sa-${consultant.id}`, icon: Building2, iconColor: 'text-amber-400', label: 'Sede azienda', disabled: consultant.sede_azienda_disabled },
-                    { value: 'sede_consulente', id: `sc-${consultant.id}`, icon: Briefcase, iconColor: 'text-purple-400', label: 'Sede consulente', disabled: false },
-                  ].map((opt) => {
-                    const isSelected = meetingPreference === opt.value;
-                    const OptIcon = opt.icon;
+                  {/* Online */}
+                  {(() => {
+                    const isSelected = meetingPreference === 'online';
                     return (
-                      <button
-                        key={opt.value}
-                        type="button"
-                        disabled={isRequested || opt.disabled}
-                        onClick={() => !opt.disabled && onPreferenceChange(opt.value)}
-                        className={`flex items-center gap-2 px-2.5 py-2 rounded-lg border transition-all text-left ${
-                          opt.disabled
-                            ? 'border-slate-700 opacity-40 cursor-not-allowed'
-                            : isSelected
-                              ? 'border-lime-400 bg-lime-400/10'
-                              : 'border-slate-700 bg-slate-800/50 active:bg-slate-700'
-                        }`}
-                      >
-                        <div className={`w-4 h-4 rounded-full border-2 flex items-center justify-center flex-shrink-0 transition-all ${
-                          isSelected ? 'border-lime-400 bg-lime-400' : 'border-slate-500 bg-transparent'
-                        }`}>
-                          {isSelected && <div className="w-1.5 h-1.5 rounded-full bg-slate-900" />}
-                        </div>
-                        <OptIcon className={`w-3.5 h-3.5 ${opt.disabled ? 'text-slate-500' : opt.iconColor}`} />
-                        <span className={`text-xs font-medium ${opt.disabled ? 'text-slate-500' : isSelected ? 'text-lime-400' : 'text-white'}`}>{opt.label}</span>
-                      </button>
+                      <div>
+                        <button
+                          type="button"
+                          disabled={isRequested}
+                          onClick={() => onPreferenceChange('online')}
+                          className={`flex items-center gap-2 px-2.5 py-2 rounded-lg border transition-all text-left w-full ${
+                            isSelected ? 'border-lime-400 bg-lime-400/10' : 'border-slate-700 bg-slate-800/50 active:bg-slate-700'
+                          }`}
+                        >
+                          <div className={`w-4 h-4 rounded-full border-2 flex items-center justify-center flex-shrink-0 transition-all ${
+                            isSelected ? 'border-lime-400 bg-lime-400' : 'border-slate-500 bg-transparent'
+                          }`}>
+                            {isSelected && <div className="w-1.5 h-1.5 rounded-full bg-slate-900" />}
+                          </div>
+                          <Video className={`w-3.5 h-3.5 text-blue-400`} />
+                          <span className={`text-xs font-medium ${isSelected ? 'text-lime-400' : 'text-white'}`}>Online</span>
+                        </button>
+                        {isSelected && (
+                          <Input
+                            placeholder="Inserisci il tuo link (Meet, Zoom...)"
+                            value={meetingLink || ''}
+                            onChange={(e) => onLinkChange(e.target.value)}
+                            disabled={isRequested}
+                            className="bg-slate-900 border-slate-600 text-white text-sm h-8 mt-1.5 ml-6"
+                          />
+                        )}
+                      </div>
                     );
-                  })}
+                  })()}
+
+                  {/* Sede azienda */}
+                  {(() => {
+                    const isSelected = meetingPreference === 'sede_azienda';
+                    const isDisabled = consultant.sede_azienda_disabled;
+                    return (
+                      <div>
+                        <button
+                          type="button"
+                          disabled={isRequested || isDisabled}
+                          onClick={() => !isDisabled && onPreferenceChange('sede_azienda')}
+                          className={`flex items-center gap-2 px-2.5 py-2 rounded-lg border transition-all text-left w-full ${
+                            isDisabled
+                              ? 'border-slate-700 opacity-40 cursor-not-allowed'
+                              : isSelected
+                                ? 'border-lime-400 bg-lime-400/10'
+                                : 'border-slate-700 bg-slate-800/50 active:bg-slate-700'
+                          }`}
+                        >
+                          <div className={`w-4 h-4 rounded-full border-2 flex items-center justify-center flex-shrink-0 transition-all ${
+                            isSelected ? 'border-lime-400 bg-lime-400' : 'border-slate-500 bg-transparent'
+                          }`}>
+                            {isSelected && <div className="w-1.5 h-1.5 rounded-full bg-slate-900" />}
+                          </div>
+                          <Building2 className={`w-3.5 h-3.5 ${isDisabled ? 'text-slate-500' : 'text-amber-400'}`} />
+                          <span className={`text-xs font-medium ${isDisabled ? 'text-slate-500' : isSelected ? 'text-lime-400' : 'text-white'}`}>Sede azienda</span>
+                        </button>
+                        {isSelected && !isDisabled && consultant.rimborso_carburante > 0 && (
+                          <p className="text-amber-400 text-xs mt-1 ml-6">
+                            ⚠️ Rimborso carburante: €{consultant.rimborso_carburante}
+                          </p>
+                        )}
+                      </div>
+                    );
+                  })()}
+
+                  {/* Sede consulente */}
+                  {(() => {
+                    const isSelected = meetingPreference === 'sede_consulente';
+                    return (
+                      <div>
+                        <button
+                          type="button"
+                          disabled={isRequested}
+                          onClick={() => onPreferenceChange('sede_consulente')}
+                          className={`flex items-center gap-2 px-2.5 py-2 rounded-lg border transition-all text-left w-full ${
+                            isSelected ? 'border-lime-400 bg-lime-400/10' : 'border-slate-700 bg-slate-800/50 active:bg-slate-700'
+                          }`}
+                        >
+                          <div className={`w-4 h-4 rounded-full border-2 flex items-center justify-center flex-shrink-0 transition-all ${
+                            isSelected ? 'border-lime-400 bg-lime-400' : 'border-slate-500 bg-transparent'
+                          }`}>
+                            {isSelected && <div className="w-1.5 h-1.5 rounded-full bg-slate-900" />}
+                          </div>
+                          <Briefcase className={`w-3.5 h-3.5 text-purple-400`} />
+                          <span className={`text-xs font-medium ${isSelected ? 'text-lime-400' : 'text-white'}`}>Sede consulente</span>
+                        </button>
+                        {isSelected && (
+                          <p className="text-purple-300 text-[11px] mt-1 ml-6 italic">
+                            📋 La call avverrà su piattaforma del consulente — riceverai il link dopo la conferma
+                          </p>
+                        )}
+                      </div>
+                    );
+                  })()}
                 </div>
-
-                {meetingPreference === 'sede_azienda' && !consultant.sede_azienda_disabled && consultant.rimborso_carburante > 0 && (
-                  <p className="text-amber-400 text-xs">
-                    ⚠️ Rimborso carburante: €{consultant.rimborso_carburante}
-                  </p>
-                )}
-
-                {meetingPreference === 'online' && (
-                  <Input
-                    placeholder="Link call (Meet, Zoom...)"
-                    value={meetingLink || ''}
-                    onChange={(e) => onLinkChange(e.target.value)}
-                    disabled={isRequested}
-                    className="bg-slate-900 border-slate-600 text-white text-sm h-8"
-                  />
-                )}
 
 
                 {validationError && (
