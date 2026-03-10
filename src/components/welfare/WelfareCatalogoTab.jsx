@@ -19,7 +19,7 @@ const brandPerCategoria = {
   "Salute e Benessere": ["Acqua & Sapone","EsserBella","Tigotà","L'Erbolario","NaturaSi","Salmoiraghi e Viganò","Salute Semplice","VisionOttica","Nau","Pharmanow"],
   "Sport": ["Asos","Decathlon","Scalo Milano","Snowit","AW LAB"],
   "Tecnologia": ["GameStop","Mediaworld","Unieuro","Nintendo","Trony","Xbox Game Pass Ultimate","Expert"],
-  "Viaggi": ["Best Western","Flightgift","Flixbus","Hotelgift","Trenitalia","Boscolo","Ecobnb","Italo","Utravel","Airbnb"]
+  "Viaggi": ["Best Western","Flightgift","FlixBus","Hotelgift","Trenitalia","Boscolo","Ecobnb","Italo","Utravel","Airbnb","Lego"]
 };
 
 const categorieIcons = {

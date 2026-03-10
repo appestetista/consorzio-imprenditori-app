@@ -81,6 +81,12 @@ const brandLogos = {
   "Q8": "https://media.base44.com/images/public/695e2f74bb7d2636b5606a98/9e2324f91_generated_image.png",
   "Tamoil": "https://media.base44.com/images/public/695e2f74bb7d2636b5606a98/22e85185e_generated_image.png",
   "Swish": "https://media.base44.com/images/public/695e2f74bb7d2636b5606a98/254848c9d_generated_image.png",
+  // === VIAGGI ===
+  "Hotelgift": "https://media.base44.com/images/public/695e2f74bb7d2636b5606a98/b4f4aa128_generated_image.png",
+  "Trenitalia": "https://media.base44.com/images/public/695e2f74bb7d2636b5606a98/6178bd829_generated_image.png",
+  "Boscolo": "https://media.base44.com/images/public/695e2f74bb7d2636b5606a98/6420b0a22_generated_image.png",
+  "Ecobnb": "https://media.base44.com/images/public/695e2f74bb7d2636b5606a98/781031861_generated_image.png",
+  "Utravel": "https://media.base44.com/images/public/695e2f74bb7d2636b5606a98/a748550a6_generated_image.png",
   // === INTRATTENIMENTO ===
   "PlayStation": "https://media.base44.com/images/public/695e2f74bb7d2636b5606a98/575c09bd4_generated_image.png",
   "Xbox Live": "https://media.base44.com/images/public/695e2f74bb7d2636b5606a98/927bd342f_generated_image.png",
