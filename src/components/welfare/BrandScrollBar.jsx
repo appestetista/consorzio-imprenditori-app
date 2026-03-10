@@ -91,37 +91,67 @@ function BrandCard({ name, index }) {
   const initials = name.split(' ').map(w => w[0]).join('').substring(0, 2).toUpperCase();
   const colorIdx = index % pastelColors.length;
 
+  const [pressed, setPressed] = useState(false);
+
   return (
-    <div className="flex-shrink-0 w-[110px] snap-start">
-      {/* Card 3D — effetto tasto fisico rialzato */}
-      <div 
-        className="relative w-[110px] h-[88px] rounded-2xl overflow-hidden transition-all duration-150 active:translate-y-[3px]"
-        style={{
-          background: 'linear-gradient(180deg, #ffffff 0%, #fafafa 50%, #f0f0f3 100%)',
-          boxShadow: `
-            0 6px 0 0 #d1d3d8,
-            0 8px 16px rgba(0,0,0,0.12),
-            inset 0 2px 0 rgba(255,255,255,1),
-            inset 0 -1px 3px rgba(0,0,0,0.03)
-          `,
-          border: '1px solid rgba(0,0,0,0.04)',
-          borderBottom: '1px solid rgba(0,0,0,0.08)',
-        }}
+    <div className="flex-shrink-0 w-[108px] snap-start">
+      {/* Card 3D — effetto tasto fisico con prospettiva */}
+      <div
+        className="relative w-[108px] h-[90px] cursor-pointer select-none"
+        style={{ perspective: '600px' }}
+        onPointerDown={() => setPressed(true)}
+        onPointerUp={() => setPressed(false)}
+        onPointerLeave={() => setPressed(false)}
       >
-        <div className="flex items-center justify-center h-full p-3">
-          {showLogo ? (
-            <img 
-              src={logoUrl} 
-              alt={name}
-              className="max-w-[80px] max-h-[56px] object-contain"
-              onError={() => setImgError(true)}
-              loading="lazy"
-            />
-          ) : (
-            <div className={`w-14 h-14 rounded-xl bg-gradient-to-br ${pastelColors[colorIdx]} flex items-center justify-center shadow-sm`}>
-              <span className="text-white font-bold text-lg drop-shadow-sm">{initials}</span>
-            </div>
-          )}
+        <div
+          style={{
+            width: '100%',
+            height: '100%',
+            borderRadius: '16px',
+            background: pressed
+              ? 'linear-gradient(180deg, #f4f4f6 0%, #ededf0 100%)'
+              : 'linear-gradient(180deg, #ffffff 0%, #fdfdfd 40%, #f3f3f6 100%)',
+            boxShadow: pressed
+              ? `
+                0 1px 0 0 #c0c2c7,
+                0 2px 4px rgba(0,0,0,0.08),
+                inset 0 1px 2px rgba(0,0,0,0.04)
+              `
+              : `
+                0 1px 0 0 #e8e9ec,
+                0 4px 0 0 #d0d2d7,
+                0 5px 0 0 #c4c6cb,
+                0 7px 14px rgba(0,0,0,0.10),
+                0 12px 24px rgba(0,0,0,0.06),
+                inset 0 2px 0 rgba(255,255,255,0.9),
+                inset 0 -1px 2px rgba(0,0,0,0.02)
+              `,
+            border: '1px solid rgba(0,0,0,0.05)',
+            transform: pressed
+              ? 'translateY(3px) rotateX(2deg)'
+              : 'translateY(0) rotateX(0deg)',
+            transition: 'all 0.12s cubic-bezier(0.25, 0.46, 0.45, 0.94)',
+          }}
+        >
+          <div className="flex items-center justify-center h-full p-2.5">
+            {showLogo ? (
+              <img 
+                src={logoUrl} 
+                alt={name}
+                className="max-w-[78px] max-h-[54px] object-contain"
+                style={{ filter: pressed ? 'brightness(0.95)' : 'none' }}
+                onError={() => setImgError(true)}
+                loading="lazy"
+                draggable={false}
+              />
+            ) : (
+              <div className={`w-14 h-14 rounded-xl bg-gradient-to-br ${pastelColors[colorIdx]} flex items-center justify-center`}
+                style={{ boxShadow: '0 2px 6px rgba(0,0,0,0.15)' }}
+              >
+                <span className="text-white font-bold text-lg drop-shadow-sm">{initials}</span>
+              </div>
+            )}
+          </div>
         </div>
       </div>
       <p className="text-[9px] text-slate-400 text-center mt-1.5 leading-tight line-clamp-1 px-0.5 font-medium tracking-tight">
