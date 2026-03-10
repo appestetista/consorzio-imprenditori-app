@@ -96,6 +96,11 @@ const brandLogos = {
   "Dazn": "https://media.base44.com/images/public/695e2f74bb7d2636b5606a98/c4c1080b9_generated_image.png",
   "UCI Cinemas": "https://media.base44.com/images/public/695e2f74bb7d2636b5606a98/cdd5f5ec1_generated_image.png",
   "Lego": "https://media.base44.com/images/public/695e2f74bb7d2636b5606a98/3a7cb80b9_generated_image.png",
+  // === LIBRI (nuovi) ===
+  "Giunti al punto": "https://media.base44.com/images/public/695e2f74bb7d2636b5606a98/288cdcc1d_generated_image.png",
+  "Happy Card IBS": "https://media.base44.com/images/public/695e2f74bb7d2636b5606a98/b7ff89a60_generated_image.png",
+  "Libraccio.it": "https://media.base44.com/images/public/695e2f74bb7d2636b5606a98/ce5fd1446_generated_image.png",
+  "PhotoSi": "https://media.base44.com/images/public/695e2f74bb7d2636b5606a98/112f200db_generated_image.png",
   // === BELLEZZA (nuovi) ===
   "EsserBella": "https://media.base44.com/images/public/695e2f74bb7d2636b5606a98/9cae8d121_generated_image.png",
   // === ALIMENTARI (nuovi) ===
