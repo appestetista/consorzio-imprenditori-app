@@ -16,7 +16,7 @@ const BASE_FIELDS = [
   { key: 'email', label: 'Email', required: true, placeholder: 'info@azienda.it', type: 'email' },
 ];
 
-function InlineField({ label, value, required, placeholder, maxLength, type, onChange }) {
+function InlineField({ label, value, required, placeholder, maxLength, type, onChange, fieldType, options }) {
   const [editing, setEditing] = useState(false);
   const isEmpty = !value || value.trim() === '';
 
@@ -24,17 +24,32 @@ function InlineField({ label, value, required, placeholder, maxLength, type, onC
     return (
       <div className="flex items-center gap-2 py-1.5 border-b border-slate-700/50">
         <span className="text-slate-400 text-xs w-28 flex-shrink-0">{label}{required ? ' *' : ''}</span>
-        <Input
-          autoFocus
-          value={value || ''}
-          onChange={e => onChange(e.target.value)}
-          onBlur={() => setEditing(false)}
-          onKeyDown={e => e.key === 'Enter' && setEditing(false)}
-          className="bg-slate-800 border-slate-600 text-white text-xs h-7 flex-1"
-          placeholder={placeholder}
-          maxLength={maxLength}
-          type={type || 'text'}
-        />
+        {fieldType === 'select' ? (
+          <select
+            autoFocus
+            value={value || ''}
+            onChange={e => { onChange(e.target.value); setEditing(false); }}
+            onBlur={() => setEditing(false)}
+            className="bg-slate-800 border border-slate-600 text-white text-xs h-7 flex-1 rounded-md px-2"
+          >
+            <option value="">Seleziona...</option>
+            {(options || []).map(opt => (
+              <option key={opt} value={opt}>€ {opt}</option>
+            ))}
+          </select>
+        ) : (
+          <Input
+            autoFocus
+            value={value || ''}
+            onChange={e => onChange(e.target.value)}
+            onBlur={() => setEditing(false)}
+            onKeyDown={e => e.key === 'Enter' && setEditing(false)}
+            className="bg-slate-800 border-slate-600 text-white text-xs h-7 flex-1"
+            placeholder={placeholder}
+            maxLength={maxLength}
+            type={type || 'text'}
+          />
+        )}
         <button onClick={() => setEditing(false)} className="text-green-400 p-0.5">
           <Check className="w-3.5 h-3.5" />
         </button>
@@ -46,7 +61,7 @@ function InlineField({ label, value, required, placeholder, maxLength, type, onC
     <div className="flex items-center gap-2 py-1.5 border-b border-slate-700/50 last:border-0">
       <span className="text-slate-400 text-xs w-28 flex-shrink-0">{label}{required ? ' *' : ''}</span>
       <span className={`text-xs flex-1 truncate ${isEmpty ? 'text-amber-400 italic' : 'text-white font-medium'}`}>
-        {isEmpty ? 'Da compilare' : value}
+        {isEmpty ? 'Da compilare' : (fieldType === 'select' ? `€ ${value}` : value)}
       </span>
       <button onClick={() => setEditing(true)} className="text-slate-500 hover:text-pink-400 p-0.5 transition-colors">
         <Pencil className="w-3 h-3" />
@@ -79,6 +94,8 @@ export default function ContractFormFields({ formData, setFormData, extraFields 
             placeholder={f.placeholder}
             maxLength={f.maxLength}
             type={f.type}
+            fieldType={f.fieldType}
+            options={f.options}
             onChange={val => setFormData(prev => ({ ...prev, [f.key]: val }))}
           />
         ))}
