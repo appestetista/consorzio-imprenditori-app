@@ -63,7 +63,8 @@ export default function ConsultantCard({
         />
         {/* Badge disponibilità sotto avatar */}
         <div className={`mt-2 rounded-md px-2 py-0.5 text-[10px] font-bold whitespace-nowrap ${hasAvailable ? 'bg-lime-400/20 text-lime-400' : 'bg-red-500/20 text-red-400'}`}>
-          {availableConsultations} {availableConsultations === 1 ? 'consulenza' : 'consulenze'} gratis
+          {availableConsultations} {availableConsultations === 1 ? 'consulenza' : 'consulenze'}
+          <br />gratis
         </div>
         {/* Pulsante Messaggi 3D oro — si estende fino in fondo alla card */}
         {consultant.email && onChatOpen && (
