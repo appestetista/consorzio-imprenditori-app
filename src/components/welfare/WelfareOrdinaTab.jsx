@@ -38,6 +38,8 @@ export default function WelfareOrdinaTab({ user, tipo = 'buoni_pasto' }) {
   const [pdfGenerated, setPdfGenerated] = useState(false);
   const [uploadStatus, setUploadStatus] = useState({});
   const [showForm, setShowForm] = useState(false);
+  const [simulazioneCompletata, setSimulazioneCompletata] = useState(false);
+  const [datiSimulazione, setDatiSimulazione] = useState(null);
 
   // Pre-compila dal profilo utente (campi reali entità User)
   useEffect(() => {
@@ -146,12 +148,18 @@ export default function WelfareOrdinaTab({ user, tipo = 'buoni_pasto' }) {
           <div className="mt-3">
             <ContractFormFields formData={formData} setFormData={setFormData} extraFields={extraFields} />
             {(tipo === 'buoni_spesa' || tipo === 'buoni_omaggio') && (
-              <WelfareSimulazione valoreBuono={formData.valore_buono} tipo={tipo} />
+              <WelfareSimulazione
+                valoreBuono={formData.valore_buono}
+                tipo={tipo}
+                onProcedi={(dati) => { setSimulazioneCompletata(true); setDatiSimulazione(dati); }}
+              />
             )}
-            <Button onClick={handleGeneratePdf} className="w-full mt-4 bg-pink-500 hover:bg-pink-600 text-white font-bold text-xs">
-              <Download className="w-4 h-4 mr-2" />
-              Genera e Scarica PDF Contratto {labels[tipo]}
-            </Button>
+            {(tipo === 'buoni_pasto' || simulazioneCompletata) && (
+              <Button onClick={handleGeneratePdf} className="w-full mt-4 bg-pink-500 hover:bg-pink-600 text-white font-bold text-xs">
+                <Download className="w-4 h-4 mr-2" />
+                Genera e Scarica PDF Contratto {labels[tipo]}
+              </Button>
+            )}
           </div>
         </CardContent>
       </Card>
