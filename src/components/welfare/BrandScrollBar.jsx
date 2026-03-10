@@ -55,6 +55,12 @@ const brandLogos = {
   "RayBan": "https://qtrypzzcjebvfcihiynt.supabase.co/storage/v1/object/public/base44-prod/public/695e2f74bb7d2636b5606a98/f077e057c_generated_image.png",
   "QC Terme": "https://qtrypzzcjebvfcihiynt.supabase.co/storage/v1/object/public/base44-prod/public/695e2f74bb7d2636b5606a98/70a88d92e_generated_image.png",
   "Snowit": "https://qtrypzzcjebvfcihiynt.supabase.co/storage/v1/object/public/base44-prod/public/695e2f74bb7d2636b5606a98/97370d3ae_generated_image.png",
+  // === CARBURANTE ===
+  "API-IP": "https://media.base44.com/images/public/695e2f74bb7d2636b5606a98/05cb6aaf1_generated_image.png",
+  "EniLive": "https://media.base44.com/images/public/695e2f74bb7d2636b5606a98/f987faf0a_generated_image.png",
+  "Q8": "https://media.base44.com/images/public/695e2f74bb7d2636b5606a98/9e2324f91_generated_image.png",
+  "Tamoil": "https://media.base44.com/images/public/695e2f74bb7d2636b5606a98/22e85185e_generated_image.png",
+  "Swish": "https://media.base44.com/images/public/695e2f74bb7d2636b5606a98/254848c9d_generated_image.png",
   // === BELLEZZA (nuovi) ===
   "EsserBella": "https://media.base44.com/images/public/695e2f74bb7d2636b5606a98/aec216928_generated_image.png",
   // === ALIMENTARI (nuovi) ===
