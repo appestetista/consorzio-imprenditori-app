@@ -265,7 +265,11 @@ export default function BrandScrollBar({ brands, title, subtitle }) {
         className="flex gap-3 overflow-x-auto pb-2 snap-x snap-mandatory scrollbar-hide"
         style={{ scrollbarWidth: 'none', msOverflowStyle: 'none', WebkitOverflowScrolling: 'touch' }}
       >
-        {brands.map((brand, i) => (
+        {[...brands].sort((a, b) => {
+          const aHas = brandLogos[a] ? 0 : 1;
+          const bHas = brandLogos[b] ? 0 : 1;
+          return aHas - bHas;
+        }).map((brand, i) => (
           <BrandCard key={brand} name={brand} index={i} />
         ))}
       </div>
