@@ -121,7 +121,7 @@ const NORMATIVE = {
 };
 
 export default function WelfareBuonoSection({ tipo, user }) {
-  const [subTab, setSubTab] = useState('normativa');
+  const [subTab, setSubTab] = useState('ordina');
   const NormativaComponent = NORMATIVE[tipo];
 
   return (
