@@ -108,9 +108,7 @@ function BrandCard({ name, index }) {
             width: '100%',
             height: '100%',
             borderRadius: '16px',
-            background: pressed
-              ? 'linear-gradient(180deg, #f4f4f6 0%, #ededf0 100%)'
-              : 'linear-gradient(180deg, #ffffff 0%, #fdfdfd 40%, #f3f3f6 100%)',
+            background: pressed ? '#f0f0f2' : '#ffffff',
             boxShadow: pressed
               ? `
                 0 1px 0 0 #c0c2c7,
