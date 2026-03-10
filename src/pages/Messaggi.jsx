@@ -329,12 +329,14 @@ export default function Messaggi() {
         is_read: false
       });
 
-      // Invia notifica WhatsApp se il destinatario è un consulente con whatsapp_number
+      // Invia notifica WhatsApp se il destinatario ha whatsapp_number (consulente o utente)
       const consultant = allConsultants.find(c => c.email === toEmail && c.whatsapp_number);
-      if (consultant) {
+      const recipientUser = users.find(u => u.email === toEmail && u.whatsapp_number);
+      const waNumber = consultant?.whatsapp_number || recipientUser?.whatsapp_number;
+      if (waNumber) {
         try {
           await base44.functions.invoke('sendWhatsApp', {
-            to: consultant.whatsapp_number,
+            to: waNumber,
             message: `💬 *Nuovo messaggio* da ${senderName}\n\nSezione: ${sourceInfo.label}\n${newMessage.substring(0, 200)}${newMessage.length > 200 ? '...' : ''}\n\nAccedi all'app per rispondere.`
           });
         } catch (e) {
