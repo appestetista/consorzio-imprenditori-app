@@ -71,80 +71,47 @@ const pastelColors = [
   'from-red-400 to-rose-500',
 ];
 
-// Brand name styling — colori per brand noti per il fallback tipografico
-const brandStyles = {
-  "Esselunga": { color: '#e30613', weight: 700 },
-  "Conad": { color: '#003da5', weight: 700 },
-  "Coop": { color: '#e2001a', weight: 800 },
-  "Carrefour": { color: '#004e9a', weight: 700 },
-  "Eurospin": { color: '#003399', weight: 800 },
-  "Nike": { color: '#111', weight: 900 },
-  "IKEA": { color: '#0058a3', weight: 900, bg: '#ffcc00' },
-  "H&M": { color: '#e50010', weight: 900 },
-  "Decathlon": { color: '#0082c3', weight: 700 },
-  "Amazon": { color: '#232f3e', weight: 800 },
-  "Zalando": { color: '#ff6900', weight: 700 },
-  "Sephora": { color: '#000', weight: 700 },
-  "Douglas": { color: '#000', weight: 600 },
-  "Coin": { color: '#000', weight: 800 },
-  "Upim": { color: '#fff', weight: 800, bg: '#333' },
-  "Guess": { color: '#fff', weight: 800, bg: '#e4002b' },
-  "Primark": { color: '#00a0df', weight: 600 },
-  "OVS": { color: '#000', weight: 800 },
-  "GameStop": { color: '#000', weight: 800 },
-  "Penny Market": { color: '#cc0000', weight: 800 },
-  "PENNY": { color: '#cc0000', weight: 800 },
-  "Maisons du Monde": { color: '#fff', weight: 700, bg: '#333' },
-  "NaturaSi": { color: '#fff', weight: 700, bg: '#4a7c2e' },
-  "AW LAB": { color: '#fff', weight: 800, bg: '#0060c0' },
-};
-
 function BrandCard({ name, index }) {
   const [imgError, setImgError] = useState(false);
   const logoUrl = brandLogos[name];
-  const style = brandStyles[name];
-
   const showLogo = logoUrl && !imgError;
+  const initials = name.split(' ').map(w => w[0]).join('').substring(0, 2).toUpperCase();
+  const colorIdx = index % pastelColors.length;
 
   return (
-    <div className="flex-shrink-0 w-[100px] snap-start">
-      {/* Card 3D - effetto tasto fisico come nelle immagini */}
+    <div className="flex-shrink-0 w-[110px] snap-start">
+      {/* Card 3D — effetto tasto fisico rialzato */}
       <div 
-        className="relative w-[100px] h-[80px] rounded-xl overflow-hidden transition-transform duration-150 active:scale-[0.96] active:translate-y-[2px]"
+        className="relative w-[110px] h-[88px] rounded-2xl overflow-hidden transition-all duration-150 active:translate-y-[3px]"
         style={{
-          background: style?.bg && !showLogo
-            ? style.bg
-            : 'linear-gradient(180deg, #ffffff 0%, #f8f8fa 60%, #eeeff2 100%)',
-          boxShadow: '0 4px 0 0 #c8c9cc, 0 6px 12px rgba(0,0,0,0.18), inset 0 1px 0 rgba(255,255,255,0.95), inset 0 -1px 2px rgba(0,0,0,0.04)',
-          border: '1px solid rgba(0,0,0,0.06)',
+          background: 'linear-gradient(180deg, #ffffff 0%, #fafafa 50%, #f0f0f3 100%)',
+          boxShadow: `
+            0 6px 0 0 #d1d3d8,
+            0 8px 16px rgba(0,0,0,0.12),
+            inset 0 2px 0 rgba(255,255,255,1),
+            inset 0 -1px 3px rgba(0,0,0,0.03)
+          `,
+          border: '1px solid rgba(0,0,0,0.04)',
+          borderBottom: '1px solid rgba(0,0,0,0.08)',
         }}
       >
-        <div className="flex items-center justify-center h-full p-2.5">
+        <div className="flex items-center justify-center h-full p-3">
           {showLogo ? (
             <img 
               src={logoUrl} 
               alt={name}
-              className="max-w-[70px] max-h-[50px] object-contain"
+              className="max-w-[80px] max-h-[56px] object-contain"
               onError={() => setImgError(true)}
               loading="lazy"
             />
           ) : (
-            <span 
-              className="text-center leading-[1.1] px-1 select-none"
-              style={{
-                color: style?.color || '#222',
-                fontWeight: style?.weight || 700,
-                fontSize: name.length > 12 ? '10px' : name.length > 8 ? '12px' : '14px',
-                letterSpacing: '-0.02em',
-                textTransform: name === name.toUpperCase() ? 'uppercase' : 'none',
-              }}
-            >
-              {name}
-            </span>
+            <div className={`w-14 h-14 rounded-xl bg-gradient-to-br ${pastelColors[colorIdx]} flex items-center justify-center shadow-sm`}>
+              <span className="text-white font-bold text-lg drop-shadow-sm">{initials}</span>
+            </div>
           )}
         </div>
       </div>
-      <p className="text-[9px] text-slate-500 text-center mt-1.5 leading-tight line-clamp-1 px-0.5 font-medium">
+      <p className="text-[9px] text-slate-400 text-center mt-1.5 leading-tight line-clamp-1 px-0.5 font-medium tracking-tight">
         {name}
       </p>
     </div>
