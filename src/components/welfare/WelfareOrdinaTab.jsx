@@ -32,7 +32,7 @@ export default function WelfareOrdinaTab({ user, tipo = 'buoni_pasto' }) {
   const [formData, setFormData] = useState({});
   const [pdfGenerated, setPdfGenerated] = useState(false);
   const [uploadStatus, setUploadStatus] = useState({});
-  const [showForm, setShowForm] = useState(true);
+  const [showForm, setShowForm] = useState(false);
 
   // Pre-compila dal profilo utente (campi reali entità User)
   useEffect(() => {
@@ -133,19 +133,11 @@ export default function WelfareOrdinaTab({ user, tipo = 'buoni_pasto' }) {
       {/* STEP 1: Compila i dati */}
       <Card className="bg-slate-800 border-slate-700">
         <CardContent className="p-4">
-          <button onClick={() => setShowForm(!showForm)} className="flex items-center justify-between w-full mb-2">
-            <h3 className="text-white font-bold text-sm flex items-center gap-2">
-              <FileText className="w-4 h-4 text-pink-400" />
-              1. Compila i dati del contratto
-            </h3>
-            {showForm ? <ChevronUp className="w-4 h-4 text-slate-400" /> : <ChevronDown className="w-4 h-4 text-slate-400" />}
-          </button>
-          {pdfGenerated && !showForm && (
-            <div className="flex items-center gap-2 bg-green-500/10 rounded-lg px-3 py-2">
-              <CheckCircle className="w-4 h-4 text-green-400" />
-              <span className="text-green-400 text-xs">Dati compilati</span>
-            </div>
-          )}
+          <h3 className="text-white font-bold text-sm flex items-center gap-2 mb-2">
+            <FileText className="w-4 h-4 text-pink-400" />
+            1. Dati del contratto
+          </h3>
+          <p className="text-slate-400 text-[10px] mb-2">Pre-compilati dal tuo profilo. Tocca ✏️ per modificare.</p>
           <div className="mt-3">
             <ContractFormFields formData={formData} setFormData={setFormData} extraFields={extraFields} />
             <Button onClick={handleGeneratePdf} className="w-full mt-4 bg-pink-500 hover:bg-pink-600 text-white font-bold text-xs">
