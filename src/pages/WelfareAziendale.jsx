@@ -1,38 +1,29 @@
 import React, { useState, useEffect } from 'react';
 import { base44 } from '@/api/base44Client';
 import { useQuery } from '@tanstack/react-query';
-import { ArrowLeft, Heart, FileText, Gift, ShoppingBag, Send, History, Store } from 'lucide-react';
+import { ArrowLeft, Heart, CreditCard, ShoppingBag, Gift, History, Store } from 'lucide-react';
 import { Link } from 'react-router-dom';
 import { createPageUrl } from '@/utils';
 import { Card, CardContent } from '@/components/ui/card';
 import BottomNavWithMenu from '../components/layout/BottomNavWithMenu';
 import SectionConsultantPanel from '../components/consulenze/SectionConsultantPanel';
-import WelfareNormativaTab from '../components/welfare/WelfareNormativaTab';
+import WelfareBuonoSection from '../components/welfare/WelfareBuonoSection';
 import WelfareCatalogoTab from '../components/welfare/WelfareCatalogoTab';
-import WelfareOrdinaTab from '../components/welfare/WelfareOrdinaTab';
 
 const PILLS = [
-  { id: 'normativa', label: 'Normativa', icon: FileText },
-  { id: 'ordina', label: 'Ordina', icon: Send },
-  { id: 'catalogo-marchi', label: 'Marchi', icon: Gift },
-  { id: 'catalogo-buoni', label: 'Buoni Pasto', icon: Store },
+  { id: 'buoni_pasto', label: 'Buoni Pasto', icon: CreditCard },
+  { id: 'buoni_spesa', label: 'Buoni Spesa', icon: ShoppingBag },
+  { id: 'buoni_omaggio', label: 'Buoni Omaggio', icon: Gift },
+  { id: 'catalogo', label: 'Catalogo', icon: Store },
 ];
 
 export default function WelfareAziendale() {
   const [user, setUser] = useState(null);
-  const [activeSection, setActiveSection] = useState('normativa');
+  const [activeSection, setActiveSection] = useState('buoni_pasto');
 
   useEffect(() => {
     window.scrollTo(0, 0);
-    const loadUser = async () => {
-      try {
-        const currentUser = await base44.auth.me();
-        setUser(currentUser);
-      } catch (e) {
-        console.error(e);
-      }
-    };
-    loadUser();
+    base44.auth.me().then(setUser).catch(console.error);
   }, []);
 
   const { data: messages = [] } = useQuery({
@@ -58,7 +49,7 @@ export default function WelfareAziendale() {
           </Link>
         </div>
 
-        {/* Hero Card compatto */}
+        {/* Hero Card */}
         <Card className="bg-gradient-to-br from-pink-500 to-rose-500 border-0 mb-5">
           <CardContent className="p-4">
             <div className="flex items-center gap-3">
@@ -67,7 +58,7 @@ export default function WelfareAziendale() {
               </div>
               <div>
                 <h2 className="text-white text-lg font-bold">Benefit Dipendenti</h2>
-                <p className="text-white/80 text-xs">Benefici e servizi per i tuoi dipendenti</p>
+                <p className="text-white/80 text-xs">Buoni pasto, spesa e omaggio per la tua azienda</p>
               </div>
             </div>
           </CardContent>
@@ -82,14 +73,14 @@ export default function WelfareAziendale() {
               <button
                 key={pill.id}
                 onClick={() => setActiveSection(pill.id)}
-                className={`flex items-center justify-center gap-1 px-2 py-2 rounded-xl text-[11px] font-semibold transition-all ${
-                  isActive 
-                    ? 'bg-pink-500 text-white shadow-lg shadow-pink-500/30' 
+                className={`flex flex-col items-center justify-center gap-1 px-1 py-2.5 rounded-xl text-[10px] font-semibold transition-all ${
+                  isActive
+                    ? 'bg-pink-500 text-white shadow-lg shadow-pink-500/30'
                     : 'bg-slate-800 text-slate-400 border border-slate-700 hover:border-pink-400/50'
                 }`}
               >
-                <Icon className="w-3.5 h-3.5 flex-shrink-0" />
-                <span className="truncate">{pill.label}</span>
+                <Icon className="w-4 h-4" />
+                <span className="leading-tight text-center">{pill.label}</span>
               </button>
             );
           })}
@@ -98,19 +89,19 @@ export default function WelfareAziendale() {
         {/* Consulenti */}
         {user && (
           <div className="mb-5">
-            <SectionConsultantPanel 
-              sectionId="welfare_aziendale" 
-              sectionLabel="Benefit Dipendenti" 
-              user={user} 
+            <SectionConsultantPanel
+              sectionId="welfare_aziendale"
+              sectionLabel="Benefit Dipendenti"
+              user={user}
             />
           </div>
         )}
 
-        {/* Contenuto attivo */}
-        {activeSection === 'normativa' && <WelfareNormativaTab />}
-        {activeSection === 'catalogo-marchi' && <WelfareCatalogoTab tipo="marchi" />}
-        {activeSection === 'catalogo-buoni' && <WelfareCatalogoTab tipo="buoni-pasto" />}
-        {activeSection === 'ordina' && <WelfareOrdinaTab user={user} />}
+        {/* Contenuto */}
+        {activeSection === 'buoni_pasto' && <WelfareBuonoSection tipo="buoni_pasto" user={user} />}
+        {activeSection === 'buoni_spesa' && <WelfareBuonoSection tipo="buoni_spesa" user={user} />}
+        {activeSection === 'buoni_omaggio' && <WelfareBuonoSection tipo="buoni_omaggio" user={user} />}
+        {activeSection === 'catalogo' && <WelfareCatalogoTab tipo="marchi" />}
       </main>
 
       <BottomNavWithMenu currentPage="WelfareAziendale" unreadMessages={messages.length} />
