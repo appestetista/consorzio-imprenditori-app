@@ -1416,15 +1416,6 @@ export default function MyProfile() {
             <NotificationPreferences user={user} />
           </TabsContent>
         </Tabs>
-        {/* Pulsante Logout */}
-        <Button
-          variant="outline"
-          onClick={() => base44.auth.logout()}
-          className="w-full mt-6 border-red-500/50 text-red-400 hover:bg-red-500/10 hover:text-red-300"
-        >
-          <LogOut className="w-4 h-4 mr-2" />
-          Esci dall'account
-        </Button>
       </main>
 
       <BottomNav currentPage="MyProfile" />
