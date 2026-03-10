@@ -5,6 +5,7 @@ import { Card, CardContent } from '@/components/ui/card';
 import { Button } from '@/components/ui/button';
 import { toast } from 'sonner';
 import ContractFormFields from './ContractFormFields';
+import WelfareSimulazione from './WelfareSimulazione';
 import { generateBuoniPastoPdf, generateBuoniSpesaPdf, generateBuoniOmaggioPdf } from './generateContractPdf';
 
 const GENERATORS = {
@@ -144,6 +145,9 @@ export default function WelfareOrdinaTab({ user, tipo = 'buoni_pasto' }) {
           <p className="text-slate-400 text-[10px] mb-2">Pre-compilati dal tuo profilo. Tocca ✏️ per modificare.</p>
           <div className="mt-3">
             <ContractFormFields formData={formData} setFormData={setFormData} extraFields={extraFields} />
+            {(tipo === 'buoni_spesa' || tipo === 'buoni_omaggio') && (
+              <WelfareSimulazione valoreBuono={formData.valore_buono} tipo={tipo} />
+            )}
             <Button onClick={handleGeneratePdf} className="w-full mt-4 bg-pink-500 hover:bg-pink-600 text-white font-bold text-xs">
               <Download className="w-4 h-4 mr-2" />
               Genera e Scarica PDF Contratto {labels[tipo]}
