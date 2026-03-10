@@ -1,5 +1,5 @@
-import React, { useState } from 'react';
-import { Phone, Check, Video, Building2, Briefcase, Calendar, Send, MessageCircle } from 'lucide-react';
+import React, { useState, useEffect } from 'react';
+import { Phone, Check, Video, Building2, Briefcase, Calendar, Send, MessageCircle, Monitor, User } from 'lucide-react';
 import { Button } from '@/components/ui/button';
 import { Textarea } from '@/components/ui/textarea';
 import { Input } from '@/components/ui/input';
@@ -29,6 +29,8 @@ export default function ConsultantCard({
   onChatOpen,
 }) {
   const [validationError, setValidationError] = useState('');
+  // Sotto-opzione online: 'mia' = l'utente fornisce il link, 'consulente' = il consulente fornirà la piattaforma
+  const [onlinePlatform, setOnlinePlatform] = useState(meetingLink === 'PIATTAFORMA_CONSULENTE' ? 'consulente' : 'mia');
   const hasAvailable = availableConsultations > 0;
 
   const handleSubmit = () => {
