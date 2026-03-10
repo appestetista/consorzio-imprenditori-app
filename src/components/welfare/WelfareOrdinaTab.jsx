@@ -34,21 +34,22 @@ export default function WelfareOrdinaTab({ user, tipo = 'buoni_pasto' }) {
   const [uploadStatus, setUploadStatus] = useState({});
   const [showForm, setShowForm] = useState(true);
 
-  // Pre-compila dal profilo utente
+  // Pre-compila dal profilo utente (campi reali entità User)
   useEffect(() => {
     if (user) {
       setFormData(prev => ({
         ...prev,
         ragione_sociale: prev.ragione_sociale || user.company_name || '',
-        email: prev.email || user.email || '',
-        cellulare: prev.cellulare || user.telefono_referente || '',
-        nome_referente: prev.nome_referente || user.full_name || '',
-        indirizzo: prev.indirizzo || user.indirizzo_sede || '',
-        comune: prev.comune || user.citta_sede || '',
-        cap: prev.cap || user.cap_sede || '',
-        provincia: prev.provincia || user.provincia_sede || '',
-        piva: prev.piva || user.partita_iva || '',
-        sdi_pec: prev.sdi_pec || user.codice_sdi || user.pec || '',
+        email: prev.email || user.company_email || user.email || '',
+        cellulare: prev.cellulare || user.cellulare_referente || user.telefono_referente || user.phone || '',
+        nome_referente: prev.nome_referente || user.referente || user.full_name || '',
+        indirizzo: prev.indirizzo || user.address || '',
+        comune: prev.comune || user.city || '',
+        cap: prev.cap || user.postal_code || '',
+        provincia: prev.provincia || user.province || '',
+        piva: prev.piva || user.vat_number || '',
+        codice_fiscale: prev.codice_fiscale || user.codice_fiscale || '',
+        sdi_pec: prev.sdi_pec || user.codice_sdi || user.billing_pec || '',
       }));
     }
   }, [user]);
