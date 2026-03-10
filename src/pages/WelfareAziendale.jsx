@@ -67,7 +67,7 @@ export default function WelfareAziendale() {
             <Link to={createPageUrl('Esplora?tab=strumenti')} className="text-pink-400 p-3 -m-3 rounded-full back-arrow-tap">
               <ArrowLeft className="w-7 h-7" />
             </Link>
-            <h1 className="text-white text-xl font-bold">Welfare Aziendale</h1>
+            <h1 className="text-white text-xl font-bold">Benefit Dipendenti</h1>
           </div>
           {/* Icone gestite dal GlobalHeader */}
         </div>
@@ -81,7 +81,7 @@ export default function WelfareAziendale() {
                   <Heart className="w-6 h-6 text-white" />
                 </div>
                 <div>
-                  <h2 className="text-white text-xl font-bold">Welfare Aziendale</h2>
+                  <h2 className="text-white text-xl font-bold">Benefit Dipendenti</h2>
                   <p className="text-white/80 text-sm">Benefici e servizi per i tuoi dipendenti</p>
                 </div>
               </div>
@@ -100,7 +100,7 @@ export default function WelfareAziendale() {
           <div className="mb-6">
             <SectionConsultantPanel 
               sectionId="welfare_aziendale" 
-              sectionLabel="Welfare Aziendale" 
+              sectionLabel="Benefit Dipendenti" 
               user={user} 
             />
           </div>
