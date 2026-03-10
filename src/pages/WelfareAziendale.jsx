@@ -74,7 +74,7 @@ export default function WelfareAziendale() {
         </Card>
 
         {/* Pill Navigation */}
-        <div className="flex gap-2 mb-5 overflow-x-auto pb-1 scrollbar-hide" style={{ scrollbarWidth: 'none', WebkitOverflowScrolling: 'touch' }}>
+        <div className="grid grid-cols-4 gap-1.5 mb-5">
           {PILLS.map(pill => {
             const Icon = pill.icon;
             const isActive = activeSection === pill.id;
@@ -82,14 +82,14 @@ export default function WelfareAziendale() {
               <button
                 key={pill.id}
                 onClick={() => setActiveSection(pill.id)}
-                className={`flex items-center gap-1.5 px-4 py-2 rounded-full text-xs font-semibold whitespace-nowrap transition-all flex-shrink-0 ${
+                className={`flex items-center justify-center gap-1 px-2 py-2 rounded-xl text-[11px] font-semibold transition-all ${
                   isActive 
                     ? 'bg-pink-500 text-white shadow-lg shadow-pink-500/30' 
                     : 'bg-slate-800 text-slate-400 border border-slate-700 hover:border-pink-400/50'
                 }`}
               >
-                <Icon className="w-3.5 h-3.5" />
-                {pill.label}
+                <Icon className="w-3.5 h-3.5 flex-shrink-0" />
+                <span className="truncate">{pill.label}</span>
               </button>
             );
           })}
