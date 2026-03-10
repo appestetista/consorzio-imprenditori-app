@@ -1,6 +1,7 @@
 import React, { useState } from 'react';
-import { Calculator, Users, Euro, TrendingUp, Minus } from 'lucide-react';
+import { Calculator, Users, Euro, FileText, CreditCard, Upload, ChevronRight } from 'lucide-react';
 import { Input } from '@/components/ui/input';
+import { Button } from '@/components/ui/button';
 import { Card } from '@/components/ui/card';
 
 function parseEuro(str) {
@@ -12,7 +13,7 @@ function fmt(n) {
   return n.toLocaleString('it-IT', { minimumFractionDigits: 2, maximumFractionDigits: 2 });
 }
 
-export default function WelfareSimulazione({ valoreBuono, tipo }) {
+export default function WelfareSimulazione({ valoreBuono, tipo, onProcedi }) {
   const [numPersone, setNumPersone] = useState('');
 
   const valore = parseEuro(valoreBuono);
@@ -114,6 +115,40 @@ export default function WelfareSimulazione({ valoreBuono, tipo }) {
               <span className="text-slate-500">(servizio)</span>
             </div>
           </div>
+
+          {/* Prossimi passi */}
+          <div className="border-t border-slate-700 pt-3 mt-2 space-y-2">
+            <p className="text-slate-400 text-[10px] font-semibold uppercase tracking-wide">Prossimi passi</p>
+            <div className="space-y-1.5">
+              <div className="flex items-start gap-2">
+                <div className="w-4 h-4 rounded-full bg-pink-500/20 flex items-center justify-center flex-shrink-0 mt-0.5">
+                  <FileText className="w-2.5 h-2.5 text-pink-400" />
+                </div>
+                <span className="text-slate-300 text-[11px]"><strong>1.</strong> Generiamo il contratto che andrà <strong>timbrato e firmato</strong></span>
+              </div>
+              <div className="flex items-start gap-2">
+                <div className="w-4 h-4 rounded-full bg-pink-500/20 flex items-center justify-center flex-shrink-0 mt-0.5">
+                  <CreditCard className="w-2.5 h-2.5 text-pink-400" />
+                </div>
+                <span className="text-slate-300 text-[11px]"><strong>2.</strong> Dovrai <strong>bonificare l'importo totale</strong> di € {fmt(totaleImprenditore)}</span>
+              </div>
+              <div className="flex items-start gap-2">
+                <div className="w-4 h-4 rounded-full bg-pink-500/20 flex items-center justify-center flex-shrink-0 mt-0.5">
+                  <Upload className="w-2.5 h-2.5 text-pink-400" />
+                </div>
+                <span className="text-slate-300 text-[11px]"><strong>3.</strong> Carica i <strong>dati delle persone</strong> che usufruiranno del benefit</span>
+              </div>
+            </div>
+          </div>
+
+          {/* Bottone Procedi */}
+          <Button
+            onClick={() => onProcedi && onProcedi({ numPersone: persone, totaleDestinatari, commissione, totaleImprenditore })}
+            className="w-full mt-2 bg-gradient-to-r from-pink-500 to-rose-500 hover:opacity-90 text-white font-bold text-sm"
+          >
+            Procediamo a creare il contratto
+            <ChevronRight className="w-4 h-4 ml-2" />
+          </Button>
         </Card>
       )}
     </div>
