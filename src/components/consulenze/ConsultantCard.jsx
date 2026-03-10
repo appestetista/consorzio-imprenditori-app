@@ -278,7 +278,7 @@ export default function ConsultantCard({
                             {isSelected && <div className="w-1.5 h-1.5 rounded-full bg-slate-900" />}
                           </div>
                           <Building2 className={`w-3.5 h-3.5 ${isDisabled ? 'text-slate-500' : 'text-amber-400'}`} />
-                          <span className={`text-xs font-medium ${isDisabled ? 'text-slate-500' : isSelected ? 'text-lime-400' : 'text-white'}`}>Sede azienda</span>
+                          <span className={`text-xs font-medium ${isDisabled ? 'text-slate-500' : isSelected ? 'text-lime-400' : 'text-white'}`}>Presso vostra sede</span>
                         </button>
                         {isSelected && !isDisabled && consultant.rimborso_carburante > 0 && (
                           <p className="text-amber-400 text-xs mt-1 ml-6">
@@ -308,13 +308,8 @@ export default function ConsultantCard({
                             {isSelected && <div className="w-1.5 h-1.5 rounded-full bg-slate-900" />}
                           </div>
                           <Briefcase className={`w-3.5 h-3.5 text-purple-400`} />
-                          <span className={`text-xs font-medium ${isSelected ? 'text-lime-400' : 'text-white'}`}>Sede consulente</span>
+                          <span className={`text-xs font-medium ${isSelected ? 'text-lime-400' : 'text-white'}`}>Presso sede del consulente</span>
                         </button>
-                        {isSelected && (
-                          <p className="text-purple-300 text-[11px] mt-1 ml-6 italic">
-                            📋 La call avverrà su piattaforma del consulente — riceverai il link dopo la conferma
-                          </p>
-                        )}
                       </div>
                     );
                   })()}
