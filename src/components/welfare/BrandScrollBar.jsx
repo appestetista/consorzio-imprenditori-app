@@ -131,12 +131,12 @@ function BrandCard({ name, index }) {
             transition: 'all 0.12s cubic-bezier(0.25, 0.46, 0.45, 0.94)',
           }}
         >
-          <div className="flex items-center justify-center h-full p-2.5">
+          <div className="flex items-center justify-center h-full p-1.5">
             {showLogo ? (
               <img 
                 src={logoUrl} 
                 alt={name}
-                className="max-w-[78px] max-h-[54px] object-contain"
+                className="max-w-[92px] max-h-[68px] object-contain"
                 style={{ filter: pressed ? 'brightness(0.95)' : 'none' }}
                 onError={() => setImgError(true)}
                 loading="lazy"
