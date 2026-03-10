@@ -31,6 +31,12 @@ const categorieIcons = {
 
 const allBrands = [...new Set(Object.values(brandPerCategoria).flat())];
 
+// Conta in quante categorie appare ogni brand
+const brandFrequency = {};
+Object.values(brandPerCategoria).flat().forEach(b => {
+  brandFrequency[b] = (brandFrequency[b] || 0) + 1;
+});
+
 export default function WelfareCatalogoTab({ tipo }) {
   const [searchTerm, setSearchTerm] = useState('');
   
@@ -84,7 +90,7 @@ export default function WelfareCatalogoTab({ tipo }) {
         /* Marchi: una barra per categoria */
         <div className="space-y-2">
           {categorie.map(cat => {
-            const filtered = filterBrands(brandPerCategoria[cat]);
+            const filtered = filterBrands(brandPerCategoria[cat]).sort((a, b) => (brandFrequency[a] || 1) - (brandFrequency[b] || 1));
             if (filtered.length === 0) return null;
             const Icon = categorieIcons[cat] || Gift;
             return (
