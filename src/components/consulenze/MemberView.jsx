@@ -180,14 +180,22 @@ export default function MemberView({ user, consultants, isLoading }) {
       
       const newBooking = await base44.entities.ConsultationBooking.create(bookingData);
       
+      // Etichetta modalità incontro
+      const preferenceLabels = {
+        online: link === 'PIATTAFORMA_CONSULENTE' ? 'Online (piattaforma del consulente)' : 'Online (link utente)',
+        sede_azienda: 'In presenza - presso sede dell\'azienda',
+        sede_consulente: 'In presenza - presso sede del consulente'
+      };
+      const preferenceLabel = preferenceLabels[preference] || preference;
+
       // Crea il messaggio iniziale nella sezione consulenze
-      // Così il consulente vedrà il messaggio anche nella pagina Messaggi
       if (consultant?.email && message) {
         const conversationId = `consultation_${newBooking.id}`;
+        const fullContent = `${message}\n\n📍 Modalità: ${preferenceLabel}${preference === 'online' && link && link !== 'PIATTAFORMA_CONSULENTE' ? `\n🔗 Link: ${link}` : ''}`;
         await base44.entities.Message.create({
           from_email: user.email,
           to_email: consultant.email,
-          content: message,
+          content: fullContent,
           conversation_id: conversationId,
           source: 'consulenze',
           source_reference: `Consulenza #${newBooking.id.slice(-6)}`,
@@ -201,7 +209,7 @@ export default function MemberView({ user, consultants, isLoading }) {
           user_email: consultant.email,
           type: 'consultation',
           title: 'Nuova richiesta di consulenza',
-          content: `${user.company_name || user.full_name || user.email} ha richiesto una consulenza: "${message}"`,
+          content: `${user.company_name || user.full_name || user.email} ha richiesto una consulenza: "${message}" — Modalità: ${preferenceLabel}`,
           is_read: false,
           reference_id: consultantId
         });
