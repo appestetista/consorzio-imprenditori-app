@@ -16,7 +16,7 @@ const GENERATORS = {
 const EXTRA_FIELDS = {
   buoni_pasto: [
     { key: 'sconto_percentuale', label: 'Sconto applicato (%)', placeholder: 'Es. 3' },
-    { key: 'valore_buono', label: 'Valore facciale buono (€)', fieldType: 'select', options: ['5,00', '7,00', '8,00'] },
+    { key: 'valore_buono', label: 'Valore facciale buono (€)', fieldType: 'select', options: ['3,00', '5,00', '7,00', '8,00'] },
   ],
   buoni_spesa: [],
   buoni_omaggio: [],
