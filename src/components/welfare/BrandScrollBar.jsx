@@ -55,6 +55,19 @@ const brandLogos = {
   "RayBan": "https://qtrypzzcjebvfcihiynt.supabase.co/storage/v1/object/public/base44-prod/public/695e2f74bb7d2636b5606a98/f077e057c_generated_image.png",
   "QC Terme": "https://qtrypzzcjebvfcihiynt.supabase.co/storage/v1/object/public/base44-prod/public/695e2f74bb7d2636b5606a98/70a88d92e_generated_image.png",
   "Snowit": "https://qtrypzzcjebvfcihiynt.supabase.co/storage/v1/object/public/base44-prod/public/695e2f74bb7d2636b5606a98/97370d3ae_generated_image.png",
+  // === ABBIGLIAMENTO (nuovi) ===
+  "Coccinelle": "https://qtrypzzcjebvfcihiynt.supabase.co/storage/v1/object/public/base44-prod/public/695e2f74bb7d2636b5606a98/283f92e9a_generated_image.png",
+  "Falconeri": "https://qtrypzzcjebvfcihiynt.supabase.co/storage/v1/object/public/base44-prod/public/695e2f74bb7d2636b5606a98/860cbdacc_generated_image.png",
+  "Kiabi": "https://qtrypzzcjebvfcihiynt.supabase.co/storage/v1/object/public/base44-prod/public/695e2f74bb7d2636b5606a98/bb0539d6e_generated_image.png",
+  "Marionnaud": "https://qtrypzzcjebvfcihiynt.supabase.co/storage/v1/object/public/base44-prod/public/695e2f74bb7d2636b5606a98/96a787a9d_generated_image.png",
+  "Pittarosso": "https://qtrypzzcjebvfcihiynt.supabase.co/storage/v1/object/public/base44-prod/public/695e2f74bb7d2636b5606a98/da82c83f7_generated_image.png",
+  "Salmoiraghi e Viganò": "https://qtrypzzcjebvfcihiynt.supabase.co/storage/v1/object/public/base44-prod/public/695e2f74bb7d2636b5606a98/e9b821886_generated_image.png",
+  "Rinascimento": "https://qtrypzzcjebvfcihiynt.supabase.co/storage/v1/object/public/base44-prod/public/695e2f74bb7d2636b5606a98/9b3cd29d8_generated_image.png",
+  "YOOX": "https://qtrypzzcjebvfcihiynt.supabase.co/storage/v1/object/public/base44-prod/public/695e2f74bb7d2636b5606a98/1246922e4_generated_image.png",
+  "AW LAB": "https://qtrypzzcjebvfcihiynt.supabase.co/storage/v1/object/public/base44-prod/public/695e2f74bb7d2636b5606a98/c0ddbfe8c_generated_image.png",
+  "Bata": "https://qtrypzzcjebvfcihiynt.supabase.co/storage/v1/object/public/base44-prod/public/695e2f74bb7d2636b5606a98/0197ec2c0_generated_image.png",
+  "Scarpe&Scarpe": "https://qtrypzzcjebvfcihiynt.supabase.co/storage/v1/object/public/base44-prod/public/695e2f74bb7d2636b5606a98/e3e4988a5_generated_image.png",
+  "Calliope": "https://qtrypzzcjebvfcihiynt.supabase.co/storage/v1/object/public/base44-prod/public/695e2f74bb7d2636b5606a98/5cd74bf31_generated_image.png",
 };
 
 // Colori pastello per le iniziali di brand senza logo
