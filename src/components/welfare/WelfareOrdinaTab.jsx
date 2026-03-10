@@ -18,8 +18,12 @@ const EXTRA_FIELDS = {
     { key: 'sconto_percentuale', label: 'Sconto applicato (%)', placeholder: 'Es. 3' },
     { key: 'valore_buono', label: 'Valore facciale buono (€)', fieldType: 'select', options: ['3,00', '5,00', '7,00', '8,00'] },
   ],
-  buoni_spesa: [],
-  buoni_omaggio: [],
+  buoni_spesa: [
+    { key: 'valore_buono', label: 'Importo buono spesa (€)', fieldType: 'select', options: ['25,00', '50,00', '100,00', '150,00', '200,00', '250,00', '500,00'] },
+  ],
+  buoni_omaggio: [
+    { key: 'valore_buono', label: 'Importo buono omaggio (€)', fieldType: 'select', options: ['10,00', '15,00', '20,00', '25,00', '30,00', '40,00', '50,00'] },
+  ],
 };
 
 const EXCEL_COLUMNS = {
