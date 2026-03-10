@@ -1,6 +1,7 @@
 import React, { useState } from 'react';
-import { FileText, Send } from 'lucide-react';
+import { FileText, Send, Store } from 'lucide-react';
 import WelfareOrdinaTab from './WelfareOrdinaTab';
+import WelfareCatalogoTab from './WelfareCatalogoTab';
 
 // Normative specifiche per tipo di buono
 function NormativaBuoniPasto() {
@@ -126,8 +127,19 @@ export default function WelfareBuonoSection({ tipo, user }) {
 
   return (
     <div>
-      {/* Sub-tabs: Normativa | Ordina */}
+      {/* Sub-tabs: Ordina | Normativa | Catalogo */}
       <div className="flex gap-2 mb-4">
+        <button
+          onClick={() => setSubTab('ordina')}
+          className={`flex-1 flex items-center justify-center gap-1.5 py-2.5 rounded-xl text-xs font-semibold transition-all ${
+            subTab === 'ordina'
+              ? 'bg-pink-500 text-white shadow-lg shadow-pink-500/30'
+              : 'bg-slate-800/50 text-slate-500 border border-slate-700/50'
+          }`}
+        >
+          <Send className="w-3.5 h-3.5" />
+          Ordina
+        </button>
         <button
           onClick={() => setSubTab('normativa')}
           className={`flex-1 flex items-center justify-center gap-1.5 py-2.5 rounded-xl text-xs font-semibold transition-all ${
@@ -140,20 +152,21 @@ export default function WelfareBuonoSection({ tipo, user }) {
           Normativa
         </button>
         <button
-          onClick={() => setSubTab('ordina')}
+          onClick={() => setSubTab('catalogo')}
           className={`flex-1 flex items-center justify-center gap-1.5 py-2.5 rounded-xl text-xs font-semibold transition-all ${
-            subTab === 'ordina'
-              ? 'bg-pink-500 text-white shadow-lg shadow-pink-500/30'
+            subTab === 'catalogo'
+              ? 'bg-slate-700 text-white border border-slate-500'
               : 'bg-slate-800/50 text-slate-500 border border-slate-700/50'
           }`}
         >
-          <Send className="w-3.5 h-3.5" />
-          Ordina
+          <Store className="w-3.5 h-3.5" />
+          Catalogo
         </button>
       </div>
 
-      {subTab === 'normativa' && <NormativaComponent />}
       {subTab === 'ordina' && <WelfareOrdinaTab user={user} tipo={tipo} />}
+      {subTab === 'normativa' && <NormativaComponent />}
+      {subTab === 'catalogo' && <WelfareCatalogoTab tipo={tipo === 'buoni_pasto' ? 'buoni-pasto' : 'marchi'} />}
     </div>
   );
 }

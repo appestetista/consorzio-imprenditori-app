@@ -14,7 +14,6 @@ const PILLS = [
   { id: 'buoni_pasto', label: 'Buoni Pasto', icon: CreditCard },
   { id: 'buoni_spesa', label: 'Buoni Spesa', icon: ShoppingBag },
   { id: 'buoni_omaggio', label: 'Buoni Omaggio', icon: Gift },
-  { id: 'catalogo', label: 'Catalogo', icon: Store },
 ];
 
 export default function WelfareAziendale() {
@@ -65,7 +64,7 @@ export default function WelfareAziendale() {
         </Card>
 
         {/* Pill Navigation */}
-        <div className="grid grid-cols-4 gap-1.5 mb-5">
+        <div className="grid grid-cols-3 gap-1.5 mb-5">
           {PILLS.map(pill => {
             const Icon = pill.icon;
             const isActive = activeSection === pill.id;
@@ -101,7 +100,6 @@ export default function WelfareAziendale() {
         {activeSection === 'buoni_pasto' && <WelfareBuonoSection tipo="buoni_pasto" user={user} />}
         {activeSection === 'buoni_spesa' && <WelfareBuonoSection tipo="buoni_spesa" user={user} />}
         {activeSection === 'buoni_omaggio' && <WelfareBuonoSection tipo="buoni_omaggio" user={user} />}
-        {activeSection === 'catalogo' && <WelfareCatalogoTab tipo="marchi" />}
       </main>
 
       <BottomNavWithMenu currentPage="WelfareAziendale" unreadMessages={messages.length} />
