@@ -12,7 +12,7 @@ const brandPerCategoria = {
   "Carburante": ["API IP","ENILIVE","Q8","Tamoil","Swish"],
   "E-commerce": ["Amazon","Asos","Bennet","Best Western","Bimbostore","Brico io","Decathlon","Deliveroo","Douglas","Esselunga","Flightgift","Flixbus","GameStop","Hotelgift","IKEA","la Feltrinelli","Mango","MD","Mediaworld","Mondadori","Nespresso","Nike","Prénatal","Snowit","Tigotà","Toys","Trenitalia","Unieuro","Zalando"],
   "Esperienze": ["Global Experiences Card","Smartbox","Snowit","QC Terme","Activitygift"],
-  "Giochi": ["Bimbostore","GameStop","la Feltrinelli","Prénatal","Toys","Nintendo","PlayStation","Xbox Game Pass Ultimate","FAO Schwarz","Lego"],
+  "Giochi": ["GameStop","MediaWorld","Unieuro","Nintendo","Trony","Xbox Game Pass Ultimate","Xbox Live","Expert","Lego"],
   "Infanzia": ["Bimbostore","Coin","OVS","Prénatal","Scalo Milano","Toys","Chicco","Upim","FAO Schwarz","Lego"],
   "Intrattenimento": ["La Feltrinelli","Unieuro","PlayStation","Spotify","Xbox Live","Dazn","UCI Cinemas","Photosì","Lego"],
   "Libri": ["la Feltrinelli","Mondadori","Giunti al punto","Happy Card IBS","Libraccio.it","PhotoSi"],
