@@ -13,9 +13,9 @@ import WelfareOrdinaTab from '../components/welfare/WelfareOrdinaTab';
 
 const PILLS = [
   { id: 'normativa', label: 'Normativa', icon: FileText },
+  { id: 'ordina', label: 'Ordina', icon: Send },
   { id: 'catalogo-marchi', label: 'Marchi', icon: Gift },
   { id: 'catalogo-buoni', label: 'Buoni Pasto', icon: Store },
-  { id: 'ordina', label: 'Ordina', icon: Send },
 ];
 
 export default function WelfareAziendale() {
