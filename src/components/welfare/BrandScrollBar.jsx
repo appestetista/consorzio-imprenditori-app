@@ -82,7 +82,7 @@ const brandLogos = {
   "Tamoil": "https://media.base44.com/images/public/695e2f74bb7d2636b5606a98/22e85185e_generated_image.png",
   "Swish": "https://media.base44.com/images/public/695e2f74bb7d2636b5606a98/254848c9d_generated_image.png",
   // === BELLEZZA (nuovi) ===
-  "EsserBella": "https://media.base44.com/images/public/695e2f74bb7d2636b5606a98/aec216928_generated_image.png",
+  "EsserBella": "https://media.base44.com/images/public/695e2f74bb7d2636b5606a98/9cae8d121_generated_image.png",
   // === ALIMENTARI (nuovi) ===
   "Ali Supermercati": "https://qtrypzzcjebvfcihiynt.supabase.co/storage/v1/object/public/base44-prod/public/695e2f74bb7d2636b5606a98/69e2612f7_generated_image.png",
   "Almasicily": "https://qtrypzzcjebvfcihiynt.supabase.co/storage/v1/object/public/base44-prod/public/695e2f74bb7d2636b5606a98/5d55ea95d_generated_image.png",
