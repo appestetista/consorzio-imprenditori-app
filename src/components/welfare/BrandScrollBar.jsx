@@ -163,7 +163,7 @@ function BrandCard({ name, index }) {
               <img 
                 src={logoUrl} 
                 alt={name}
-                className="max-w-[92px] max-h-[68px] object-contain"
+                className="max-w-[96px] max-h-[74px] object-contain"
                 style={{ filter: pressed ? 'brightness(0.95)' : 'none' }}
                 onError={() => setImgError(true)}
                 loading="lazy"
