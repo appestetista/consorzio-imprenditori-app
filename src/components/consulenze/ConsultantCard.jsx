@@ -185,14 +185,70 @@ export default function ConsultantCard({
                           <Video className={`w-3.5 h-3.5 text-blue-400`} />
                           <span className={`text-xs font-medium ${isSelected ? 'text-lime-400' : 'text-white'}`}>Online</span>
                         </button>
+
+                        {/* Sotto-opzioni online: mia piattaforma o del consulente */}
                         {isSelected && (
-                          <Input
-                            placeholder="Inserisci il tuo link (Meet, Zoom...)"
-                            value={meetingLink || ''}
-                            onChange={(e) => onLinkChange(e.target.value)}
-                            disabled={isRequested}
-                            className="bg-slate-900 border-slate-600 text-white text-sm h-8 mt-1.5 ml-6"
-                          />
+                          <div className="ml-6 mt-1.5 space-y-1.5">
+                            {/* Opzione 1: Mia piattaforma */}
+                            <button
+                              type="button"
+                              disabled={isRequested}
+                              onClick={() => {
+                                setOnlinePlatform('mia');
+                                onLinkChange('');
+                              }}
+                              className={`flex items-center gap-2 px-2 py-1.5 rounded-md border transition-all text-left w-full ${
+                                onlinePlatform === 'mia'
+                                  ? 'border-blue-400 bg-blue-400/10'
+                                  : 'border-slate-700 bg-slate-800/40 active:bg-slate-700'
+                              }`}
+                            >
+                              <div className={`w-3 h-3 rounded-full border-[1.5px] flex items-center justify-center flex-shrink-0 transition-all ${
+                                onlinePlatform === 'mia' ? 'border-blue-400 bg-blue-400' : 'border-slate-500 bg-transparent'
+                              }`}>
+                                {onlinePlatform === 'mia' && <div className="w-1 h-1 rounded-full bg-slate-900" />}
+                              </div>
+                              <Monitor className="w-3 h-3 text-blue-400" />
+                              <span className={`text-[11px] font-medium ${onlinePlatform === 'mia' ? 'text-blue-300' : 'text-slate-300'}`}>La mia piattaforma</span>
+                            </button>
+                            {onlinePlatform === 'mia' && (
+                              <Input
+                                placeholder="Inserisci il tuo link (Meet, Zoom...)"
+                                value={meetingLink === 'PIATTAFORMA_CONSULENTE' ? '' : (meetingLink || '')}
+                                onChange={(e) => onLinkChange(e.target.value)}
+                                disabled={isRequested}
+                                className="bg-slate-900 border-slate-600 text-white text-sm h-8"
+                              />
+                            )}
+
+                            {/* Opzione 2: Piattaforma del consulente */}
+                            <button
+                              type="button"
+                              disabled={isRequested}
+                              onClick={() => {
+                                setOnlinePlatform('consulente');
+                                onLinkChange('PIATTAFORMA_CONSULENTE');
+                              }}
+                              className={`flex items-center gap-2 px-2 py-1.5 rounded-md border transition-all text-left w-full ${
+                                onlinePlatform === 'consulente'
+                                  ? 'border-purple-400 bg-purple-400/10'
+                                  : 'border-slate-700 bg-slate-800/40 active:bg-slate-700'
+                              }`}
+                            >
+                              <div className={`w-3 h-3 rounded-full border-[1.5px] flex items-center justify-center flex-shrink-0 transition-all ${
+                                onlinePlatform === 'consulente' ? 'border-purple-400 bg-purple-400' : 'border-slate-500 bg-transparent'
+                              }`}>
+                                {onlinePlatform === 'consulente' && <div className="w-1 h-1 rounded-full bg-slate-900" />}
+                              </div>
+                              <User className="w-3 h-3 text-purple-400" />
+                              <span className={`text-[11px] font-medium ${onlinePlatform === 'consulente' ? 'text-purple-300' : 'text-slate-300'}`}>Piattaforma del consulente</span>
+                            </button>
+                            {onlinePlatform === 'consulente' && (
+                              <p className="text-purple-300/70 text-[10px] italic pl-1">
+                                Riceverai il link dal consulente dopo la conferma
+                              </p>
+                            )}
+                          </div>
                         )}
                       </div>
                     );
