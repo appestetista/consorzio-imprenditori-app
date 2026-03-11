@@ -21,8 +21,19 @@ export default function SimulatoreFiscale() {
   const [effectiveUser, setEffectiveUser] = useState(null);
   const [loading, setLoading] = useState(false);
   const [result, setResult] = useState(null);
-  const [view, setView] = useState('bilancio'); // 'bilancio' | 'iva' | 'irpef' | 'ires' | 'inps' | 'dividendi' | 'netto' | 'result' | 'storico' | 'aliquote'
+  const [view, setView] = useState(null);
   const { impersonation, appMode } = useImpersonation();
+
+  // Tabs dinamici in base al tipo di società dell'utente
+  const userFormaGiuridica = effectiveUser?.forma_giuridica || null;
+  const tabs = useMemo(() => getTabsForSocieta(userFormaGiuridica), [userFormaGiuridica]);
+
+  // Imposta la prima tab quando i tabs cambiano
+  useEffect(() => {
+    if (tabs.length > 0 && (!view || view === null)) {
+      setView(tabs[0].id);
+    }
+  }, [tabs]);
 
   useEffect(() => {
     window.scrollTo(0, 0);
