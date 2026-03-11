@@ -78,10 +78,10 @@ export default function WelfareOrdinaTab({ user, tipo = 'buoni_pasto' }) {
   }, [user]);
 
   // Salva modifiche form anche nel profilo utente (debounce)
-  const saveTimeoutRef = React.useRef(null);
-  const lastSavedRef = React.useRef({});
+  const saveTimeoutRef = useRef(null);
+  const lastSavedRef = useRef({});
 
-  const handleFormDataChange = React.useCallback((updater) => {
+  const handleFormDataChange = useCallback((updater) => {
     setFormData(prev => {
       const next = typeof updater === 'function' ? updater(prev) : updater;
       // Trova campi modificati che hanno mapping al profilo
