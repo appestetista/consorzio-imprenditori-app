@@ -226,35 +226,300 @@ function drawFooterArea(doc, fd) {
 }
 
 // ════════════════════════════════════════════════════════════════
-// BUONI PASTO
+// BUONI PASTO (2 pagine, stile Toduba)
 // ════════════════════════════════════════════════════════════════
+
+function drawBPHeader(doc) {
+  // Banda beige/rosa in alto (stile Toduba)
+  doc.setFillColor(235, 215, 200);
+  doc.rect(0, 0, 210, 18, 'F');
+  // Logo testo Consorzio Imprenditori centrato
+  doc.setFontSize(8);
+  doc.setFont('helvetica', 'italic');
+  doc.setTextColor(120, 90, 60);
+  doc.text('CONSORZIO IMPRENDITORI', 105, 10, { align: 'center' });
+  doc.setFont('helvetica', 'normal');
+  // Linea gold sotto
+  doc.setFillColor(...C.gold);
+  doc.rect(0, 18, 210, 0.8, 'F');
+}
+
+function drawBPFooterBand(doc) {
+  // Banda beige/rosa in basso con info aziendali (stile Toduba)
+  const y = 274;
+  doc.setFillColor(235, 215, 200);
+  doc.rect(0, y, 210, 23, 'F');
+  doc.setFillColor(...C.gold);
+  doc.rect(0, y, 210, 0.6, 'F');
+  doc.setFontSize(7);
+  doc.setFont('helvetica', 'bolditalic');
+  doc.setTextColor(60, 40, 20);
+  doc.text('CLIK APP S.r.l. - Piazza Solferino 20 - 10121 Torino +39 011 02 41 887', 105, y + 5, { align: 'center' });
+  doc.text('buoni@toduba.it - www.toduba.it', 105, y + 10, { align: 'center' });
+  doc.text('P IVA 11821600019 - Capitale Sociale i.v € 944.584,89', 105, y + 15, { align: 'center' });
+  doc.setFont('helvetica', 'normal');
+}
+
 export function generateBuoniPastoPdf(fd) {
   const doc = new jsPDF();
-  drawPageBorder(doc);
-  drawHeaderBand(doc);
-  let y = drawSubtitleBand(doc, 'PROPOSTA DI CONTRATTO DI FORNITURA BUONI PASTO');
 
-  y = drawSectionHeader(doc, 'DATI AZIENDA COMMITTENTE', y);
-  y = drawCompanyBlock(doc, fd, y);
+  // ──────── PAGINA 1 ────────
+  drawBPHeader(doc);
 
-  y = drawSectionHeader(doc, 'CONDIZIONI ECONOMICHE BUONI PASTO', y + 2);
-  y = drawFieldPair(doc, 'Sconto applicato (%)', fd.sconto_percentuale ? `${fd.sconto_percentuale}%` : '', 'Valore facciale buono (€)', fd.valore_buono ? `€ ${fd.valore_buono}` : '', y);
+  // Titolo principale
+  let y = 28;
+  doc.setFontSize(16);
+  doc.setFont('helvetica', 'bold');
+  doc.setTextColor(...C.navy);
+  doc.text('PROPOSTA DI CONTRATTO DI FORNITURA', 105, y, { align: 'center' });
+  y += 7;
+  doc.text('BUONI PASTO CONSORZIO IMPRENDITORI', 105, y, { align: 'center' });
+  y += 4;
+  // Linea decorativa
+  doc.setDrawColor(...C.gold);
+  doc.setLineWidth(0.6);
+  doc.line(40, y, 170, y);
 
-  y = drawSectionHeader(doc, 'CONDIZIONI E TERMINI DI PAGAMENTO', y + 1);
-  y = drawHighlightBox(doc, 'Pagamento anticipato mediante bonifico bancario.\nCLIK APP SRL — Banca delle Alpi Marittime (BCC Iccrea)\nIBAN: IT61L0845001000000000006545', y);
+  // Sotto-titolo azienda fornitrice
+  y += 7;
+  doc.setFontSize(8);
+  doc.setFont('helvetica', 'bold');
+  doc.setTextColor(...C.text);
+  doc.text('CLIK APP Srl', 20, y);
+  doc.setFont('helvetica', 'normal');
+  doc.setFontSize(7.5);
+  doc.text(' con sede in Torino, Piazza Solferino 20, 10121 Torino, P.IVA 11821600019', 42, y);
+  y += 4;
+  doc.setFontSize(7);
+  doc.setTextColor(...C.darkGray);
+  doc.text('in persona del legale rappresentante munito dei poteri necessari', 20, y);
 
-  y = drawSectionHeader(doc, 'VANTAGGI PER L\'AZIENDA', y);
-  y = drawBullets(doc, [
-    'Totalmente esenti da oneri fiscali e previdenziali',
-    'Deducibili al 100% rispetto a IRAP e IRES, no IRPEF',
-    'IVA al 4% interamente detraibile',
+  // ── Dati azienda ──
+  y += 8;
+  // Ragione sociale
+  doc.setFontSize(7);
+  doc.setTextColor(...C.medGray);
+  doc.text('Ragione sociale', 20, y);
+  doc.setDrawColor(...C.medGray);
+  doc.setLineWidth(0.15);
+  doc.line(55, y, 190, y);
+  doc.setFontSize(10);
+  doc.setTextColor(...C.text);
+  doc.setFont('helvetica', 'bold');
+  if (fd.ragione_sociale) doc.text(fd.ragione_sociale, 56, y);
+  doc.setFont('helvetica', 'normal');
+
+  // Indirizzo + Comune
+  y += 10;
+  doc.setFontSize(7);
+  doc.setTextColor(...C.medGray);
+  doc.text('Indirizzo', 20, y);
+  doc.line(40, y, 105, y);
+  doc.text('comune', 112, y);
+  doc.line(128, y, 190, y);
+  doc.setFontSize(9);
+  doc.setTextColor(...C.text);
+  if (fd.indirizzo) doc.text(fd.indirizzo, 41, y);
+  if (fd.comune) doc.text(fd.comune, 129, y);
+
+  // Cap + Prov + P.iva
+  y += 10;
+  doc.setFontSize(7);
+  doc.setTextColor(...C.medGray);
+  doc.text('Cap', 20, y);
+  doc.line(30, y, 52, y);
+  doc.text('Prov', 58, y);
+  doc.line(68, y, 90, y);
+  doc.text('P.iva', 96, y);
+  doc.line(108, y, 190, y);
+  doc.setFontSize(9);
+  doc.setTextColor(...C.text);
+  if (fd.cap) doc.text(fd.cap, 31, y);
+  if (fd.provincia) doc.text(fd.provincia, 69, y);
+  if (fd.piva) doc.text(fd.piva, 109, y);
+
+  // Nome referente
+  y += 10;
+  doc.setFontSize(7);
+  doc.setTextColor(...C.medGray);
+  doc.text('Nome referente', 20, y);
+  doc.line(52, y, 190, y);
+  doc.setFontSize(9);
+  doc.setTextColor(...C.text);
+  if (fd.nome_referente) doc.text(fd.nome_referente, 53, y);
+
+  // Cellulare + Codice SDI/PEC
+  y += 10;
+  doc.setFontSize(7);
+  doc.setTextColor(...C.medGray);
+  doc.text('Cellulare', 20, y);
+  doc.line(38, y, 105, y);
+  doc.text('Codice SDI/PEC', 112, y);
+  doc.line(140, y, 190, y);
+  doc.setFontSize(9);
+  doc.setTextColor(...C.text);
+  if (fd.cellulare) doc.text(fd.cellulare, 39, y);
+  if (fd.sdi_pec) doc.text(fd.sdi_pec, 141, y);
+
+  // Email
+  y += 10;
+  doc.setFontSize(7);
+  doc.setTextColor(...C.medGray);
+  doc.text('Email', 20, y);
+  doc.line(32, y, 190, y);
+  doc.setFontSize(9);
+  doc.setTextColor(...C.text);
+  if (fd.email) doc.text(fd.email, 33, y);
+
+  // ── Costo del Servizio ──
+  y += 14;
+  doc.setFontSize(14);
+  doc.setFont('helvetica', 'bold');
+  doc.setTextColor(...C.navy);
+  doc.text('Costo del Servizio Buoni Pasto', 20, y);
+  y += 3;
+  doc.setDrawColor(...C.gold);
+  doc.setLineWidth(0.5);
+  doc.line(20, y, 120, y);
+
+  y += 7;
+  doc.setFontSize(9);
+  doc.setFont('helvetica', 'normal');
+  doc.setTextColor(...C.text);
+  doc.text('Valore facciale del buono pasto:', 20, y);
+  doc.setFont('helvetica', 'bold');
+  doc.text(fd.valore_buono ? `€ ${fd.valore_buono} IVA esclusa` : '________________ € IVA esclusa', 80, y);
+
+  y += 7;
+  doc.setFont('helvetica', 'normal');
+  doc.setFontSize(8.5);
+  doc.setTextColor(...C.darkGray);
+  const costoLines = [
+    'Per il servizio di fornitura dei Buoni Pasto, viene applicata una commissione di servizio',
+    'calcolata come segue:',
+    '',
+    '    •  5% sull\'importo totale fino a € 30.000',
+    '    •  3% sull\'importo eccedente € 30.000',
+    '',
+    'La commissione di servizio verrà fatturata contestualmente alla fornitura dei buoni.'
+  ];
+  costoLines.forEach(line => {
+    doc.text(line, 20, y);
+    y += 4.5;
+  });
+
+  // ── Condizioni e termini di pagamento ──
+  y += 4;
+  doc.setFontSize(14);
+  doc.setFont('helvetica', 'bold');
+  doc.setTextColor(...C.navy);
+  doc.text('Condizioni e termini di pagamento', 20, y);
+  y += 3;
+  doc.setDrawColor(...C.gold);
+  doc.setLineWidth(0.5);
+  doc.line(20, y, 130, y);
+
+  y += 7;
+  doc.setFontSize(8.5);
+  doc.setFont('helvetica', 'normal');
+  doc.setTextColor(...C.text);
+  doc.text('I pagamenti delle fatture saranno effettuati anticipatamente mediante', 20, y);
+  y += 4.5;
+  doc.text('bonifico bancario CLIK APP SRL – Banca delle Alpi Marittime gruppo BCC Iccrea:', 20, y);
+  y += 4.5;
+  doc.setFont('helvetica', 'bold');
+  doc.text('IBAN IT61L0845001000000000006545', 20, y);
+  doc.setFont('helvetica', 'normal');
+
+  drawBPFooterBand(doc);
+
+  // ──────── PAGINA 2 ────────
+  doc.addPage();
+  drawBPHeader(doc);
+
+  y = 28;
+  doc.setFontSize(9);
+  doc.setFont('helvetica', 'normal');
+  doc.setTextColor(...C.text);
+  doc.text('Con i ', 20, y);
+  doc.setFont('helvetica', 'bold');
+  doc.text('Buoni Pasto Consorzio Imprenditori', 32, y);
+  doc.setFont('helvetica', 'normal');
+  doc.text(' la vostra azienda non dovrà più', 98, y);
+  y += 5;
+  doc.text('sostenere nessun costo diretto o indiretto e i Buoni saranno caricati in tempo', 20, y);
+  y += 5;
+  doc.text('reale nel portafoglio digitale di ogni dipendente che avrà sempre sotto controllo', 20, y);
+  y += 5;
+  doc.text('sull\'app il saldo residuo.', 20, y);
+
+  y += 8;
+  doc.text('Inoltre grazie al sistema ', 20, y);
+  doc.setFont('helvetica', 'bold');
+  doc.text('geolocalizzato integrato', 62, y);
+  doc.setFont('helvetica', 'normal');
+  doc.text(', ogni dipendente potrà', 103, y);
+  y += 5;
+  doc.text('visionare in tempo reale sull\'app tutti i punti vendita convenzionati e nel caso', 20, y);
+  y += 5;
+  doc.text('gradisse l\'attivazione di un esercizio mancante, questo sarà contattato per', 20, y);
+  y += 5;
+  doc.text('l\'attivazione.', 20, y);
+
+  // Vantaggi per l'azienda
+  y += 10;
+  doc.setFontSize(9);
+  doc.setTextColor(...C.text);
+  doc.text('Vantaggi per l\'azienda nell\'utilizzare i Buoni Pasto Consorzio Imprenditori:', 20, y);
+
+  y += 8;
+  const vantaggi = [
+    'Sono totalmente esenti da oneri fiscali e previdenziali',
+    'Sono deducibili al 100% rispetto a IRAP e IRES e non sono sottoposti a costi IRPEF',
+    'L\'IVA al 4% è interamente detraibile',
     'Zero costi di gestione del servizio',
     'Ottimizzazione attività contabili e pratiche amministrative',
-    'Limite esenzione fiscale 10€ sui Buoni Pasto digitali',
+    'Limite esenzione fiscale 8€ sui Buoni Pasto Consorzio Imprenditori',
     'Attivazione di locali graditi',
-  ], y);
+  ];
+  vantaggi.forEach((v) => {
+    // Icona fulmine verde (simula con triangolo)
+    doc.setFillColor(0, 160, 80);
+    doc.triangle(23, y - 2.5, 25, y + 0.5, 21, y + 0.5, 'F');
+    doc.setFontSize(9);
+    doc.setFont('helvetica', 'bold');
+    doc.setTextColor(...C.text);
+    doc.text(v, 29, y);
+    doc.setFont('helvetica', 'normal');
+    y += 7;
+  });
 
-  drawFooterArea(doc, fd);
+  // ── Firma ──
+  y += 8;
+  const today = new Date().toLocaleDateString('it-IT', { day: '2-digit', month: 'long', year: 'numeric' });
+
+  doc.setFontSize(9);
+  doc.setTextColor(...C.darkGray);
+  doc.text('Luogo, data', 20, y);
+  doc.text('Clik App Srl', 140, y);
+
+  y += 6;
+  doc.setDrawColor(...C.text);
+  doc.setLineWidth(0.3);
+  doc.line(20, y, 80, y);
+  doc.line(140, y, 190, y);
+
+  y += 14;
+  doc.setFontSize(9);
+  doc.text('Firma e timbro per accettazione', 20, y);
+
+  y += 6;
+  doc.setDrawColor(...C.text);
+  doc.setLineWidth(0.4);
+  doc.line(20, y, 190, y);
+
+  drawBPFooterBand(doc);
+
   return doc;
 }
 
