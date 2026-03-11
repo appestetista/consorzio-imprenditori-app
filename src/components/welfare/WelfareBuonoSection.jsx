@@ -49,36 +49,55 @@ function NormativaBuoniSpesa() {
   return (
     <div className="space-y-4">
       <div className="bg-slate-800 border border-slate-700 rounded-xl p-4">
-        <h3 className="text-white font-semibold text-sm mb-2">📋 Cosa sono i Fringe Benefit / Buoni Spesa?</h3>
+        <h3 className="text-white font-semibold text-sm mb-2">📋 Cosa sono i Buoni Spesa?</h3>
         <p className="text-slate-300 text-xs leading-relaxed">
-          I <span className="text-pink-400 font-medium">buoni spesa</span> rientrano nei <strong className="text-white">fringe benefit</strong> — beni e servizi che <span className="text-green-400 font-medium">non concorrono al reddito imponibile</span> entro specifici limiti annuali (Art. 51, comma 3 TUIR).
+          I <span className="text-pink-400 font-medium">buoni spesa</span> rientrano nella categoria dei <strong className="text-white">fringe benefit</strong> — compensi in natura erogati dal datore di lavoro ai dipendenti che <span className="text-green-400 font-medium">non concorrono alla formazione del reddito</span> entro specifiche soglie annuali.
         </p>
-      </div>
-      <div className="bg-slate-800 border border-slate-700 rounded-xl p-4">
-        <h3 className="text-white font-semibold text-sm mb-2">💶 Soglie di esenzione annuali</h3>
-        <div className="grid grid-cols-2 gap-3">
-          <div className="bg-slate-900 rounded-lg p-3 text-center">
-            <p className="text-slate-400 text-[10px] mb-1">Senza figli</p>
-            <p className="text-white text-xl font-bold">€1.000</p>
-            <p className="text-slate-500 text-[10px]">annui/dipendente</p>
-          </div>
-          <div className="bg-gradient-to-br from-pink-500/20 to-rose-500/20 rounded-lg p-3 text-center border border-pink-500/30">
-            <p className="text-pink-300 text-[10px] mb-1">Con figli</p>
-            <p className="text-pink-400 text-xl font-bold">€2.000</p>
-            <p className="text-pink-300/70 text-[10px]">annui/dipendente</p>
-          </div>
+        <div className="mt-2 bg-slate-900 rounded-lg p-2">
+          <p className="text-slate-400 text-[10px]">📜 <span className="text-slate-300">Riferimento:</span> Art. 51, comma 3, TUIR (D.P.R. 917/1986) — Soglie stabilizzate dalla L. 207/2024 (Legge di Bilancio 2025) per il triennio 2025-2027.</p>
         </div>
       </div>
+      <div className="bg-slate-800 border border-slate-700 rounded-xl p-4">
+        <h3 className="text-white font-semibold text-sm mb-2">💶 Soglie di esenzione annuali (Fringe Benefit)</h3>
+        <p className="text-slate-400 text-[10px] mb-2">La soglia ordinaria è €258,23 — deroga triennale 2025-2027:</p>
+        <div className="grid grid-cols-2 gap-3">
+          <div className="bg-slate-900 rounded-lg p-3 text-center">
+            <p className="text-slate-400 text-[10px] mb-1">Senza figli a carico</p>
+            <p className="text-white text-xl font-bold">€1.000</p>
+            <p className="text-slate-500 text-[10px]">annui / dipendente</p>
+          </div>
+          <div className="bg-gradient-to-br from-pink-500/20 to-rose-500/20 rounded-lg p-3 text-center border border-pink-500/30">
+            <p className="text-pink-300 text-[10px] mb-1">Con figli a carico</p>
+            <p className="text-pink-400 text-xl font-bold">€2.000</p>
+            <p className="text-pink-300/70 text-[10px]">annui / dipendente</p>
+          </div>
+        </div>
+        <p className="text-slate-500 text-[9px] mt-2 leading-relaxed">Figli a carico: reddito ≤ €4.000 (under 24) o ≤ €2.840,51 (over 24). Il dipendente deve presentare dichiarazione con CF dei figli.</p>
+      </div>
       <div className="bg-green-500/10 border border-green-500/30 rounded-xl p-3">
-        <p className="text-green-400 text-xs font-medium mb-1">✅ Vantaggi per l'azienda:</p>
+        <p className="text-green-400 text-xs font-medium mb-1">✅ Vantaggi per l'azienda (entro la soglia):</p>
         <ul className="text-slate-300 text-xs space-y-0.5">
-          <li>• Costo 100% deducibile</li>
-          <li>• Nessun contributo INPS</li>
-          <li>• Nessuna ritenuta fiscale</li>
+          <li>• Costo deducibile dal reddito d'impresa</li>
+          <li>• Nessun contributo INPS/INAIL</li>
+          <li>• Nessuna ritenuta IRPEF per il dipendente</li>
         </ul>
       </div>
       <div className="bg-red-500/10 border border-red-500/30 rounded-xl p-3">
-        <p className="text-slate-300 text-xs">⚠️ <strong className="text-red-400">Attenzione:</strong> Se superi anche di 1€ la soglia, perdi TUTTA l'esenzione sull'intero importo.</p>
+        <p className="text-slate-300 text-xs">⚠️ <strong className="text-red-400">Attenzione — effetto "tutto o niente":</strong> se il totale dei fringe benefit annui supera anche di 1€ la soglia, <strong className="text-red-400">l'intero importo</strong> (non solo l'eccedenza) diventa imponibile a fini fiscali e contributivi.</p>
+      </div>
+      <div className="bg-slate-800 border border-slate-700 rounded-xl p-4">
+        <h3 className="text-white font-semibold text-sm mb-2">ℹ️ Fringe Benefit vs Welfare Aziendale</h3>
+        <div className="space-y-2">
+          <div className="bg-pink-500/10 border border-pink-500/30 rounded-lg p-2">
+            <p className="text-pink-400 text-[10px] font-semibold">Fringe Benefit (art. 51, c.3 TUIR)</p>
+            <p className="text-slate-300 text-[10px]">Buoni spesa, gift card, beni in natura. Soglia: €1.000 / €2.000. Erogabili anche ad personam.</p>
+          </div>
+          <div className="bg-cyan-500/10 border border-cyan-500/30 rounded-lg p-2">
+            <p className="text-cyan-400 text-[10px] font-semibold">Welfare Aziendale (art. 51, c.2 TUIR)</p>
+            <p className="text-slate-300 text-[10px]">Servizi di istruzione, sanità, previdenza, trasporti, assistenza. <strong className="text-white">Nessun limite di importo</strong>. Richiede regolamento aziendale e destinazione a categorie omogenee di dipendenti.</p>
+          </div>
+        </div>
+        <p className="text-slate-400 text-[10px] mt-2 leading-relaxed">💡 I due strumenti sono cumulabili: puoi erogare fringe benefit fino alla soglia + servizi welfare senza limite, per lo stesso dipendente.</p>
       </div>
     </div>
   );
