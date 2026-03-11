@@ -33,6 +33,21 @@ const EXCEL_COLUMNS = {
   buoni_omaggio: ['Nome', 'Cognome', 'Email', 'Importo (€)', 'Codice Fiscale'],
 };
 
+// Mappa: campo form → campo entità User
+const FORM_TO_PROFILE = {
+  ragione_sociale: 'company_name',
+  email: 'company_email',
+  cellulare: 'cellulare_referente',
+  nome_referente: 'referente',
+  indirizzo: 'address',
+  comune: 'city',
+  cap: 'postal_code',
+  provincia: 'province',
+  piva: 'vat_number',
+  codice_fiscale: 'codice_fiscale',
+  sdi_pec: 'codice_sdi',
+};
+
 export default function WelfareOrdinaTab({ user, tipo = 'buoni_pasto' }) {
   const [formData, setFormData] = useState({});
   const [pdfGenerated, setPdfGenerated] = useState(false);
@@ -40,6 +55,7 @@ export default function WelfareOrdinaTab({ user, tipo = 'buoni_pasto' }) {
   const [showForm, setShowForm] = useState(false);
   const [simulazioneCompletata, setSimulazioneCompletata] = useState(false);
   const [datiSimulazione, setDatiSimulazione] = useState(null);
+  const [savingProfile, setSavingProfile] = useState(false);
 
   // Pre-compila dal profilo utente (campi reali entità User)
   useEffect(() => {
@@ -60,6 +76,36 @@ export default function WelfareOrdinaTab({ user, tipo = 'buoni_pasto' }) {
       }));
     }
   }, [user]);
+
+  // Salva modifiche form anche nel profilo utente (debounce)
+  const saveTimeoutRef = React.useRef(null);
+  const lastSavedRef = React.useRef({});
+
+  const handleFormDataChange = React.useCallback((updater) => {
+    setFormData(prev => {
+      const next = typeof updater === 'function' ? updater(prev) : updater;
+      // Trova campi modificati che hanno mapping al profilo
+      const profileUpdate = {};
+      for (const [formKey, profileKey] of Object.entries(FORM_TO_PROFILE)) {
+        if (next[formKey] !== undefined && next[formKey] !== lastSavedRef.current[formKey]) {
+          profileUpdate[profileKey] = next[formKey];
+        }
+      }
+      if (Object.keys(profileUpdate).length > 0) {
+        if (saveTimeoutRef.current) clearTimeout(saveTimeoutRef.current);
+        saveTimeoutRef.current = setTimeout(async () => {
+          setSavingProfile(true);
+          await base44.auth.updateMe(profileUpdate);
+          // Aggiorna ref per evitare salvataggi duplicati
+          for (const [formKey] of Object.entries(FORM_TO_PROFILE)) {
+            if (next[formKey] !== undefined) lastSavedRef.current[formKey] = next[formKey];
+          }
+          setSavingProfile(false);
+        }, 1500);
+      }
+      return next;
+    });
+  }, []);
 
   const isFormValid = formData.ragione_sociale && formData.email && formData.piva && formData.cellulare;
 
