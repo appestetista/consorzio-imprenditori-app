@@ -92,9 +92,9 @@ export default function WelfareSimulazione({ valoreBuono, tipo, onProcedi, userE
           <div className="flex items-center justify-between">
             <div className="flex items-center gap-2">
               <div className="w-2 h-2 rounded-full bg-green-400" />
-              <span className="text-slate-300 text-xs">Valore ai {labels[tipo] || 'destinatari'}</span>
+              <span className="text-slate-300 text-xs">Valore ai {labels[tipo] || 'destinatari'}{tipo === 'buoni_pasto' ? ' /mese' : ''}</span>
             </div>
-            <span className="text-green-400 font-bold text-sm">€ {fmt(totaleDestinatari)}</span>
+            <span className="text-green-400 font-bold text-sm">€ {fmt(totaleDestinatari)}{tipo === 'buoni_pasto' ? '/mese' : ''}</span>
           </div>
           <div className="text-slate-500 text-[10px] pl-4">
             {tipo === 'buoni_pasto' ? (
@@ -108,9 +108,9 @@ export default function WelfareSimulazione({ valoreBuono, tipo, onProcedi, userE
           <div className="flex items-center justify-between">
             <div className="flex items-center gap-2">
               <div className="w-2 h-2 rounded-full bg-amber-400" />
-              <span className="text-slate-300 text-xs">Costo servizio</span>
+              <span className="text-slate-300 text-xs">Costo servizio{tipo === 'buoni_pasto' ? ' /mese' : ''}</span>
             </div>
-            <span className="text-amber-400 font-bold text-sm">€ {fmt(commissione)}</span>
+            <span className="text-amber-400 font-bold text-sm">€ {fmt(commissione)}{tipo === 'buoni_pasto' ? '/mese' : ''}</span>
           </div>
           <div className="text-slate-500 text-[10px] pl-4">
             {totaleDestinatari <= 30000 ? (
@@ -126,16 +126,16 @@ export default function WelfareSimulazione({ valoreBuono, tipo, onProcedi, userE
             <div className="flex items-center justify-between">
               <div className="flex items-center gap-2">
                 <Euro className="w-3.5 h-3.5 text-pink-400" />
-                <span className="text-white font-semibold text-xs">Totale a carico dell&#39;azienda</span>
+                <span className="text-white font-semibold text-xs">Totale a carico dell&#39;azienda{tipo === 'buoni_pasto' ? ' /mese' : ''}</span>
               </div>
-              <span className="text-pink-400 font-bold text-base">€ {fmt(totaleImprenditore)}</span>
+              <span className="text-pink-400 font-bold text-base">€ {fmt(totaleImprenditore)}{tipo === 'buoni_pasto' ? '/mese' : ''}</span>
             </div>
           </div>
 
           {/* Riepilogo visuale */}
           <div className="bg-slate-800/50 rounded-lg p-2 mt-1">
             <div className="flex items-center gap-1 text-[10px] flex-wrap">
-              <span className="text-pink-400 font-semibold">€ {fmt(totaleImprenditore)}</span>
+              <span className="text-pink-400 font-semibold">€ {fmt(totaleImprenditore)}{tipo === 'buoni_pasto' ? '/mese' : ''}</span>
               <span className="text-slate-500">=</span>
               <span className="text-green-400">€ {fmt(totaleDestinatari)}</span>
               <span className="text-slate-500">({labels[tipo] || 'destinatari'})</span>
@@ -159,7 +159,7 @@ export default function WelfareSimulazione({ valoreBuono, tipo, onProcedi, userE
                 <div className="w-4 h-4 rounded-full bg-pink-500/20 flex items-center justify-center flex-shrink-0 mt-0.5">
                   <CreditCard className="w-2.5 h-2.5 text-pink-400" />
                 </div>
-                <span className="text-slate-300 text-[11px]"><strong>2.</strong> Dovrai <strong>bonificare l&#39;importo totale</strong> di € {fmt(totaleImprenditore)}</span>
+                <span className="text-slate-300 text-[11px]"><strong>2.</strong> Dovrai <strong>bonificare l&#39;importo{tipo === 'buoni_pasto' ? ' mensile' : ' totale'}</strong> di € {fmt(totaleImprenditore)}{tipo === 'buoni_pasto' ? '/mese' : ''}</span>
               </div>
               <div className="flex items-start gap-2">
                 <div className="w-4 h-4 rounded-full bg-pink-500/20 flex items-center justify-center flex-shrink-0 mt-0.5">
