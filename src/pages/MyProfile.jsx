@@ -1369,11 +1369,22 @@ export default function MyProfile() {
               </Select>
             </div>
             <div>
-              <Label className="text-slate-400 text-sm mb-1 block">Forma giuridica</Label>
+              <Label className="text-lime-400 text-sm font-medium mb-1 block">Tipo di Società (obbligatorio)</Label>
               <Select value={formData.forma_giuridica || undefined} onValueChange={(v) => setFormData({...formData, forma_giuridica: v})}>
-                <SelectTrigger className="bg-slate-900 border-slate-700 text-white"><SelectValue placeholder="Seleziona forma" /></SelectTrigger>
+                <SelectTrigger className="bg-lime-400/10 border-lime-400 text-white"><SelectValue placeholder="Seleziona tipo società" /></SelectTrigger>
                 <SelectContent>
-                  {['Ditta individuale','SRL','SRLS','SAS','SNC','SPA','Cooperativa','Altro'].map(o => <SelectItem key={o} value={o}>{o}</SelectItem>)}
+                  <SelectItem value="SS">SS – Società semplice</SelectItem>
+                  <SelectItem value="SNC">SNC – Società in nome collettivo</SelectItem>
+                  <SelectItem value="SAS">SAS – Società in accomandita semplice</SelectItem>
+                  <SelectItem value="SRL">SRL – Società a responsabilità limitata</SelectItem>
+                  <SelectItem value="SRLU">SRLU – SRL unipersonale</SelectItem>
+                  <SelectItem value="SPA">SPA – Società per azioni</SelectItem>
+                  <SelectItem value="SAPA">SAPA – Società in accomandita per azioni</SelectItem>
+                  <SelectItem value="COOP">COOP – Cooperativa</SelectItem>
+                  <SelectItem value="RF">RF – Regime forfettario</SelectItem>
+                  <SelectItem value="SE">SE – Società Europea</SelectItem>
+                  <SelectItem value="Ditta individuale">Ditta individuale</SelectItem>
+                  <SelectItem value="Altro">Altro</SelectItem>
                 </SelectContent>
               </Select>
             </div>
