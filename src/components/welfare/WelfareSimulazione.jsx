@@ -14,7 +14,7 @@ function fmt(n) {
   return n.toLocaleString('it-IT', { minimumFractionDigits: 2, maximumFractionDigits: 2 });
 }
 
-export default function WelfareSimulazione({ valoreBuono, tipo, onProcedi }) {
+export default function WelfareSimulazione({ valoreBuono, tipo, onProcedi, userEmail }) {
   const [numPersone, setNumPersone] = useState('');
 
   const valore = parseEuro(valoreBuono);
