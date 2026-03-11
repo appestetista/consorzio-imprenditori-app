@@ -78,6 +78,20 @@ export default function WelfareOrdinaTab({ user, tipo = 'buoni_pasto' }) {
     }
   }, [user]);
 
+  // Ricarica locale_preferito dal profilo aggiornato (se cambiato da catalogo)
+  useEffect(() => {
+    if (user && tipo === 'buoni_pasto') {
+      base44.auth.me().then(freshUser => {
+        if (freshUser?.locale_preferito_buoni_pasto) {
+          setFormData(prev => ({
+            ...prev,
+            locale_preferito: prev.locale_preferito || freshUser.locale_preferito_buoni_pasto,
+          }));
+        }
+      }).catch(() => {});
+    }
+  }, [tipo]);
+
   // Salva modifiche form anche nel profilo utente (debounce)
   const saveTimeoutRef = useRef(null);
   const lastSavedRef = useRef({});
