@@ -116,6 +116,27 @@ export default function CatalogoBuoniPasto() {
           />
         </div>
 
+        {/* Info personalizzazione locali */}
+        {!searchTerm && (
+          <Card className="bg-slate-800/80 border-slate-700 mb-6">
+            <CardContent className="p-4">
+              <div className="flex items-start gap-3">
+                <div className="w-9 h-9 rounded-full bg-pink-500/20 flex items-center justify-center flex-shrink-0 mt-0.5">
+                  <Utensils className="w-4 h-4 text-pink-400" />
+                </div>
+                <div>
+                  <h4 className="text-white font-semibold text-sm mb-1">Scegli tu dove far spendere i tuoi dipendenti</h4>
+                  <p className="text-slate-400 text-xs leading-relaxed">
+                    Puoi personalizzare liberamente i locali dove i tuoi dipendenti potranno utilizzare i buoni pasto. 
+                    Se hai un ristorante, bar o esercizio di fiducia che non è ancora convenzionato, 
+                    <span className="text-pink-400 font-medium"> segnalacelo e penseremo noi a contattarlo</span> per attivare la convenzione.
+                  </p>
+                </div>
+              </div>
+            </CardContent>
+          </Card>
+        )}
+
         {/* Brand principali con logo */}
         {!searchTerm && (
           <div className="mb-6">
