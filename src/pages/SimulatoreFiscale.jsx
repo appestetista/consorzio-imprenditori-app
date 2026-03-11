@@ -1,6 +1,6 @@
-import React, { useState, useEffect } from 'react';
+import React, { useState, useEffect, useMemo } from 'react';
 import { base44 } from '@/api/base44Client';
-import { ArrowLeft, Calculator, History } from 'lucide-react';
+import { ArrowLeft, Calculator, History, AlertCircle } from 'lucide-react';
 import { Link } from 'react-router-dom';
 import { createPageUrl } from '@/utils';
 import Header from '../components/layout/Header';
@@ -15,6 +15,7 @@ import MultiScenarioCompenso from '../components/fiscale/MultiScenarioCompenso';
 import GestioneAliquoteIRAP from '../components/fiscale/GestioneAliquoteIRAP';
 import AnalisiBilancio from '../components/fiscale/AnalisiBilancio';
 import GlobalTopIcons from '../components/layout/GlobalTopIcons';
+import { getTabsForSocieta } from '../components/fiscale/societaTabs';
 
 export default function SimulatoreFiscale() {
   const [effectiveUser, setEffectiveUser] = useState(null);
