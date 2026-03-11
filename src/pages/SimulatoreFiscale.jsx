@@ -23,6 +23,7 @@ export default function SimulatoreFiscale() {
   const [loading, setLoading] = useState(false);
   const [result, setResult] = useState(null);
   const [view, setView] = useState(null);
+  const [showFormaPopup, setShowFormaPopup] = useState(false);
   const { impersonation, appMode } = useImpersonation();
 
   // Tabs dinamici in base al tipo di società dell'utente
