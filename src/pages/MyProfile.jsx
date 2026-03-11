@@ -18,6 +18,7 @@ import ProfiloBandiForm from '../components/profile/ProfiloBandiForm';
 import NotificationPreferences from '../components/profile/NotificationPreferences';
 import ContractHistorySection from '../components/profile/ContractHistorySection';
 import ExportProfileSection from '../components/profile/ExportProfileSection';
+import WelfareRiepilogoSection from '../components/profile/WelfareRiepilogoSection';
 import { Switch } from '@/components/ui/switch';
 import { Checkbox } from '@/components/ui/checkbox';
 import { PhoneOff, PhoneCall, AlertTriangle as AlertTriangleIcon, EyeOff, UserPlus, Minus, Plus } from 'lucide-react';
@@ -1339,6 +1340,8 @@ export default function MyProfile() {
             />
           </CardContent>
         </Card>
+
+        <WelfareRiepilogoSection userEmail={user?.email} />
 
         <ExportProfileSection formData={formData} setFormData={setFormData} />
 
