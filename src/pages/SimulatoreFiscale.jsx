@@ -30,12 +30,25 @@ export default function SimulatoreFiscale() {
   const userFormaGiuridica = effectiveUser?.forma_giuridica || null;
   const tabs = useMemo(() => getTabsForSocieta(userFormaGiuridica), [userFormaGiuridica]);
 
+  // Mostra popup se forma giuridica mancante
+  useEffect(() => {
+    if (effectiveUser && !effectiveUser.forma_giuridica) {
+      setShowFormaPopup(true);
+    }
+  }, [effectiveUser]);
+
   // Imposta la prima tab quando i tabs cambiano
   useEffect(() => {
     if (tabs.length > 0 && (!view || view === null)) {
       setView(tabs[0].id);
     }
   }, [tabs]);
+
+  const handleFormaSelected = (forma) => {
+    setShowFormaPopup(false);
+    setEffectiveUser(prev => ({ ...prev, forma_giuridica: forma }));
+    setView(null); // reset view so it picks up the first tab from new tabs
+  };
 
   useEffect(() => {
     window.scrollTo(0, 0);
