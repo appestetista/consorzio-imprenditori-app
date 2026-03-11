@@ -42,15 +42,15 @@ export default function WelfareSimulazione({ valoreBuono, tipo, onProcedi, userE
     buoni_omaggio: 'destinatari',
   };
 
-  if (!valoreBuono) return null;
-
-  const showResults = persone > 0 && valore > 0 && (tipo !== 'buoni_pasto' || qta > 0);
+  const showResults = valoreBuono && persone > 0 && valore > 0 && (tipo !== 'buoni_pasto' || qta > 0);
 
   useEffect(() => {
     if (showResults && onProcedi) {
       onProcedi({ numPersone: persone, totaleDestinatari, commissione, totaleImprenditore, quantitaPerPersona: qta });
     }
   }, [showResults, persone, totaleDestinatari, commissione, totaleImprenditore, qta]);
+
+  if (!valoreBuono) return null;
 
   return (
     <div className="mt-4 space-y-3">
