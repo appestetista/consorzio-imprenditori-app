@@ -1,8 +1,9 @@
 import React, { useState } from 'react';
-import { Calculator, Users, Euro, FileText, CreditCard, Upload, ChevronRight, TrendingUp, Lightbulb, ShieldCheck, ArrowRight } from 'lucide-react';
+import { Calculator, Users, Euro, FileText, CreditCard, Upload, ChevronRight } from 'lucide-react';
 import { Input } from '@/components/ui/input';
 import { Button } from '@/components/ui/button';
 import { Card } from '@/components/ui/card';
+import WelfareInfoPanel from './WelfareInfoPanel';
 
 function parseEuro(str) {
   if (!str) return 0;
