@@ -124,6 +124,8 @@ export default function WelfareOrdinaTab({ user, tipo = 'buoni_pasto' }) {
 
   const isFormValid = formData.ragione_sociale && formData.email && formData.piva && formData.cellulare;
 
+  const [showPdfPopup, setShowPdfPopup] = useState(false);
+
   const handleGeneratePdf = () => {
     if (!isFormValid) {
       toast.error('Compila i campi obbligatori (*)');
@@ -131,11 +133,15 @@ export default function WelfareOrdinaTab({ user, tipo = 'buoni_pasto' }) {
     }
     const generator = GENERATORS[tipo];
     const doc = generator(formData);
-    const labels = { buoni_pasto: 'Buoni_Pasto', buoni_spesa: 'Buoni_Spesa', buoni_omaggio: 'Buoni_Omaggio' };
-    doc.save(`Contratto_${labels[tipo]}_${formData.ragione_sociale.replace(/\s+/g, '_')}.pdf`);
-    setPdfGenerated(true);
+    const labelsFile = { buoni_pasto: 'Buoni_Pasto', buoni_spesa: 'Buoni_Spesa', buoni_omaggio: 'Buoni_Omaggio' };
+    doc.save(`Contratto_${labelsFile[tipo]}_${formData.ragione_sociale.replace(/\s+/g, '_')}.pdf`);
     setShowForm(false);
-    toast.success('PDF generato! Scaricalo, firmalo e ricaricalo qui sotto.');
+    setShowPdfPopup(true);
+  };
+
+  const handlePdfPopupClose = () => {
+    setShowPdfPopup(false);
+    setPdfGenerated(true);
   };
 
   const handleContractUpload = async (e) => {
