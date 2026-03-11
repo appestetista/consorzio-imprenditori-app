@@ -20,7 +20,7 @@ export default function SimulatoreFiscale() {
   const [effectiveUser, setEffectiveUser] = useState(null);
   const [loading, setLoading] = useState(false);
   const [result, setResult] = useState(null);
-  const [view, setView] = useState('form'); // 'form' | 'result' | 'storico' | 'confronto_srl' | 'multi_scenario' | 'bilancio' | 'aliquote'
+  const [view, setView] = useState('bilancio'); // 'bilancio' | 'iva' | 'irpef' | 'ires' | 'inps' | 'dividendi' | 'netto' | 'result' | 'storico' | 'aliquote'
   const { impersonation, appMode } = useImpersonation();
 
   useEffect(() => {
