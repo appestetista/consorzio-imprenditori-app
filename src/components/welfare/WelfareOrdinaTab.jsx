@@ -202,6 +202,11 @@ export default function WelfareOrdinaTab({ user, tipo = 'buoni_pasto' }) {
                 onProcedi={(dati) => { setSimulazioneCompletata(true); setDatiSimulazione(dati); }}
               />
             )}
+            {tipo === 'buoni_pasto' && (
+              <div className="mt-4">
+                <WelfareInfoPanel tipo="buoni_pasto" valore={8} persone={formData.valore_buono ? 1 : 0} userEmail={user?.email} />
+              </div>
+            )}
             {(tipo === 'buoni_pasto' || simulazioneCompletata) && (
               <Button onClick={handleGeneratePdf} className="w-full mt-4 bg-pink-500 hover:bg-pink-600 text-white font-bold text-xs">
                 <Download className="w-4 h-4 mr-2" />
