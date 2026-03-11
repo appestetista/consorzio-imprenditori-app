@@ -1,11 +1,14 @@
 import React, { useState, useEffect } from 'react';
 import { base44 } from '@/api/base44Client';
 import { useQuery } from '@tanstack/react-query';
-import { ArrowLeft, Gift, Search, Store, ShoppingCart, Utensils } from 'lucide-react';
+import { ArrowLeft, Gift, Search, Store, ShoppingCart, Utensils, Send, Loader2, CheckCircle } from 'lucide-react';
 import { Link } from 'react-router-dom';
 import { createPageUrl } from '@/utils';
 import { Card, CardContent } from '@/components/ui/card';
 import { Input } from '@/components/ui/input';
+import { Button } from '@/components/ui/button';
+import { Textarea } from '@/components/ui/textarea';
+import { toast } from 'sonner';
 import Header from '../components/layout/Header';
 import BottomNav from '../components/layout/BottomNav';
 
@@ -51,12 +54,19 @@ const tutteLeInsegne = [
 export default function CatalogoBuoniPasto() {
   const [user, setUser] = useState(null);
   const [searchTerm, setSearchTerm] = useState('');
+  const [localePreferito, setLocalePreferito] = useState('');
+  const [saving, setSaving] = useState(false);
+  const [saved, setSaved] = useState(false);
 
   useEffect(() => {
     const loadUser = async () => {
       try {
         const currentUser = await base44.auth.me();
         setUser(currentUser);
+        if (currentUser?.locale_preferito_buoni_pasto) {
+          setLocalePreferito(currentUser.locale_preferito_buoni_pasto);
+          setSaved(true);
+        }
       } catch (e) {
         console.error(e);
       }
@@ -120,18 +130,48 @@ export default function CatalogoBuoniPasto() {
         {!searchTerm && (
           <Card className="bg-slate-800/80 border-slate-700 mb-6">
             <CardContent className="p-4">
-              <div className="flex items-start gap-3">
+              <div className="flex items-start gap-3 mb-3">
                 <div className="w-9 h-9 rounded-full bg-pink-500/20 flex items-center justify-center flex-shrink-0 mt-0.5">
                   <Utensils className="w-4 h-4 text-pink-400" />
                 </div>
                 <div>
-                  <h4 className="text-white font-semibold text-sm mb-1">Scegli tu dove far spendere i tuoi dipendenti</h4>
+                  <h4 className="text-white font-semibold text-sm mb-1">Hai un locale preferito?</h4>
                   <p className="text-slate-400 text-xs leading-relaxed">
-                    Puoi personalizzare liberamente i locali dove i tuoi dipendenti potranno utilizzare i buoni pasto. 
-                    Se hai un ristorante, bar o esercizio di fiducia che non è ancora convenzionato, 
-                    <span className="text-pink-400 font-medium"> segnalacelo e penseremo noi a contattarlo</span> per attivare la convenzione.
+                    Puoi scegliere liberamente dove far spendere i buoni pasto ai tuoi dipendenti, anche al di fuori delle insegne convenzionate. 
+                    Indica il nome e l'indirizzo del locale: <span className="text-pink-400 font-medium">la nostra direzione lo contatterà</span> per verificare la disponibilità e attivare la convenzione. 
+                    Se disponibile, il locale verrà incluso nel contratto.
                   </p>
                 </div>
+              </div>
+              <div className="space-y-2">
+                <Textarea
+                  placeholder="Es. Ristorante Da Mario, Via Garibaldi 12, Torino..."
+                  value={localePreferito}
+                  onChange={(e) => { setLocalePreferito(e.target.value); setSaved(false); }}
+                  className="bg-slate-900/70 border-slate-600 text-white text-xs placeholder:text-slate-500 min-h-[60px] resize-none"
+                />
+                {saved ? (
+                  <div className="flex items-center gap-2 text-green-400 text-xs py-1">
+                    <CheckCircle className="w-3.5 h-3.5" />
+                    Salvato! Sarà riportato automaticamente nel contratto.
+                  </div>
+                ) : (
+                  <Button
+                    size="sm"
+                    disabled={!localePreferito.trim() || saving}
+                    onClick={async () => {
+                      setSaving(true);
+                      await base44.auth.updateMe({ locale_preferito_buoni_pasto: localePreferito.trim() });
+                      setSaving(false);
+                      setSaved(true);
+                      toast.success('Locale preferito salvato!');
+                    }}
+                    className="w-full bg-pink-500 hover:bg-pink-600 text-white text-xs"
+                  >
+                    {saving ? <Loader2 className="w-3.5 h-3.5 animate-spin mr-1" /> : <Send className="w-3.5 h-3.5 mr-1" />}
+                    Salva e inserisci nel contratto
+                  </Button>
+                )}
               </div>
             </CardContent>
           </Card>
