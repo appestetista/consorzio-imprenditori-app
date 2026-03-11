@@ -203,7 +203,7 @@ export default function WelfareOrdinaTab({ user, tipo = 'buoni_pasto' }) {
             )}
             {tipo === 'buoni_pasto' && formData.valore_buono && (
               <div className="mt-4">
-                <WelfareInfoPanel tipo="buoni_pasto" valore={600} persone={1} userEmail={user?.email} />
+                <WelfareInfoPanel tipo="buoni_pasto" valore={parseFloat((formData.valore_buono || '0').replace(/\./g, '').replace(',', '.')) || 0} persone={1} userEmail={user?.email} />
               </div>
             )}
             {(tipo === 'buoni_pasto' || simulazioneCompletata) && (
