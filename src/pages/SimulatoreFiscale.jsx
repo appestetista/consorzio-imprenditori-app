@@ -126,30 +126,54 @@ export default function SimulatoreFiscale() {
         )}
 
         {/* Contenuto */}
-        {view === 'form' && !loading && <SimulazioneForm onSubmit={handleCalcola} loading={loading} />}
-        
+        {view === 'bilancio' && <AnalisiBilancio />}
+
+        {view === 'iva' && (
+          <div className="bg-[#0a2540] border border-[#1a3a5c] rounded-xl p-6 text-center">
+            <p className="text-white font-medium text-lg mb-1">IVA</p>
+            <p className="text-slate-400 text-sm">Sezione in costruzione — Calcolo e monitoraggio IVA a debito/credito</p>
+          </div>
+        )}
+
+        {view === 'irpef' && (
+          <SimulazioneForm onSubmit={handleCalcola} loading={loading} />
+        )}
+
         {view === 'result' && !loading && result && (
           <SimulazioneResult
             result={result}
-            onNewScenario={() => { setView('form'); setResult(null); }}
+            onNewScenario={() => { setView('irpef'); setResult(null); }}
           />
         )}
 
-        {view === 'confronto_srl' && <ConfrontoPrelievoSRL />}
+        {view === 'ires' && <MultiScenarioCompenso />}
 
-        {view === 'multi_scenario' && <MultiScenarioCompenso />}
+        {view === 'inps' && (
+          <div className="bg-[#0a2540] border border-[#1a3a5c] rounded-xl p-6 text-center">
+            <p className="text-white font-medium text-lg mb-1">Contributi Pensione</p>
+            <p className="text-slate-400 text-sm">Sezione in costruzione — Simulazione contributi INPS</p>
+          </div>
+        )}
 
-        {view === 'bilancio' && <AnalisiBilancio />}
+        {view === 'dividendi' && <ConfrontoPrelievoSRL />}
+
+        {view === 'netto' && (
+          <StoricoSimulazioni
+            userEmail={effectiveUser?.email}
+            onSelect={handleSelectStorico}
+          />
+        )}
 
         {view === 'aliquote' && effectiveUser?.role === 'admin' && (
           <GestioneAliquoteIRAP user={effectiveUser} />
         )}
 
-        {view === 'storico' && (
-          <StoricoSimulazioni
-            userEmail={effectiveUser?.email}
-            onSelect={handleSelectStorico}
-          />
+        {loading && view !== 'result' && (
+          <div className="bg-[#0a2540] border border-[#1a3a5c] rounded-xl p-6 text-center mb-4">
+            <div className="animate-spin rounded-full h-10 w-10 border-t-2 border-b-2 border-[#d4af37] mx-auto mb-3"></div>
+            <p className="text-white font-medium">Calcolo imposte in corso...</p>
+            <p className="text-slate-400 text-sm mt-1">Formule deterministiche basate su aliquote vigenti</p>
+          </div>
         )}
       </main>
 
