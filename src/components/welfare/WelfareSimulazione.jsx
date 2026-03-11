@@ -1,7 +1,6 @@
 import React, { useState, useEffect } from 'react';
 import { Calculator, Users, Euro, FileText, CreditCard, Upload, Hash } from 'lucide-react';
 import { Input } from '@/components/ui/input';
-import { Button } from '@/components/ui/button';
 import { Card } from '@/components/ui/card';
 import WelfareInfoPanel from './WelfareInfoPanel';
 
