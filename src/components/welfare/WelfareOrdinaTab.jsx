@@ -6,7 +6,6 @@ import { Button } from '@/components/ui/button';
 import { toast } from 'sonner';
 import ContractFormFields from './ContractFormFields';
 import WelfareSimulazione from './WelfareSimulazione';
-import WelfareInfoPanel from './WelfareInfoPanel';
 import { generateBuoniPastoPdf, generateBuoniSpesaPdf, generateBuoniOmaggioPdf } from './generateContractPdf';
 
 const GENERATORS = {
