@@ -1,4 +1,4 @@
-import React, { useState, useEffect } from 'react';
+import React, { useState, useEffect, useRef, useCallback } from 'react';
 import { base44 } from '@/api/base44Client';
 import { Download, Upload, CheckCircle, Loader2, X, FileSpreadsheet, FileText, ChevronDown, ChevronUp } from 'lucide-react';
 import { Card, CardContent } from '@/components/ui/card';
@@ -192,7 +192,7 @@ export default function WelfareOrdinaTab({ user, tipo = 'buoni_pasto' }) {
           </h3>
           <p className="text-slate-400 text-[10px] mb-2">Pre-compilati dal tuo profilo. Tocca ✏️ per modificare.</p>
           <div className="mt-3">
-            <ContractFormFields formData={formData} setFormData={setFormData} extraFields={extraFields} />
+            <ContractFormFields formData={formData} setFormData={handleFormDataChange} extraFields={extraFields} />
             {(tipo === 'buoni_spesa' || tipo === 'buoni_omaggio') && (
               <WelfareSimulazione
                 valoreBuono={formData.valore_buono}
