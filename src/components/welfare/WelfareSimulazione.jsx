@@ -170,14 +170,7 @@ export default function WelfareSimulazione({ valoreBuono, tipo, onProcedi, userE
             </div>
           </div>
 
-          {/* Bottone Procedi */}
-          <Button
-            onClick={() => onProcedi && onProcedi({ numPersone: persone, totaleDestinatari, commissione, totaleImprenditore, quantitaPerPersona: qta })}
-            className="w-full mt-2 bg-gradient-to-r from-pink-500 to-rose-500 hover:opacity-90 text-white font-bold text-sm"
-          >
-            Procediamo a creare il contratto
-            <ChevronRight className="w-4 h-4 ml-2" />
-          </Button>
+
         </Card>
       )}
 
