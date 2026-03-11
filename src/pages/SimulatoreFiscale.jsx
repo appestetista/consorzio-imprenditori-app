@@ -142,40 +142,50 @@ export default function SimulatoreFiscale() {
         {/* Contenuto */}
         {view === 'bilancio' && <AnalisiBilancio />}
 
-        {view === 'iva' && (
-          <div className="bg-[#0a2540] border border-[#1a3a5c] rounded-xl p-6 text-center">
-            <p className="text-white font-medium text-lg mb-1">IVA</p>
-            <p className="text-slate-400 text-sm">Sezione in costruzione — Calcolo e monitoraggio IVA a debito/credito</p>
-          </div>
+        {(view === 'iva' || view === 'iva_ue') && (
+          <PlaceholderSection title={view === 'iva_ue' ? 'IVA UE' : 'IVA'} desc="Calcolo e monitoraggio IVA a debito/credito" />
         )}
 
-        {view === 'irpef' && (
+        {(view === 'irpef' || view === 'compenso') && (
           <SimulazioneForm onSubmit={handleCalcola} loading={loading} />
         )}
 
         {view === 'result' && !loading && result && (
           <SimulazioneResult
             result={result}
-            onNewScenario={() => { setView('irpef'); setResult(null); }}
+            onNewScenario={() => { setView(tabs[0]?.id || 'bilancio'); setResult(null); }}
           />
         )}
 
         {view === 'ires' && <MultiScenarioCompenso />}
 
-        {view === 'inps' && (
-          <div className="bg-[#0a2540] border border-[#1a3a5c] rounded-xl p-6 text-center">
-            <p className="text-white font-medium text-lg mb-1">Contributi Pensione</p>
-            <p className="text-slate-400 text-sm">Sezione in costruzione — Simulazione contributi INPS</p>
-          </div>
+        {view === 'irap' && (
+          <PlaceholderSection title="IRAP" desc="Imposta Regionale sulle Attività Produttive" />
         )}
 
-        {view === 'dividendi' && <ConfrontoPrelievoSRL />}
+        {view === 'inps' && (
+          <PlaceholderSection title="Contributi INPS" desc="Simulazione contributi previdenziali" />
+        )}
+
+        {(view === 'dividendi' || view === 'ristorni') && <ConfrontoPrelievoSRL />}
 
         {view === 'netto' && (
           <StoricoSimulazioni
             userEmail={effectiveUser?.email}
             onSelect={handleSelectStorico}
           />
+        )}
+
+        {view === 'ricavi' && (
+          <PlaceholderSection title="Ricavi" desc="Fatturato annuo e analisi ricavi" />
+        )}
+
+        {view === 'coefficiente' && (
+          <PlaceholderSection title="Coefficiente di Redditività" desc="Percentuale di reddito imponibile sul fatturato" />
+        )}
+
+        {view === 'imposta_sost' && (
+          <PlaceholderSection title="Imposta Sostitutiva" desc="Calcolo imposta sostitutiva 5% o 15%" />
         )}
 
         {view === 'aliquote' && effectiveUser?.role === 'admin' && (
