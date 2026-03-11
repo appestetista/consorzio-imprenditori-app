@@ -104,15 +104,9 @@ export default function SimulatoreFiscale() {
           {/* Icone gestite dal GlobalHeader */}
         </div>
 
-        {/* Banner se tipo società non configurato */}
-        {!userFormaGiuridica && (
-          <div className="bg-amber-500/10 border border-amber-500/30 rounded-xl p-4 mb-4 flex items-start gap-3">
-            <AlertCircle className="w-5 h-5 text-amber-400 mt-0.5 shrink-0" />
-            <div>
-              <p className="text-amber-300 text-sm font-medium">Tipo di società non impostato</p>
-              <p className="text-slate-400 text-xs mt-1">Vai nel tuo <Link to={createPageUrl('MyProfile')} className="text-[#d4af37] underline">Profilo</Link> e seleziona il tipo di società per vedere i pulsanti personalizzati.</p>
-            </div>
-          </div>
+        {/* Popup scelta forma giuridica se mancante */}
+        {showFormaPopup && (
+          <FormaGiuridicaPopup onSelected={handleFormaSelected} />
         )}
 
         {/* Tipo società selezionato */}
