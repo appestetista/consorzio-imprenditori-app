@@ -20,6 +20,25 @@ function InlineField({ label, value, required, placeholder, maxLength, type, onC
   const [editing, setEditing] = useState(false);
   const isEmpty = !value || value.trim() === '';
 
+  // Select diretto: sempre visibile, niente pennetta
+  if (fieldType === 'select_direct') {
+    return (
+      <div className="flex items-center gap-2 py-1.5 border-b border-slate-700/50">
+        <span className="text-slate-400 text-xs w-28 flex-shrink-0">{label}{required ? ' *' : ''}</span>
+        <select
+          value={value || ''}
+          onChange={e => onChange(e.target.value)}
+          className="bg-slate-800 border border-slate-600 text-white text-xs h-8 flex-1 rounded-md px-2 appearance-none"
+        >
+          <option value="">Seleziona...</option>
+          {(options || []).map(opt => (
+            <option key={opt} value={opt}>€ {opt}</option>
+          ))}
+        </select>
+      </div>
+    );
+  }
+
   if (editing) {
     return (
       <div className="flex items-center gap-2 py-1.5 border-b border-slate-700/50">
