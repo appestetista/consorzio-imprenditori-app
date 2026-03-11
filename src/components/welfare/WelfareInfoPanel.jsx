@@ -213,15 +213,6 @@ export default function WelfareInfoPanel({ tipo, valore, persone, userEmail }) {
             <p className="text-white text-xs font-semibold">Puoi emetterli più volte all'anno</p>
           </div>
 
-          {tipo === 'buoni_pasto' && (
-            <div className="space-y-2">
-              <p className="text-slate-300 text-[11px] leading-relaxed">
-                Non sei limitato a un singolo ordine. Puoi emettere buoni pasto <strong className="text-white">più volte nell'arco dell'anno</strong>, 
-                per ogni giornata lavorativa. La soglia di esenzione è <strong>giornaliera</strong>:
-              </p>
-            </div>
-          )}
-
           {tipo === 'buoni_spesa' && (
             <div className="space-y-2">
               <p className="text-slate-300 text-[11px] leading-relaxed">
