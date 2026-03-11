@@ -264,9 +264,10 @@ export default function WelfareInfoPanel({ tipo, valore, persone, userEmail }) {
               </p>
             </div>
           )}
-        </div>
+          </div>
+          )}
 
-        {/* Combinazione Fringe + Welfare (solo per buoni_spesa) */}
+          {/* Combinazione Fringe + Welfare (solo per buoni_spesa) */}
         {tipo === 'buoni_spesa' && (
           <div className="bg-gradient-to-br from-purple-500/10 to-cyan-500/10 rounded-xl p-3 border border-purple-500/30">
             <div className="flex items-start gap-2 mb-2">
