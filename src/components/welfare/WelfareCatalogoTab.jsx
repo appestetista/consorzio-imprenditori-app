@@ -44,6 +44,7 @@ Object.values(brandPerCategoria).flat().forEach(b => {
 export default function WelfareCatalogoTab({ tipo }) {
   const [searchTerm, setSearchTerm] = useState('');
   const [localePreferito, setLocalePreferito] = useState('');
+  const [localitaPreferita, setLocalitaPreferita] = useState('');
   const [saving, setSaving] = useState(false);
   const [saved, setSaved] = useState(false);
   
@@ -55,6 +56,9 @@ export default function WelfareCatalogoTab({ tipo }) {
         if (u?.locale_preferito_buoni_pasto) {
           setLocalePreferito(u.locale_preferito_buoni_pasto);
           setSaved(true);
+        }
+        if (u?.localita_locale_preferito) {
+          setLocalitaPreferita(u.localita_locale_preferito);
         }
       }).catch(() => {});
     }
@@ -111,11 +115,17 @@ export default function WelfareCatalogoTab({ tipo }) {
               </p>
             </div>
           </div>
-          <Textarea
-            placeholder="Es. Ristorante Da Mario, Via Garibaldi 12, Torino..."
+          <Input
+            placeholder="Nome locale (es. Ristorante Da Mario)"
             value={localePreferito}
             onChange={(e) => { setLocalePreferito(e.target.value); setSaved(false); }}
-            className="bg-slate-900/70 border-slate-600 text-white text-xs placeholder:text-slate-500 min-h-[50px] resize-none mb-2"
+            className="bg-slate-900/70 border-slate-600 text-white text-xs placeholder:text-slate-500 mb-2"
+          />
+          <Input
+            placeholder="Località (es. Torino, Via Garibaldi 12)"
+            value={localitaPreferita}
+            onChange={(e) => { setLocalitaPreferita(e.target.value); setSaved(false); }}
+            className="bg-slate-900/70 border-slate-600 text-white text-xs placeholder:text-slate-500 mb-2"
           />
           {saved ? (
             <div className="flex items-center gap-2 text-green-400 text-xs">
@@ -125,10 +135,10 @@ export default function WelfareCatalogoTab({ tipo }) {
           ) : (
             <Button
               size="sm"
-              disabled={!localePreferito.trim() || saving}
+              disabled={!localePreferito.trim() || !localitaPreferita.trim() || saving}
               onClick={async () => {
                 setSaving(true);
-                await base44.auth.updateMe({ locale_preferito_buoni_pasto: localePreferito.trim() });
+                await base44.auth.updateMe({ locale_preferito_buoni_pasto: localePreferito.trim(), localita_locale_preferito: localitaPreferita.trim() });
                 setSaving(false);
                 setSaved(true);
                 toast.success('Locale preferito salvato!');
