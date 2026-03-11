@@ -238,9 +238,9 @@ export default function WelfareOrdinaTab({ user, tipo = 'buoni_pasto' }) {
             <div className="w-14 h-14 rounded-full bg-green-500/20 flex items-center justify-center">
               <FileDown className="w-7 h-7 text-green-400" />
             </div>
-            <h3 className="text-white font-bold text-base">PDF Scaricato!</h3>
+            <h3 className="text-white font-bold text-base">Contratto {labels[tipo]} Scaricato!</h3>
             <p className="text-slate-400 text-xs leading-relaxed">
-              Troverai il contratto nei tuoi <strong className="text-white">Download</strong>.<br />
+              Il contratto per i <strong className="text-white">{labels[tipo]}</strong> è stato generato e scaricato nei tuoi <strong className="text-white">Download</strong>.<br />
               Stampalo, apponi <strong className="text-white">timbro e firma</strong>, poi torna qui per caricarlo.
             </p>
             <Button onClick={handlePdfPopupClose} className="w-full mt-2 bg-pink-500 hover:bg-pink-600 text-white font-bold text-sm">
