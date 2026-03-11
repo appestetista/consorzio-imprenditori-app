@@ -1,5 +1,5 @@
-import React, { useState } from 'react';
-import { Calculator, Users, Euro, FileText, CreditCard, Upload, ChevronRight, Hash } from 'lucide-react';
+import React, { useState, useEffect } from 'react';
+import { Calculator, Users, Euro, FileText, CreditCard, Upload, Hash } from 'lucide-react';
 import { Input } from '@/components/ui/input';
 import { Button } from '@/components/ui/button';
 import { Card } from '@/components/ui/card';
@@ -46,6 +46,12 @@ export default function WelfareSimulazione({ valoreBuono, tipo, onProcedi, userE
   if (!valoreBuono) return null;
 
   const showResults = persone > 0 && valore > 0 && (tipo !== 'buoni_pasto' || qta > 0);
+
+  useEffect(() => {
+    if (showResults && onProcedi) {
+      onProcedi({ numPersone: persone, totaleDestinatari, commissione, totaleImprenditore, quantitaPerPersona: qta });
+    }
+  }, [showResults, persone, totaleDestinatari, commissione, totaleImprenditore, qta]);
 
   return (
     <div className="mt-4 space-y-3">
