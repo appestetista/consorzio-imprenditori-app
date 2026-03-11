@@ -1,0 +1,269 @@
+import React, { useEffect, useState } from 'react';
+import { base44 } from '@/api/base44Client';
+import { Card } from '@/components/ui/card';
+import { Lightbulb, TrendingUp, ShieldCheck, AlertTriangle, History } from 'lucide-react';
+
+function fmt(n) {
+  return n.toLocaleString('it-IT', { minimumFractionDigits: 2, maximumFractionDigits: 2 });
+}
+
+export default function WelfareInfoPanel({ tipo, valore, persone, userEmail }) {
+  const [ordiniPrecedenti, setOrdiniPrecedenti] = useState([]);
+
+  const totaleDestinatari = valore * persone;
+
+  // Carica ordini precedenti dello stesso tipo per l'utente
+  useEffect(() => {
+    if (!userEmail) return;
+    base44.entities.WelfareRequest.filter({ user_email: userEmail, tipo_buono: tipo })
+      .then(setOrdiniPrecedenti)
+      .catch(() => {});
+  }, [userEmail, tipo]);
+
+  const haOrdiniPrecedenti = ordiniPrecedenti.length > 0;
+
+  // Esempio fisso per il confronto discorsivo
+  const esempioImporto = totaleDestinatari > 0 ? Math.round(totaleDestinatari / persone) : 600;
+  const nettoInBusta = Math.round(esempioImporto * 0.53);
+  const tasseInBusta = Math.round(esempioImporto * 0.47);
+
+  return (
+    <Card className="bg-gradient-to-br from-slate-900 to-slate-800 border-cyan-500/30 border p-0 overflow-hidden">
+      {/* Header */}
+      <div className="bg-cyan-500/10 px-4 py-3 flex items-center gap-2 border-b border-cyan-500/20">
+        <Lightbulb className="w-4 h-4 text-cyan-400" />
+        <h4 className="text-cyan-400 font-bold text-xs">Perché conviene? Te lo spieghiamo</h4>
+      </div>
+
+      <div className="p-4 space-y-4">
+
+        {/* Alert ordini precedenti */}
+        {haOrdiniPrecedenti && (
+          <div className="bg-amber-500/10 border border-amber-500/40 rounded-xl p-3">
+            <div className="flex items-start gap-2">
+              <AlertTriangle className="w-4 h-4 text-amber-400 flex-shrink-0 mt-0.5" />
+              <div>
+                <p className="text-amber-400 text-xs font-bold mb-1">
+                  Attenzione: hai già {ordiniPrecedenti.length} ordine/i di {tipo === 'buoni_pasto' ? 'Buoni Pasto' : tipo === 'buoni_spesa' ? 'Buoni Spesa' : 'Buoni Omaggio'} quest'anno
+                </p>
+                <p className="text-amber-300/80 text-[11px] leading-relaxed">
+                  {tipo === 'buoni_omaggio' && (
+                    <>Se stai ordinando per le <strong>stesse persone</strong> che hanno già ricevuto buoni omaggio, ricorda che ogni singolo omaggio deve restare entro <strong className="text-white">€50</strong> per mantenere la piena deducibilità fiscale.</>
+                  )}
+                  {tipo === 'buoni_spesa' && (
+                    <>Se stai ordinando per gli <strong>stessi dipendenti</strong>, verifica che il totale annuo per ciascuno non superi <strong className="text-white">€1.000</strong> (o <strong className="text-white">€2.000</strong> per chi ha figli a carico), altrimenti perdi l'intera esenzione fiscale.</>
+                  )}
+                  {tipo === 'buoni_pasto' && (
+                    <>Se stai ordinando per gli <strong>stessi dipendenti</strong>, verifica che il valore giornaliero per ciascuno non superi <strong className="text-white">€8,00</strong> (elettronici) o <strong className="text-white">€4,00</strong> (cartacei), altrimenti la parte eccedente viene tassata.</>
+                  )}
+                </p>
+                <div className="flex items-center gap-1.5 mt-2">
+                  <History className="w-3 h-3 text-amber-400" />
+                  <span className="text-amber-400/70 text-[10px]">Ordini trovati: {ordiniPrecedenti.length}</span>
+                </div>
+              </div>
+            </div>
+          </div>
+        )}
+
+        {/* Confronto discorsivo: Busta paga vs Buoni */}
+        <div>
+          <p className="text-white text-xs font-semibold mb-2">
+            {tipo === 'buoni_pasto' && '💰 Busta paga vs Buoni Pasto'}
+            {tipo === 'buoni_spesa' && '💰 Busta paga vs Buoni Spesa'}
+            {tipo === 'buoni_omaggio' && '💰 Busta paga vs Buoni Omaggio'}
+          </p>
+
+          <div className="grid grid-cols-2 gap-2">
+            {/* Busta paga */}
+            <div className="bg-red-500/10 border border-red-500/30 rounded-xl p-3">
+              <p className="text-red-400 text-[10px] font-bold mb-2 text-center">❌ In busta paga</p>
+              <p className="text-slate-300 text-[11px] leading-relaxed">
+                Se dai <strong className="text-white">€{fmt(esempioImporto)}</strong> lordi in busta paga, 
+                tra IRPEF, INPS e addizionali il dipendente si ritrova in tasca solo 
+                <strong className="text-red-400"> €{fmt(nettoInBusta)}</strong>.
+              </p>
+              <div className="mt-2 bg-red-500/10 rounded-lg px-2 py-1.5 text-center">
+                <p className="text-[10px] text-slate-400">Persi in tasse e contributi</p>
+                <p className="text-red-400 font-bold text-sm">−€{fmt(tasseInBusta)}</p>
+                <p className="text-red-300/60 text-[9px]">(~47% del lordo)</p>
+              </div>
+            </div>
+
+            {/* Con buoni */}
+            <div className="bg-green-500/10 border border-green-500/30 rounded-xl p-3">
+              <p className="text-green-400 text-[10px] font-bold mb-2 text-center">
+                ✅ {tipo === 'buoni_pasto' ? 'Con Buoni Pasto' : tipo === 'buoni_spesa' ? 'Con Buoni Spesa' : 'Con Buoni Omaggio'}
+              </p>
+              <p className="text-slate-300 text-[11px] leading-relaxed">
+                {tipo === 'buoni_omaggio' ? (
+                  <>Se dai un buono omaggio da <strong className="text-white">€{fmt(esempioImporto)}</strong>, 
+                  al destinatario arriva esattamente <strong className="text-green-400">€{fmt(esempioImporto)}</strong>. 
+                  Zero tasse, zero contributi.</>
+                ) : (
+                  <>Se dai buoni {tipo === 'buoni_pasto' ? 'pasto' : 'spesa'} per <strong className="text-white">€{fmt(esempioImporto)}</strong>, 
+                  al dipendente arriva esattamente <strong className="text-green-400">€{fmt(esempioImporto)}</strong>. 
+                  Zero tasse, zero contributi.</>
+                )}
+              </p>
+              <div className="mt-2 bg-green-500/10 rounded-lg px-2 py-1.5 text-center">
+                <p className="text-[10px] text-slate-400">Tasse e contributi</p>
+                <p className="text-green-400 font-bold text-sm">€0,00</p>
+                <p className="text-green-300/60 text-[9px]">(esenzione totale)</p>
+              </div>
+            </div>
+          </div>
+
+          <div className="bg-green-500/10 border border-green-500/30 rounded-lg px-3 py-2 mt-2 flex items-start gap-2">
+            <TrendingUp className="w-4 h-4 text-green-400 flex-shrink-0 mt-0.5" />
+            <p className="text-green-300 text-[11px] leading-relaxed">
+              <strong className="text-green-400">Risparmi €{fmt(totaleDestinatari * 0.47)}</strong> di tasse e contributi 
+              e ogni {tipo === 'buoni_omaggio' ? 'destinatario' : 'dipendente'} riceve il <strong className="text-white">100%</strong> dell'importo. 
+              È come dare un aumento senza pagare le tasse!
+            </p>
+          </div>
+        </div>
+
+        {/* Utilizzo multiplo con soglie specifiche */}
+        <div className="bg-slate-800/80 rounded-xl p-3 border border-slate-700">
+          <div className="flex items-start gap-2 mb-2">
+            <ShieldCheck className="w-4 h-4 text-cyan-400 flex-shrink-0 mt-0.5" />
+            <p className="text-white text-xs font-semibold">Puoi emetterli più volte all'anno</p>
+          </div>
+
+          {tipo === 'buoni_pasto' && (
+            <div className="space-y-2">
+              <p className="text-slate-300 text-[11px] leading-relaxed">
+                Non sei limitato a un singolo ordine. Puoi emettere buoni pasto <strong className="text-white">più volte nell'arco dell'anno</strong>, 
+                per ogni giornata lavorativa. La soglia di esenzione è <strong>giornaliera</strong>:
+              </p>
+              <div className="grid grid-cols-2 gap-2 mt-2">
+                <div className="bg-cyan-500/10 border border-cyan-500/20 rounded-lg p-2 text-center">
+                  <p className="text-cyan-300 text-[10px] font-semibold">Elettronici</p>
+                  <p className="text-white font-bold text-base">€10,00</p>
+                  <p className="text-cyan-300/60 text-[9px]">al giorno / dipendente</p>
+                </div>
+                <div className="bg-slate-700/50 border border-slate-600 rounded-lg p-2 text-center">
+                  <p className="text-slate-400 text-[10px] font-semibold">Cartacei</p>
+                  <p className="text-white font-bold text-base">€4,00</p>
+                  <p className="text-slate-400/60 text-[9px]">al giorno / dipendente</p>
+                </div>
+              </div>
+              <p className="text-slate-400 text-[10px] leading-relaxed mt-1">
+                Esempio: con 22 giorni lavorativi/mese × €8,00/giorno = <strong className="text-white">€176/mese</strong> per dipendente, 
+                totalmente esenti. Su 12 mesi sono fino a <strong className="text-white">€2.112/anno</strong> per dipendente!
+              </p>
+            </div>
+          )}
+
+          {tipo === 'buoni_spesa' && (
+            <div className="space-y-2">
+              <p className="text-slate-300 text-[11px] leading-relaxed">
+                Non sei limitato a un singolo ordine. Puoi emettere buoni spesa <strong className="text-white">più volte nell'arco dell'anno</strong>, 
+                purché il totale annuo per ciascun dipendente resti entro la soglia di esenzione:
+              </p>
+              <div className="grid grid-cols-2 gap-2 mt-2">
+                <div className="bg-slate-700/50 border border-slate-600 rounded-lg p-2 text-center">
+                  <p className="text-slate-300 text-[10px] font-semibold">Senza figli a carico</p>
+                  <p className="text-white font-bold text-base">€1.000</p>
+                  <p className="text-slate-400/60 text-[9px]">all'anno / dipendente</p>
+                </div>
+                <div className="bg-cyan-500/10 border border-cyan-500/20 rounded-lg p-2 text-center">
+                  <p className="text-cyan-300 text-[10px] font-semibold">Con figli a carico</p>
+                  <p className="text-white font-bold text-base">€2.000</p>
+                  <p className="text-cyan-300/60 text-[9px]">all'anno / dipendente</p>
+                </div>
+              </div>
+              <div className="bg-red-500/10 border border-red-500/30 rounded-lg p-2 mt-1">
+                <p className="text-red-300 text-[10px] leading-relaxed">
+                  <strong className="text-red-400">⚠️ Attenzione:</strong> se superi anche di solo 1€ la soglia annua, 
+                  perdi <strong>tutta</strong> l'esenzione sull'intero importo (non solo sulla parte eccedente).
+                </p>
+              </div>
+            </div>
+          )}
+
+          {tipo === 'buoni_omaggio' && (
+            <div className="space-y-2">
+              <p className="text-slate-300 text-[11px] leading-relaxed">
+                Non sei limitato a un singolo ordine. Puoi emettere buoni omaggio <strong className="text-white">più volte nell'arco dell'anno</strong> 
+                a clienti, fornitori e partner. La soglia è <strong>per singolo omaggio</strong>:
+              </p>
+              <div className="grid grid-cols-2 gap-2 mt-2">
+                <div className="bg-green-500/10 border border-green-500/30 rounded-lg p-2 text-center">
+                  <p className="text-green-300 text-[10px] font-semibold">Omaggio ≤ €50</p>
+                  <p className="text-green-400 font-bold text-xs mt-1">IVA detraibile</p>
+                  <p className="text-green-400 font-bold text-xs">Costo deducibile 100%</p>
+                </div>
+                <div className="bg-red-500/10 border border-red-500/30 rounded-lg p-2 text-center">
+                  <p className="text-red-300 text-[10px] font-semibold">Omaggio &gt; €50</p>
+                  <p className="text-red-400 font-bold text-xs mt-1">IVA indetraibile</p>
+                  <p className="text-red-400 font-bold text-xs">Deducibilità limitata</p>
+                </div>
+              </div>
+              <p className="text-slate-400 text-[10px] leading-relaxed mt-1">
+                Puoi fare quanti omaggi vuoi nell'anno, l'importante è che il <strong className="text-white">singolo omaggio</strong> non superi €50 
+                per mantenere tutti i vantaggi fiscali.
+              </p>
+            </div>
+          )}
+        </div>
+
+        {/* Combinazione Fringe + Welfare (solo per buoni_spesa) */}
+        {tipo === 'buoni_spesa' && (
+          <div className="bg-gradient-to-br from-purple-500/10 to-cyan-500/10 rounded-xl p-3 border border-purple-500/30">
+            <div className="flex items-start gap-2 mb-2">
+              <Lightbulb className="w-4 h-4 text-purple-400 flex-shrink-0 mt-0.5" />
+              <p className="text-white text-xs font-semibold">Strategia: combina Fringe Benefit + Welfare Aziendale</p>
+            </div>
+            <p className="text-slate-300 text-[11px] leading-relaxed mb-3">
+              Lo sapevi che puoi <strong className="text-white">sommare</strong> i buoni spesa (fringe benefit) con il welfare aziendale? 
+              Sono due strumenti diversi con soglie <strong className="text-white">indipendenti</strong>, 
+              e puoi usarli entrambi per lo stesso dipendente:
+            </p>
+            <div className="space-y-1.5">
+              <div className="flex items-center gap-2 bg-slate-800/60 rounded-lg px-3 py-2">
+                <div className="w-2 h-2 rounded-full bg-pink-400 flex-shrink-0" />
+                <span className="text-slate-300 text-xs flex-1">Fringe Benefit (buoni spesa)</span>
+                <span className="text-pink-400 font-bold text-sm">fino a €1.000</span>
+              </div>
+              <div className="flex items-center justify-center">
+                <span className="text-slate-500 text-lg font-bold">+</span>
+              </div>
+              <div className="flex items-center gap-2 bg-slate-800/60 rounded-lg px-3 py-2">
+                <div className="w-2 h-2 rounded-full bg-cyan-400 flex-shrink-0" />
+                <span className="text-slate-300 text-xs flex-1">Welfare aziendale</span>
+                <span className="text-cyan-400 font-bold text-sm">fino a €2.000</span>
+              </div>
+              <div className="flex items-center justify-center">
+                <span className="text-slate-500 text-lg font-bold">=</span>
+              </div>
+              <div className="flex items-center gap-2 bg-green-500/10 border border-green-500/30 rounded-lg px-3 py-2">
+                <div className="w-2 h-2 rounded-full bg-green-400 flex-shrink-0" />
+                <span className="text-white text-xs font-semibold flex-1">Totale esenzione annua</span>
+                <span className="text-green-400 font-bold text-base">fino a €3.000</span>
+              </div>
+            </div>
+            <p className="text-slate-400 text-[10px] mt-2 leading-relaxed">
+              Tutto esente da IRPEF, INPS e INAIL — 100% deducibile per l'azienda. 
+              Per dare lo stesso netto in busta paga dovresti spendere circa <strong className="text-red-400">€{fmt(3000 / 0.53)}</strong> lordi!
+            </p>
+          </div>
+        )}
+
+        {/* Deducibilità finale */}
+        <div className="bg-green-500/5 border border-green-500/20 rounded-lg px-3 py-2 flex items-start gap-2">
+          <ShieldCheck className="w-4 h-4 text-green-400 flex-shrink-0 mt-0.5" />
+          <p className="text-slate-300 text-[11px] leading-relaxed">
+            <strong className="text-green-400">100% deducibili:</strong> {tipo === 'buoni_omaggio' 
+              ? 'i buoni omaggio entro €50 sono interamente deducibili e con IVA detraibile — un vantaggio doppio per la tua azienda.'
+              : tipo === 'buoni_pasto'
+              ? 'i buoni pasto sono interamente deducibili (IRES/IRPEF), non generano oneri previdenziali e l\'IVA al 4% è interamente detraibile.'
+              : 'i buoni spesa entro le soglie sono interamente deducibili dal reddito d\'impresa (IRES/IRPEF) e non generano alcun onere previdenziale per l\'azienda.'
+            }
+          </p>
+        </div>
+      </div>
+    </Card>
+  );
+}
