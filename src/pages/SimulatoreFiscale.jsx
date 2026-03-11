@@ -16,6 +16,7 @@ import GestioneAliquoteIRAP from '../components/fiscale/GestioneAliquoteIRAP';
 import AnalisiBilancio from '../components/fiscale/AnalisiBilancio';
 import GlobalTopIcons from '../components/layout/GlobalTopIcons';
 import { getTabsForSocieta } from '../components/fiscale/societaTabs';
+import FormaGiuridicaPopup from '../components/fiscale/FormaGiuridicaPopup';
 
 export default function SimulatoreFiscale() {
   const [effectiveUser, setEffectiveUser] = useState(null);
