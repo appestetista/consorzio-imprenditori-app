@@ -371,6 +371,29 @@ export function generateBuoniPastoPdf(fd) {
   doc.setTextColor(...C.text);
   if (fd.email) doc.text(fd.email, 33, y);
 
+  // ── Locale Preferito (se compilato) ──
+  if (fd.locale_preferito && fd.locale_preferito.trim()) {
+    y += 10;
+    doc.setFontSize(7);
+    doc.setTextColor(...C.medGray);
+    doc.text('Locale preferito per convenzione', 20, y);
+    doc.line(75, y, 190, y);
+    doc.setFontSize(9);
+    doc.setTextColor(...C.text);
+    doc.setFont('helvetica', 'bold');
+    const localeLines = doc.splitTextToSize(fd.locale_preferito, 114);
+    doc.text(localeLines, 76, y);
+    doc.setFont('helvetica', 'normal');
+    y += localeLines.length > 1 ? localeLines.length * 4.5 : 0;
+
+    y += 5;
+    doc.setFontSize(7);
+    doc.setTextColor(...C.darkGray);
+    doc.setFont('helvetica', 'italic');
+    doc.text('La disponibilità del locale sarà verificata dalla nostra direzione. Se disponibile, verrà attivata la convenzione.', 20, y);
+    doc.setFont('helvetica', 'normal');
+  }
+
   // ── Costo del Servizio ──
   y += 14;
   doc.setFontSize(14);

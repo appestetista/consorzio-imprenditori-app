@@ -17,6 +17,7 @@ const GENERATORS = {
 const EXTRA_FIELDS = {
   buoni_pasto: [
     { key: 'valore_buono', label: 'Valore facciale buono (€)', fieldType: 'select_direct', options: ['3,00', '5,00', '7,00', '8,00', '10,00'] },
+    { key: 'locale_preferito', label: 'Locale preferito (opz.)', placeholder: 'Es. Ristorante Da Mario, Torino' },
   ],
   buoni_spesa: [
     { key: 'valore_buono', label: 'Importo buono spesa (€)', fieldType: 'select', options: ['25,00', '50,00', '75,00', '100,00', '150,00', '200,00', '250,00', '300,00', '400,00', '500,00', '750,00', '1.000,00', '1.500,00', '2.000,00'] },
@@ -72,6 +73,7 @@ export default function WelfareOrdinaTab({ user, tipo = 'buoni_pasto' }) {
         piva: prev.piva || user.vat_number || '',
         codice_fiscale: prev.codice_fiscale || user.codice_fiscale || '',
         sdi_pec: prev.sdi_pec || user.codice_sdi || user.billing_pec || '',
+        locale_preferito: prev.locale_preferito || user.locale_preferito_buoni_pasto || '',
       }));
     }
   }, [user]);
