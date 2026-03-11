@@ -24,7 +24,7 @@ const EXTRA_FIELDS = {
     { key: 'valore_buono', label: 'Importo buono spesa (€)', fieldType: 'select_direct', options: ['25,00', '50,00', '75,00', '100,00', '150,00', '200,00', '250,00', '300,00', '400,00', '500,00', '750,00', '1.000,00', '1.500,00', '2.000,00'] },
   ],
   buoni_omaggio: [
-    { key: 'valore_buono', label: 'Importo buono omaggio (€)', fieldType: 'select', options: ['10,00', '15,00', '20,00', '25,00', '30,00', '40,00', '50,00'] },
+    { key: 'valore_buono', label: 'Importo buono omaggio (€)', fieldType: 'select_direct', options: ['10,00', '15,00', '20,00', '25,00', '30,00', '40,00', '50,00'] },
   ],
 };
 
