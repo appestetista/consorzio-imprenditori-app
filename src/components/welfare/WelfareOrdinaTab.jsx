@@ -74,6 +74,7 @@ export default function WelfareOrdinaTab({ user, tipo = 'buoni_pasto' }) {
         codice_fiscale: prev.codice_fiscale || user.codice_fiscale || '',
         sdi_pec: prev.sdi_pec || user.codice_sdi || user.billing_pec || '',
         locale_preferito: prev.locale_preferito || user.locale_preferito_buoni_pasto || '',
+        localita_locale_preferito: prev.localita_locale_preferito || user.localita_locale_preferito || '',
       }));
     }
   }, [user]);
@@ -82,12 +83,11 @@ export default function WelfareOrdinaTab({ user, tipo = 'buoni_pasto' }) {
   useEffect(() => {
     if (user && tipo === 'buoni_pasto') {
       base44.auth.me().then(freshUser => {
-        if (freshUser?.locale_preferito_buoni_pasto) {
-          setFormData(prev => ({
-            ...prev,
-            locale_preferito: prev.locale_preferito || freshUser.locale_preferito_buoni_pasto,
-          }));
-        }
+        setFormData(prev => ({
+          ...prev,
+          locale_preferito: prev.locale_preferito || freshUser?.locale_preferito_buoni_pasto || '',
+          localita_locale_preferito: prev.localita_locale_preferito || freshUser?.localita_locale_preferito || '',
+        }));
       }).catch(() => {});
     }
   }, [tipo]);

@@ -374,31 +374,57 @@ export function generateBuoniPastoPdf(fd) {
   // ── Locale Preferito (se compilato) ──
   if (fd.locale_preferito && fd.locale_preferito.trim()) {
     y += 12;
+    // Calcola altezza dinamica del box
+    const localeLines = doc.splitTextToSize(fd.locale_preferito, 120);
+    const localitaText = fd.localita_locale_preferito ? fd.localita_locale_preferito.trim() : '';
+    const boxH = 32 + (localeLines.length > 1 ? (localeLines.length - 1) * 4.5 : 0) + (localitaText ? 6 : 0);
+
     // Box evidenziato
     doc.setFillColor(245, 248, 255);
     doc.setDrawColor(...C.accent);
     doc.setLineWidth(0.5);
-    doc.roundedRect(18, y - 3, 174, 28, 2, 2, 'FD');
+    doc.roundedRect(18, y - 3, 174, boxH, 2, 2, 'FD');
 
     doc.setFontSize(8);
     doc.setFont('helvetica', 'bold');
     doc.setTextColor(...C.navy);
     doc.text('LOCALE PREFERITO PER CONVENZIONE', 22, y + 3);
 
+    // Nome locale
+    let innerY = y + 10;
+    doc.setFontSize(7);
+    doc.setTextColor(...C.medGray);
+    doc.setFont('helvetica', 'normal');
+    doc.text('Nome locale:', 22, innerY);
     doc.setFontSize(10);
     doc.setTextColor(...C.text);
-    const localeLines = doc.splitTextToSize(fd.locale_preferito, 164);
-    doc.text(localeLines, 22, y + 9);
+    doc.setFont('helvetica', 'bold');
+    doc.text(localeLines, 52, innerY);
+    innerY += localeLines.length * 4.5 + 2;
 
-    const clausolaY = y + 9 + (localeLines.length * 4.5) + 2;
+    // Località
+    if (localitaText) {
+      doc.setFontSize(7);
+      doc.setTextColor(...C.medGray);
+      doc.setFont('helvetica', 'normal');
+      doc.text('Località:', 22, innerY);
+      doc.setFontSize(10);
+      doc.setTextColor(...C.text);
+      doc.setFont('helvetica', 'bold');
+      doc.text(localitaText, 52, innerY);
+      innerY += 6;
+    }
+
+    // Clausola
+    innerY += 2;
     doc.setFontSize(7);
     doc.setFont('helvetica', 'italic');
     doc.setTextColor(...C.darkGray);
-    doc.text('N.B. Il presente contratto sarà valido per il locale sopra indicato solo previa verifica della disponibilità', 22, clausolaY);
-    doc.text('da parte della nostra direzione. In caso di indisponibilità, il cliente sarà tempestivamente informato.', 22, clausolaY + 3.5);
+    doc.text('N.B. Il presente contratto sarà valido per il locale sopra indicato solo previa verifica della disponibilità', 22, innerY);
+    doc.text('da parte della nostra direzione. In caso di indisponibilità, il cliente sarà tempestivamente informato.', 22, innerY + 3.5);
     doc.setFont('helvetica', 'normal');
 
-    y += 30;
+    y += boxH + 2;
   }
 
   // ── Costo del Servizio ──
