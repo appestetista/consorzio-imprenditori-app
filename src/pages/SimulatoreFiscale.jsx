@@ -205,3 +205,12 @@ export default function SimulatoreFiscale() {
     </div>
   );
 }
+
+function PlaceholderSection({ title, desc }) {
+  return (
+    <div className="bg-[#0a2540] border border-[#1a3a5c] rounded-xl p-6 text-center">
+      <p className="text-white font-medium text-lg mb-1">{title}</p>
+      <p className="text-slate-400 text-sm">Sezione in costruzione — {desc}</p>
+    </div>
+  );
+}
