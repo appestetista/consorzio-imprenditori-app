@@ -1,7 +1,7 @@
 import React, { useEffect, useState } from 'react';
 import { base44 } from '@/api/base44Client';
 import { Card } from '@/components/ui/card';
-import { Lightbulb, TrendingUp, ShieldCheck, AlertTriangle, History } from 'lucide-react';
+import { Lightbulb, TrendingUp, ShieldCheck, AlertTriangle, History, Euro } from 'lucide-react';
 
 function fmt(n) {
   return n.toLocaleString('it-IT', { minimumFractionDigits: 2, maximumFractionDigits: 2 });
@@ -22,8 +22,15 @@ export default function WelfareInfoPanel({ tipo, valore, persone, userEmail }) {
 
   const haOrdiniPrecedenti = ordiniPrecedenti.length > 0;
 
-  // Esempio fisso per il confronto discorsivo
-  const esempioImporto = totaleDestinatari > 0 ? Math.round(totaleDestinatari / persone) : 600;
+  // Per buoni pasto: esempio mensile basato su valore buono selezionato
+  const valoreBuonoPasto = tipo === 'buoni_pasto' ? valore : 0;
+  const giorniLavorativi = 22;
+  const importoMensePasto = valoreBuonoPasto * giorniLavorativi;
+
+  // Per buoni spesa/omaggio: confronto classico
+  const esempioImporto = tipo === 'buoni_pasto' 
+    ? importoMensePasto 
+    : (totaleDestinatari > 0 ? Math.round(totaleDestinatari / persone) : 600);
   const nettoInBusta = Math.round(esempioImporto * 0.53);
   const tasseInBusta = Math.round(esempioImporto * 0.47);
 
@@ -54,7 +61,7 @@ export default function WelfareInfoPanel({ tipo, valore, persone, userEmail }) {
                     <>Se stai ordinando per gli <strong>stessi dipendenti</strong>, verifica che il totale annuo per ciascuno non superi <strong className="text-white">€1.000</strong> (o <strong className="text-white">€2.000</strong> per chi ha figli a carico), altrimenti perdi l'intera esenzione fiscale.</>
                   )}
                   {tipo === 'buoni_pasto' && (
-                    <>Se stai ordinando per gli <strong>stessi dipendenti</strong>, verifica che il valore giornaliero per ciascuno non superi <strong className="text-white">€8,00</strong> (elettronici) o <strong className="text-white">€4,00</strong> (cartacei), altrimenti la parte eccedente viene tassata.</>
+                    <>Se stai ordinando per gli <strong>stessi dipendenti</strong>, verifica che il valore giornaliero per ciascuno non superi <strong className="text-white">€10,00</strong> (elettronici) o <strong className="text-white">€4,00</strong> (cartacei), altrimenti la parte eccedente viene tassata.</>
                   )}
                 </p>
                 <div className="flex items-center gap-1.5 mt-2">
@@ -66,10 +73,42 @@ export default function WelfareInfoPanel({ tipo, valore, persone, userEmail }) {
           </div>
         )}
 
+        {/* Per buoni pasto: prima spieghiamo il calcolo mensile per dipendente */}
+        {tipo === 'buoni_pasto' && (
+          <div className="bg-slate-800/80 rounded-xl p-3 border border-slate-700">
+            <div className="flex items-start gap-2 mb-2">
+              <ShieldCheck className="w-4 h-4 text-cyan-400 flex-shrink-0 mt-0.5" />
+              <p className="text-white text-xs font-semibold">Quanto vale per ogni dipendente?</p>
+            </div>
+            <div className="space-y-2">
+              <p className="text-slate-300 text-[11px] leading-relaxed">
+                In media un mese ha <strong className="text-white">22 giorni lavorativi</strong>. Con un buono da <strong className="text-white">€{fmt(valoreBuonoPasto)}</strong> al giorno:
+              </p>
+              <div className="bg-cyan-500/10 border border-cyan-500/20 rounded-lg p-3 text-center">
+                <p className="text-slate-400 text-[10px] mb-1">22 giorni × €{fmt(valoreBuonoPasto)}</p>
+                <p className="text-cyan-400 font-bold text-xl">€{fmt(importoMensePasto)}/mese</p>
+                <p className="text-cyan-300/60 text-[10px] mt-1">per dipendente — totalmente esenti da tasse</p>
+              </div>
+              <div className="grid grid-cols-2 gap-2 mt-2">
+                <div className="bg-cyan-500/10 border border-cyan-500/20 rounded-lg p-2 text-center">
+                  <p className="text-cyan-300 text-[10px] font-semibold">Elettronici</p>
+                  <p className="text-white font-bold text-base">fino a €10,00</p>
+                  <p className="text-cyan-300/60 text-[9px]">al giorno / dipendente</p>
+                </div>
+                <div className="bg-slate-700/50 border border-slate-600 rounded-lg p-2 text-center">
+                  <p className="text-slate-400 text-[10px] font-semibold">Cartacei</p>
+                  <p className="text-white font-bold text-base">fino a €4,00</p>
+                  <p className="text-slate-400/60 text-[9px]">al giorno / dipendente</p>
+                </div>
+              </div>
+            </div>
+          </div>
+        )}
+
         {/* Confronto discorsivo: Busta paga vs Buoni */}
         <div>
           <p className="text-white text-xs font-semibold mb-2">
-            {tipo === 'buoni_pasto' && '💰 Busta paga vs Buoni Pasto'}
+            {tipo === 'buoni_pasto' && '💰 Busta paga vs Buoni Pasto — per dipendente/mese'}
             {tipo === 'buoni_spesa' && '💰 Busta paga vs Buoni Spesa'}
             {tipo === 'buoni_omaggio' && '💰 Busta paga vs Buoni Omaggio'}
           </p>
@@ -79,13 +118,19 @@ export default function WelfareInfoPanel({ tipo, valore, persone, userEmail }) {
             <div className="bg-red-500/10 border border-red-500/30 rounded-xl p-3">
               <p className="text-red-400 text-[10px] font-bold mb-2 text-center">❌ In busta paga</p>
               <p className="text-slate-300 text-[11px] leading-relaxed">
-                Se dai <strong className="text-white">€{fmt(esempioImporto)}</strong> lordi in busta paga, 
-                tra IRPEF, INPS e addizionali il dipendente si ritrova in tasca solo 
-                <strong className="text-red-400"> €{fmt(nettoInBusta)}</strong>.
+                {tipo === 'buoni_pasto' ? (
+                  <>Per dare <strong className="text-white">€{fmt(importoMensePasto)}/mese</strong> netti in busta paga, 
+                  dovresti spendere circa <strong className="text-red-400">€{fmt(Math.round(importoMensePasto / 0.53))}</strong> lordi. 
+                  La differenza? Finisce in tasse e contributi.</>
+                ) : (
+                  <>Se dai <strong className="text-white">€{fmt(esempioImporto)}</strong> lordi in busta paga, 
+                  tra IRPEF, INPS e addizionali il dipendente si ritrova in tasca solo 
+                  <strong className="text-red-400"> €{fmt(nettoInBusta)}</strong>.</>
+                )}
               </p>
               <div className="mt-2 bg-red-500/10 rounded-lg px-2 py-1.5 text-center">
                 <p className="text-[10px] text-slate-400">Persi in tasse e contributi</p>
-                <p className="text-red-400 font-bold text-sm">−€{fmt(tasseInBusta)}</p>
+                <p className="text-red-400 font-bold text-sm">−€{fmt(tipo === 'buoni_pasto' ? Math.round(importoMensePasto / 0.53) - importoMensePasto : tasseInBusta)}</p>
                 <p className="text-red-300/60 text-[9px]">(~47% del lordo)</p>
               </div>
             </div>
@@ -96,12 +141,16 @@ export default function WelfareInfoPanel({ tipo, valore, persone, userEmail }) {
                 ✅ {tipo === 'buoni_pasto' ? 'Con Buoni Pasto' : tipo === 'buoni_spesa' ? 'Con Buoni Spesa' : 'Con Buoni Omaggio'}
               </p>
               <p className="text-slate-300 text-[11px] leading-relaxed">
-                {tipo === 'buoni_omaggio' ? (
+                {tipo === 'buoni_pasto' ? (
+                  <>Con i buoni pasto dai <strong className="text-white">€{fmt(importoMensePasto)}/mese</strong> al dipendente 
+                  e spendi esattamente <strong className="text-green-400">€{fmt(importoMensePasto)}</strong>. 
+                  Zero tasse, zero contributi.</>
+                ) : tipo === 'buoni_omaggio' ? (
                   <>Se dai un buono omaggio da <strong className="text-white">€{fmt(esempioImporto)}</strong>, 
                   al destinatario arriva esattamente <strong className="text-green-400">€{fmt(esempioImporto)}</strong>. 
                   Zero tasse, zero contributi.</>
                 ) : (
-                  <>Se dai buoni {tipo === 'buoni_pasto' ? 'pasto' : 'spesa'} per <strong className="text-white">€{fmt(esempioImporto)}</strong>, 
+                  <>Se dai buoni spesa per <strong className="text-white">€{fmt(esempioImporto)}</strong>, 
                   al dipendente arriva esattamente <strong className="text-green-400">€{fmt(esempioImporto)}</strong>. 
                   Zero tasse, zero contributi.</>
                 )}
@@ -117,14 +166,47 @@ export default function WelfareInfoPanel({ tipo, valore, persone, userEmail }) {
           <div className="bg-green-500/10 border border-green-500/30 rounded-lg px-3 py-2 mt-2 flex items-start gap-2">
             <TrendingUp className="w-4 h-4 text-green-400 flex-shrink-0 mt-0.5" />
             <p className="text-green-300 text-[11px] leading-relaxed">
-              <strong className="text-green-400">Risparmi €{fmt(totaleDestinatari * 0.47)}</strong> di tasse e contributi 
-              e ogni {tipo === 'buoni_omaggio' ? 'destinatario' : 'dipendente'} riceve il <strong className="text-white">100%</strong> dell'importo. 
-              È come dare un aumento senza pagare le tasse!
+              {tipo === 'buoni_pasto' ? (
+                <><strong className="text-green-400">Risparmi €{fmt(Math.round(importoMensePasto / 0.53) - importoMensePasto)}/mese</strong> per dipendente 
+                in tasse e contributi. Il dipendente riceve il <strong className="text-white">100%</strong> — è come un aumento di stipendio senza tasse!</>
+              ) : (
+                <><strong className="text-green-400">Risparmi €{fmt(totaleDestinatari * 0.47)}</strong> di tasse e contributi 
+                e ogni {tipo === 'buoni_omaggio' ? 'destinatario' : 'dipendente'} riceve il <strong className="text-white">100%</strong> dell'importo. 
+                È come dare un aumento senza pagare le tasse!</>
+              )}
             </p>
           </div>
         </div>
 
-        {/* Utilizzo multiplo con soglie specifiche */}
+        {/* Costo servizio — solo per buoni pasto (spesa/omaggio lo hanno nella simulazione) */}
+        {tipo === 'buoni_pasto' && (
+          <div className="bg-slate-800/80 rounded-xl p-3 border border-slate-700">
+            <div className="flex items-start gap-2 mb-2">
+              <Euro className="w-4 h-4 text-amber-400 flex-shrink-0 mt-0.5" />
+              <p className="text-white text-xs font-semibold">Costo del servizio</p>
+            </div>
+            <div className="space-y-2">
+              <div className="grid grid-cols-2 gap-2">
+                <div className="bg-amber-500/10 border border-amber-500/30 rounded-lg p-2 text-center">
+                  <p className="text-amber-300 text-[10px] font-semibold">Fino a €30.000</p>
+                  <p className="text-white font-bold text-base">5%</p>
+                  <p className="text-amber-300/60 text-[9px]">sull'importo ordinato</p>
+                </div>
+                <div className="bg-green-500/10 border border-green-500/30 rounded-lg p-2 text-center">
+                  <p className="text-green-300 text-[10px] font-semibold">Oltre €30.000</p>
+                  <p className="text-white font-bold text-base">3%</p>
+                  <p className="text-green-300/60 text-[9px]">sulla parte eccedente</p>
+                </div>
+              </div>
+              <p className="text-slate-400 text-[10px] leading-relaxed">
+                Esempio: su un ordine di €50.000 → 5% su €30.000 (= €1.500) + 3% su €20.000 (= €600) = <strong className="text-white">€2.100 totali</strong> di costo servizio.
+              </p>
+            </div>
+          </div>
+        )}
+
+        {/* Utilizzo multiplo — solo per spesa/omaggio (pasto ha già le soglie sopra) */}
+        {tipo !== 'buoni_pasto' && (
         <div className="bg-slate-800/80 rounded-xl p-3 border border-slate-700">
           <div className="flex items-start gap-2 mb-2">
             <ShieldCheck className="w-4 h-4 text-cyan-400 flex-shrink-0 mt-0.5" />
@@ -136,22 +218,6 @@ export default function WelfareInfoPanel({ tipo, valore, persone, userEmail }) {
               <p className="text-slate-300 text-[11px] leading-relaxed">
                 Non sei limitato a un singolo ordine. Puoi emettere buoni pasto <strong className="text-white">più volte nell'arco dell'anno</strong>, 
                 per ogni giornata lavorativa. La soglia di esenzione è <strong>giornaliera</strong>:
-              </p>
-              <div className="grid grid-cols-2 gap-2 mt-2">
-                <div className="bg-cyan-500/10 border border-cyan-500/20 rounded-lg p-2 text-center">
-                  <p className="text-cyan-300 text-[10px] font-semibold">Elettronici</p>
-                  <p className="text-white font-bold text-base">€10,00</p>
-                  <p className="text-cyan-300/60 text-[9px]">al giorno / dipendente</p>
-                </div>
-                <div className="bg-slate-700/50 border border-slate-600 rounded-lg p-2 text-center">
-                  <p className="text-slate-400 text-[10px] font-semibold">Cartacei</p>
-                  <p className="text-white font-bold text-base">€4,00</p>
-                  <p className="text-slate-400/60 text-[9px]">al giorno / dipendente</p>
-                </div>
-              </div>
-              <p className="text-slate-400 text-[10px] leading-relaxed mt-1">
-                Esempio: con 22 giorni lavorativi/mese × €8,00/giorno = <strong className="text-white">€176/mese</strong> per dipendente, 
-                totalmente esenti. Su 12 mesi sono fino a <strong className="text-white">€2.112/anno</strong> per dipendente!
               </p>
             </div>
           )}
