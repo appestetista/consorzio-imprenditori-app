@@ -116,15 +116,6 @@ export default function SimulatoreFiscale() {
           )}
         </div>
 
-        {/* Loading */}
-        {loading && (
-          <div className="bg-[#0a2540] border border-[#1a3a5c] rounded-xl p-6 text-center mb-4">
-            <div className="animate-spin rounded-full h-10 w-10 border-t-2 border-b-2 border-[#d4af37] mx-auto mb-3"></div>
-            <p className="text-white font-medium">Calcolo imposte in corso...</p>
-            <p className="text-slate-400 text-sm mt-1">Formule deterministiche basate su aliquote vigenti</p>
-          </div>
-        )}
-
         {/* Contenuto */}
         {view === 'bilancio' && <AnalisiBilancio />}
 
