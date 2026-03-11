@@ -1,6 +1,10 @@
-import React, { useState } from 'react';
-import { Search, ShoppingBag, Utensils, Home, Sparkles, Fuel, ShoppingCart, Gamepad2, Baby, Tv, BookOpen, Music, Heart, Dumbbell, Cpu, Plane, PawPrint, Gift } from 'lucide-react';
+import React, { useState, useEffect } from 'react';
+import { Search, ShoppingBag, Utensils, Home, Sparkles, Fuel, ShoppingCart, Gamepad2, Baby, Tv, BookOpen, Music, Heart, Dumbbell, Cpu, Plane, PawPrint, Gift, Send, Loader2, CheckCircle } from 'lucide-react';
 import { Input } from '@/components/ui/input';
+import { Textarea } from '@/components/ui/textarea';
+import { Button } from '@/components/ui/button';
+import { base44 } from '@/api/base44Client';
+import { toast } from 'sonner';
 import BrandScrollBar from './BrandScrollBar';
 
 const brandPerCategoria = {
@@ -39,8 +43,22 @@ Object.values(brandPerCategoria).flat().forEach(b => {
 
 export default function WelfareCatalogoTab({ tipo }) {
   const [searchTerm, setSearchTerm] = useState('');
+  const [localePreferito, setLocalePreferito] = useState('');
+  const [saving, setSaving] = useState(false);
+  const [saved, setSaved] = useState(false);
   
   const isBuoniPasto = tipo === 'buoni-pasto';
+
+  useEffect(() => {
+    if (isBuoniPasto) {
+      base44.auth.me().then(u => {
+        if (u?.locale_preferito_buoni_pasto) {
+          setLocalePreferito(u.locale_preferito_buoni_pasto);
+          setSaved(true);
+        }
+      }).catch(() => {});
+    }
+  }, [isBuoniPasto]);
 
   // Buoni pasto: lista specifica di insegne
   const insegneBuoniPasto = [
@@ -78,6 +96,51 @@ export default function WelfareCatalogoTab({ tipo }) {
           className="pl-9 bg-slate-800 border-slate-700 text-white placeholder:text-slate-500 text-sm h-9"
         />
       </div>
+
+      {/* Box locale preferito (solo buoni pasto) */}
+      {isBuoniPasto && !searchTerm && (
+        <div className="bg-slate-800/80 border border-slate-700 rounded-xl p-4 mb-4">
+          <div className="flex items-start gap-3 mb-3">
+            <div className="w-8 h-8 rounded-full bg-pink-500/20 flex items-center justify-center flex-shrink-0 mt-0.5">
+              <Utensils className="w-4 h-4 text-pink-400" />
+            </div>
+            <div>
+              <h4 className="text-white font-semibold text-sm mb-1">Hai un locale preferito?</h4>
+              <p className="text-slate-400 text-[11px] leading-relaxed">
+                Puoi indicare un locale non presente in elenco. <span className="text-pink-400 font-medium">La nostra direzione lo contatterà</span> per verificare la disponibilità e attivare la convenzione. Se disponibile, sarà incluso nel contratto.
+              </p>
+            </div>
+          </div>
+          <Textarea
+            placeholder="Es. Ristorante Da Mario, Via Garibaldi 12, Torino..."
+            value={localePreferito}
+            onChange={(e) => { setLocalePreferito(e.target.value); setSaved(false); }}
+            className="bg-slate-900/70 border-slate-600 text-white text-xs placeholder:text-slate-500 min-h-[50px] resize-none mb-2"
+          />
+          {saved ? (
+            <div className="flex items-center gap-2 text-green-400 text-xs">
+              <CheckCircle className="w-3.5 h-3.5" />
+              Salvato! Sarà riportato nel contratto.
+            </div>
+          ) : (
+            <Button
+              size="sm"
+              disabled={!localePreferito.trim() || saving}
+              onClick={async () => {
+                setSaving(true);
+                await base44.auth.updateMe({ locale_preferito_buoni_pasto: localePreferito.trim() });
+                setSaving(false);
+                setSaved(true);
+                toast.success('Locale preferito salvato!');
+              }}
+              className="w-full bg-pink-500 hover:bg-pink-600 text-white text-xs"
+            >
+              {saving ? <Loader2 className="w-3.5 h-3.5 animate-spin mr-1" /> : <Send className="w-3.5 h-3.5 mr-1" />}
+              Salva e inserisci nel contratto
+            </Button>
+          )}
+        </div>
+      )}
 
       {isBuoniPasto ? (
         /* Buoni Pasto: unica barra scrollabile */
