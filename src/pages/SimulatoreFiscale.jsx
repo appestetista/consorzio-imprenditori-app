@@ -89,17 +89,28 @@ export default function SimulatoreFiscale() {
           {/* Icone gestite dal GlobalHeader */}
         </div>
 
-        {/* Tabs */}
+        {/* Banner se tipo società non configurato */}
+        {!userFormaGiuridica && (
+          <div className="bg-amber-500/10 border border-amber-500/30 rounded-xl p-4 mb-4 flex items-start gap-3">
+            <AlertCircle className="w-5 h-5 text-amber-400 mt-0.5 shrink-0" />
+            <div>
+              <p className="text-amber-300 text-sm font-medium">Tipo di società non impostato</p>
+              <p className="text-slate-400 text-xs mt-1">Vai nel tuo <Link to={createPageUrl('MyProfile')} className="text-[#d4af37] underline">Profilo</Link> e seleziona il tipo di società per vedere i pulsanti personalizzati.</p>
+            </div>
+          </div>
+        )}
+
+        {/* Tipo società selezionato */}
+        {userFormaGiuridica && (
+          <div className="mb-3 flex items-center gap-2">
+            <span className="text-slate-500 text-xs">Tipo società:</span>
+            <span className="text-[#d4af37] text-xs font-semibold bg-[#d4af37]/10 px-2 py-0.5 rounded">{userFormaGiuridica}</span>
+          </div>
+        )}
+
+        {/* Tabs dinamici */}
         <div className="grid grid-cols-2 gap-2 mb-6">
-          {[
-            { id: 'bilancio', label: 'Bilancio', sub: 'Conto economico' },
-            { id: 'iva', label: 'IVA', sub: 'Imposta Valore Aggiunto' },
-            { id: 'irpef', label: 'Tasse personali', sub: 'IRPEF' },
-            { id: 'ires', label: 'Tasse società', sub: 'IRES' },
-            { id: 'inps', label: 'Contributi pensione', sub: 'INPS' },
-            { id: 'dividendi', label: 'Soldi ai soci', sub: 'Dividendi' },
-            { id: 'netto', label: 'Quanto mi resta', sub: 'Reddito netto' },
-          ].map(tab => (
+          {tabs.map(tab => (
             <button
               key={tab.id}
               onClick={() => setView(tab.id)}
