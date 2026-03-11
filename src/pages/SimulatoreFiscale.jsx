@@ -78,43 +78,40 @@ export default function SimulatoreFiscale() {
         </div>
 
         {/* Tabs */}
-        <div className="flex gap-2 mb-6 flex-wrap">
-          <button
-            onClick={() => { setView('form'); setResult(null); }}
-            className={`flex-1 py-2 rounded-lg text-sm font-medium transition-colors ${view === 'form' || view === 'result' ? 'bg-[#d4af37] text-slate-900' : 'bg-slate-800 text-slate-400'}`}
-          >
-            Scenario
-          </button>
-          <button
-            onClick={() => setView('confronto_srl')}
-            className={`flex-1 py-2 rounded-lg text-sm font-medium transition-colors ${view === 'confronto_srl' ? 'bg-[#d4af37] text-slate-900' : 'bg-slate-800 text-slate-400'}`}
-          >
-            Prelievo SRL
-          </button>
-          <button
-            onClick={() => setView('multi_scenario')}
-            className={`flex-1 py-2 rounded-lg text-sm font-medium transition-colors ${view === 'multi_scenario' ? 'bg-[#d4af37] text-slate-900' : 'bg-slate-800 text-slate-400'}`}
-          >
-            Multi-Scenario
-          </button>
-          <button
-            onClick={() => setView('bilancio')}
-            className={`flex-1 py-2 rounded-lg text-sm font-medium transition-colors ${view === 'bilancio' ? 'bg-[#d4af37] text-slate-900' : 'bg-slate-800 text-slate-400'}`}
-          >
-            Bilancio
-          </button>
-          <button
-            onClick={() => setView('storico')}
-            className={`flex-1 py-2 rounded-lg text-sm font-medium transition-colors ${view === 'storico' ? 'bg-[#d4af37] text-slate-900' : 'bg-slate-800 text-slate-400'}`}
-          >
-            Storico
-          </button>
+        <div className="grid grid-cols-2 gap-2 mb-6">
+          {[
+            { id: 'bilancio', label: 'Bilancio', sub: 'Conto economico' },
+            { id: 'iva', label: 'IVA', sub: 'Imposta Valore Aggiunto' },
+            { id: 'irpef', label: 'Tasse personali', sub: 'IRPEF' },
+            { id: 'ires', label: 'Tasse società', sub: 'IRES' },
+            { id: 'inps', label: 'Contributi pensione', sub: 'INPS' },
+            { id: 'dividendi', label: 'Soldi ai soci', sub: 'Dividendi' },
+            { id: 'netto', label: 'Quanto mi resta', sub: 'Reddito netto' },
+          ].map(tab => (
+            <button
+              key={tab.id}
+              onClick={() => setView(tab.id)}
+              className={`py-3 px-3 rounded-xl text-left transition-all ${
+                view === tab.id
+                  ? 'bg-[#d4af37] text-slate-900 shadow-lg shadow-[#d4af37]/20'
+                  : 'bg-slate-800/80 text-slate-300 hover:bg-slate-700/80'
+              }`}
+            >
+              <span className="block text-sm font-semibold leading-tight">{tab.label}</span>
+              <span className={`block text-[10px] mt-0.5 leading-tight ${view === tab.id ? 'text-slate-700' : 'text-slate-500'}`}>{tab.sub}</span>
+            </button>
+          ))}
           {effectiveUser?.role === 'admin' && (
             <button
               onClick={() => setView('aliquote')}
-              className={`flex-1 py-2 rounded-lg text-sm font-medium transition-colors ${view === 'aliquote' ? 'bg-[#d4af37] text-slate-900' : 'bg-slate-800 text-slate-400'}`}
+              className={`py-3 px-3 rounded-xl text-left transition-all ${
+                view === 'aliquote'
+                  ? 'bg-[#d4af37] text-slate-900 shadow-lg shadow-[#d4af37]/20'
+                  : 'bg-slate-800/80 text-slate-300 hover:bg-slate-700/80'
+              }`}
             >
-              Aliquote
+              <span className="block text-sm font-semibold leading-tight">Aliquote</span>
+              <span className={`block text-[10px] mt-0.5 leading-tight ${view === 'aliquote' ? 'text-slate-700' : 'text-slate-500'}`}>Gestione IRAP</span>
             </button>
           )}
         </div>
