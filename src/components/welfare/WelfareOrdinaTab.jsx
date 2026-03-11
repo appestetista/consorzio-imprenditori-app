@@ -1,8 +1,9 @@
 import React, { useState, useEffect, useRef, useCallback } from 'react';
 import { base44 } from '@/api/base44Client';
-import { Download, Upload, CheckCircle, Loader2, X, FileSpreadsheet, FileText, ChevronDown, ChevronUp } from 'lucide-react';
+import { Download, Upload, CheckCircle, Loader2, X, FileSpreadsheet, FileText, ChevronDown, ChevronUp, FileDown, ArrowRight } from 'lucide-react';
 import { Card, CardContent } from '@/components/ui/card';
 import { Button } from '@/components/ui/button';
+import { Dialog, DialogContent } from '@/components/ui/dialog';
 import { toast } from 'sonner';
 import ContractFormFields from './ContractFormFields';
 import WelfareSimulazione from './WelfareSimulazione';
@@ -229,6 +230,26 @@ export default function WelfareOrdinaTab({ user, tipo = 'buoni_pasto' }) {
           </div>
         </CardContent>
       </Card>
+
+      {/* Popup PDF scaricato */}
+      <Dialog open={showPdfPopup} onOpenChange={(open) => { if (!open) handlePdfPopupClose(); }}>
+        <DialogContent className="bg-slate-800 border-slate-700 max-w-sm text-center p-6">
+          <div className="flex flex-col items-center gap-3">
+            <div className="w-14 h-14 rounded-full bg-green-500/20 flex items-center justify-center">
+              <FileDown className="w-7 h-7 text-green-400" />
+            </div>
+            <h3 className="text-white font-bold text-base">PDF Scaricato!</h3>
+            <p className="text-slate-400 text-xs leading-relaxed">
+              Troverai il contratto nei tuoi <strong className="text-white">Download</strong>.<br />
+              Stampalo, apponi <strong className="text-white">timbro e firma</strong>, poi torna qui per caricarlo.
+            </p>
+            <Button onClick={handlePdfPopupClose} className="w-full mt-2 bg-pink-500 hover:bg-pink-600 text-white font-bold text-sm">
+              <ArrowRight className="w-4 h-4 mr-2" />
+              Procedi al caricamento
+            </Button>
+          </div>
+        </DialogContent>
+      </Dialog>
 
       {/* STEP 2: Ricarica firmato */}
       {pdfGenerated && !uploadStatus.contractSent && (
