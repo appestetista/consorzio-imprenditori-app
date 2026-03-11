@@ -197,6 +197,7 @@ export default function WelfareOrdinaTab({ user, tipo = 'buoni_pasto' }) {
               <WelfareSimulazione
                 valoreBuono={formData.valore_buono}
                 tipo={tipo}
+                userEmail={user?.email}
                 onProcedi={(dati) => { setSimulazioneCompletata(true); setDatiSimulazione(dati); }}
               />
             )}
