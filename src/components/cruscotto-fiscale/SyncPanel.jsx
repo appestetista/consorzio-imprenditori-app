@@ -22,6 +22,12 @@ export default function SyncPanel({ azienda, onSyncComplete, onAziendaCreated, u
     setSyncing(true);
     setLastSyncResult(null);
     try {
+      // Se l'azienda non è ancora registrata su SDI, registrala prima
+      if (!azienda.configurazione_openapi) {
+        toast.info('Registrazione su SDI in corso...');
+        await registerOnSDI(azienda.id, azienda.partita_iva, userEmail);
+      }
+
       const payload = {
         azienda_id: azienda.id,
         fiscal_id: azienda.partita_iva,
