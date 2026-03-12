@@ -258,6 +258,14 @@ export default function SyncPanel({ azienda, onSyncComplete, onAziendaCreated, u
           </div>
         )}
       </CardContent>
+
+      <MissingDataDialog
+        open={showMissingData}
+        onClose={setShowMissingData}
+        azienda={azienda}
+        userEmail={userEmail}
+        onDataCompleted={handleMissingDataCompleted}
+      />
     </Card>
   );
 }
