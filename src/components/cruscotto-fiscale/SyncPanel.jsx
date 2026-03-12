@@ -3,30 +3,40 @@ import { Card, CardContent } from '@/components/ui/card';
 import { Button } from '@/components/ui/button';
 import { Input } from '@/components/ui/input';
 import { Label } from '@/components/ui/label';
-import { RefreshCw, CheckCircle2, AlertCircle, Building2, Plus } from 'lucide-react';
+import { RefreshCw, CheckCircle2, AlertCircle, Building2, Plus, Calendar, FileText } from 'lucide-react';
 import { base44 } from '@/api/base44Client';
 import { toast } from 'sonner';
 
 export default function SyncPanel({ azienda, onSyncComplete, onAziendaCreated, userEmail }) {
   const [syncing, setSyncing] = useState(false);
   const [showForm, setShowForm] = useState(false);
+  const [showDateFilter, setShowDateFilter] = useState(false);
+  const [dateFrom, setDateFrom] = useState('');
+  const [dateTo, setDateTo] = useState('');
+  const [lastSyncResult, setLastSyncResult] = useState(null);
   const [formData, setFormData] = useState({ nome: '', partita_iva: '', codice_fiscale: '' });
   const [creating, setCreating] = useState(false);
 
   const handleSync = async () => {
     if (!azienda) return;
     setSyncing(true);
+    setLastSyncResult(null);
     try {
-      const res = await base44.functions.invoke('syncFatture', {
+      const payload = {
         azienda_id: azienda.id,
         fiscal_id: azienda.partita_iva,
         action: 'sync'
-      });
+      };
+      if (dateFrom) payload.date_from = dateFrom;
+      if (dateTo) payload.date_to = dateTo;
+
+      const res = await base44.functions.invoke('syncFatture', payload);
       const data = res.data;
       if (data.error) {
         toast.error(data.error);
       } else {
-        toast.success(`Sincronizzazione completata: ${data.new_created} nuove fatture su ${data.total_from_api} totali`);
+        setLastSyncResult(data);
+        toast.success(`Sync: ${data.new_created} nuove fatture, ${data.xml_parsed || 0} XML parsati, ${data.righe_create || 0} righe estratte`);
         onSyncComplete?.();
       }
     } catch (err) {
@@ -104,7 +114,7 @@ export default function SyncPanel({ azienda, onSyncComplete, onAziendaCreated, u
 
   return (
     <Card className="bg-slate-800/50 border-slate-700">
-      <CardContent className="p-4">
+      <CardContent className="p-4 space-y-3">
         <div className="flex items-center justify-between">
           <div className="flex items-center gap-3">
             <Building2 className="w-5 h-5 text-blue-400" />
@@ -121,11 +131,54 @@ export default function SyncPanel({ azienda, onSyncComplete, onAziendaCreated, u
               </div>
             )}
           </div>
-          <Button onClick={handleSync} disabled={syncing} size="sm" className="bg-blue-600 hover:bg-blue-700">
-            <RefreshCw className={`w-3.5 h-3.5 mr-1 ${syncing ? 'animate-spin' : ''}`} />
-            {syncing ? 'Sincronizzazione...' : 'Sincronizza'}
-          </Button>
+          <div className="flex items-center gap-2">
+            <Button variant="outline" size="sm" onClick={() => setShowDateFilter(!showDateFilter)} className="border-slate-600 text-slate-300 text-xs">
+              <Calendar className="w-3.5 h-3.5 mr-1" />
+              Filtri
+            </Button>
+            <Button onClick={handleSync} disabled={syncing} size="sm" className="bg-blue-600 hover:bg-blue-700">
+              <RefreshCw className={`w-3.5 h-3.5 mr-1 ${syncing ? 'animate-spin' : ''}`} />
+              {syncing ? 'Sincronizzazione...' : 'Sincronizza'}
+            </Button>
+          </div>
         </div>
+
+        {/* Filtri data */}
+        {showDateFilter && (
+          <div className="flex items-end gap-3 pt-2 border-t border-slate-700">
+            <div className="flex-1">
+              <Label className="text-slate-400 text-xs">Data da</Label>
+              <Input type="date" value={dateFrom} onChange={e => setDateFrom(e.target.value)} className="bg-slate-900 border-slate-600 text-white text-xs mt-1" />
+            </div>
+            <div className="flex-1">
+              <Label className="text-slate-400 text-xs">Data a</Label>
+              <Input type="date" value={dateTo} onChange={e => setDateTo(e.target.value)} className="bg-slate-900 border-slate-600 text-white text-xs mt-1" />
+            </div>
+            {(dateFrom || dateTo) && (
+              <Button variant="ghost" size="sm" onClick={() => { setDateFrom(''); setDateTo(''); }} className="text-slate-400 text-xs">
+                Reset
+              </Button>
+            )}
+          </div>
+        )}
+
+        {/* Risultato ultima sync */}
+        {lastSyncResult && (
+          <div className="bg-slate-900/50 rounded-lg p-3 border border-slate-700 space-y-1">
+            <p className="text-green-400 text-xs font-medium flex items-center gap-1">
+              <CheckCircle2 className="w-3 h-3" /> Sincronizzazione completata
+            </p>
+            <div className="grid grid-cols-2 sm:grid-cols-4 gap-2 text-xs">
+              <div><span className="text-slate-500">Da API:</span> <span className="text-white">{lastSyncResult.total_from_api}</span></div>
+              <div><span className="text-slate-500">Nuove:</span> <span className="text-blue-400">{lastSyncResult.new_created}</span></div>
+              <div><span className="text-slate-500">XML parsati:</span> <span className="text-emerald-400">{lastSyncResult.xml_parsed || 0}</span></div>
+              <div><span className="text-slate-500">Righe estratte:</span> <span className="text-amber-400">{lastSyncResult.righe_create || 0}</span></div>
+              {lastSyncResult.xml_errors > 0 && (
+                <div className="col-span-2"><span className="text-red-400">⚠ XML non parsabili: {lastSyncResult.xml_errors}</span></div>
+              )}
+            </div>
+          </div>
+        )}
       </CardContent>
     </Card>
   );
