@@ -734,9 +734,9 @@ export default function SimulatoreInterattivo({ user }) {
           <div className="space-y-1">
             <DetailRow label="Il tuo compenso lordo (quanto deliberi in assemblea)" value={comp} color="text-white" />
             <DetailRow label="− I tuoi contributi INPS (1/3 del 35,03%)" value={-A.inpsAmministratore} color="text-red-400"
-              note="Questa quota INPS la paghi tu. Serve per la tua pensione. Puoi dedurne il 50% dall'IRPEF." />
+              note="Questa quota INPS la paghi tu. Serve per la tua pensione. È integralmente deducibile dal reddito (art. 10 TUIR)." />
             <DetailRow label="= Reddito su cui si calcola l'IRPEF" value={A.imponibileIrpef} color="text-gray-300"
-              note="Dopo aver dedotto metà dei tuoi contributi INPS, questo è l'importo su cui calcoli l'IRPEF." />
+              note="Dopo aver dedotto i tuoi contributi INPS (integralmente deducibili), questo è l'importo su cui calcoli l'IRPEF." />
             <DetailRow label={`− IRPEF (tassa sul reddito: ${comp <= 28000 ? '23%' : comp <= 50000 ? 'fino al 33%' : 'fino al 43%'})`} value={-A.irpef} color="text-red-400"
               note={comp <= 28000 ? "Ottimo: resti nel primo scaglione, paghi solo il 23%!" : comp <= 50000 ? "Sei entrato nel secondo scaglione: da €28k a €50k paghi il 33%." : "Attenzione: oltre €50k paghi il 43% su ogni euro in più."} />
             <DetailRow label="− Addizionali regionali e comunali (~2,5%)" value={-(A.addRegionale + A.addComunale)} color="text-red-400"
