@@ -1323,8 +1323,8 @@ export default function MyProfile() {
                 />
               </div>
             </div>
-            <div>
-              <label className="text-lime-400 text-sm font-medium mb-1 block">Regione (obbligatorio)</label>
+            <div className={highlightFiscale ? 'ring-2 ring-[#d4af37]/50 rounded-lg p-2 -m-2 bg-[#d4af37]/5' : ''}>
+              <label className="text-lime-400 text-sm font-medium mb-1 block">Regione (obbligatorio) {highlightFiscale && <span className="text-[#d4af37]">← Simulatore</span>}</label>
               <Select
                 value={formData.region || undefined}
                 onValueChange={(value) => setFormData({...formData, region: value})}
@@ -1438,6 +1438,7 @@ export default function MyProfile() {
             </div>
           </CardContent>
         </Card>
+        </div>
 
         <Button
           onClick={handleSave}
