@@ -39,12 +39,7 @@ export default function SimulatoreFiscale() {
     }
   }, [effectiveUser]);
 
-  // Imposta la prima tab quando i tabs cambiano
-  useEffect(() => {
-    if (tabs.length > 0 && (!view || view === null)) {
-      setView(tabs[0].id);
-    }
-  }, [tabs]);
+  // Non impostiamo più un tab attivo automaticamente — l'utente sceglie
 
   const handlePreFlightComplete = (vals) => {
     setShowPreFlight(false);
