@@ -6,6 +6,7 @@ import { Label } from '@/components/ui/label';
 import { RefreshCw, CheckCircle2, AlertCircle, Building2, Plus, Calendar, FileText } from 'lucide-react';
 import { base44 } from '@/api/base44Client';
 import { toast } from 'sonner';
+import MissingDataDialog from './MissingDataDialog';
 
 export default function SyncPanel({ azienda, onSyncComplete, onAziendaCreated, userEmail }) {
   const [syncing, setSyncing] = useState(false);
