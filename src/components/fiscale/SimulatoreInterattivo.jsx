@@ -192,12 +192,14 @@ function calcolaScenario({ fatturato, costiTotali, compensoLordo, percDividendi 
   const utileAnteImposte = margine - costoCompensoPerSocieta;
   const irap = Math.max(0, margine * FISCO.irap);
   const ires = Math.max(0, utileAnteImposte * FISCO.ires);
-  const utileNetto = utileAnteImposte - irap - ires;
+  // IRAP è un costo della società ma non riduce l'utile distribuibile ai fini civilistici
+  // L'utile netto distribuibile = utile ante imposte - IRES (l'IRAP è costo a CE separato)
+  const utileNetto = utileAnteImposte - ires;
   const dividendiLordi = Math.max(0, utileNetto) * (percDividendi / 100);
   const ritenutaDividendi = dividendiLordi * FISCO.ritenuta_dividendi;
   const dividendiNetti = dividendiLordi - ritenutaDividendi;
-  const deduzioneInps = inpsAmministratore * 0.5;
-  const imponibileIrpef = Math.max(0, compensoLordo - deduzioneInps);
+  // I contributi INPS a carico dell'amministratore sono integralmente deducibili (art. 10 TUIR)
+  const imponibileIrpef = Math.max(0, compensoLordo - inpsAmministratore);
   const irpef = calcolaIrpef(imponibileIrpef);
   const addRegionale = imponibileIrpef * FISCO.add_regionale;
   const addComunale = imponibileIrpef * FISCO.add_comunale;

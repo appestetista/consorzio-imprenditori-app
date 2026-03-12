@@ -31,22 +31,26 @@ const DETRAZIONE_LAVORO_DIP_MEDIA = 1190; // 15001-28000 (semplificata)
 const IRES_ALIQUOTA = 0.24;
 const IRAP_ALIQUOTA_BASE = 0.039;
 
-// INPS Artigiani 2025 (IVS)
+// INPS Artigiani 2026 (IVS) — Circ. INPS n. 14 del 09/02/2026
 const INPS_ARTIGIANI = {
-  aliquota_fino_52190: 0.24,
-  aliquota_oltre_52190: 0.25,
-  minimale: 18555, // reddito minimale 2025
-  contributo_minimo_annuo: 4460, // approssimativo (24% su minimale)
-  massimale: 91680,
+  aliquota_fino_56224: 0.24,
+  aliquota_oltre_56224: 0.25,
+  minimale: 18808, // reddito minimale 2026
+  contributo_minimo_annuo: 4521, // €4.521,36 arrotondato
+  massimale: 93707, // con anzianità contributiva al 31.12.1995
+  massimale_senza_anzianita: 122295,
+  prima_fascia: 56224,
 };
 
-// INPS Commercianti 2025 (IVS)
+// INPS Commercianti 2026 (IVS) — Circ. INPS n. 14 del 09/02/2026
 const INPS_COMMERCIANTI = {
-  aliquota_fino_52190: 0.2448,
-  aliquota_oltre_52190: 0.2548,
-  minimale: 18555,
-  contributo_minimo_annuo: 4549, // approssimativo
-  massimale: 91680,
+  aliquota_fino_56224: 0.2448,
+  aliquota_oltre_56224: 0.2548,
+  minimale: 18808,
+  contributo_minimo_annuo: 4612, // €4.611,64 arrotondato
+  massimale: 93707,
+  massimale_senza_anzianita: 122295,
+  prima_fascia: 56224,
 };
 
 // INPS Gestione Separata 2026 (collaboratori/amministratori)
@@ -130,11 +134,11 @@ function calcolaINPSArtigianiCommercianti(reddito, tipo = 'commercianti', riduzi
   let contributo = 0;
   if (redditoEffettivo <= params.minimale) {
     // Contributo fisso sul minimale
-    contributo = params.minimale * params.aliquota_fino_52190;
-  } else if (redditoEffettivo <= 52190) {
-    contributo = redditoEffettivo * params.aliquota_fino_52190;
+    contributo = params.contributo_minimo_annuo;
+  } else if (redditoEffettivo <= params.prima_fascia) {
+    contributo = redditoEffettivo * params.aliquota_fino_56224;
   } else {
-    contributo = 52190 * params.aliquota_fino_52190 + (redditoEffettivo - 52190) * params.aliquota_oltre_52190;
+    contributo = params.prima_fascia * params.aliquota_fino_56224 + (redditoEffettivo - params.prima_fascia) * params.aliquota_oltre_56224;
   }
   
   if (riduzione35) {
