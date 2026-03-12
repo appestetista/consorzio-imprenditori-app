@@ -7,15 +7,8 @@ import Header from '../components/layout/Header';
 import BottomNavWithMenu from '../components/layout/BottomNavWithMenu';
 import { useImpersonation } from '../components/admin/ImpersonationContext';
 import { normalizeUser } from '../components/utils/normalizeUser';
-import SimulazioneForm from '../components/fiscale/SimulazioneForm';
-import SimulazioneResult from '../components/fiscale/SimulazioneResult';
-import StoricoSimulazioni from '../components/fiscale/StoricoSimulazioni';
-import ConfrontoPrelievoSRL from '../components/fiscale/ConfrontoPrelievoSRL';
-import MultiScenarioCompenso from '../components/fiscale/MultiScenarioCompenso';
+import SimulatoreInterattivo from '../components/fiscale/SimulatoreInterattivo';
 import GestioneAliquoteIRAP from '../components/fiscale/GestioneAliquoteIRAP';
-import AnalisiBilancio from '../components/fiscale/AnalisiBilancio';
-import GlobalTopIcons from '../components/layout/GlobalTopIcons';
-import { getTabsForSocieta, getTabImage } from '../components/fiscale/societaTabs';
 import FiscalPreFlightPopup from '../components/fiscale/FiscalPreFlightPopup';
 import AtecoInfoPopup from '../components/fiscale/AtecoInfoPopup';
 
