@@ -46,6 +46,32 @@ export default function SyncPanel({ azienda, onSyncComplete, onAziendaCreated, u
     }
   };
 
+  // Registra l'azienda su OpenAPI SDI
+  const registerOnSDI = async (azId, piva, email) => {
+    try {
+      const res = await base44.functions.invoke('syncFatture', {
+        azienda_id: azId,
+        fiscal_id: piva,
+        action: 'register',
+        email: email
+      });
+      const data = res.data;
+      if (data.error) {
+        console.warn('Registrazione SDI non riuscita:', data.error);
+        return false;
+      }
+      if (data.already_registered) {
+        console.log('Azienda già registrata su SDI');
+      } else {
+        console.log('Azienda registrata su SDI con successo');
+      }
+      return true;
+    } catch (err) {
+      console.warn('Errore registrazione SDI:', err.message);
+      return false;
+    }
+  };
+
   const handleCreate = async () => {
     if (!formData.nome || !formData.partita_iva) {
       toast.error('Nome e Partita IVA sono obbligatori');
@@ -57,7 +83,16 @@ export default function SyncPanel({ azienda, onSyncComplete, onAziendaCreated, u
         ...formData,
         user_email: userEmail
       });
-      toast.success('Azienda aggiunta');
+      
+      // Registra automaticamente su SDI
+      toast.info('Registrazione azienda su SDI in corso...');
+      const registered = await registerOnSDI(newAzienda.id, formData.partita_iva, userEmail);
+      if (registered) {
+        toast.success('Azienda aggiunta e registrata su SDI');
+      } else {
+        toast.success('Azienda aggiunta (registrazione SDI da completare)');
+      }
+      
       setShowForm(false);
       setFormData({ nome: '', partita_iva: '', codice_fiscale: '' });
       onAziendaCreated?.(newAzienda);
