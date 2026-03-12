@@ -63,6 +63,7 @@ export function normalizeUser(user) {
     ragione_sociale_fatturazione: user.ragione_sociale_fatturazione || data.ragione_sociale_fatturazione,
     forma_giuridica: user.forma_giuridica || data.forma_giuridica,
     regime_fiscale: user.regime_fiscale || data.regime_fiscale,
+    periodicita_iva: user.periodicita_iva || data.periodicita_iva,
     settore: user.settore || data.settore,
     fatturato_annuo: user.fatturato_annuo || data.fatturato_annuo,
     numero_dipendenti: user.numero_dipendenti || data.numero_dipendenti,

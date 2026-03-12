@@ -1,6 +1,6 @@
 import React, { useState, useMemo } from 'react';
 import { base44 } from '@/api/base44Client';
-import { Building2, Check, ChevronRight, FileText, MapPin, Hash } from 'lucide-react';
+import { Building2, Check, ChevronRight, FileText, MapPin, Hash, CalendarClock } from 'lucide-react';
 import AtecoSearchInput from './AtecoSearchInput';
 
 const FORME_GIURIDICHE = [
@@ -41,6 +41,7 @@ export default function FiscalPreFlightPopup({ user, onComplete }) {
     if (!user?.regime_fiscale) steps.push('regime_fiscale');
     if (!user?.regione && !user?.region) steps.push('regione');
     if (!user?.ateco_code) steps.push('ateco_code');
+    if (!user?.periodicita_iva) steps.push('periodicita_iva');
     return steps;
   }, [user]);
 
@@ -50,6 +51,7 @@ export default function FiscalPreFlightPopup({ user, onComplete }) {
     regime_fiscale: user?.regime_fiscale || null,
     regione: user?.regione || user?.region || null,
     ateco_code: user?.ateco_code || '',
+    periodicita_iva: user?.periodicita_iva || null,
   });
   const [saving, setSaving] = useState(false);
 
@@ -61,6 +63,7 @@ export default function FiscalPreFlightPopup({ user, onComplete }) {
     if (currentStep === 'regime_fiscale') return !!values.regime_fiscale;
     if (currentStep === 'regione') return !!values.regione;
     if (currentStep === 'ateco_code') return !!values.ateco_code;
+    if (currentStep === 'periodicita_iva') return !!values.periodicita_iva;
     return true;
   };
 
@@ -72,6 +75,7 @@ export default function FiscalPreFlightPopup({ user, onComplete }) {
       if (missingSteps.includes('regime_fiscale')) updateData.regime_fiscale = values.regime_fiscale;
       if (missingSteps.includes('regione')) updateData.regione = values.regione;
       if (missingSteps.includes('ateco_code')) updateData.ateco_code = values.ateco_code;
+      if (missingSteps.includes('periodicita_iva')) updateData.periodicita_iva = values.periodicita_iva;
       await base44.auth.updateMe(updateData);
       setSaving(false);
       onComplete(values);
@@ -88,6 +92,7 @@ export default function FiscalPreFlightPopup({ user, onComplete }) {
     regime_fiscale: { icon: FileText, title: 'Regime Fiscale', desc: 'Quale regime fiscale applichi?' },
     regione: { icon: MapPin, title: 'Regione Sede Legale', desc: 'Serve per calcolare IRAP regionale' },
     ateco_code: { icon: Hash, title: 'Codice ATECO', desc: 'Codice attività per aliquote corrette' },
+    periodicita_iva: { icon: CalendarClock, title: 'Periodicità IVA', desc: 'Liquidi l\'IVA mensilmente o trimestralmente?' },
   };
 
   const cfg = stepConfig[currentStep];
@@ -184,6 +189,31 @@ export default function FiscalPreFlightPopup({ user, onComplete }) {
                   <span className="text-green-300 text-sm font-medium">{values.ateco_code}</span>
                 </div>
               )}
+            </div>
+          )}
+
+          {currentStep === 'periodicita_iva' && (
+            <div className="grid gap-2">
+              {[
+                { value: 'Mensile', label: 'Mensile', desc: 'Liquidazione IVA ogni mese (fatturato > €400K)' },
+                { value: 'Trimestrale', label: 'Trimestrale', desc: 'Liquidazione IVA ogni 3 mesi' },
+              ].map(opt => (
+                <button
+                  key={opt.value}
+                  onClick={() => setValues(prev => ({ ...prev, periodicita_iva: opt.value }))}
+                  className={`w-full flex items-center justify-between py-3 px-4 rounded-xl text-left transition-all ${
+                    values.periodicita_iva === opt.value
+                      ? 'bg-[#d4af37] text-slate-900'
+                      : 'bg-slate-800/60 text-slate-300 hover:bg-slate-700/60'
+                  }`}
+                >
+                  <div>
+                    <span className="text-sm font-medium block">{opt.label}</span>
+                    <span className={`text-[10px] ${values.periodicita_iva === opt.value ? 'text-slate-700' : 'text-slate-500'}`}>{opt.desc}</span>
+                  </div>
+                  {values.periodicita_iva === opt.value && <Check className="w-4 h-4 shrink-0" />}
+                </button>
+              ))}
             </div>
           )}
         </div>
