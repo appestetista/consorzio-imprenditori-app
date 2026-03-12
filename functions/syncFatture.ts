@@ -143,7 +143,8 @@ Deno.serve(async (req) => {
       let hasMore = true;
 
       while (hasMore) {
-        let url = `${BASE_URL}/IT-invoices?fiscal_id=${fiscal_id}&page=${page}&per_page=100`;
+        // SDI API: GET /invoices con fiscal_id, type, page, per_page
+        let url = `${BASE_URL}/invoices?fiscal_id=${fiscal_id}&page=${page}&per_page=100`;
         if (date_from) url += `&date_from=${date_from}`;
         if (date_to) url += `&date_to=${date_to}`;
 
