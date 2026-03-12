@@ -112,4 +112,8 @@ export function getTabsForSocieta(formaGiuridica) {
   return SOCIETA_TABS[formaGiuridica] || DEFAULT_TABS;
 }
 
+export function getTabImage(tabId) {
+  return TAB_IMAGES[tabId] || null;
+}
+
 export default SOCIETA_TABS;

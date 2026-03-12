@@ -15,7 +15,7 @@ import MultiScenarioCompenso from '../components/fiscale/MultiScenarioCompenso';
 import GestioneAliquoteIRAP from '../components/fiscale/GestioneAliquoteIRAP';
 import AnalisiBilancio from '../components/fiscale/AnalisiBilancio';
 import GlobalTopIcons from '../components/layout/GlobalTopIcons';
-import { getTabsForSocieta } from '../components/fiscale/societaTabs';
+import { getTabsForSocieta, getTabImage } from '../components/fiscale/societaTabs';
 import FiscalPreFlightPopup from '../components/fiscale/FiscalPreFlightPopup';
 import AtecoInfoPopup from '../components/fiscale/AtecoInfoPopup';
 
