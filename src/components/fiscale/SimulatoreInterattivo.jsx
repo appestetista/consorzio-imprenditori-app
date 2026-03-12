@@ -206,14 +206,14 @@ function calcolaScenario({ fatturato, costiTotali, compensoLordo, percDividendi 
   const pressioneFiscale = margine > 0 ? ((margine - totaleTasca) / margine) * 100 : 0;
 
   const steps = [
-    { l: "Fatturato", v: fatturato, d: 0, t: "start" },
-    { l: "Costi operativi", d: -costiTotali, t: "costo" },
-    { l: "Compenso + INPS az.", d: -costoCompensoPerSocieta, t: "costo" },
-    { l: "IRAP (3,9%)", d: -irap, t: "tassa" },
-    { l: "IRES (24%)", d: -ires, t: "tassa" },
+    { l: "💰 Il tuo fatturato", v: fatturato, d: 0, t: "start" },
+    { l: "📦 Costi dell'attività", d: -costiTotali, t: "costo" },
+    { l: "💼 Compenso + contrib. INPS", d: -costoCompensoPerSocieta, t: "costo" },
+    { l: "🏛️ IRAP (tassa regionale)", d: -irap, t: "tassa" },
+    { l: "🏛️ IRES (tassa sugli utili)", d: -ires, t: "tassa" },
     ...(dividendiLordi > 0 ? [
-      { l: `Utile trattenuto (${100 - percDividendi}%)`, d: -(utileNetto - dividendiLordi), t: "neutro" },
-      { l: "Ritenuta dividendi (26%)", d: -ritenutaDividendi, t: "tassa" },
+      { l: `🏦 Utile che resta in azienda`, d: -(utileNetto - dividendiLordi), t: "neutro" },
+      { l: "💎 Tassa sui dividendi (26%)", d: -ritenutaDividendi, t: "tassa" },
     ] : []),
   ];
 
