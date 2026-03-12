@@ -381,21 +381,11 @@ export default function SimulatoreInterattivo({ user }) {
           </p>
         </div>
 
-        {/* Scorciatoie % */}
-        <div className="flex gap-2 mb-3">
-          {[50, 60, 70, 80].map(p => {
-            const active = Math.abs((costi / fatt) * 100 - p) < 3;
-            return (
-              <button key={p}
-                onClick={() => scalaCosti(Math.round(fatt * p / 100))}
-                className={`flex-1 py-1.5 rounded text-xs font-semibold transition-colors ${
-                  active
-                    ? "bg-blue-900 text-blue-300 border border-blue-700"
-                    : "bg-gray-800 text-gray-400 hover:bg-gray-700 border border-transparent"
-                }`}>{p}%</button>
-            );
-          })}
-        </div>
+        {/* Slider costi operativi */}
+        <input type="range" min={0} max={fatt} step={500} value={costi}
+          onChange={e => scalaCosti(Number(e.target.value))}
+          className="w-full h-2 rounded-lg appearance-none cursor-pointer mb-3"
+          style={{ background: `linear-gradient(to right, #F59E0B ${(costi / Math.max(1, fatt)) * 100}%, #374151 ${(costi / Math.max(1, fatt)) * 100}%)` }} />
 
         {/* BOTTONE DETTAGLIO */}
         <button onClick={() => setDetCosti(!detCosti)}
