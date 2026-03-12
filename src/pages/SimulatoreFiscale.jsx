@@ -75,6 +75,23 @@ export default function SimulatoreFiscale() {
     setView('result');
   };
 
+  const handleTabClick = (tabId) => {
+    // Se clicchi lo stesso tab attivo, lo chiudi
+    if (view === tabId) {
+      setView(null);
+      return;
+    }
+    setView(tabId);
+    // Auto-scroll al contenuto dopo il render
+    setTimeout(() => {
+      contentRef.current?.scrollIntoView({ behavior: 'smooth', block: 'start' });
+    }, 100);
+  };
+
+  const handleCloseContent = () => {
+    setView(null);
+  };
+
   const handleSelectStorico = (sim) => {
     setResult({
       success: true,
