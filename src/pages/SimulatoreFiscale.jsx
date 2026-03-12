@@ -30,7 +30,6 @@ export default function SimulatoreFiscale() {
   const handlePreFlightComplete = (vals) => {
     setShowPreFlight(false);
     setEffectiveUser(prev => ({ ...prev, ...vals }));
-    setView(null);
   };
 
   useEffect(() => {
