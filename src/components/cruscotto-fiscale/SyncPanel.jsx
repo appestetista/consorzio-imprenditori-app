@@ -214,7 +214,7 @@ export default function SyncPanel({ azienda, onSyncComplete, onAziendaCreated, u
               <Calendar className="w-3.5 h-3.5 mr-1" />
               Filtri
             </Button>
-            <Button onClick={handleSync} disabled={syncing} size="sm" className="bg-blue-600 hover:bg-blue-700">
+            <Button onClick={handleSyncClick} disabled={syncing} size="sm" className="bg-blue-600 hover:bg-blue-700">
               <RefreshCw className={`w-3.5 h-3.5 mr-1 ${syncing ? 'animate-spin' : ''}`} />
               {syncing ? 'Sincronizzazione...' : 'Sincronizza'}
             </Button>
