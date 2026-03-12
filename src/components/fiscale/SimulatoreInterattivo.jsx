@@ -497,13 +497,16 @@ export default function SimulatoreInterattivo({ user }) {
       {/* Come ti paghi */}
       <div className="rounded-xl p-5"
         style={{ backgroundColor: "rgba(255,255,255,0.03)", border: "1px solid rgba(255,255,255,0.06)" }}>
-        <h2 className="text-sm font-semibold text-gray-400 uppercase tracking-wider mb-4">
-          {confronto ? "Scenario A" : "Come ti paghi"}
+        <h2 className="text-sm font-semibold text-gray-400 uppercase tracking-wider mb-1">
+          {confronto ? "Scenario A" : "💼 Come ti paghi"}
         </h2>
-        <Slider label="Compenso Amm.re (lordo)" value={comp}
-          onChange={setComp} min={0} max={120000} step={3000} />
-        <Slider label="% utile → dividendi" value={pDiv}
-          onChange={setPDiv} min={0} max={100} step={5} suffix="%" />
+        <p className="text-[11px] text-gray-500 mb-4">Ci sono due modi per portare i soldi dalla SRL alla tua tasca. Regola entrambi per trovare il mix migliore.</p>
+        <Slider label="Compenso amministratore (lordo annuo)" value={comp}
+          onChange={setComp} min={0} max={120000} step={3000}
+          sub="È lo 'stipendio' che ti dai come amministratore. Viene tassato con IRPEF + contributi INPS, ma riduce le tasse della società." />
+        <Slider label="Quanta % dell'utile distribuisci come dividendi?" value={pDiv}
+          onChange={setPDiv} min={0} max={100} step={5} suffix="%"
+          sub="I dividendi sono la quota di utili che prelevi. Paghi il 26% secco. Il resto può restare in azienda senza pagare questa tassa." />
         {confronto && (
           <>
             <div className="border-t border-gray-800 my-4" />
