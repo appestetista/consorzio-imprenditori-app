@@ -17,9 +17,9 @@ export default function SimulatoreFiscale() {
   const [showAliquote, setShowAliquote] = useState(false);
   const { impersonation, appMode } = useImpersonation();
 
-  // Mostra popup pre-flight se manca qualsiasi dato fiscale essenziale
+  // Mostra popup pre-flight solo se manca la forma giuridica (unico dato indispensabile)
   useEffect(() => {
-    if (effectiveUser && (!effectiveUser.forma_giuridica || !effectiveUser.regime_fiscale || (!effectiveUser.regione && !effectiveUser.region) || !effectiveUser.ateco_code)) {
+    if (effectiveUser && !effectiveUser.forma_giuridica) {
       setShowPreFlight(true);
     }
   }, [effectiveUser]);
