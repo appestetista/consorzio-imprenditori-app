@@ -129,6 +129,15 @@ export default function SimulatoreFiscale() {
             {effectiveUser?.periodicita_iva && (
               <span className="text-slate-300 text-xs bg-slate-800/80 px-2 py-0.5 rounded">IVA {effectiveUser.periodicita_iva}</span>
             )}
+            {effectiveUser?.gestione_inps && (
+              <span className="text-slate-300 text-xs bg-slate-800/80 px-2 py-0.5 rounded">{effectiveUser.gestione_inps}</span>
+            )}
+            {effectiveUser?.numero_soci && (
+              <span className="text-slate-300 text-xs bg-slate-800/80 px-2 py-0.5 rounded">{effectiveUser.numero_soci} soci</span>
+            )}
+            {effectiveUser?.tipo_contabilita && (
+              <span className="text-slate-300 text-xs bg-slate-800/80 px-2 py-0.5 rounded">Cont. {effectiveUser.tipo_contabilita}</span>
+            )}
           </div>
         )}
 
