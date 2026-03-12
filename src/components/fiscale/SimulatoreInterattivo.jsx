@@ -277,6 +277,7 @@ export default function SimulatoreInterattivo({ user }) {
   const [compB, setCompB] = useState(60000);
   const [pDivB, setPDivB] = useState(50);
   const [showAteco, setShowAteco] = useState(false);
+  const [showPianificatore, setShowPianificatore] = useState(false);
 
   const costi = useMemo(() => Object.values(cv).reduce((a, b) => a + b, 0), [cv]);
 
