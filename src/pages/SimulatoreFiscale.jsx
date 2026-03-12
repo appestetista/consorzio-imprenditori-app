@@ -196,8 +196,8 @@ export default function SimulatoreFiscale() {
             >
               <div className="flex flex-col items-center p-3 pb-2">
                 <img src={getTabImage('irap')} alt="Aliquote" className="w-28 h-28 object-contain" />
-                <span className={`text-xs font-bold text-center leading-tight mt-1 whitespace-nowrap ${view === 'aliquote' ? 'text-[#d4af37]' : 'text-white'}`}>Aliquote</span>
-                <span className={`text-[9px] text-center leading-tight mt-0.5 whitespace-nowrap ${view === 'aliquote' ? 'text-[#d4af37]/70' : 'text-slate-500'}`}>Gestione IRAP</span>
+                <span className={`text-sm font-bold text-center leading-tight mt-1 whitespace-nowrap ${view === 'aliquote' ? 'text-[#d4af37]' : 'text-white'}`}>Aliquote</span>
+                <span className={`text-[11px] text-center leading-tight mt-0.5 whitespace-nowrap ${view === 'aliquote' ? 'text-[#f0d060]' : 'text-slate-400'}`}>Gestione IRAP</span>
               </div>
               {view === 'aliquote' && <div className="absolute bottom-0 left-0 right-0 h-0.5 bg-[#d4af37]" />}
             </button>
