@@ -27,11 +27,14 @@ function Tip({ text }) {
 /* ═══════════════════════════════════════════════════════
    PARAMETRI FISCALI ITALIA 2026
    Fonti:
-   - IRPEF: Legge di Bilancio 2026 (3 scaglioni, secondo al 33%)
+   - IRPEF: Legge di Bilancio 2026 (3 scaglioni: 23% fino 28k, 33% 28k-50k, 43% oltre 50k)
    - IRES: art. 77 TUIR — 24% ordinaria
    - IRAP: art. 16 D.Lgs. 446/1997 — 3,9% base
-   - INPS GS co.co.co.: Circ. INPS n.8 del 03/02/2026 — 35,03%
-   - Dividendi: art. 27 DPR 600/1973 — 26%
+   - INPS GS co.co.co.: Circ. INPS n.8 del 03/02/2026 — 35,03% (IVS 33% + accessorie 2,03%)
+   - INPS GS massimale: 122.295€ (Circ. INPS 8/2026)
+   - INPS GS ripartizione: 2/3 committente, 1/3 collaboratore
+   - Dividendi: art. 27 DPR 600/1973 — ritenuta 26% a titolo d'imposta
+   - Deduzione contributi INPS: art. 10 TUIR — integralmente deducibili dal reddito
    ═══════════════════════════════════════════════════════ */
 const FISCO = {
   ires: 0.24,

@@ -3,15 +3,16 @@
  * ==========================================
  * Logica fedele alla normativa fiscale italiana 2025-2026 per ogni tipo di società.
  * 
- * Fonti normative:
- * - IRPEF: art. 11 TUIR, Legge di Bilancio 2025 (3 scaglioni: 23%, 33%, 43%)
- * - IRES: art. 75 TUIR, aliquota 24%
+ * Fonti normative aggiornate al 2026:
+ * - IRPEF: art. 11 TUIR, Legge di Bilancio 2026 (3 scaglioni: 23%, 33%, 43%)
+ * - IRES: art. 77 TUIR, aliquota 24%
  * - IRAP: D.Lgs. 446/1997, aliquota base 3.9% (variabile per regione)
- * - INPS Artigiani/Commercianti: circ. INPS n. 19/2025
- * - INPS Gestione Separata: circ. INPS n. 27/2025
+ * - INPS Artigiani/Commercianti: Circ. INPS n. 14 del 09/02/2026 (minimale 18.808€, prima fascia 56.224€, massimale 93.707€/122.295€)
+ * - INPS Gestione Separata: Circ. INPS n. 8 del 03/02/2026 (collaboratori 35,03%, massimale 122.295€)
  * - Forfettario: L. 190/2014, commi 54-89
  * - Dividendi: art. 27 DPR 600/73, ritenuta 26% (qualificati post 2018)
  * - Cooperative: art. 12 L. 904/77, art. 1 co. 460-bis L. 311/2004
+ * - Deduzione contributi INPS: art. 10 TUIR (integralmente deducibili dal reddito)
  */
 
 // ═══════════════════════════════════════
