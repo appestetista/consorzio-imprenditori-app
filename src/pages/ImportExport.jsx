@@ -78,23 +78,7 @@ export default function ImportExport() {
           {/* Icone gestite dal GlobalHeader */}
         </div>
 
-        {/* Tab Switch - Export / Import */}
-        <div className="flex gap-2 mb-6">
-          <Button
-            onClick={() => setActiveTab('export')}
-            className={`flex-1 ${activeTab === 'export' || activeTab === 'history' ? 'bg-lime-400 text-slate-900 font-bold' : 'bg-lime-400/20 text-lime-400 border border-lime-400/40'}`}
-          >
-            <TrendingUp className="w-4 h-4 mr-2" />
-            Export
-          </Button>
-          <Button
-            onClick={() => setActiveTab('import')}
-            className={`flex-1 ${activeTab === 'import' ? 'bg-lime-400 text-slate-900 font-bold' : 'bg-lime-400/20 text-lime-400 border border-lime-400/40'}`}
-          >
-            <Ship className="w-4 h-4 mr-2" />
-            Import
-          </Button>
-        </div>
+
 
         {/* Usage Counter */}
         {user && !isLimitReached && activeTab !== 'history' && (
