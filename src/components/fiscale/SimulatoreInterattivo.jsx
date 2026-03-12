@@ -682,31 +682,34 @@ export default function SimulatoreInterattivo({ user }) {
         </div>
       </div>
 
-      {/* DETTAGLIO COMPENSO */}
+      {/* DETTAGLIO COMPENSO — calcolo passo passo */}
       {detComp && (
         <div className="rounded-xl p-5"
-          style={{ backgroundColor: "rgba(255,255,255,0.03)", border: "1px solid rgba(255,255,255,0.06)" }}>
-          <h2 className="text-sm font-semibold text-gray-400 uppercase tracking-wider mb-3">
-            Scomposizione compenso amministratore
+          style={{ backgroundColor: "rgba(59,130,246,0.04)", border: "1px solid rgba(59,130,246,0.15)" }}>
+          <h2 className="text-sm font-semibold text-blue-400 mb-1">
+            💼 Come viene calcolato il tuo compenso
           </h2>
-          {[
-            { l: "Compenso lordo deliberato", v: comp, c: "text-white" },
-            { l: `− INPS GS a carico amm.re (1/3 di ${(FISCO.inps_gs_totale * 100).toFixed(2)}%)`, v: -A.inpsAmministratore, c: "text-red-400" },
-            { l: "= Imponibile IRPEF (dopo ded. 50% INPS)", v: A.imponibileIrpef, c: "text-gray-300" },
-            { l: "− IRPEF 2026 (23% / 33% / 43%)", v: -A.irpef, c: "text-red-400" },
-            { l: "− Add. regionale (~1,7%) + comunale (~0,8%)", v: -(A.addRegionale + A.addComunale), c: "text-red-400" },
-            { l: "= NETTO IN TASCA", v: A.nettoCompenso, c: "text-green-400 font-bold" },
-          ].map((r, i) => (
-            <div key={i} className={`flex justify-between text-sm py-1 ${r.c} ${
-              i === 5 ? "border-t border-gray-700 pt-2 mt-1" : ""
-            }`}>
-              <span>{r.l}</span>
-              <span className="font-mono">{fmt(r.v)}</span>
+          <p className="text-[10px] text-gray-500 mb-3">Ecco passo per passo cosa succede ai soldi del tuo compenso da amministratore:</p>
+          <div className="space-y-1">
+            <DetailRow label="Il tuo compenso lordo (quanto deliberi in assemblea)" value={comp} color="text-white" />
+            <DetailRow label="− I tuoi contributi INPS (1/3 del 35,03%)" value={-A.inpsAmministratore} color="text-red-400"
+              note="Questa quota INPS la paghi tu. Serve per la tua pensione. Puoi dedurne il 50% dall'IRPEF." />
+            <DetailRow label="= Reddito su cui si calcola l'IRPEF" value={A.imponibileIrpef} color="text-gray-300"
+              note="Dopo aver dedotto metà dei tuoi contributi INPS, questo è l'importo su cui calcoli l'IRPEF." />
+            <DetailRow label={`− IRPEF (tassa sul reddito: ${comp <= 28000 ? '23%' : comp <= 50000 ? 'fino al 33%' : 'fino al 43%'})`} value={-A.irpef} color="text-red-400"
+              note={comp <= 28000 ? "Ottimo: resti nel primo scaglione, paghi solo il 23%!" : comp <= 50000 ? "Sei entrato nel secondo scaglione: da €28k a €50k paghi il 33%." : "Attenzione: oltre €50k paghi il 43% su ogni euro in più."} />
+            <DetailRow label="− Addizionali regionali e comunali (~2,5%)" value={-(A.addRegionale + A.addComunale)} color="text-red-400"
+              note="Sono tasse locali aggiuntive. Variano in base a dove vivi." />
+            <div className="border-t border-blue-500/20 pt-2 mt-2">
+              <DetailRow label="= Quello che arriva sul tuo conto" value={A.nettoCompenso} color="text-green-400 font-bold" />
             </div>
-          ))}
+          </div>
           <div className="mt-3 pt-3 border-t border-gray-800">
             <div className="flex justify-between text-xs text-gray-500">
-              <span>Costo totale per la società (compenso + INPS 2/3)</span>
+              <span>
+                Costo totale per la SRL (il tuo compenso + i 2/3 di INPS che paga la società)
+                <Tip text="La società paga il tuo compenso LORDO + i 2/3 dei contributi INPS. Tutto questo è un costo deducibile per la SRL, quindi riduce l'utile su cui si paga IRES (24%). È per questo che il compenso conviene: riduce le tasse della società." />
+              </span>
               <span className="font-mono text-gray-300">{fmt(A.costoCompensoPerSocieta)}</span>
             </div>
           </div>
