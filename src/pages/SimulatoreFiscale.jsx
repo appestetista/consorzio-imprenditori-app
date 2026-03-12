@@ -176,7 +176,7 @@ export default function SimulatoreFiscale() {
         )}
 
         {/* Tabs dinamici con icone */}
-        <div className="grid grid-cols-2 gap-4 mb-6">
+        <div className="grid grid-cols-2 gap-3 mb-6">
           {tabs.map(tab => {
             const img = getTabImage(tab.id);
             const isActive = view === tab.id;
@@ -184,40 +184,62 @@ export default function SimulatoreFiscale() {
               <button
                 key={tab.id}
                 onClick={() => handleTabClick(tab.id)}
-                className={`relative overflow-hidden rounded-3xl transition-all ${
+                className={`relative overflow-hidden rounded-2xl transition-all ${
                   isActive
-                    ? 'bg-gradient-to-b from-[#112d4e] to-[#0a2540] border-2 border-[#d4af37] shadow-xl shadow-[#d4af37]/25'
-                    : 'bg-gradient-to-b from-[#112d4e] to-[#081e35] border border-[#1a3a5c] hover:border-[#d4af37]/40 shadow-lg shadow-black/30'
+                    ? 'bg-[#0a2540] border-2 border-[#d4af37]'
+                    : 'bg-[#0a2540] border border-[#1a3a5c] hover:border-[#d4af37]/40'
                 }`}
-                style={{ boxShadow: isActive ? '0 8px 24px rgba(212,175,55,0.2), inset 0 1px 0 rgba(255,255,255,0.06)' : '0 6px 20px rgba(0,0,0,0.35), inset 0 1px 0 rgba(255,255,255,0.05)' }}
               >
-                <div className="flex flex-col items-center p-4 pb-3">
+                <div className="flex flex-col items-center px-3 pt-3 pb-2">
                   {img && (
-                    <img src={img} alt={tab.label} className="w-32 h-32 object-contain" />
+                    <div
+                      className="rounded-full p-1 mb-1"
+                      style={{
+                        background: isActive
+                          ? 'radial-gradient(circle at 35% 35%, #1a3f6b, #0a2540 70%)'
+                          : 'radial-gradient(circle at 35% 35%, #163352, #081e35 70%)',
+                        boxShadow: isActive
+                          ? '0 6px 18px rgba(212,175,55,0.2), inset 0 2px 4px rgba(255,255,255,0.08), inset 0 -3px 6px rgba(0,0,0,0.4)'
+                          : '0 4px 14px rgba(0,0,0,0.4), inset 0 2px 4px rgba(255,255,255,0.06), inset 0 -3px 6px rgba(0,0,0,0.35)',
+                      }}
+                    >
+                      <img src={img} alt={tab.label} className="w-28 h-28 object-contain drop-shadow-lg" />
+                    </div>
                   )}
-                  <span className={`text-base font-bold text-center leading-tight mt-1.5 ${isActive ? 'text-[#d4af37]' : 'text-white'}`}>{tab.label}</span>
-                  <span className={`text-sm text-center leading-snug mt-1 ${isActive ? 'text-[#f0d060]' : 'text-slate-400'}`}>{tab.sub}</span>
+                  <span className={`text-sm font-bold text-center leading-tight mt-1 ${isActive ? 'text-[#d4af37]' : 'text-white'}`}>{tab.label}</span>
+                  <span className={`text-sm text-center leading-snug mt-0.5 ${isActive ? 'text-[#f0d060]' : 'text-slate-400'}`}>{tab.sub}</span>
                 </div>
-                {isActive && <div className="absolute bottom-0 left-0 right-0 h-1 bg-gradient-to-r from-[#d4af37]/60 via-[#d4af37] to-[#d4af37]/60 rounded-full" />}
+                {isActive && <div className="absolute bottom-0 left-0 right-0 h-0.5 bg-[#d4af37]" />}
               </button>
             );
           })}
           {effectiveUser?.role === 'admin' && (
             <button
               onClick={() => handleTabClick('aliquote')}
-              className={`relative overflow-hidden rounded-3xl transition-all ${
+              className={`relative overflow-hidden rounded-2xl transition-all ${
                 view === 'aliquote'
-                  ? 'bg-gradient-to-b from-[#112d4e] to-[#0a2540] border-2 border-[#d4af37] shadow-xl shadow-[#d4af37]/25'
-                  : 'bg-gradient-to-b from-[#112d4e] to-[#081e35] border border-[#1a3a5c] hover:border-[#d4af37]/40 shadow-lg shadow-black/30'
+                  ? 'bg-[#0a2540] border-2 border-[#d4af37]'
+                  : 'bg-[#0a2540] border border-[#1a3a5c] hover:border-[#d4af37]/40'
               }`}
-              style={{ boxShadow: view === 'aliquote' ? '0 8px 24px rgba(212,175,55,0.2), inset 0 1px 0 rgba(255,255,255,0.06)' : '0 6px 20px rgba(0,0,0,0.35), inset 0 1px 0 rgba(255,255,255,0.05)' }}
             >
-              <div className="flex flex-col items-center p-4 pb-3">
-                <img src={getTabImage('irap')} alt="Aliquote" className="w-32 h-32 object-contain" />
-                <span className={`text-base font-bold text-center leading-tight mt-1.5 ${view === 'aliquote' ? 'text-[#d4af37]' : 'text-white'}`}>Aliquote</span>
-                <span className={`text-sm text-center leading-snug mt-1 ${view === 'aliquote' ? 'text-[#f0d060]' : 'text-slate-400'}`}>Gestione IRAP</span>
+              <div className="flex flex-col items-center px-3 pt-3 pb-2">
+                <div
+                  className="rounded-full p-1 mb-1"
+                  style={{
+                    background: view === 'aliquote'
+                      ? 'radial-gradient(circle at 35% 35%, #1a3f6b, #0a2540 70%)'
+                      : 'radial-gradient(circle at 35% 35%, #163352, #081e35 70%)',
+                    boxShadow: view === 'aliquote'
+                      ? '0 6px 18px rgba(212,175,55,0.2), inset 0 2px 4px rgba(255,255,255,0.08), inset 0 -3px 6px rgba(0,0,0,0.4)'
+                      : '0 4px 14px rgba(0,0,0,0.4), inset 0 2px 4px rgba(255,255,255,0.06), inset 0 -3px 6px rgba(0,0,0,0.35)',
+                  }}
+                >
+                  <img src={getTabImage('irap')} alt="Aliquote" className="w-28 h-28 object-contain drop-shadow-lg" />
+                </div>
+                <span className={`text-sm font-bold text-center leading-tight mt-1 ${view === 'aliquote' ? 'text-[#d4af37]' : 'text-white'}`}>Aliquote</span>
+                <span className={`text-sm text-center leading-snug mt-0.5 ${view === 'aliquote' ? 'text-[#f0d060]' : 'text-slate-400'}`}>Gestione IRAP</span>
               </div>
-              {view === 'aliquote' && <div className="absolute bottom-0 left-0 right-0 h-1 bg-gradient-to-r from-[#d4af37]/60 via-[#d4af37] to-[#d4af37]/60 rounded-full" />}
+              {view === 'aliquote' && <div className="absolute bottom-0 left-0 right-0 h-0.5 bg-[#d4af37]" />}
             </button>
           )}
         </div>
