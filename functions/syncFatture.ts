@@ -193,27 +193,26 @@ Deno.serve(async (req) => {
         let parsedData = null;
         let xmlUrl = null;
 
-        // Tentativo download XML dalla fattura
+        // Scarica dettaglio fattura con XML dal endpoint GET /IT-invoices/{id}
         if (inv.id) {
           try {
-            const xmlRes = await fetch(`${BASE_URL}/IT-invoices/${inv.id}/xml`, {
+            const detailRes = await fetch(`${BASE_URL}/IT-invoices/${inv.id}`, {
               headers: { "Authorization": `Bearer ${OPENAPI_TOKEN}` }
             });
             
-            if (xmlRes.ok) {
-              const contentType = xmlRes.headers.get("content-type") || "";
+            if (detailRes.ok) {
+              const detail = await detailRes.json();
+              // L'XML può essere in detail.invoice (base64 o raw) o detail.xml
               let xmlString = "";
+              const rawXml = detail.invoice || detail.xml || detail.content || detail.data?.invoice || "";
               
-              if (contentType.includes("xml") || contentType.includes("text")) {
-                xmlString = await xmlRes.text();
-              } else {
-                // Potrebbe essere base64 o json wrapper
-                const xmlData = await xmlRes.json();
-                xmlString = xmlData.xml || xmlData.content || xmlData.data || "";
-                if (xmlString && !xmlString.startsWith("<?xml") && !xmlString.startsWith("<")) {
-                  // Probabilmente base64
+              if (rawXml) {
+                if (rawXml.startsWith("<?xml") || rawXml.startsWith("<")) {
+                  xmlString = rawXml;
+                } else {
+                  // Base64 encoded
                   try {
-                    xmlString = atob(xmlString);
+                    xmlString = atob(rawXml);
                   } catch (e) {
                     console.warn(`[syncFatture] Base64 decode fallito per inv ${inv.id}`);
                   }
@@ -221,7 +220,7 @@ Deno.serve(async (req) => {
               }
 
               if (xmlString && xmlString.includes("<")) {
-                // Upload XML come file e salva URL
+                // Upload XML come file
                 try {
                   const blob = new Blob([xmlString], { type: "application/xml" });
                   const file = new File([blob], `fattura_${inv.id}.xml`, { type: "application/xml" });
@@ -241,10 +240,10 @@ Deno.serve(async (req) => {
                 }
               }
             } else {
-              console.warn(`[syncFatture] Download XML fallito per inv ${inv.id}: ${xmlRes.status}`);
+              console.warn(`[syncFatture] Dettaglio fattura fallito per inv ${inv.id}: ${detailRes.status}`);
             }
           } catch (xmlErr) {
-            console.warn(`[syncFatture] Errore download XML inv ${inv.id}: ${xmlErr.message}`);
+            console.warn(`[syncFatture] Errore fetch dettaglio inv ${inv.id}: ${xmlErr.message}`);
             xmlErrors++;
           }
         }
