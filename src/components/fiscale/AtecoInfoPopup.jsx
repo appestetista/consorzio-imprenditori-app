@@ -49,43 +49,45 @@ export default function AtecoInfoPopup({ atecoCode }) {
     <span className="relative inline-flex items-center">
       <button
         onClick={handleOpen}
-        className="ml-1 w-4 h-4 rounded-full bg-slate-600/60 hover:bg-slate-500/60 flex items-center justify-center transition-all"
+        className="ml-2 w-6 h-6 rounded-full bg-slate-600/60 hover:bg-slate-500/60 flex items-center justify-center transition-all"
       >
-        <HelpCircle className="w-3 h-3 text-slate-300" />
+        <HelpCircle className="w-5 h-5 text-slate-300" />
       </button>
 
       {open && (
         <>
-          {/* Overlay per chiudere */}
-          <div className="fixed inset-0 z-[100]" onClick={() => setOpen(false)} />
+          {/* Overlay scuro per chiudere */}
+          <div className="fixed inset-0 z-[9998] bg-black/60" onClick={() => setOpen(false)} />
           
-          {/* Popup */}
-          <div className="absolute left-0 top-full mt-2 z-[101] w-72 bg-[#0a2540] border border-[#1a3a5c] rounded-xl shadow-2xl p-4">
-            <div className="flex items-start justify-between mb-2">
-              <span className="text-[#d4af37] text-sm font-mono font-bold">ATECO {atecoCode}</span>
-              <button onClick={() => setOpen(false)} className="text-slate-500 hover:text-white">
-                <X className="w-3.5 h-3.5" />
-              </button>
-            </div>
+          {/* Popup centrato */}
+          <div className="fixed inset-0 z-[9999] flex items-center justify-center px-6 pointer-events-none">
+            <div className="bg-[#0a2540] border border-[#1a3a5c] rounded-2xl shadow-2xl p-6 w-full max-w-sm pointer-events-auto">
+              <div className="flex items-start justify-between mb-3">
+                <span className="text-[#d4af37] text-lg font-mono font-bold">ATECO {atecoCode}</span>
+                <button onClick={() => setOpen(false)} className="text-slate-500 hover:text-white p-1">
+                  <X className="w-5 h-5" />
+                </button>
+              </div>
 
-            {loading ? (
-              <div className="flex items-center gap-2 py-3">
-                <Loader2 className="w-4 h-4 text-[#d4af37] animate-spin" />
-                <span className="text-slate-400 text-xs">Carico spiegazione...</span>
-              </div>
-            ) : info ? (
-              <div className="space-y-2">
-                <p className="text-white text-xs font-medium leading-snug">{info.descrizione}</p>
-                {info.sezione && (
-                  <p className="text-slate-500 text-[10px]">Sezione: {info.sezione}</p>
-                )}
-                {info.spiegazione && (
-                  <p className="text-slate-400 text-[11px] leading-relaxed border-t border-slate-700/50 pt-2 mt-2">
-                    {info.spiegazione}
-                  </p>
-                )}
-              </div>
-            ) : null}
+              {loading ? (
+                <div className="flex items-center gap-3 py-6 justify-center">
+                  <Loader2 className="w-6 h-6 text-[#d4af37] animate-spin" />
+                  <span className="text-slate-400 text-sm">Carico spiegazione...</span>
+                </div>
+              ) : info ? (
+                <div className="space-y-3">
+                  <p className="text-white text-sm font-medium leading-snug">{info.descrizione}</p>
+                  {info.sezione && (
+                    <p className="text-slate-500 text-xs">Sezione: {info.sezione}</p>
+                  )}
+                  {info.spiegazione && (
+                    <p className="text-slate-400 text-sm leading-relaxed border-t border-slate-700/50 pt-3 mt-3">
+                      {info.spiegazione}
+                    </p>
+                  )}
+                </div>
+              ) : null}
+            </div>
           </div>
         </>
       )}
