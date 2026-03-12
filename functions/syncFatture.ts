@@ -200,90 +200,103 @@ Deno.serve(async (req) => {
       for (const inv of newInvoices) {
         let parsedData = null;
         let xmlUrl = null;
+        const invUuid = inv.uuid || inv.id;
 
-        // Scarica dettaglio fattura con XML dal endpoint GET /IT-invoices/{id}
-        if (inv.id) {
+        // Download XML dalla SDI API: GET /invoices_download/{uuid}
+        if (invUuid) {
           try {
-            const detailRes = await fetch(`${BASE_URL}/IT-invoices/${inv.id}`, {
+            const dlRes = await fetch(`${BASE_URL}/invoices_download/${invUuid}`, {
               headers: { "Authorization": `Bearer ${OPENAPI_TOKEN}` }
             });
             
-            if (detailRes.ok) {
-              const detail = await detailRes.json();
-              // L'XML può essere in detail.invoice (base64 o raw) o detail.xml
+            if (dlRes.ok) {
+              const contentType = dlRes.headers.get("content-type") || "";
               let xmlString = "";
-              const rawXml = detail.invoice || detail.xml || detail.content || detail.data?.invoice || "";
-              
-              if (rawXml) {
-                if (rawXml.startsWith("<?xml") || rawXml.startsWith("<")) {
-                  xmlString = rawXml;
-                } else {
-                  // Base64 encoded
-                  try {
-                    xmlString = atob(rawXml);
-                  } catch (e) {
-                    console.warn(`[syncFatture] Base64 decode fallito per inv ${inv.id}`);
+
+              if (contentType.includes("xml") || contentType.includes("text")) {
+                xmlString = await dlRes.text();
+              } else {
+                // JSON wrapper con base64
+                const dlData = await dlRes.json();
+                const rawXml = dlData.file || dlData.xml || dlData.content || dlData.data || "";
+                if (rawXml) {
+                  if (rawXml.startsWith("<?xml") || rawXml.startsWith("<")) {
+                    xmlString = rawXml;
+                  } else {
+                    try { xmlString = atob(rawXml); } catch (e) {
+                      console.warn(`[syncFatture] Base64 decode fallito per ${invUuid}`);
+                    }
                   }
                 }
               }
 
               if (xmlString && xmlString.includes("<")) {
-                // Upload XML come file
                 try {
                   const blob = new Blob([xmlString], { type: "application/xml" });
-                  const file = new File([blob], `fattura_${inv.id}.xml`, { type: "application/xml" });
+                  const file = new File([blob], `fattura_${invUuid}.xml`, { type: "application/xml" });
                   const uploadRes = await base44.asServiceRole.integrations.Core.UploadFile({ file });
                   xmlUrl = uploadRes.file_url;
                 } catch (upErr) {
-                  console.warn(`[syncFatture] Upload XML fallito per inv ${inv.id}: ${upErr.message}`);
+                  console.warn(`[syncFatture] Upload XML fallito: ${upErr.message}`);
                 }
 
-                // Parse XML FatturaPA
                 try {
                   parsedData = parseFatturaPA(xmlString);
                   xmlParsed++;
                 } catch (parseErr) {
-                  console.warn(`[syncFatture] Parse XML fallito per inv ${inv.id}: ${parseErr.message}`);
+                  console.warn(`[syncFatture] Parse XML fallito: ${parseErr.message}`);
                   xmlErrors++;
                 }
               }
             } else {
-              console.warn(`[syncFatture] Dettaglio fattura fallito per inv ${inv.id}: ${detailRes.status}`);
+              console.warn(`[syncFatture] Download XML fallito per ${invUuid}: ${dlRes.status}`);
             }
           } catch (xmlErr) {
-            console.warn(`[syncFatture] Errore fetch dettaglio inv ${inv.id}: ${xmlErr.message}`);
+            console.warn(`[syncFatture] Errore download XML ${invUuid}: ${xmlErr.message}`);
             xmlErrors++;
           }
         }
 
-        // Costruisci record fattura — dati da XML hanno priorità, fallback su dati API
+        // Estrai dati dal payload JSON dell'API SDI (fallback)
+        const header = inv.payload?.fattura_elettronica_header || {};
+        const body0 = inv.payload?.fattura_elettronica_body?.[0] || {};
+        const datiGen = body0.dati_generali?.dati_generali_documento || {};
+        const cedente = header.cedente_prestatore || {};
+        const cessionario = header.cessionario_committente || {};
+
         const p = parsedData || {};
-        const imponibileFallback = inv.total_gross_amount ? Math.round(inv.total_gross_amount / 1.22 * 100) / 100 : 0;
-        const ivaFallback = inv.total_gross_amount ? Math.round((inv.total_gross_amount - imponibileFallback) * 100) / 100 : 0;
+        const apiImporto = datiGen.importo_totale_documento || 0;
+        const fallbackImporto = apiImporto || 0;
+        const imponibileFallback = fallbackImporto ? Math.round(fallbackImporto / 1.22 * 100) / 100 : 0;
+        const ivaFallback = fallbackImporto ? Math.round((fallbackImporto - imponibileFallback) * 100) / 100 : 0;
+
+        // Determina direction dalla struttura SDI
+        const senderVat = p.mittente_piva || cedente.dati_anagrafici?.id_fiscale_iva?.id_codice || "";
+        const direction = senderVat === fiscal_id ? "outgoing" : "incoming";
 
         const fatturaRecord = {
           azienda_id,
-          openapi_id: String(inv.id),
-          direction: inv.direction || "outgoing",
+          openapi_id: String(invUuid),
+          direction,
           state: inv.state || "NEW",
-          tipo_documento: p.tipo_documento || inv.type || "",
-          numero_documento: p.numero_documento || inv.document_number || "",
-          data_emissione: p.data_emissione || inv.issue_date || "",
-          importo_totale: p.importo_totale || inv.total_gross_amount || 0,
+          tipo_documento: p.tipo_documento || datiGen.tipo_documento || "",
+          numero_documento: p.numero_documento || datiGen.numero || "",
+          data_emissione: p.data_emissione || datiGen.data || "",
+          importo_totale: p.importo_totale || datiGen.importo_totale_documento || 0,
           imponibile: p.imponibile || imponibileFallback,
           iva: p.iva || ivaFallback,
           aliquota_iva: p.aliquota_iva || 22,
-          valuta: p.valuta || "EUR",
-          causale: p.causale || "",
-          mittente_nome: p.mittente_nome || inv.sender?.name || "",
-          mittente_piva: p.mittente_piva || inv.sender?.vat_id || "",
-          mittente_cf: p.mittente_cf || "",
-          destinatario_nome: p.destinatario_nome || inv.recipient?.name || "",
-          destinatario_piva: p.destinatario_piva || inv.recipient?.vat_id || "",
-          destinatario_cf: p.destinatario_cf || "",
-          sdi_id: inv.details?.sdi_id || "",
-          sdi_status: inv.details?.sdi_status || "",
-          sdi_filename: inv.details?.sdi_filename || "",
+          valuta: p.valuta || datiGen.divisa || "EUR",
+          causale: p.causale || (datiGen.causale ? (Array.isArray(datiGen.causale) ? datiGen.causale.join(" ") : datiGen.causale) : ""),
+          mittente_nome: p.mittente_nome || cedente.dati_anagrafici?.anagrafica?.denominazione || "",
+          mittente_piva: p.mittente_piva || senderVat,
+          mittente_cf: p.mittente_cf || cedente.dati_anagrafici?.codice_fiscale || "",
+          destinatario_nome: p.destinatario_nome || cessionario.dati_anagrafici?.anagrafica?.denominazione || "",
+          destinatario_piva: p.destinatario_piva || cessionario.dati_anagrafici?.id_fiscale_iva?.id_codice || "",
+          destinatario_cf: p.destinatario_cf || cessionario.dati_anagrafici?.codice_fiscale || "",
+          sdi_id: inv.sdi_identifier || "",
+          sdi_status: inv.sdi_status || "",
+          sdi_filename: inv.filename || "",
           fiscal_id: inv.fiscal_id || fiscal_id,
           xml_raw: xmlUrl || "",
           has_parsed_lines: !!(parsedData && parsedData.lines?.length > 0)
