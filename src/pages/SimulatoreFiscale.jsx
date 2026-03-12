@@ -205,7 +205,11 @@ export default function SimulatoreFiscale() {
         </div>
 
         {/* Contenuto */}
-        {view === 'bilancio' && <AnalisiBilancio />}
+        {view === 'bilancio' && (
+          <div className="bg-[#0a2540]/50 border border-[#1a3a5c] rounded-2xl p-4 mt-2">
+            <AnalisiBilancio />
+          </div>
+        )}
 
         {(view === 'iva' || view === 'iva_ue') && (
           <PlaceholderSection title={view === 'iva_ue' ? 'IVA UE' : 'IVA'} desc="Calcolo e monitoraggio IVA a debito/credito" />
