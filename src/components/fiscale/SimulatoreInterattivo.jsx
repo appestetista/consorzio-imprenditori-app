@@ -1,4 +1,5 @@
 import React, { useState, useMemo } from "react";
+import PianificatoreMensile from "./PianificatoreMensile";
 
 /* ═══════════════════════════════════════════════════════
    PARAMETRI FISCALI ITALIA 2026
