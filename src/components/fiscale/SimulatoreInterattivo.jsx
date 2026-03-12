@@ -813,12 +813,13 @@ export default function SimulatoreInterattivo({ user }) {
 
       {/* DISCLAIMER */}
       <div className="text-center text-xs text-gray-600 px-2">
-        ⚠️ Simulazione orientativa. Non sostituisce la consulenza del commercialista.
-        IRPEF 2026 (23%/33%/43% — L. Bilancio 2026).
-        INPS Gest. Sep. co.co.co. 35,03% (Circ. INPS 8/2026, ripartito 2/3 azienda + 1/3 amm.re).
-        IRES 24% (art. 77 TUIR). IRAP 3,9% base (art. 16 D.Lgs. 446/97).
-        Ritenuta dividendi 26% (art. 27 DPR 600/73).
-        Addizionali stimate su medie nazionali — verificare con il proprio Comune e Regione.
+        ⚠️ Simulazione orientativa — non sostituisce il commercialista.
+        IRPEF 2026: 23%/33%/43% (L. Bilancio 2026).
+        INPS GS co.co.co.: 35,03% su max €122.295 (Circ. INPS 8/2026), 2/3 azienda + 1/3 amm.re.
+        Contributi INPS amm.re integralmente deducibili (art. 10 TUIR).
+        IRES 24% (art. 77 TUIR). IRAP 3,9% base (D.Lgs. 446/97).
+        Dividendi: ritenuta 26% a titolo d'imposta (art. 27 DPR 600/73).
+        Addizionali IRPEF: medie nazionali (~1,7% reg. + ~0,8% com.) — verificare localmente.
       </div>
     </div>
   );
