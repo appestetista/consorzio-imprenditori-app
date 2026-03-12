@@ -49,16 +49,17 @@ const INPS_COMMERCIANTI = {
   massimale: 91680,
 };
 
-// INPS Gestione Separata 2025 (collaboratori/amministratori)
+// INPS Gestione Separata 2026 (collaboratori/amministratori)
+// Fonte: Circolare INPS n. 8 del 3 febbraio 2026
+// IVS 33,00% + maternità/malattia/ANF 0,50% + maternità DM 12/07/2007 0,22% + DIS-COLL 1,31% = 35,03%
 const INPS_GS = {
-  aliquota_senza_altra_cassa: 0.3572, // 33.72% + 0.72% maternità + aliquota DIS-COLL 1.28% (per co.co.co)
+  aliquota_senza_altra_cassa: 0.3503, // 35.03% totale
   aliquota_con_altra_cassa: 0.24,
   aliquota_pensionati: 0.24,
-  // Per amministratori SRL (collaborazione coordinata)
-  aliquota_amm_srl: 0.3572, // quota 2/3 a carico azienda, 1/3 a carico amm.
+  aliquota_amm_srl: 0.3503, // quota 2/3 a carico azienda (23.35%), 1/3 a carico amm. (11.68%)
   quota_azienda: 2 / 3,
   quota_amministratore: 1 / 3,
-  massimale: 120607
+  massimale: 122295 // massimale 2026
 };
 
 // Forfettario
