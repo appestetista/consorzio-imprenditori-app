@@ -256,6 +256,18 @@ function Slider({ label, value, onChange, min, max, step, suffix = "€", sub })
   );
 }
 
+function DetailRow({ label, value, color = "text-white", note }) {
+  return (
+    <div>
+      <div className={`flex justify-between text-[11px] py-0.5 ${color}`}>
+        <span className="pr-2">{label}</span>
+        <span className="font-mono whitespace-nowrap">{fmt(value)}</span>
+      </div>
+      {note && <div className="text-[9px] text-gray-600 pl-1 pb-1">{note}</div>}
+    </div>
+  );
+}
+
 function WBar({ step, maxVal }) {
   const pct = Math.abs(step.d || step.v) / maxVal * 100;
   const col = { start: "#3B82F6", costo: "#F59E0B", tassa: "#EF4444", neutro: "#4B5563" };
