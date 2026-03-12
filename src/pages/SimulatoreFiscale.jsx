@@ -135,8 +135,26 @@ export default function SimulatoreFiscale() {
             {effectiveUser?.numero_soci && (
               <span className="text-slate-300 text-xs bg-slate-800/80 px-2 py-0.5 rounded">{effectiveUser.numero_soci} soci</span>
             )}
+            {effectiveUser?.soci_accomandatari && (
+              <span className="text-slate-300 text-xs bg-slate-800/80 px-2 py-0.5 rounded">{effectiveUser.soci_accomandatari} acc.ri / {effectiveUser.soci_accomandanti || 0} acc.ti</span>
+            )}
+            {effectiveUser?.capitale_sociale && (
+              <span className="text-slate-300 text-xs bg-slate-800/80 px-2 py-0.5 rounded">Cap. €{Number(effectiveUser.capitale_sociale).toLocaleString('it-IT')}</span>
+            )}
             {effectiveUser?.tipo_contabilita && (
               <span className="text-slate-300 text-xs bg-slate-800/80 px-2 py-0.5 rounded">Cont. {effectiveUser.tipo_contabilita}</span>
+            )}
+            {effectiveUser?.tipo_cooperativa && (
+              <span className="text-slate-300 text-xs bg-slate-800/80 px-2 py-0.5 rounded">Coop. {effectiveUser.tipo_cooperativa}</span>
+            )}
+            {effectiveUser?.mutualita_prevalente && (
+              <span className="text-green-300 text-xs bg-green-900/30 px-2 py-0.5 rounded">Mutualità prev.</span>
+            )}
+            {effectiveUser?.riduzione_contributiva_forfettario && (
+              <span className="text-green-300 text-xs bg-green-900/30 px-2 py-0.5 rounded">INPS -35%</span>
+            )}
+            {effectiveUser?.ha_compenso_amministratore && (
+              <span className="text-slate-300 text-xs bg-slate-800/80 px-2 py-0.5 rounded">Comp. Amm.</span>
             )}
           </div>
         )}
