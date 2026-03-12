@@ -183,7 +183,7 @@ export default function SimulatoreFiscale() {
             return (
               <button
                 key={tab.id}
-                onClick={() => setView(tab.id)}
+                onClick={() => handleTabClick(tab.id)}
                 className={`relative overflow-hidden rounded-2xl transition-all ${
                   isActive
                     ? 'bg-[#0a2540] border-2 border-[#d4af37] shadow-lg shadow-[#d4af37]/20'
