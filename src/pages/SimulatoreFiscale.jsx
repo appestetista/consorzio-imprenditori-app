@@ -1,6 +1,6 @@
-import React, { useState, useEffect, useMemo } from 'react';
+import React, { useState, useEffect, useMemo, useRef } from 'react';
 import { base44 } from '@/api/base44Client';
-import { ArrowLeft, Calculator, Pencil } from 'lucide-react';
+import { ArrowLeft, Calculator, Pencil, X } from 'lucide-react';
 import { Link } from 'react-router-dom';
 import { createPageUrl } from '@/utils';
 import Header from '../components/layout/Header';
