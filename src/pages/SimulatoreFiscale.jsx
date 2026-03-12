@@ -178,8 +178,8 @@ export default function SimulatoreFiscale() {
                   {img && (
                     <img src={img} alt={tab.label} className="w-28 h-28 object-contain" />
                   )}
-                  <span className={`text-xs font-bold text-center leading-tight mt-1 whitespace-nowrap ${isActive ? 'text-[#d4af37]' : 'text-white'}`}>{tab.label}</span>
-                  <span className={`text-[9px] text-center leading-tight mt-0.5 whitespace-nowrap ${isActive ? 'text-[#d4af37]/70' : 'text-slate-500'}`}>{tab.sub}</span>
+                  <span className={`text-sm font-bold text-center leading-tight mt-1 whitespace-nowrap ${isActive ? 'text-[#d4af37]' : 'text-white'}`}>{tab.label}</span>
+                  <span className={`text-[11px] text-center leading-tight mt-0.5 whitespace-nowrap ${isActive ? 'text-[#f0d060]' : 'text-slate-400'}`}>{tab.sub}</span>
                 </div>
                 {isActive && <div className="absolute bottom-0 left-0 right-0 h-0.5 bg-[#d4af37]" />}
               </button>
