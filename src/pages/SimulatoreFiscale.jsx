@@ -176,7 +176,7 @@ export default function SimulatoreFiscale() {
         )}
 
         {/* Tabs dinamici con icone */}
-        <div className="grid grid-cols-2 gap-3 mb-6">
+        <div className="grid grid-cols-2 gap-2.5 mb-6">
           {tabs.map(tab => {
             const img = getTabImage(tab.id);
             const isActive = view === tab.id;
@@ -190,23 +190,11 @@ export default function SimulatoreFiscale() {
                     : 'bg-[#0a2540] border border-[#1a3a5c] hover:border-[#d4af37]/40'
                 }`}
               >
-                <div className="flex flex-col items-center px-3 pt-3 pb-2">
+                <div className="flex flex-col items-center px-1.5 pt-1.5 pb-2">
                   {img && (
-                    <div
-                      className="rounded-full p-1 mb-1"
-                      style={{
-                        background: isActive
-                          ? 'radial-gradient(circle at 35% 35%, #1a3f6b, #0a2540 70%)'
-                          : 'radial-gradient(circle at 35% 35%, #163352, #081e35 70%)',
-                        boxShadow: isActive
-                          ? '0 6px 18px rgba(212,175,55,0.2), inset 0 2px 4px rgba(255,255,255,0.08), inset 0 -3px 6px rgba(0,0,0,0.4)'
-                          : '0 4px 14px rgba(0,0,0,0.4), inset 0 2px 4px rgba(255,255,255,0.06), inset 0 -3px 6px rgba(0,0,0,0.35)',
-                      }}
-                    >
-                      <img src={img} alt={tab.label} className="w-28 h-28 object-contain drop-shadow-lg" />
-                    </div>
+                    <img src={img} alt={tab.label} className="w-36 h-36 object-contain" />
                   )}
-                  <span className={`text-sm font-bold text-center leading-tight mt-1 ${isActive ? 'text-[#d4af37]' : 'text-white'}`}>{tab.label}</span>
+                  <span className={`text-sm font-bold text-center leading-tight ${isActive ? 'text-[#d4af37]' : 'text-white'}`}>{tab.label}</span>
                   <span className={`text-sm text-center leading-snug mt-0.5 ${isActive ? 'text-[#f0d060]' : 'text-slate-400'}`}>{tab.sub}</span>
                 </div>
                 {isActive && <div className="absolute bottom-0 left-0 right-0 h-0.5 bg-[#d4af37]" />}
@@ -222,21 +210,9 @@ export default function SimulatoreFiscale() {
                   : 'bg-[#0a2540] border border-[#1a3a5c] hover:border-[#d4af37]/40'
               }`}
             >
-              <div className="flex flex-col items-center px-3 pt-3 pb-2">
-                <div
-                  className="rounded-full p-1 mb-1"
-                  style={{
-                    background: view === 'aliquote'
-                      ? 'radial-gradient(circle at 35% 35%, #1a3f6b, #0a2540 70%)'
-                      : 'radial-gradient(circle at 35% 35%, #163352, #081e35 70%)',
-                    boxShadow: view === 'aliquote'
-                      ? '0 6px 18px rgba(212,175,55,0.2), inset 0 2px 4px rgba(255,255,255,0.08), inset 0 -3px 6px rgba(0,0,0,0.4)'
-                      : '0 4px 14px rgba(0,0,0,0.4), inset 0 2px 4px rgba(255,255,255,0.06), inset 0 -3px 6px rgba(0,0,0,0.35)',
-                  }}
-                >
-                  <img src={getTabImage('irap')} alt="Aliquote" className="w-28 h-28 object-contain drop-shadow-lg" />
-                </div>
-                <span className={`text-sm font-bold text-center leading-tight mt-1 ${view === 'aliquote' ? 'text-[#d4af37]' : 'text-white'}`}>Aliquote</span>
+              <div className="flex flex-col items-center px-1.5 pt-1.5 pb-2">
+                <img src={getTabImage('irap')} alt="Aliquote" className="w-36 h-36 object-contain" />
+                <span className={`text-sm font-bold text-center leading-tight ${view === 'aliquote' ? 'text-[#d4af37]' : 'text-white'}`}>Aliquote</span>
                 <span className={`text-sm text-center leading-snug mt-0.5 ${view === 'aliquote' ? 'text-[#f0d060]' : 'text-slate-400'}`}>Gestione IRAP</span>
               </div>
               {view === 'aliquote' && <div className="absolute bottom-0 left-0 right-0 h-0.5 bg-[#d4af37]" />}
