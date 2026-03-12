@@ -176,8 +176,15 @@ Deno.serve(async (req) => {
 
       // 3) Filtra duplicati (per openapi_id o per chiave numero+piva+data)
       const newInvoices = allInvoices.filter(inv => {
-        if (existingOpenApiIds.has(String(inv.id))) return false;
-        const key = `${inv.document_number || ""}|${inv.sender?.vat_id || ""}|${inv.issue_date || ""}`;
+        // SDI usa "uuid" come identificativo
+        const invId = inv.uuid || inv.id;
+        if (existingOpenApiIds.has(String(invId))) return false;
+        // Dedup per chiave composta dal payload
+        const payload = inv.payload?.fattura_elettronica_body?.[0];
+        const docNum = payload?.dati_generali?.dati_generali_documento?.numero || "";
+        const senderVat = inv.payload?.fattura_elettronica_header?.cedente_prestatore?.dati_anagrafici?.id_fiscale_iva?.id_codice || "";
+        const docDate = payload?.dati_generali?.dati_generali_documento?.data || "";
+        const key = `${docNum}|${senderVat}|${docDate}`;
         if (key !== "||" && existingKeys.has(key)) return false;
         return true;
       });
