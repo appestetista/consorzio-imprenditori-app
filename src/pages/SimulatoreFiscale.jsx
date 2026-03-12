@@ -16,24 +16,24 @@ import GestioneAliquoteIRAP from '../components/fiscale/GestioneAliquoteIRAP';
 import AnalisiBilancio from '../components/fiscale/AnalisiBilancio';
 import GlobalTopIcons from '../components/layout/GlobalTopIcons';
 import { getTabsForSocieta } from '../components/fiscale/societaTabs';
-import FormaGiuridicaPopup from '../components/fiscale/FormaGiuridicaPopup';
+import FiscalPreFlightPopup from '../components/fiscale/FiscalPreFlightPopup';
 
 export default function SimulatoreFiscale() {
   const [effectiveUser, setEffectiveUser] = useState(null);
   const [loading, setLoading] = useState(false);
   const [result, setResult] = useState(null);
   const [view, setView] = useState(null);
-  const [showFormaPopup, setShowFormaPopup] = useState(false);
+  const [showPreFlight, setShowPreFlight] = useState(false);
   const { impersonation, appMode } = useImpersonation();
 
   // Tabs dinamici in base al tipo di società dell'utente
   const userFormaGiuridica = effectiveUser?.forma_giuridica || null;
   const tabs = useMemo(() => getTabsForSocieta(userFormaGiuridica), [userFormaGiuridica]);
 
-  // Mostra popup se forma giuridica mancante
+  // Mostra popup pre-flight se manca qualsiasi dato fiscale essenziale
   useEffect(() => {
-    if (effectiveUser && !effectiveUser.forma_giuridica) {
-      setShowFormaPopup(true);
+    if (effectiveUser && (!effectiveUser.forma_giuridica || !effectiveUser.regime_fiscale || (!effectiveUser.regione && !effectiveUser.region) || !effectiveUser.ateco_code)) {
+      setShowPreFlight(true);
     }
   }, [effectiveUser]);
 
@@ -44,9 +44,9 @@ export default function SimulatoreFiscale() {
     }
   }, [tabs]);
 
-  const handleFormaSelected = (forma) => {
-    setShowFormaPopup(false);
-    setEffectiveUser(prev => ({ ...prev, forma_giuridica: forma }));
+  const handlePreFlightComplete = (vals) => {
+    setShowPreFlight(false);
+    setEffectiveUser(prev => ({ ...prev, ...vals }));
     setView(null); // reset view so it picks up the first tab from new tabs
   };
 
@@ -104,9 +104,9 @@ export default function SimulatoreFiscale() {
           {/* Icone gestite dal GlobalHeader */}
         </div>
 
-        {/* Popup scelta forma giuridica se mancante */}
-        {showFormaPopup && (
-          <FormaGiuridicaPopup onSelected={handleFormaSelected} />
+        {/* Popup pre-flight dati fiscali mancanti */}
+        {showPreFlight && effectiveUser && (
+          <FiscalPreFlightPopup user={effectiveUser} onComplete={handlePreFlightComplete} />
         )}
 
         {/* Tipo società selezionato */}
