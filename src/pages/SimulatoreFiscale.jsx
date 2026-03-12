@@ -14,16 +14,9 @@ import AtecoInfoPopup from '../components/fiscale/AtecoInfoPopup';
 
 export default function SimulatoreFiscale() {
   const [effectiveUser, setEffectiveUser] = useState(null);
-  const [loading, setLoading] = useState(false);
-  const [result, setResult] = useState(null);
-  const [view, setView] = useState(null);
   const [showPreFlight, setShowPreFlight] = useState(false);
+  const [showAliquote, setShowAliquote] = useState(false);
   const { impersonation, appMode } = useImpersonation();
-  const contentRef = useRef(null);
-
-  // Tabs dinamici in base al tipo di società dell'utente
-  const userFormaGiuridica = effectiveUser?.forma_giuridica || null;
-  const tabs = useMemo(() => getTabsForSocieta(userFormaGiuridica), [userFormaGiuridica]);
 
   // Mostra popup pre-flight se manca qualsiasi dato fiscale essenziale
   useEffect(() => {
