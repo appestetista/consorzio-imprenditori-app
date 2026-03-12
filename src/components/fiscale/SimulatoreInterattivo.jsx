@@ -1,5 +1,28 @@
 import React, { useState, useMemo } from "react";
+import { HelpCircle, X } from "lucide-react";
 import PianificatoreMensile from "./PianificatoreMensile";
+
+/* Tooltip spiegazione ❓ */
+function Tip({ text }) {
+  const [open, setOpen] = useState(false);
+  return (
+    <span className="relative inline-block ml-1">
+      <button onClick={() => setOpen(!open)} className="align-middle">
+        <HelpCircle className="w-3.5 h-3.5 text-amber-400/70 hover:text-amber-400 inline" />
+      </button>
+      {open && (
+        <div className="absolute z-50 bottom-full left-1/2 -translate-x-1/2 mb-2 w-64 sm:w-72">
+          <div className="bg-[#1a2744] border border-amber-500/30 rounded-xl p-3 shadow-2xl text-xs text-gray-300 leading-relaxed">
+            {text}
+            <button onClick={() => setOpen(false)} className="absolute top-1.5 right-1.5">
+              <X className="w-3 h-3 text-gray-500" />
+            </button>
+          </div>
+        </div>
+      )}
+    </span>
+  );
+}
 
 /* ═══════════════════════════════════════════════════════
    PARAMETRI FISCALI ITALIA 2026
