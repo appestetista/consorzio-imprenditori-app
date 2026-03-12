@@ -361,31 +361,65 @@ export default function SimulatoreInterattivo({ user }) {
       <div className="rounded-xl p-5"
         style={{ backgroundColor: "rgba(255,255,255,0.03)", border: "1px solid rgba(255,255,255,0.06)" }}>
 
-        <Slider label="Fatturato annuo" value={fatt}
-          onChange={v => {
-            const r = v / Math.max(1, fatt);
-            setFatt(v);
-            const n = {};
-            Object.entries(cv).forEach(([k, val]) => { n[k] = Math.round(val * r); });
-            setCv(n);
-          }} min={50000} max={2000000} step={10000} />
-
-        {/* COSTI — slider principale */}
-        <div className="mb-2">
-          <div className="flex justify-between items-baseline mb-1">
-            <label className="text-sm font-medium text-gray-300">Costi operativi</label>
-            <span className="text-xl font-bold text-amber-400">{fmt(costi)}</span>
+        {/* FATTURATO — slider + input manuale */}
+        <div className="mb-5">
+          <div className="flex justify-between items-center mb-1">
+            <label className="text-sm font-medium text-gray-300">Fatturato annuo</label>
+            <input
+              type="text"
+              inputMode="numeric"
+              value={fatt.toLocaleString("it-IT")}
+              onChange={e => {
+                const raw = e.target.value.replace(/[^\d]/g, "");
+                const v = Math.max(0, Number(raw));
+                const r = v / Math.max(1, fatt);
+                setFatt(v);
+                const n = {};
+                Object.entries(cv).forEach(([k2, val2]) => { n[k2] = Math.round(val2 * r); });
+                setCv(n);
+              }}
+              className="text-xl font-bold text-white text-right bg-transparent border-b border-gray-600 focus:border-blue-500 outline-none w-36 px-1"
+            />
           </div>
-          <p className="text-xs text-gray-500">
-            {((costi / fatt) * 100).toFixed(0)}% del fatturato · Margine {fmt(fatt - costi)}
-          </p>
+          <input type="range" min={0} max={5000000} step={5000} value={Math.min(fatt, 5000000)}
+            onChange={e => {
+              const v = Number(e.target.value);
+              const r = v / Math.max(1, fatt);
+              setFatt(v);
+              const n = {};
+              Object.entries(cv).forEach(([k2, val2]) => { n[k2] = Math.round(val2 * r); });
+              setCv(n);
+            }}
+            className="w-full h-2 rounded-lg appearance-none cursor-pointer"
+            style={{ background: `linear-gradient(to right, #3B82F6 ${(Math.min(fatt, 5000000) / 5000000) * 100}%, #374151 ${(Math.min(fatt, 5000000) / 5000000) * 100}%)` }} />
+          {fatt > 5000000 && <p className="text-[10px] text-amber-400 mt-1">Valore oltre il max della barra — usa il campo sopra per valori superiori</p>}
         </div>
 
-        {/* Slider costi operativi */}
-        <input type="range" min={0} max={fatt} step={500} value={costi}
-          onChange={e => scalaCosti(Number(e.target.value))}
-          className="w-full h-2 rounded-lg appearance-none cursor-pointer mb-3"
-          style={{ background: `linear-gradient(to right, #F59E0B ${(costi / Math.max(1, fatt)) * 100}%, #374151 ${(costi / Math.max(1, fatt)) * 100}%)` }} />
+        {/* COSTI — slider + input manuale */}
+        <div className="mb-3">
+          <div className="flex justify-between items-center mb-1">
+            <label className="text-sm font-medium text-gray-300">Costi operativi</label>
+            <input
+              type="text"
+              inputMode="numeric"
+              value={costi.toLocaleString("it-IT")}
+              onChange={e => {
+                const raw = e.target.value.replace(/[^\d]/g, "");
+                const v = Math.max(0, Number(raw));
+                scalaCosti(v);
+              }}
+              className="text-xl font-bold text-amber-400 text-right bg-transparent border-b border-gray-600 focus:border-amber-500 outline-none w-36 px-1"
+            />
+          </div>
+          <p className="text-xs text-gray-500 mb-1">
+            {fatt > 0 ? ((costi / fatt) * 100).toFixed(0) : 0}% del fatturato · Margine {fmt(fatt - costi)}
+          </p>
+          <input type="range" min={0} max={5000000} step={500} value={Math.min(costi, 5000000)}
+            onChange={e => scalaCosti(Number(e.target.value))}
+            className="w-full h-2 rounded-lg appearance-none cursor-pointer"
+            style={{ background: `linear-gradient(to right, #F59E0B ${(Math.min(costi, 5000000) / 5000000) * 100}%, #374151 ${(Math.min(costi, 5000000) / 5000000) * 100}%)` }} />
+          {costi > 5000000 && <p className="text-[10px] text-amber-400 mt-1">Valore oltre il max della barra — usa il campo sopra</p>}
+        </div>
 
         {/* BOTTONE DETTAGLIO */}
         <button onClick={() => setDetCosti(!detCosti)}
