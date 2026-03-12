@@ -578,40 +578,74 @@ export default function SimulatoreInterattivo({ user }) {
         )}
       </div>
 
-      {/* CARDS RIEPILOGO */}
-      <div className="grid grid-cols-2 gap-3">
-        {[
-          {
-            l: "Da compenso Amm.",
-            v: A.nettoCompenso,
-            s: `IRPEF ${fmt(A.irpef)} · INPS ${fmt(A.inpsAmministratore)}`,
-            a: true
-          },
-          {
-            l: "Da dividendi netti",
-            v: A.dividendiNetti,
-            s: `Ritenuta 26%: ${fmt(A.ritenutaDividendi)}`
-          },
-          {
-            l: "IRES + IRAP",
-            v: A.ires + A.irap,
-            s: `${fmt(A.ires)} + ${fmt(A.irap)}`
-          },
-          {
-            l: "INPS az. (2/3)",
-            v: A.inpsAzienda,
-            s: `Su compenso ${fmt(comp)}`
-          },
-        ].map((c, i) => (
-          <div key={i} className="rounded-lg p-3"
-            style={{ backgroundColor: "rgba(255,255,255,0.05)" }}>
-            <div className="text-xs text-gray-400 mb-1">{c.l}</div>
-            <div className={`text-xl font-bold ${c.a ? "text-green-400" : "text-white"}`}>
-              {fmt(c.v)}
+      {/* RIEPILOGO TASSE — spiegato semplice */}
+      <div className="rounded-xl p-4" style={{ backgroundColor: "rgba(255,255,255,0.03)", border: "1px solid rgba(255,255,255,0.06)" }}>
+        <h2 className="text-sm font-semibold text-gray-400 uppercase tracking-wider mb-1">
+          📊 Dettaglio delle tasse che paghi
+        </h2>
+        <p className="text-[10px] text-gray-500 mb-3">Ecco dove vanno i tuoi soldi, voce per voce. Tocca i ❓ per capire cosa significa ogni tassa.</p>
+        <div className="grid grid-cols-2 gap-3">
+          {/* IRPEF */}
+          <div className="rounded-lg p-3" style={{ backgroundColor: "rgba(239,68,68,0.08)", border: "1px solid rgba(239,68,68,0.15)" }}>
+            <div className="text-xs text-gray-400 mb-1">
+              IRPEF (tassa sul reddito)
+              <Tip text="L'IRPEF è la tassa personale che paghi sul tuo compenso da amministratore. È progressiva: i primi €28.000 pagano il 23%, da €28k a €50k il 33%, oltre €50k il 43%. Più alto il compenso, più alta la percentuale." />
             </div>
-            <div className="text-xs text-gray-500 mt-0.5">{c.s}</div>
+            <div className="text-xl font-bold text-red-400">{fmt(A.irpef)}</div>
+            <div className="text-[10px] text-gray-500 mt-0.5">
+              {comp <= 28000 ? "Fascia 23% — la più bassa ✅" : comp <= 50000 ? "Fascia fino al 33%" : "Fascia fino al 43%"}
+            </div>
           </div>
-        ))}
+          {/* INPS */}
+          <div className="rounded-lg p-3" style={{ backgroundColor: "rgba(245,158,11,0.08)", border: "1px solid rgba(245,158,11,0.15)" }}>
+            <div className="text-xs text-gray-400 mb-1">
+              INPS (contributi pensione)
+              <Tip text={`L'INPS Gestione Separata è il contributo previdenziale che si paga sul compenso dell'amministratore. L'aliquota è del 35,03%. Di questa, 2/3 li paga la società (${fmt(A.inpsAzienda)}) e 1/3 lo paghi tu (${fmt(A.inpsAmministratore)}). Servono per la tua pensione.`} />
+            </div>
+            <div className="text-xl font-bold text-amber-400">{fmt(A.inpsTotale)}</div>
+            <div className="text-[10px] text-gray-500 mt-0.5">
+              Società paga {fmt(A.inpsAzienda)} · tu paghi {fmt(A.inpsAmministratore)}
+            </div>
+          </div>
+          {/* IRES */}
+          <div className="rounded-lg p-3" style={{ backgroundColor: "rgba(239,68,68,0.08)", border: "1px solid rgba(239,68,68,0.15)" }}>
+            <div className="text-xs text-gray-400 mb-1">
+              IRES (tassa sugli utili)
+              <Tip text="L'IRES è la tassa che paga la SRL sui suoi utili. L'aliquota è fissa al 24%. Si calcola sull'utile della società DOPO aver tolto il tuo compenso e i costi. Quindi più compenso ti dai, meno IRES paga la società." />
+            </div>
+            <div className="text-xl font-bold text-red-400">{fmt(A.ires)}</div>
+            <div className="text-[10px] text-gray-500 mt-0.5">24% fisso sull'utile della società</div>
+          </div>
+          {/* IRAP */}
+          <div className="rounded-lg p-3" style={{ backgroundColor: "rgba(239,68,68,0.08)", border: "1px solid rgba(239,68,68,0.15)" }}>
+            <div className="text-xs text-gray-400 mb-1">
+              IRAP (tassa regionale)
+              <Tip text="L'IRAP è un'imposta regionale che si paga sul margine (fatturato - costi). L'aliquota base è del 3,9%. Non puoi dedurre il compenso dell'amministratore dall'IRAP, quindi si calcola sul margine pieno." />
+            </div>
+            <div className="text-xl font-bold text-red-400">{fmt(A.irap)}</div>
+            <div className="text-[10px] text-gray-500 mt-0.5">3,9% sul margine lordo</div>
+          </div>
+          {/* Ritenuta dividendi */}
+          {A.dividendiLordi > 0 && (
+            <div className="rounded-lg p-3" style={{ backgroundColor: "rgba(139,92,246,0.08)", border: "1px solid rgba(139,92,246,0.15)" }}>
+              <div className="text-xs text-gray-400 mb-1">
+                Ritenuta dividendi
+                <Tip text="Quando prelevi gli utili dalla SRL come dividendi, paghi una tassa secca del 26%. Questa si aggiunge all'IRES già pagata dalla società. Per questo i dividendi costano in totale circa il 43,8%." />
+              </div>
+              <div className="text-xl font-bold text-violet-400">{fmt(A.ritenutaDividendi)}</div>
+              <div className="text-[10px] text-gray-500 mt-0.5">26% secco sui dividendi lordi</div>
+            </div>
+          )}
+          {/* Addizionali */}
+          <div className="rounded-lg p-3" style={{ backgroundColor: "rgba(255,255,255,0.05)" }}>
+            <div className="text-xs text-gray-400 mb-1">
+              Addizionali IRPEF
+              <Tip text="Sono tasse aggiuntive regionali (~1,7%) e comunali (~0,8%) che si pagano oltre all'IRPEF, calcolate sul tuo compenso. Variano da regione a regione e da comune a comune." />
+            </div>
+            <div className="text-xl font-bold text-white">{fmt(A.addRegionale + A.addComunale)}</div>
+            <div className="text-[10px] text-gray-500 mt-0.5">regionale + comunale</div>
+          </div>
+        </div>
       </div>
 
       {/* WATERFALL */}
