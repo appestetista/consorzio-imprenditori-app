@@ -44,7 +44,7 @@ export default function SimulatoreFiscale() {
   const handlePreFlightComplete = (vals) => {
     setShowPreFlight(false);
     setEffectiveUser(prev => ({ ...prev, ...vals }));
-    setView(null); // reset view so it picks up the first tab from new tabs
+    setView(null);
   };
 
   useEffect(() => {
