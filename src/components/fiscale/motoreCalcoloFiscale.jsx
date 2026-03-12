@@ -506,7 +506,8 @@ function calcolaCOOP(params) {
   const ires = Math.round(baseIRES * IRES_ALIQUOTA);
   
   // Ristorni ai soci (tassati IRPEF al socio, qui calcoliamo solo l'impatto sulla coop)
-  const utileNetto = Math.max(0, utileAnteImposte - ires - irap);
+  // IRAP è costo a CE ma non riduce l'utile distribuibile civilistico (coerenza con SRL)
+  const utileNetto = Math.max(0, utileAnteImposte - ires);
   const ristorni = Math.round(utileNetto * (percRistorni / 100));
   const utileRitenuto = utileNetto - ristorni;
   

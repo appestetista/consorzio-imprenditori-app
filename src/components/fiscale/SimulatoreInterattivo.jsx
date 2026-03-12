@@ -217,7 +217,7 @@ function calcolaScenario({ fatturato, costiTotali, compensoLordo, percDividendi 
     { l: "🏛️ IRAP (tassa regionale)", d: -irap, t: "tassa" },
     { l: "🏛️ IRES (tassa sugli utili)", d: -ires, t: "tassa" },
     ...(dividendiLordi > 0 ? [
-      { l: `🏦 Utile che resta in azienda`, d: -(utileNetto - dividendiLordi), t: "neutro" },
+      { l: `🏦 Utile che resta in azienda`, d: -(Math.max(0, utileNetto) - dividendiLordi), t: "neutro" },
       { l: "💎 Tassa sui dividendi (26%)", d: -ritenutaDividendi, t: "tassa" },
     ] : []),
   ];
