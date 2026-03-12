@@ -648,18 +648,19 @@ export default function SimulatoreInterattivo({ user }) {
         </div>
       </div>
 
-      {/* WATERFALL */}
+      {/* WATERFALL — Dove vanno i tuoi soldi */}
       <div className="rounded-xl p-5"
         style={{ backgroundColor: "rgba(255,255,255,0.03)", border: "1px solid rgba(255,255,255,0.06)" }}>
-        <div className="flex items-center justify-between mb-3">
+        <div className="flex items-center justify-between mb-1">
           <h2 className="text-sm font-semibold text-gray-400 uppercase tracking-wider">
-            Dove vanno i tuoi soldi
+            🔍 Dove vanno i tuoi soldi
           </h2>
           <button onClick={() => setDetComp(!detComp)}
             className="text-xs text-blue-400 hover:text-blue-300">
-            {detComp ? "Nascondi dettaglio" : "Dettaglio compenso"}
+            {detComp ? "Chiudi dettaglio" : "📋 Vedi calcoli compenso"}
           </button>
         </div>
+        <p className="text-[10px] text-gray-500 mb-3">Dal fatturato, ogni barra mostra quanto viene "tolto" — ciò che resta alla fine è tuo.</p>
         {A.steps.map((s, i) => <WBar key={i} step={s} maxVal={fatt} />)}
         <div className="border-t border-gray-700 pt-2 mt-2">
           <div className="flex items-center gap-3 py-1.5">
