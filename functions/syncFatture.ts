@@ -129,6 +129,59 @@ Deno.serve(async (req) => {
       }
     }
 
+    // ── Registra azienda su OpenAPI SDI ──
+    if (action === "register") {
+      const { email } = body;
+      if (!email) {
+        return Response.json({ error: 'Email obbligatoria per la registrazione SDI' }, { status: 400 });
+      }
+
+      // Prima verifica se già esiste
+      const checkRes = await fetch(`${BASE_URL}/business_registry_configurations/${fiscal_id}`, {
+        headers: { "Authorization": `Bearer ${OPENAPI_TOKEN}` }
+      });
+      if (checkRes.ok) {
+        const existingConfig = await checkRes.json();
+        // Già registrata, aggiorna flag sull'azienda
+        await base44.asServiceRole.entities.AziendaFiscale.update(azienda_id, {
+          configurazione_openapi: true
+        });
+        return Response.json({ success: true, already_registered: true, config: existingConfig });
+      }
+
+      // Registra con POST /business_registry_configurations
+      // Tipo "regular" = fatture senza firma e senza conservazione a norma
+      console.log(`[syncFatture] Registrazione SDI per fiscal_id=${fiscal_id}, email=${email}`);
+      const registerRes = await fetch(`${BASE_URL}/business_registry_configurations`, {
+        method: "POST",
+        headers: {
+          "Authorization": `Bearer ${OPENAPI_TOKEN}`,
+          "Content-Type": "application/json"
+        },
+        body: JSON.stringify({
+          fiscal_id: fiscal_id,
+          email: email,
+          type: "regular"
+        })
+      });
+
+      if (!registerRes.ok) {
+        const errText = await registerRes.text();
+        console.error(`[syncFatture] Errore registrazione SDI: ${registerRes.status} - ${errText}`);
+        return Response.json({ error: `Errore registrazione SDI: ${registerRes.status} - ${errText}` }, { status: 500 });
+      }
+
+      const registerData = await registerRes.json();
+      console.log(`[syncFatture] Registrazione SDI completata:`, JSON.stringify(registerData));
+
+      // Aggiorna flag sull'azienda
+      await base44.asServiceRole.entities.AziendaFiscale.update(azienda_id, {
+        configurazione_openapi: true
+      });
+
+      return Response.json({ success: true, already_registered: false, config: registerData });
+    }
+
     // ── Sincronizzazione fatture ──
     if (action === "sync") {
       // 1) Recupera fatture esistenti per dedup
