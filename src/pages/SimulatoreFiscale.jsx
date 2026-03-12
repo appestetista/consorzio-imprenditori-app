@@ -26,6 +26,7 @@ export default function SimulatoreFiscale() {
   const [view, setView] = useState(null);
   const [showPreFlight, setShowPreFlight] = useState(false);
   const { impersonation, appMode } = useImpersonation();
+  const contentRef = useRef(null);
 
   // Tabs dinamici in base al tipo di società dell'utente
   const userFormaGiuridica = effectiveUser?.forma_giuridica || null;
