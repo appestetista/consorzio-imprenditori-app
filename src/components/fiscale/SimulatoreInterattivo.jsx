@@ -664,6 +664,26 @@ export default function SimulatoreInterattivo({ user }) {
         </div>
       </div>
 
+      {/* PIANIFICATORE MENSILE */}
+      <div className="rounded-xl overflow-hidden" style={{ backgroundColor: "rgba(255,255,255,0.03)", border: "1px solid rgba(212,175,55,0.15)" }}>
+        <button onClick={() => setShowPianificatore(!showPianificatore)}
+          className="w-full flex items-center justify-between px-5 py-4 text-left hover:bg-white/5 transition-colors">
+          <div className="flex items-center gap-3">
+            <span className="text-xl">📊</span>
+            <div>
+              <span className="text-sm font-bold text-white block">Pianificatore Mensile</span>
+              <span className="text-[10px] text-gray-400">Inserisci fatturato mese per mese — ottimizzazione automatica compenso/dividendi</span>
+            </div>
+          </div>
+          <span className="text-gray-500 text-xs">{showPianificatore ? '▼' : '▶'}</span>
+        </button>
+        {showPianificatore && (
+          <div className="px-4 pb-5">
+            <PianificatoreMensile costiPerc={Math.round((costi / fatt) * 100)} />
+          </div>
+        )}
+      </div>
+
       {/* DISCLAIMER */}
       <div className="text-center text-xs text-gray-600 px-2">
         ⚠️ Simulazione orientativa. Non sostituisce la consulenza del commercialista.
