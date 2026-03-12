@@ -126,6 +126,9 @@ export default function SimulatoreFiscale() {
                 <AtecoInfoPopup atecoCode={effectiveUser.ateco_code} />
               </span>
             )}
+            {effectiveUser?.periodicita_iva && (
+              <span className="text-slate-300 text-xs bg-slate-800/80 px-2 py-0.5 rounded">IVA {effectiveUser.periodicita_iva}</span>
+            )}
           </div>
         )}
 
