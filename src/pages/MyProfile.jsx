@@ -806,12 +806,22 @@ export default function MyProfile() {
   const [savingConsultant, setSavingConsultant] = useState(false);
   const { impersonation, setCurrentUserRole, appMode, stopImpersonation } = useImpersonation();
 
+  const [highlightFiscale, setHighlightFiscale] = useState(false);
+
   useEffect(() => {
-    // Auto-scroll alla sezione bandi se richiesto via URL
     const params = new URLSearchParams(window.location.search);
+    // Auto-scroll alla sezione bandi se richiesto via URL
     if (params.get('scrollTo') === 'bandi') {
       setTimeout(() => {
         const el = document.getElementById('profilo-bandi-section');
+        if (el) el.scrollIntoView({ behavior: 'smooth', block: 'start' });
+      }, 500);
+    }
+    // Evidenzia campi fiscali se richiesto dal Simulatore Fiscale
+    if (params.get('highlight') === 'fiscale') {
+      setHighlightFiscale(true);
+      setTimeout(() => {
+        const el = document.getElementById('profilo-aziendale-section');
         if (el) el.scrollIntoView({ behavior: 'smooth', block: 'start' });
       }, 500);
     }
@@ -1351,11 +1361,13 @@ export default function MyProfile() {
         </div>
 
         {/* Profilo Aziendale (ex ProfiloUtente) */}
-        <Card className="bg-slate-800 border-slate-700 mb-4">
+        <div id="profilo-aziendale-section">
+        <Card className={`bg-slate-800 mb-4 ${highlightFiscale ? 'border-2 border-[#d4af37] shadow-lg shadow-[#d4af37]/20' : 'border-slate-700'}`}>
           <CardHeader>
             <CardTitle className="text-white flex items-center gap-2">
               <Building2 className="w-5 h-5 text-[#d4af37]" />
               Profilo Aziendale
+              {highlightFiscale && <span className="text-[#d4af37] text-xs font-normal ml-2 bg-[#d4af37]/10 px-2 py-0.5 rounded">⚡ Dati usati dal Simulatore Fiscale</span>}
             </CardTitle>
           </CardHeader>
           <CardContent className="space-y-3">
@@ -1368,8 +1380,8 @@ export default function MyProfile() {
                 </SelectContent>
               </Select>
             </div>
-            <div>
-              <Label className="text-lime-400 text-sm font-medium mb-1 block">Tipo di Società (obbligatorio)</Label>
+            <div className={highlightFiscale ? 'ring-2 ring-[#d4af37]/50 rounded-lg p-2 -m-2 bg-[#d4af37]/5' : ''}>
+              <Label className="text-lime-400 text-sm font-medium mb-1 block">Tipo di Società (obbligatorio) {highlightFiscale && <span className="text-[#d4af37]">← Simulatore</span>}</Label>
               <Select value={formData.forma_giuridica || undefined} onValueChange={(v) => setFormData({...formData, forma_giuridica: v})}>
                 <SelectTrigger className="bg-lime-400/10 border-lime-400 text-white"><SelectValue placeholder="Seleziona tipo società" /></SelectTrigger>
                 <SelectContent>
@@ -1406,10 +1418,10 @@ export default function MyProfile() {
                 </SelectContent>
               </Select>
             </div>
-            <div>
-              <Label className="text-slate-400 text-sm mb-1 block">Regime fiscale</Label>
+            <div className={highlightFiscale ? 'ring-2 ring-[#d4af37]/50 rounded-lg p-2 -m-2 bg-[#d4af37]/5' : ''}>
+              <Label className={highlightFiscale ? 'text-[#d4af37] text-sm font-medium mb-1 block' : 'text-slate-400 text-sm mb-1 block'}>Regime fiscale {highlightFiscale && <span className="text-[#d4af37]">← Simulatore</span>}</Label>
               <Select value={formData.regime_fiscale || undefined} onValueChange={(v) => setFormData({...formData, regime_fiscale: v})}>
-                <SelectTrigger className="bg-slate-900 border-slate-700 text-white"><SelectValue placeholder="Seleziona regime" /></SelectTrigger>
+                <SelectTrigger className={highlightFiscale ? 'bg-[#d4af37]/10 border-[#d4af37] text-white' : 'bg-slate-900 border-slate-700 text-white'}><SelectValue placeholder="Seleziona regime" /></SelectTrigger>
                 <SelectContent>
                   {['Forfettario','Semplificato','Ordinario','Non so'].map(o => <SelectItem key={o} value={o}>{o}</SelectItem>)}
                 </SelectContent>
