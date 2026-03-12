@@ -109,11 +109,19 @@ export default function SimulatoreFiscale() {
           <FiscalPreFlightPopup user={effectiveUser} onComplete={handlePreFlightComplete} />
         )}
 
-        {/* Tipo società selezionato */}
+        {/* Riepilogo dati fiscali dal profilo */}
         {userFormaGiuridica && (
-          <div className="mb-3 flex items-center gap-2">
-            <span className="text-slate-500 text-xs">Tipo società:</span>
+          <div className="mb-3 flex flex-wrap items-center gap-1.5">
             <span className="text-[#d4af37] text-xs font-semibold bg-[#d4af37]/10 px-2 py-0.5 rounded">{userFormaGiuridica}</span>
+            {effectiveUser?.regime_fiscale && (
+              <span className="text-slate-300 text-xs bg-slate-800/80 px-2 py-0.5 rounded">{effectiveUser.regime_fiscale}</span>
+            )}
+            {(effectiveUser?.regione || effectiveUser?.region) && (
+              <span className="text-slate-300 text-xs bg-slate-800/80 px-2 py-0.5 rounded">{effectiveUser.regione || effectiveUser.region}</span>
+            )}
+            {effectiveUser?.ateco_code && (
+              <span className="text-slate-300 text-xs bg-slate-800/80 px-2 py-0.5 rounded">ATECO {effectiveUser.ateco_code}</span>
+            )}
           </div>
         )}
 
@@ -156,7 +164,7 @@ export default function SimulatoreFiscale() {
         )}
 
         {(view === 'irpef' || view === 'compenso') && (
-          <SimulazioneForm onSubmit={handleCalcola} loading={loading} />
+          <SimulazioneForm onSubmit={handleCalcola} loading={loading} userProfile={effectiveUser} />
         )}
 
         {view === 'result' && !loading && result && (
