@@ -20,9 +20,17 @@ const coefficientiAteco = [
   { label: '86% – Commercio ambulante (non alimentare)', value: '0.86' },
 ];
 
-export default function SimulazioneForm({ onSubmit, loading }) {
+export default function SimulazioneForm({ onSubmit, loading, userProfile }) {
+  // Mappa forma giuridica → regime form
+  const mapFormaToRegime = (fg, rf) => {
+    if (fg === 'RF' || rf === 'Forfettario') return 'Forfettario';
+    if (['SRL', 'SRLU', 'SPA', 'SAPA', 'SE', 'COOP'].includes(fg)) return 'SRL';
+    if (['Ditta individuale', 'SS', 'SNC', 'SAS'].includes(fg) && rf === 'Ordinario') return 'DittaOrdinaria';
+    return '';
+  };
+
   const [form, setForm] = useState({
-    regime: '',
+    regime: mapFormaToRegime(userProfile?.forma_giuridica, userProfile?.regime_fiscale),
     fatturato: '',
     costi_deducibili: '',
     coefficiente_redditivita: '0.78',
@@ -32,9 +40,9 @@ export default function SimulazioneForm({ onSubmit, loading }) {
     base_imponibile_irap: '',
     nome_scenario: '',
     anno: 2026,
-    regione: '',
+    regione: userProfile?.regione || userProfile?.region || '',
     categoria_irap: '',
-    codice_ateco: ''
+    codice_ateco: userProfile?.ateco_code || ''
   });
 
   // Raccordo automatico ATECO → IRAP
