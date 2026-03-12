@@ -203,7 +203,7 @@ export default function SimulatoreFiscale() {
           })}
           {effectiveUser?.role === 'admin' && (
             <button
-              onClick={() => setView('aliquote')}
+              onClick={() => handleTabClick('aliquote')}
               className={`relative overflow-hidden rounded-2xl transition-all ${
                 view === 'aliquote'
                   ? 'bg-[#0a2540] border-2 border-[#d4af37] shadow-lg shadow-[#d4af37]/20'
