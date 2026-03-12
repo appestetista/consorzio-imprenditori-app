@@ -1,6 +1,6 @@
 import React, { useState, useEffect, useMemo } from 'react';
 import { base44 } from '@/api/base44Client';
-import { ArrowLeft, Calculator } from 'lucide-react';
+import { ArrowLeft, Calculator, Pencil } from 'lucide-react';
 import { Link } from 'react-router-dom';
 import { createPageUrl } from '@/utils';
 import Header from '../components/layout/Header';
@@ -113,6 +113,9 @@ export default function SimulatoreFiscale() {
         {/* Riepilogo dati fiscali dal profilo */}
         {userFormaGiuridica && (
           <div className="mb-3 flex flex-wrap items-center gap-1.5">
+            <Link to={createPageUrl('MyProfile') + '?tab=profilo&highlight=fiscale'} className="text-[#d4af37] hover:text-[#f0d060] p-1 rounded-full bg-[#d4af37]/10 hover:bg-[#d4af37]/20 transition-all mr-1">
+              <Pencil className="w-4 h-4" />
+            </Link>
             <span className="text-[#d4af37] text-xs font-semibold bg-[#d4af37]/10 px-2 py-0.5 rounded">{userFormaGiuridica}</span>
             {effectiveUser?.regime_fiscale && (
               <span className="text-slate-300 text-xs bg-slate-800/80 px-2 py-0.5 rounded">{effectiveUser.regime_fiscale}</span>
