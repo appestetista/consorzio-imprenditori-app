@@ -111,9 +111,9 @@ Deno.serve(async (req) => {
       return Response.json({ error: 'azienda_id e fiscal_id sono obbligatori' }, { status: 400 });
     }
 
-    // ── Check configurazione OpenAPI ──
+    // ── Check configurazione OpenAPI (SDI) ──
     if (action === "check_config") {
-      const configRes = await fetch(`${BASE_URL}/IT-configurations/${fiscal_id}`, {
+      const configRes = await fetch(`${BASE_URL}/business_registry_configurations/${fiscal_id}`, {
         headers: { "Authorization": `Bearer ${OPENAPI_TOKEN}` }
       });
       if (configRes.ok) {
@@ -123,7 +123,7 @@ Deno.serve(async (req) => {
         return Response.json({ configured: false });
       } else {
         const errText = await configRes.text();
-        return Response.json({ error: `Errore OpenAPI: ${configRes.status} - ${errText}` }, { status: 500 });
+        return Response.json({ error: `Errore OpenAPI SDI: ${configRes.status} - ${errText}` }, { status: 500 });
       }
     }
 
