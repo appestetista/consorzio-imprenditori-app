@@ -2,7 +2,9 @@ import { createClientFromRequest } from 'npm:@base44/sdk@0.8.20';
 import { DOMParser } from 'npm:xmldom@0.6.0';
 
 const OPENAPI_TOKEN = Deno.env.get("OPENAPI_IT_TOKEN");
-const BASE_URL = "https://sdi.openapi.it";
+// Usa sandbox per test, production per produzione
+const USE_SANDBOX = false;
+const BASE_URL = USE_SANDBOX ? "https://test.sdi.openapi.it" : "https://sdi.openapi.it";
 
 // ── XML FatturaPA Parser ──────────────────────────────────────────
 function getTagText(parent, tagName) {
