@@ -161,7 +161,7 @@ Deno.serve(async (req) => {
         body: JSON.stringify({
           fiscal_id: fiscal_id,
           email: email,
-          type: "regular"
+          apply_legal_storage: false
         })
       });
 
