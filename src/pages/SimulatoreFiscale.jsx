@@ -159,33 +159,51 @@ export default function SimulatoreFiscale() {
           </div>
         )}
 
-        {/* Tabs dinamici */}
-        <div className="grid grid-cols-2 gap-2 mb-6">
-          {tabs.map(tab => (
-            <button
-              key={tab.id}
-              onClick={() => setView(tab.id)}
-              className={`py-3 px-3 rounded-xl text-left transition-all ${
-                view === tab.id
-                  ? 'bg-[#d4af37] text-slate-900 shadow-lg shadow-[#d4af37]/20'
-                  : 'bg-slate-800/80 text-slate-300 hover:bg-slate-700/80'
-              }`}
-            >
-              <span className="block text-sm font-semibold leading-tight">{tab.label}</span>
-              <span className={`block text-[10px] mt-0.5 leading-tight ${view === tab.id ? 'text-slate-700' : 'text-slate-500'}`}>{tab.sub}</span>
-            </button>
-          ))}
+        {/* Tabs dinamici con icone */}
+        <div className="grid grid-cols-2 gap-3 mb-6">
+          {tabs.map(tab => {
+            const img = getTabImage(tab.id);
+            const isActive = view === tab.id;
+            return (
+              <button
+                key={tab.id}
+                onClick={() => setView(tab.id)}
+                className={`relative overflow-hidden rounded-2xl text-left transition-all ${
+                  isActive
+                    ? 'bg-[#0a2540] border-2 border-[#d4af37] shadow-lg shadow-[#d4af37]/20'
+                    : 'bg-[#0a2540] border border-[#1a3a5c] hover:border-[#d4af37]/40'
+                }`}
+              >
+                <div className="flex items-center gap-2 p-3">
+                  {img && (
+                    <img src={img} alt={tab.label} className="w-14 h-14 object-contain shrink-0" />
+                  )}
+                  <div className="min-w-0 flex-1">
+                    <span className={`block text-sm font-bold leading-tight ${isActive ? 'text-[#d4af37]' : 'text-white'}`}>{tab.label}</span>
+                    <span className={`block text-[10px] mt-0.5 leading-tight ${isActive ? 'text-[#d4af37]/70' : 'text-slate-500'}`}>{tab.sub}</span>
+                  </div>
+                </div>
+                {isActive && <div className="absolute bottom-0 left-0 right-0 h-0.5 bg-[#d4af37]" />}
+              </button>
+            );
+          })}
           {effectiveUser?.role === 'admin' && (
             <button
               onClick={() => setView('aliquote')}
-              className={`py-3 px-3 rounded-xl text-left transition-all ${
+              className={`relative overflow-hidden rounded-2xl text-left transition-all ${
                 view === 'aliquote'
-                  ? 'bg-[#d4af37] text-slate-900 shadow-lg shadow-[#d4af37]/20'
-                  : 'bg-slate-800/80 text-slate-300 hover:bg-slate-700/80'
+                  ? 'bg-[#0a2540] border-2 border-[#d4af37] shadow-lg shadow-[#d4af37]/20'
+                  : 'bg-[#0a2540] border border-[#1a3a5c] hover:border-[#d4af37]/40'
               }`}
             >
-              <span className="block text-sm font-semibold leading-tight">Aliquote</span>
-              <span className={`block text-[10px] mt-0.5 leading-tight ${view === 'aliquote' ? 'text-slate-700' : 'text-slate-500'}`}>Gestione IRAP</span>
+              <div className="flex items-center gap-2 p-3">
+                <img src={getTabImage('irap')} alt="Aliquote" className="w-14 h-14 object-contain shrink-0" />
+                <div className="min-w-0 flex-1">
+                  <span className={`block text-sm font-bold leading-tight ${view === 'aliquote' ? 'text-[#d4af37]' : 'text-white'}`}>Aliquote</span>
+                  <span className={`block text-[10px] mt-0.5 leading-tight ${view === 'aliquote' ? 'text-[#d4af37]/70' : 'text-slate-500'}`}>Gestione IRAP</span>
+                </div>
+              </div>
+              {view === 'aliquote' && <div className="absolute bottom-0 left-0 right-0 h-0.5 bg-[#d4af37]" />}
             </button>
           )}
         </div>
