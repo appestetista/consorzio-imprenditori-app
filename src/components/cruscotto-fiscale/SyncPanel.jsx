@@ -17,6 +17,42 @@ export default function SyncPanel({ azienda, onSyncComplete, onAziendaCreated, u
   const [lastSyncResult, setLastSyncResult] = useState(null);
   const [formData, setFormData] = useState({ nome: '', partita_iva: '', codice_fiscale: '' });
   const [creating, setCreating] = useState(false);
+  const [showMissingData, setShowMissingData] = useState(false);
+
+  // Controlla se mancano dati obbligatori sull'azienda
+  const checkMissingData = () => {
+    if (!azienda) return false;
+    return !azienda.partita_iva || !azienda.codice_fiscale || !userEmail;
+  };
+
+  const handleSyncClick = () => {
+    if (!azienda) return;
+    if (checkMissingData()) {
+      setShowMissingData(true);
+      return;
+    }
+    handleSync();
+  };
+
+  // Callback dal dialog: salva i dati mancanti, aggiorna l'azienda e poi sincronizza
+  const handleMissingDataCompleted = async (completedData) => {
+    try {
+      const updatePayload = {};
+      if (!azienda.partita_iva && completedData.partita_iva) updatePayload.partita_iva = completedData.partita_iva;
+      if (!azienda.codice_fiscale && completedData.codice_fiscale) updatePayload.codice_fiscale = completedData.codice_fiscale;
+
+      if (Object.keys(updatePayload).length > 0) {
+        await base44.entities.AziendaFiscale.update(azienda.id, updatePayload);
+        // Aggiorna l'azienda localmente per il sync
+        Object.assign(azienda, updatePayload);
+      }
+      setShowMissingData(false);
+      toast.success('Dati aggiornati. Avvio sincronizzazione...');
+      handleSync();
+    } catch (err) {
+      toast.error('Errore aggiornamento dati: ' + err.message);
+    }
+  };
 
   const handleSync = async () => {
     if (!azienda) return;
