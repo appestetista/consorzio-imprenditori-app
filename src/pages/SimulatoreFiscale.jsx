@@ -46,46 +46,6 @@ export default function SimulatoreFiscale() {
     loadUser();
   }, [appMode, impersonation.previewUserId]);
 
-  const handleCalcola = async (formData) => {
-    setLoading(true);
-    setResult(null);
-    const response = await base44.functions.invoke('calcolaImposte', formData);
-    setResult(response.data);
-    setLoading(false);
-    setView('result');
-  };
-
-  const handleTabClick = (tabId) => {
-    // Se clicchi lo stesso tab attivo, lo chiudi
-    if (view === tabId) {
-      setView(null);
-      return;
-    }
-    setView(tabId);
-    // Auto-scroll al contenuto dopo il render
-    setTimeout(() => {
-      contentRef.current?.scrollIntoView({ behavior: 'smooth', block: 'start' });
-    }, 100);
-  };
-
-  const handleCloseContent = () => {
-    setView(null);
-  };
-
-  const handleSelectStorico = (sim) => {
-    setResult({
-      success: true,
-      simulazione_id: sim.id,
-      utile: sim.utile,
-      reddito_imponibile: sim.reddito_imponibile,
-      imposte_totali: sim.imposte_totali,
-      netto_finale: sim.netto_finale,
-      pressione_fiscale: sim.fatturato > 0 ? Math.round((sim.imposte_totali / sim.fatturato) * 10000) / 100 : 0,
-      dettaglio_calcolo: sim.dettaglio_calcolo
-    });
-    setView('result');
-  };
-
   return (
     <div className="min-h-screen pb-64" style={{ backgroundColor: '#001d3b' }}>
       <main className="px-4 py-6 max-w-md mx-auto">
@@ -100,7 +60,6 @@ export default function SimulatoreFiscale() {
               <h1 className="text-white text-xl font-bold">Simulatore Fiscale</h1>
             </div>
           </div>
-          {/* Icone gestite dal GlobalHeader */}
         </div>
 
         {/* Popup pre-flight dati fiscali mancanti */}
@@ -109,12 +68,12 @@ export default function SimulatoreFiscale() {
         )}
 
         {/* Riepilogo dati fiscali dal profilo */}
-        {userFormaGiuridica && (
+        {effectiveUser?.forma_giuridica && (
           <div className="mb-3 flex flex-wrap items-center gap-1.5">
             <Link to={createPageUrl('MyProfile') + '?tab=profilo&highlight=fiscale'} className="text-[#d4af37] hover:text-[#f0d060] p-1 rounded-full bg-[#d4af37]/10 hover:bg-[#d4af37]/20 transition-all mr-1">
               <Pencil className="w-4 h-4" />
             </Link>
-            <span className="text-[#d4af37] text-xs font-semibold bg-[#d4af37]/10 px-2 py-0.5 rounded">{userFormaGiuridica}</span>
+            <span className="text-[#d4af37] text-xs font-semibold bg-[#d4af37]/10 px-2 py-0.5 rounded">{effectiveUser.forma_giuridica}</span>
             {effectiveUser?.regime_fiscale && (
               <span className="text-slate-300 text-xs bg-slate-800/80 px-2 py-0.5 rounded">{effectiveUser.regime_fiscale}</span>
             )}
@@ -127,172 +86,29 @@ export default function SimulatoreFiscale() {
                 <AtecoInfoPopup atecoCode={effectiveUser.ateco_code} />
               </span>
             )}
-            {effectiveUser?.periodicita_iva && (
-              <span className="text-slate-300 text-xs bg-slate-800/80 px-2 py-0.5 rounded">IVA {effectiveUser.periodicita_iva}</span>
-            )}
-            {effectiveUser?.gestione_inps && (
-              <span className="text-slate-300 text-xs bg-slate-800/80 px-2 py-0.5 rounded">{effectiveUser.gestione_inps}</span>
-            )}
-            {effectiveUser?.numero_soci && (
-              <span className="text-slate-300 text-xs bg-slate-800/80 px-2 py-0.5 rounded">{effectiveUser.numero_soci} soci</span>
-            )}
-            {effectiveUser?.soci_accomandatari && (
-              <span className="text-slate-300 text-xs bg-slate-800/80 px-2 py-0.5 rounded">{effectiveUser.soci_accomandatari} acc.ri / {effectiveUser.soci_accomandanti || 0} acc.ti</span>
-            )}
-            {effectiveUser?.capitale_sociale && (
-              <span className="text-slate-300 text-xs bg-slate-800/80 px-2 py-0.5 rounded">Cap. €{Number(effectiveUser.capitale_sociale).toLocaleString('it-IT')}</span>
-            )}
-            {effectiveUser?.tipo_contabilita && (
-              <span className="text-slate-300 text-xs bg-slate-800/80 px-2 py-0.5 rounded">Cont. {effectiveUser.tipo_contabilita}</span>
-            )}
-            {effectiveUser?.tipo_cooperativa && (
-              <span className="text-slate-300 text-xs bg-slate-800/80 px-2 py-0.5 rounded">Coop. {effectiveUser.tipo_cooperativa}</span>
-            )}
-            {effectiveUser?.mutualita_prevalente && (
-              <span className="text-green-300 text-xs bg-green-900/30 px-2 py-0.5 rounded">Mutualità prev.</span>
-            )}
-            {effectiveUser?.riduzione_contributiva_forfettario && (
-              <span className="text-green-300 text-xs bg-green-900/30 px-2 py-0.5 rounded">INPS -35%</span>
-            )}
-            {effectiveUser?.ha_compenso_amministratore && (
-              <span className="text-slate-300 text-xs bg-slate-800/80 px-2 py-0.5 rounded">Comp. Amm.</span>
-            )}
           </div>
         )}
 
-        {/* Tabs dinamici con icone */}
-        <div className="grid grid-cols-2 gap-2.5 mb-6">
-          {tabs.map(tab => {
-            const img = getTabImage(tab.id);
-            const isActive = view === tab.id;
-            return (
-              <button
-                key={tab.id}
-                onClick={() => handleTabClick(tab.id)}
-                className={`relative overflow-hidden rounded-2xl transition-all ${
-                  isActive
-                    ? 'bg-[#0a2540] border-2 border-[#d4af37]'
-                    : 'bg-[#0a2540] border border-[#1a3a5c] hover:border-[#d4af37]/40'
-                }`}
-              >
-                <div className="flex flex-col items-center px-1.5 pt-1.5 pb-2">
-                  {img && (
-                    <img src={img} alt={tab.label} className="w-36 h-36 object-contain" />
-                  )}
-                  <span className={`text-sm font-bold text-center leading-tight ${isActive ? 'text-[#d4af37]' : 'text-white'}`}>{tab.label}</span>
-                  <span className={`text-sm text-center leading-snug mt-0.5 ${isActive ? 'text-[#f0d060]' : 'text-slate-400'}`}>{tab.sub}</span>
-                </div>
-                {isActive && <div className="absolute bottom-0 left-0 right-0 h-0.5 bg-[#d4af37]" />}
-              </button>
-            );
-          })}
-          {effectiveUser?.role === 'admin' && (
+        {/* Simulatore interattivo principale */}
+        {effectiveUser && (
+          <SimulatoreInterattivo user={effectiveUser} />
+        )}
+
+        {/* Admin: gestione aliquote */}
+        {effectiveUser?.role === 'admin' && (
+          <div className="mt-6">
             <button
-              onClick={() => handleTabClick('aliquote')}
-              className={`relative overflow-hidden rounded-2xl transition-all ${
-                view === 'aliquote'
-                  ? 'bg-[#0a2540] border-2 border-[#d4af37]'
-                  : 'bg-[#0a2540] border border-[#1a3a5c] hover:border-[#d4af37]/40'
-              }`}
+              onClick={() => setShowAliquote(!showAliquote)}
+              className="text-[#d4af37] text-xs font-semibold hover:underline mb-3"
             >
-              <div className="flex flex-col items-center px-1.5 pt-1.5 pb-2">
-                <img src={getTabImage('irap')} alt="Aliquote" className="w-36 h-36 object-contain" />
-                <span className={`text-sm font-bold text-center leading-tight ${view === 'aliquote' ? 'text-[#d4af37]' : 'text-white'}`}>Aliquote</span>
-                <span className={`text-sm text-center leading-snug mt-0.5 ${view === 'aliquote' ? 'text-[#f0d060]' : 'text-slate-400'}`}>Gestione IRAP</span>
-              </div>
-              {view === 'aliquote' && <div className="absolute bottom-0 left-0 right-0 h-0.5 bg-[#d4af37]" />}
+              {showAliquote ? 'Nascondi' : 'Gestione'} Aliquote IRAP (Admin)
             </button>
-          )}
-        </div>
-
-        {/* Contenuto */}
-        <div ref={contentRef} />
-        {view && view !== 'result' && (
-          <div className="flex justify-end mb-2">
-            <button
-              onClick={handleCloseContent}
-              className="flex items-center gap-1.5 text-slate-400 hover:text-white bg-slate-800/60 hover:bg-slate-700/60 px-3 py-1.5 rounded-lg transition-all text-sm"
-            >
-              <X className="w-4 h-4" />
-              Chiudi
-            </button>
-          </div>
-        )}
-        {view === 'bilancio' && (
-          <div className="bg-[#0a2540]/50 border border-[#1a3a5c] rounded-2xl p-4 mt-2">
-            <AnalisiBilancio />
-          </div>
-        )}
-
-        {(view === 'iva' || view === 'iva_ue') && (
-          <PlaceholderSection title={view === 'iva_ue' ? 'IVA UE' : 'IVA'} desc="Calcolo e monitoraggio IVA a debito/credito" />
-        )}
-
-        {(view === 'irpef' || view === 'compenso') && (
-          <SimulazioneForm onSubmit={handleCalcola} loading={loading} userProfile={effectiveUser} />
-        )}
-
-        {view === 'result' && !loading && result && (
-          <SimulazioneResult
-            result={result}
-            onNewScenario={() => { setView(tabs[0]?.id || 'bilancio'); setResult(null); }}
-          />
-        )}
-
-        {view === 'ires' && <MultiScenarioCompenso />}
-
-        {view === 'irap' && (
-          <PlaceholderSection title="IRAP" desc="Imposta Regionale sulle Attività Produttive" />
-        )}
-
-        {view === 'inps' && (
-          <PlaceholderSection title="Contributi INPS" desc="Simulazione contributi previdenziali" />
-        )}
-
-        {(view === 'dividendi' || view === 'ristorni') && <ConfrontoPrelievoSRL />}
-
-        {view === 'netto' && (
-          <StoricoSimulazioni
-            userEmail={effectiveUser?.email}
-            onSelect={handleSelectStorico}
-          />
-        )}
-
-        {view === 'ricavi' && (
-          <PlaceholderSection title="Ricavi" desc="Fatturato annuo e analisi ricavi" />
-        )}
-
-        {view === 'coefficiente' && (
-          <PlaceholderSection title="Coefficiente di Redditività" desc="Percentuale di reddito imponibile sul fatturato" />
-        )}
-
-        {view === 'imposta_sost' && (
-          <PlaceholderSection title="Imposta Sostitutiva" desc="Calcolo imposta sostitutiva 5% o 15%" />
-        )}
-
-        {view === 'aliquote' && effectiveUser?.role === 'admin' && (
-          <GestioneAliquoteIRAP user={effectiveUser} />
-        )}
-
-        {loading && view !== 'result' && (
-          <div className="bg-[#0a2540] border border-[#1a3a5c] rounded-xl p-6 text-center mb-4">
-            <div className="animate-spin rounded-full h-10 w-10 border-t-2 border-b-2 border-[#d4af37] mx-auto mb-3"></div>
-            <p className="text-white font-medium">Calcolo imposte in corso...</p>
-            <p className="text-slate-400 text-sm mt-1">Formule deterministiche basate su aliquote vigenti</p>
+            {showAliquote && <GestioneAliquoteIRAP user={effectiveUser} />}
           </div>
         )}
       </main>
 
       <BottomNavWithMenu currentPage="SimulatoreFiscale" />
-    </div>
-  );
-}
-
-function PlaceholderSection({ title, desc }) {
-  return (
-    <div className="bg-[#0a2540] border border-[#1a3a5c] rounded-xl p-6 text-center">
-      <p className="text-white font-medium text-lg mb-1">{title}</p>
-      <p className="text-slate-400 text-sm">Sezione in costruzione — {desc}</p>
     </div>
   );
 }
