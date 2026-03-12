@@ -523,21 +523,43 @@ export default function SimulatoreInterattivo({ user }) {
 
       {/* ═══ RISULTATI ═══ */}
 
-      {/* BIG NUMBER */}
+      {/* QUANTO TI RESTA IN TASCA */}
       <div className="rounded-xl p-6 text-center" style={{
         background: "linear-gradient(135deg, rgba(16,185,129,0.1) 0%, rgba(59,130,246,0.1) 100%)",
         border: "1px solid rgba(16,185,129,0.2)",
       }}>
-        <div className="text-sm text-gray-400 mb-1">Il tuo reddito netto annuo reale</div>
+        <div className="text-sm text-gray-400 mb-1">
+          💰 Quanto ti resta davvero in tasca, dopo tutte le tasse
+          <Tip text="Questo è il totale che arriva sul tuo conto personale in un anno, sommando ciò che ricevi come compenso (il tuo 'stipendio' da amministratore) e ciò che ricevi come dividendi (la tua quota di utili). Tutte le tasse sono già tolte." />
+        </div>
         <div className="text-5xl font-black text-green-400 tracking-tight">
           {fmt(A.totaleTasca)}
         </div>
-        <div className="text-sm text-gray-400 mt-2">
-          {fmt(A.totaleTasca / 12)}/mese netti
-          <span className="mx-2 text-gray-600">·</span>
-          Pressione fiscale: <span className="text-amber-400 font-bold">
-            {A.pressioneFiscale.toFixed(1)}%
-          </span>
+        <div className="text-xs text-gray-500 mt-2">
+          Cioè circa <strong className="text-white">{fmt(A.totaleTasca / 12)} al mese</strong> sul tuo conto
+        </div>
+        <div className="text-xs text-gray-500 mt-1">
+          Pressione fiscale: <span className="text-amber-400 font-bold">{A.pressioneFiscale.toFixed(1)}%</span>
+          <Tip text={`Significa che su ogni €100 di margine (fatturato meno costi), ${A.pressioneFiscale.toFixed(0)} euro vanno in tasse e contributi. Il resto è tuo.`} />
+        </div>
+        {/* Dettaglio: da dove arrivano i soldi */}
+        <div className="grid grid-cols-2 gap-3 mt-4 text-left">
+          <div className="bg-black/20 rounded-lg p-3">
+            <div className="text-[10px] text-gray-500">
+              Dal compenso amm.re
+              <Tip text="Questa è la parte del tuo reddito che arriva dallo 'stipendio' che ti sei dato come amministratore. Ha già pagato IRPEF, contributi INPS e addizionali." />
+            </div>
+            <div className="text-lg font-bold text-blue-400">{fmt(A.nettoCompenso)}</div>
+            <div className="text-[10px] text-gray-600">{fmt(A.nettoCompenso / 12)}/mese netti</div>
+          </div>
+          <div className="bg-black/20 rounded-lg p-3">
+            <div className="text-[10px] text-gray-500">
+              Dai dividendi
+              <Tip text="Questa è la parte del tuo reddito che arriva dalla distribuzione degli utili della società. Ha già pagato IRES (24%) a livello societario e la ritenuta del 26% a livello personale." />
+            </div>
+            <div className="text-lg font-bold text-violet-400">{fmt(A.dividendiNetti)}</div>
+            <div className="text-[10px] text-gray-600">dopo ritenuta 26%</div>
+          </div>
         </div>
         {confronto && (
           <div className="mt-4 pt-4 border-t border-gray-700">
