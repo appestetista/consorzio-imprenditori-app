@@ -56,7 +56,7 @@ export default function SimulatoreFiscale() {
             </Link>
             <div className="flex items-center gap-2">
               <Calculator className="w-5 h-5 text-[#d4af37]" />
-              <h1 className="text-white text-xl font-bold">Simulatore Fiscale</h1>
+              <h1 className="text-white text-xl font-bold">Quanto Mi Resta?</h1>
             </div>
           </div>
         </div>
