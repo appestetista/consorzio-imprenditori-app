@@ -191,14 +191,16 @@ function calcolaSRL(params) {
   // IRES su utile
   const ires = Math.round(utileAnteImposte * IRES_ALIQUOTA);
   
-  // Utile netto società
-  const utileNetto = Math.max(0, utileAnteImposte - ires - irap);
+  // Utile netto società (IRAP è costo a CE ma non riduce l'utile distribuibile civilistico)
+  const utileNetto = Math.max(0, utileAnteImposte - ires);
   
   // --- Tassazione compenso amministratore ---
-  const { irpef: irpefLorda, scaglioni } = calcolaIRPEF(compensoAmm);
-  const detrazioni = calcolaDetrazioniLavoroDip(compensoAmm);
+  // I contributi INPS a carico dell'amm. sono integralmente deducibili (art. 10 TUIR)
+  const redditoImponibileAmm = Math.max(0, compensoAmm - inpsGS.quotaAmministratore);
+  const { irpef: irpefLorda, scaglioni } = calcolaIRPEF(redditoImponibileAmm);
+  const detrazioni = calcolaDetrazioniLavoroDip(redditoImponibileAmm);
   const irpefNetta = Math.max(0, irpefLorda - detrazioni);
-  const addizionali = calcolaAddizionali(compensoAmm);
+  const addizionali = calcolaAddizionali(redditoImponibileAmm);
   const totaleIrpefAmm = irpefNetta + addizionali.totale;
   
   // Netto in tasca da compenso = lordo - IRPEF - addizionali - quota INPS amm.
