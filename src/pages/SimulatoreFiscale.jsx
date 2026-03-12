@@ -3,7 +3,6 @@ import { base44 } from '@/api/base44Client';
 import { ArrowLeft, Calculator, Pencil } from 'lucide-react';
 import { Link } from 'react-router-dom';
 import { createPageUrl } from '@/utils';
-import Header from '../components/layout/Header';
 import BottomNavWithMenu from '../components/layout/BottomNavWithMenu';
 import { useImpersonation } from '../components/admin/ImpersonationContext';
 import { normalizeUser } from '../components/utils/normalizeUser';
