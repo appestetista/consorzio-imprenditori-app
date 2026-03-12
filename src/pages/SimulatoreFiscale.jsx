@@ -17,6 +17,7 @@ import AnalisiBilancio from '../components/fiscale/AnalisiBilancio';
 import GlobalTopIcons from '../components/layout/GlobalTopIcons';
 import { getTabsForSocieta } from '../components/fiscale/societaTabs';
 import FiscalPreFlightPopup from '../components/fiscale/FiscalPreFlightPopup';
+import AtecoInfoPopup from '../components/fiscale/AtecoInfoPopup';
 
 export default function SimulatoreFiscale() {
   const [effectiveUser, setEffectiveUser] = useState(null);
@@ -120,7 +121,10 @@ export default function SimulatoreFiscale() {
               <span className="text-slate-300 text-xs bg-slate-800/80 px-2 py-0.5 rounded">{effectiveUser.regione || effectiveUser.region}</span>
             )}
             {effectiveUser?.ateco_code && (
-              <span className="text-slate-300 text-xs bg-slate-800/80 px-2 py-0.5 rounded">ATECO {effectiveUser.ateco_code}</span>
+              <span className="text-slate-300 text-xs bg-slate-800/80 px-2 py-0.5 rounded inline-flex items-center">
+                ATECO {effectiveUser.ateco_code}
+                <AtecoInfoPopup atecoCode={effectiveUser.ateco_code} />
+              </span>
             )}
           </div>
         )}
