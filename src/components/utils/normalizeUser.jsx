@@ -61,6 +61,11 @@ export function normalizeUser(user) {
     codice_fiscale: user.codice_fiscale || data.codice_fiscale,
     codice_sdi: user.codice_sdi || data.codice_sdi,
     ragione_sociale_fatturazione: user.ragione_sociale_fatturazione || data.ragione_sociale_fatturazione,
+    forma_giuridica: user.forma_giuridica || data.forma_giuridica,
+    regime_fiscale: user.regime_fiscale || data.regime_fiscale,
+    settore: user.settore || data.settore,
+    fatturato_annuo: user.fatturato_annuo || data.fatturato_annuo,
+    numero_dipendenti: user.numero_dipendenti || data.numero_dipendenti,
     
     // Profilo bandi
     ateco_code: user.ateco_code || data.ateco_code,
