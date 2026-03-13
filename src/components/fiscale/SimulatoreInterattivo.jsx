@@ -252,7 +252,10 @@ function calcolaIrpef(imponibile) {
   return imposta;
 }
 
-function calcolaScenario({ fatturato, costiTotali, compensoLordo, percDividendi }) {
+/* calcolaScenario — costiIndeducibiliIrap = somma delle voci costo NON deducibili IRAP
+   (personale dip. + interessi/oneri finanziari) già incluse in costiTotali.
+   Il compenso amm.re + INPS az. sono anch'essi indeducibili IRAP e vengono aggiunti internamente. */
+function calcolaScenario({ fatturato, costiTotali, compensoLordo, percDividendi, costiIndeducibiliIrap = 0 }) {
   const margine = fatturato - costiTotali;
   const baseInps = Math.min(compensoLordo, FISCO.inps_gs_max);
   const inpsTotale = baseInps * FISCO.inps_gs_totale;
@@ -260,11 +263,22 @@ function calcolaScenario({ fatturato, costiTotali, compensoLordo, percDividendi 
   const inpsAmministratore = inpsTotale * FISCO.inps_gs_quota_admin;
   const costoCompensoPerSocieta = compensoLordo + inpsAzienda;
   const utileAnteImposte = margine - costoCompensoPerSocieta;
-  const irap = Math.max(0, margine * FISCO.irap);
+
+  /* ── IRAP — D.Lgs. 446/97 art. 5 ──
+     Base IRAP = valore della produzione netta
+     = fatturato − costi DEDUCIBILI IRAP
+     Le voci indeducibili (personale dip., compensi amm.re, oneri finanziari)
+     vanno ri-aggiunte al margine per ottenere la base corretta. */
+  const baseIrap = margine + costiIndeducibiliIrap + costoCompensoPerSocieta;
+  const irap = Math.max(0, baseIrap * FISCO.irap);
+
   const ires = Math.max(0, utileAnteImposte * FISCO.ires);
-  // IRAP è un costo della società ma non riduce l'utile distribuibile ai fini civilistici
-  // L'utile netto distribuibile = utile ante imposte - IRES (l'IRAP è costo a CE separato)
-  const utileNetto = utileAnteImposte - ires;
+
+  /* ── Utile netto distribuibile (civilistico) ──
+     L'IRAP è costo a CE (voce B.14 art. 2425 c.c.) e riduce l'utile distribuibile.
+     Utile netto = utile ante imposte − IRES − IRAP */
+  const utileNetto = utileAnteImposte - ires - irap;
+
   const dividendiLordi = Math.max(0, utileNetto) * (percDividendi / 100);
   const ritenutaDividendi = dividendiLordi * FISCO.ritenuta_dividendi;
   const dividendiNetti = dividendiLordi - ritenutaDividendi;
@@ -275,7 +289,13 @@ function calcolaScenario({ fatturato, costiTotali, compensoLordo, percDividendi 
   const addComunale = imponibileIrpef * FISCO.add_comunale;
   const nettoCompenso = Math.max(0, compensoLordo - inpsAmministratore - irpef - addRegionale - addComunale);
   const totaleTasca = dividendiNetti + nettoCompenso;
-  const pressioneFiscale = margine > 0 ? ((margine - totaleTasca) / margine) * 100 : 0;
+
+  /* ── Pressione fiscale ──
+     Totale imposte e contributi / margine operativo */
+  const totaleImposteContributi = irpef + addRegionale + addComunale + inpsTotale + ires + irap + ritenutaDividendi;
+  const pressioneFiscale = margine > 0 ? (totaleImposteContributi / margine) * 100 : 0;
+  // Quota margine che resta in tasca (per info)
+  const percTasca = margine > 0 ? (totaleTasca / margine) * 100 : 0;
 
   const steps = [
     { l: "💰 Il tuo fatturato", v: fatturato, d: 0, t: "start" },
@@ -290,12 +310,13 @@ function calcolaScenario({ fatturato, costiTotali, compensoLordo, percDividendi 
   ];
 
   return {
-    steps, fatturato, costiTotali, margine,
+    steps, fatturato, costiTotali, margine, baseIrap,
     compensoLordo, inpsTotale, inpsAzienda, inpsAmministratore,
     costoCompensoPerSocieta, utileAnteImposte, irap, ires, utileNetto,
     dividendiLordi, ritenutaDividendi, dividendiNetti,
     imponibileIrpef, irpef, addRegionale, addComunale,
-    nettoCompenso, totaleTasca, pressioneFiscale,
+    nettoCompenso, totaleTasca, pressioneFiscale, percTasca,
+    totaleImposteContributi,
   };
 }
 
