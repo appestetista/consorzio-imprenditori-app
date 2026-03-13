@@ -346,9 +346,31 @@ export default function SimulatoreApp() {
         <CreationWizard onComplete={handleWizardComplete} />
       ) : (
         <>
+          {/* Popup generazione prima app — fullscreen */}
+          {isFirstGeneration && (
+            <div className="fixed inset-0 z-50 flex items-center justify-center bg-[#0a0f1a]">
+              <div className="max-w-sm w-full mx-6 text-center">
+                <div className="w-20 h-20 rounded-full bg-purple-500/10 border border-purple-500/20 flex items-center justify-center mx-auto mb-6">
+                  <Sparkles className="w-10 h-10 text-purple-400 animate-pulse" />
+                </div>
+                <h2 className="text-xl font-black text-white mb-2">Stiamo creando la tua app</h2>
+                <p className="text-sm text-gray-400 mb-8">Il nostro AI sta progettando un'app su misura per te</p>
+                <div className="space-y-3">
+                  <div className="w-full h-2.5 bg-white/5 rounded-full overflow-hidden">
+                    <div className="h-full rounded-full transition-all duration-300 ease-out" style={{ width: `${genProgress}%`, background: "linear-gradient(90deg, #a855f7, #6366f1, #a855f7)" }} />
+                  </div>
+                  <div className="flex justify-between items-center">
+                    <span className="text-xs text-gray-400">{genPhase}</span>
+                    <span className="text-xs text-purple-400 font-bold">{Math.round(genProgress)}%</span>
+                  </div>
+                </div>
+              </div>
+            </div>
+          )}
+
           {/* Chat area */}
           <div className="flex-1 overflow-y-auto px-4 max-w-lg mx-auto w-full">
-            {messages.length === 0 && !loading && (
+            {messages.length === 0 && !loading && !isFirstGeneration && (
               <div className="text-center py-16">
                 <Loader2 className="w-8 h-8 text-purple-400 animate-spin mx-auto" />
                 <p className="text-sm text-gray-400 mt-3">Generazione in corso...</p>
