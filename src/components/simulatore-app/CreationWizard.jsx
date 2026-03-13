@@ -209,6 +209,21 @@ export default function CreationWizard({ onComplete }) {
     }
   };
 
+  const handleLogoUpload = async (e) => {
+    const file = e.target.files?.[0];
+    if (!file) return;
+    setUploadingLogo(true);
+    try {
+      const { file_url } = await base44.integrations.Core.UploadFile({ file });
+      setData(prev => ({ ...prev, logoUrl: file_url }));
+    } catch (err) {
+      console.error("[Wizard] Errore upload logo:", err);
+    } finally {
+      setUploadingLogo(false);
+      if (logoInputRef.current) logoInputRef.current.value = "";
+    }
+  };
+
   const analyzeWebsite = async () => {
     if (!data.websiteUrl.trim()) return;
     setAnalyzingWebsite(true);
