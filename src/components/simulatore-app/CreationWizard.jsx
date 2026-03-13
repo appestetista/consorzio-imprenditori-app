@@ -362,6 +362,21 @@ REGOLE IMMAGINI — FONDAMENTALE:
 
   const buildAndComplete = (wizardData, template, featuresList, techFeaturesList, wa) => {
     let siteInfo = "";
+
+    // Aggiungi dati dal PDF se presenti
+    if (wizardData.pdfMenuData?.items?.length > 0) {
+      siteInfo += `\n--- DATI ESTRATTI DAL PDF MENU/LISTINO ---\n`;
+      siteInfo += `File: ${wizardData.pdfMenuData.fileName}. ${wizardData.pdfMenuData.itemsCount} prodotti estratti.\n`;
+      if (wizardData.pdfMenuData.categories?.length > 0) {
+        siteInfo += `Categorie trovate: ${wizardData.pdfMenuData.categories.join(", ")}.\n`;
+      }
+      siteInfo += `PRODOTTI/PIATTI REALI DAL PDF (usa QUESTI nomi e prezzi, NON inventarne di nuovi):\n`;
+      wizardData.pdfMenuData.items.forEach(item => {
+        siteInfo += `- ${item.name}${item.price ? ` — ${item.price}` : ""}${item.description ? ` — ${item.description}` : ""}${item.category ? ` [${item.category}]` : ""}\n`;
+      });
+      siteInfo += `--- FINE DATI PDF ---\n`;
+    }
+
     if (wa) {
       siteInfo = `\n--- DATI ESTRATTI DAL SITO WEB ---\n`;
       siteInfo += `Colori dal sito: primario ${wa.primaryColor}, secondario ${wa.secondaryColor}. Stile: ${wa.style}.\n`;
