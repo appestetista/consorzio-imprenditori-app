@@ -587,13 +587,60 @@ ${!isFromScratch ? "- Ispirati alla struttura del prototipo scelto ma personaliz
         </div>
       )}
 
-      {/* Step 2: Carica Menu/Listino PDF */}
+      {/* Step 2: Carica Logo + Menu/Listino PDF */}
       {step === 2 && (
-        <div className="space-y-4">
-          <div className="text-center mb-4">
-            <h2 className="text-lg font-black text-white">Hai un menu o listino?</h2>
-            <p className="text-xs text-gray-400 mt-1">Carica il PDF e inseriremo i tuoi prodotti reali nell'app</p>
+        <div className="space-y-5">
+          <div className="text-center mb-2">
+            <h2 className="text-lg font-black text-white">Personalizza la tua app</h2>
+            <p className="text-xs text-gray-400 mt-1">Carica il logo e/o il menu PDF (opzionale)</p>
           </div>
+
+          {/* --- Logo Upload --- */}
+          <div>
+            <p className="text-xs text-gray-400 font-semibold mb-2 flex items-center gap-1.5"><Image className="w-3.5 h-3.5" /> Logo della tua attività</p>
+            {!data.logoUrl ? (
+              <div className="space-y-2">
+                <button
+                  onClick={() => logoInputRef.current?.click()}
+                  disabled={uploadingLogo}
+                  className="w-full flex items-center justify-center gap-3 py-5 rounded-2xl border-2 border-dashed border-white/10 bg-white/[0.02] hover:border-purple-500/30 hover:bg-purple-500/5 transition-all active:scale-[0.98]"
+                >
+                  {uploadingLogo ? (
+                    <Loader2 className="w-5 h-5 text-purple-400 animate-spin" />
+                  ) : (
+                    <>
+                      <div className="w-10 h-10 rounded-full bg-purple-500/10 flex items-center justify-center">
+                        <Upload className="w-4 h-4 text-purple-400" />
+                      </div>
+                      <div className="text-left">
+                        <p className="text-sm font-bold text-white">Carica logo</p>
+                        <p className="text-[10px] text-gray-500">PNG, JPG o SVG</p>
+                      </div>
+                    </>
+                  )}
+                </button>
+                <input ref={logoInputRef} type="file" accept="image/*" onChange={handleLogoUpload} className="hidden" />
+              </div>
+            ) : (
+              <div className="flex items-center gap-3 rounded-2xl bg-green-500/10 border border-green-500/20 p-3">
+                <img src={data.logoUrl} alt="Logo" className="w-12 h-12 rounded-lg object-contain bg-white/10" />
+                <div className="flex-1 min-w-0">
+                  <p className="text-sm font-bold text-green-400">Logo caricato!</p>
+                  <p className="text-[10px] text-gray-400 truncate">Verrà usato nell'header dell'app</p>
+                </div>
+                <button onClick={() => setData(prev => ({ ...prev, logoUrl: null }))} className="p-1.5 rounded-lg hover:bg-white/5 text-gray-400 hover:text-white transition-colors">
+                  <X className="w-4 h-4" />
+                </button>
+              </div>
+            )}
+          </div>
+
+          {/* --- Separatore --- */}
+          <div className="border-t border-white/5" />
+
+          {/* --- PDF Menu Upload --- */}
+          <div>
+            <p className="text-xs text-gray-400 font-semibold mb-2 flex items-center gap-1.5"><FileText className="w-3.5 h-3.5" /> Menu / Listino prezzi</p>
 
           {!data.pdfMenuData ? (
             <div className="space-y-3">
