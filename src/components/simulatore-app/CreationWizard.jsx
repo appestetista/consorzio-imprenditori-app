@@ -355,7 +355,8 @@ REGOLE IMMAGINI — FONDAMENTALE:
   const canProceed = () => {
     if (step === 0) return !!data.businessType;
     if (step === 1) return !!data.businessName.trim();
-    if (step === 2) return !!data.selectedTemplate;
+    if (step === 2) return true; // PDF opzionale
+    if (step === 3) return !!data.selectedTemplate;
     return true;
   };
 
