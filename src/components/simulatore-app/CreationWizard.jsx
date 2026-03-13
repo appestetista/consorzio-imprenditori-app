@@ -234,7 +234,7 @@ Estrai TUTTE queste informazioni:
     } catch (err) {
       console.error("Errore analisi sito:", err);
     } finally {
-      stopFakeProgress();
+      await stopFakeProgress();
     }
   };
 
