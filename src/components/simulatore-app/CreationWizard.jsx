@@ -73,6 +73,7 @@ const TECH_FEATURES = [
 
 export default function CreationWizard({ onComplete }) {
   const [step, setStep] = useState(0);
+  const wizardRef = useRef(null);
   const [data, setData] = useState({
     businessType: "",
     businessName: "",
