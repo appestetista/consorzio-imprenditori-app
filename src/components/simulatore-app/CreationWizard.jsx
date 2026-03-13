@@ -196,15 +196,22 @@ Estrai TUTTE queste informazioni:
       siteInfo += `--- FINE DATI SITO ---\n`;
     }
 
+    const isFromScratch = template.id === "from_scratch";
+    const protoInfo = !isFromScratch && template.previewItems
+      ? `\nPROTOTIPO BASE SCELTO: "${template.name}" (${template.category}). L'utente vuole un'app simile a questa, con lo stesso stile e struttura ma personalizzata per la sua attività "${data.businessName}". Esempio items del prototipo: ${template.previewItems.join(", ")}. Immagine hero del prototipo: ${template.heroImage || ""}.`
+      : "";
+
     const prompt = `Crea un'app per "${data.businessName}" — settore: ${data.businessType}.
 ${data.description ? `Descrizione: ${data.description}.` : ""}
+${protoInfo}
 ${siteInfo}
-Stile template scelto: "${template.name}" — ${template.description}. Colore primario: ${template.primaryColor}, secondario: ${template.secondaryColor}, accento: ${template.accentColor}. Dark mode: ${template.darkMode}. Font style: ${template.fontStyle}.
+Colore primario: ${template.primaryColor}, secondario: ${template.secondaryColor}, accento: ${template.accentColor}. Dark mode: ${template.darkMode}. Font style: ${template.fontStyle}.
 Sezioni richieste: ${data.features.join(", ") || "automatiche per il settore"}.
 ${data.techFeatures.length > 0 ? `Funzionalità tecniche (features_requested): ${data.techFeatures.join(", ")}.` : ""}
 
 REGOLE IMPORTANTI:
-- Usa ESATTAMENTE i colori del template scelto.
+- Usa ESATTAMENTE i colori indicati.
+${!isFromScratch ? "- L'utente ha scelto un prototipo esistente: ISPIRATI alla struttura e allo stile di quell'app, ma personalizzala con il nome, i contenuti e il settore dell'utente." : "- L'utente vuole un'app creata da zero: genera una struttura originale e unica."}
 - Se ci sono dati dal sito web, USA I CONTENUTI REALI (nomi, prezzi, descrizioni) e RISPETTA L'ORDINE DELLE SEZIONI del sito.
 - Per ogni item, aggiungi un campo "image_url". PRIORITÀ: 1) usa le immagini ORIGINALI dal sito dell'utente quando disponibili e pertinenti 2) solo se non ci sono immagini dal sito, usa Unsplash (formato: https://images.unsplash.com/photo-XXXX?w=400&h=300&fit=crop).
 - Non inventare prodotti/piatti se ci sono quelli reali dal sito.
