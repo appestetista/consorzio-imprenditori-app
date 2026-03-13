@@ -349,6 +349,9 @@ ${!isFromScratch ? "- Ispirati alla struttura del prototipo scelto ma personaliz
         ))}
       </div>
 
+      {/* Contenuto step — scrollabile */}
+      <div className="flex-1 overflow-y-auto min-h-0 pb-2">
+
       {/* Step 0: Categoria */}
       {step === 0 && (
         <div className="space-y-4">
