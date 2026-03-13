@@ -1,5 +1,5 @@
-import React, { useState } from "react";
-import { ArrowRight, ArrowLeft, Sparkles, Globe, Loader2, Check } from "lucide-react";
+import React, { useState, useEffect, useRef } from "react";
+import { ArrowRight, ArrowLeft, Sparkles, Globe, Loader2, Check, X } from "lucide-react";
 import { base44 } from "@/api/base44Client";
 import StyleTemplates from "./StyleTemplates";
 
@@ -84,12 +84,45 @@ export default function CreationWizard({ onComplete }) {
     techFeatures: [],
   });
   const [analyzingWebsite, setAnalyzingWebsite] = useState(false);
+  const [analysisProgress, setAnalysisProgress] = useState(0);
+  const [analysisPhase, setAnalysisPhase] = useState("");
+  const progressInterval = useRef(null);
 
-  const totalSteps = 5; // categoria, info+sito, template, funzionalità, conferma
+  const totalSteps = 4; // categoria, info+sito, template, funzionalità+conferma
+
+  // Barra finta di progresso
+  const startFakeProgress = () => {
+    setAnalysisProgress(0);
+    setAnalysisPhase("Connessione al sito web...");
+    const phases = [
+      { at: 10, text: "Analisi struttura del sito..." },
+      { at: 25, text: "Estrazione colori e logo..." },
+      { at: 40, text: "Lettura contenuti e immagini..." },
+      { at: 55, text: "Ricerca menu e listini PDF..." },
+      { at: 70, text: "Analisi prodotti e servizi..." },
+      { at: 85, text: "Elaborazione dati finali..." },
+    ];
+    let current = 0;
+    progressInterval.current = setInterval(() => {
+      current += Math.random() * 3 + 0.5;
+      if (current > 92) current = 92;
+      setAnalysisProgress(current);
+      const phase = [...phases].reverse().find(p => current >= p.at);
+      if (phase) setAnalysisPhase(phase.text);
+    }, 300);
+  };
+
+  const stopFakeProgress = () => {
+    clearInterval(progressInterval.current);
+    setAnalysisProgress(100);
+    setAnalysisPhase("Completato!");
+    setTimeout(() => setAnalyzingWebsite(false), 600);
+  };
 
   const analyzeWebsite = async () => {
     if (!data.websiteUrl.trim()) return;
     setAnalyzingWebsite(true);
+    startFakeProgress();
     try {
       // Step 1: Analisi sito + ricerca PDF menu
       const result = await base44.integrations.Core.InvokeLLM({
@@ -201,7 +234,7 @@ Estrai TUTTE queste informazioni:
     } catch (err) {
       console.error("Errore analisi sito:", err);
     } finally {
-      setAnalyzingWebsite(false);
+      stopFakeProgress();
     }
   };
 
@@ -325,75 +358,7 @@ ${!isFromScratch ? "- L'utente ha scelto un prototipo esistente: ISPIRATI alla s
         <div className="space-y-4">
           <div className="text-center mb-4">
             <h2 className="text-lg font-black text-white">Parlaci della tua attività</h2>
-            <p className="text-xs text-gray-400 mt-1">Se hai un sito web, lo analizziamo per te</p>
-          </div>
-
-          {/* Sito web */}
-          <div>
-            <label className="text-xs text-gray-400 mb-1 block">Sito web (opzionale)</label>
-            <div className="flex gap-2">
-              <div className="flex-1 relative">
-                <Globe className="absolute left-3 top-1/2 -translate-y-1/2 w-4 h-4 text-gray-500" />
-                <input
-                  value={data.websiteUrl}
-                  onChange={e => setData(prev => ({ ...prev, websiteUrl: e.target.value }))}
-                  placeholder="www.miosito.it"
-                  className="w-full bg-[#1a1a2e] border border-white/10 rounded-xl pl-10 pr-4 py-3 text-sm text-white placeholder-gray-500 focus:outline-none focus:border-purple-500/30"
-                />
-              </div>
-              <button
-                onClick={analyzeWebsite}
-                disabled={!data.websiteUrl.trim() || analyzingWebsite}
-                className={`px-4 rounded-xl font-bold text-xs transition-all shrink-0 ${
-                  !data.websiteUrl.trim() || analyzingWebsite
-                    ? "bg-gray-700/50 text-gray-600"
-                    : "bg-purple-600 text-white hover:bg-purple-500 active:scale-95"
-                }`}
-              >
-                {analyzingWebsite ? <Loader2 className="w-4 h-4 animate-spin" /> : "Analizza"}
-              </button>
-            </div>
-            {data.websiteAnalysis && (
-              <div className="mt-2 p-3 rounded-xl bg-green-500/10 border border-green-500/20">
-                <div className="flex items-center gap-2 mb-1">
-                  <Check className="w-3.5 h-3.5 text-green-400" />
-                  <span className="text-xs font-bold text-green-400">Sito analizzato!</span>
-                </div>
-                <div className="flex items-center gap-2 mt-2">
-                  <span className="text-[10px] text-gray-400">Colori:</span>
-                  {data.websiteAnalysis.primaryColor && (
-                    <div className="w-5 h-5 rounded-full border border-white/20" style={{ background: data.websiteAnalysis.primaryColor }} />
-                  )}
-                  {data.websiteAnalysis.secondaryColor && (
-                    <div className="w-5 h-5 rounded-full border border-white/20" style={{ background: data.websiteAnalysis.secondaryColor }} />
-                  )}
-                  <span className="text-[10px] text-gray-500">{data.websiteAnalysis.style}</span>
-                </div>
-                {data.websiteAnalysis.sectionsOrder?.length > 0 && (
-                  <div className="mt-2 flex flex-wrap gap-1">
-                    <span className="text-[10px] text-gray-400">Sezioni:</span>
-                    {data.websiteAnalysis.sectionsOrder.map((s, i) => (
-                      <span key={i} className="text-[9px] bg-green-500/15 text-green-400 rounded-full px-1.5 py-0.5">{s}</span>
-                    ))}
-                  </div>
-                )}
-                {data.websiteAnalysis.logoUrl && (
-                  <div className="flex items-center gap-2 mt-2">
-                    <img src={data.websiteAnalysis.logoUrl} className="h-6 rounded" alt="Logo" onError={e => e.target.style.display = 'none'} />
-                    <span className="text-[10px] text-green-400/70">Logo trovato</span>
-                  </div>
-                )}
-                {data.websiteAnalysis.menuItems?.length > 0 && (
-                  <p className="text-[10px] text-green-400/70 mt-1">📋 {data.websiteAnalysis.menuItems.length} prodotti/servizi trovati</p>
-                )}
-                {data.websiteAnalysis.pdfAnalyzed && (
-                  <p className="text-[10px] text-green-400/70 mt-0.5">📄 Menu PDF analizzato — {data.websiteAnalysis.pdfItemsCount} voci estratte</p>
-                )}
-                {data.websiteAnalysis.siteImages?.length > 0 && (
-                  <p className="text-[10px] text-green-400/70 mt-0.5">🖼️ {data.websiteAnalysis.siteImages.length} immagini estratte dal sito</p>
-                )}
-              </div>
-            )}
+            <p className="text-xs text-gray-400 mt-1">Inserisci il nome e il sito web se ce l'hai</p>
           </div>
 
           {/* Nome */}
@@ -407,16 +372,53 @@ ${!isFromScratch ? "- L'utente ha scelto un prototipo esistente: ISPIRATI alla s
             />
           </div>
 
-          {/* Descrizione */}
+          {/* Sito web — solo input, senza pulsante Analizza */}
           <div>
-            <label className="text-xs text-gray-400 mb-1 block">Breve descrizione (opzionale)</label>
-            <textarea
-              value={data.description}
-              onChange={e => setData(prev => ({ ...prev, description: e.target.value }))}
-              placeholder="Cosa offri, cosa rende speciale la tua attività..."
-              rows={2}
-              className="w-full bg-[#1a1a2e] border border-white/10 rounded-xl px-4 py-3 text-sm text-white placeholder-gray-500 focus:outline-none focus:border-purple-500/30 resize-none"
-            />
+            <label className="text-xs text-gray-400 mb-1 block">Sito web (opzionale)</label>
+            <div className="relative">
+              <Globe className="absolute left-3 top-1/2 -translate-y-1/2 w-4 h-4 text-gray-500" />
+              <input
+                value={data.websiteUrl}
+                onChange={e => setData(prev => ({ ...prev, websiteUrl: e.target.value }))}
+                placeholder="www.miosito.it"
+                className="w-full bg-[#1a1a2e] border border-white/10 rounded-xl pl-10 pr-4 py-3 text-sm text-white placeholder-gray-500 focus:outline-none focus:border-purple-500/30"
+              />
+            </div>
+            {data.websiteUrl.trim() && !data.websiteAnalysis && (
+              <p className="text-[10px] text-purple-400 mt-1.5 flex items-center gap-1">
+                <Sparkles className="w-3 h-3" /> Analizzeremo il sito automaticamente al prossimo step
+              </p>
+            )}
+          </div>
+        </div>
+      )}
+
+      {/* Popup analisi sito */}
+      {analyzingWebsite && (
+        <div className="fixed inset-0 z-50 flex items-center justify-center bg-black/70 backdrop-blur-sm">
+          <div className="bg-[#12122a] border border-white/10 rounded-2xl p-6 mx-6 max-w-sm w-full shadow-2xl">
+            <div className="text-center mb-5">
+              <div className="w-14 h-14 rounded-full bg-purple-500/15 border border-purple-500/20 flex items-center justify-center mx-auto mb-3">
+                <Globe className="w-7 h-7 text-purple-400 animate-pulse" />
+              </div>
+              <h3 className="text-base font-bold text-white">Stiamo analizzando il sito</h3>
+              <p className="text-xs text-gray-400 mt-1">Estraiamo logo, colori, immagini, prodotti e molto altro</p>
+            </div>
+            <div className="space-y-3">
+              <div className="w-full h-2 bg-white/5 rounded-full overflow-hidden">
+                <div
+                  className="h-full rounded-full transition-all duration-300 ease-out"
+                  style={{
+                    width: `${analysisProgress}%`,
+                    background: "linear-gradient(90deg, #a855f7, #6366f1)",
+                  }}
+                />
+              </div>
+              <div className="flex justify-between items-center">
+                <span className="text-[10px] text-gray-400">{analysisPhase}</span>
+                <span className="text-[10px] text-purple-400 font-bold">{Math.round(analysisProgress)}%</span>
+              </div>
+            </div>
           </div>
         </div>
       )}
