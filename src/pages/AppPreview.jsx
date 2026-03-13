@@ -5,6 +5,7 @@ import { base44 } from "@/api/base44Client";
 import DynamicAppRenderer from "../components/simulatore-app/DynamicAppRenderer";
 import QuickEditor from "../components/simulatore-app/QuickEditor";
 import VersionCompare from "../components/simulatore-app/VersionCompare";
+import ColorPickerPanel from "../components/simulatore-app/ColorPickerPanel";
 
 const EDIT_SCHEMA = {
   type: "object",
@@ -214,6 +215,7 @@ export default function AppPreview() {
               <Sliders className="w-3 h-3" />
               Modifica rapida
             </button>
+            <ColorPickerPanel appData={appData} onUpdate={handleQuickUpdate} />
           </div>
           {!submitted ? (
             <button onClick={handleSubmit} className="flex items-center gap-1.5 text-xs font-bold text-green-400 bg-green-400/10 rounded-full px-3 py-1.5 hover:bg-green-400/20 transition-colors">
