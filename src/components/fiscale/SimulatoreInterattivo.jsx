@@ -495,7 +495,16 @@ export default function SimulatoreInterattivo({ user }) {
                           <div key={v.k}>
                             <div className="flex items-center justify-between mb-0.5">
                               <span className="text-xs text-gray-400">{v.l}</span>
-                              <span className="text-xs font-bold text-gray-200">{fmt(val)}</span>
+                              <input
+                                type="text"
+                                inputMode="numeric"
+                                value={val.toLocaleString("it-IT")}
+                                onChange={e => {
+                                  const raw = e.target.value.replace(/[^\d]/g, "");
+                                  updCat(v.k, Math.max(0, Number(raw)));
+                                }}
+                                className="text-xs font-bold text-gray-200 text-right bg-transparent border-b border-gray-600 focus:border-blue-500 outline-none w-20 px-1"
+                              />
                             </div>
                             <input type="range" min={0} max={mx} step={500} value={val}
                               onChange={e => updCat(v.k, Number(e.target.value))}
