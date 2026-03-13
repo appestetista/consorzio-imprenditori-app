@@ -2,120 +2,134 @@ import React, { useRef, useEffect, useState, useCallback } from "react";
 import { Sparkles } from "lucide-react";
 
 const THEMES = [
-  { id: "dark_elegance", tag: "DARK", label: "Scuro Elegante", primary: "#D4A574", secondary: "#0a0a0a", accent: "#E8C9A0", dark: true, font: "serif", bg: "#0a0a0a", card: "#151515", text: "#fff", muted: "#666" },
-  { id: "light_clean", tag: "LIGHT", label: "Chiaro Minimal", primary: "#1565C0", secondary: "#FFFFFF", accent: "#42A5F5", dark: false, font: "sans-serif", bg: "#F7F8FC", card: "#FFFFFF", text: "#111827", muted: "#94a3b8" },
-  { id: "vivid_bold", tag: "VIVID", label: "Acceso e Forte", primary: "#E53935", secondary: "#FFFFFF", accent: "#FF6D00", dark: false, font: "sans-serif", bg: "#FFFAF5", card: "#FFFFFF", text: "#1a1a2e", muted: "#a1a1aa" },
-  { id: "pastel_soft", tag: "PASTEL", label: "Pastello Morbido", primary: "#A78BFA", secondary: "#FDF4FF", accent: "#F9A8D4", dark: false, font: "sans-serif", bg: "#FDF4FF", card: "#FFFFFF", text: "#3B1F6E", muted: "#c4b5fd" },
-  { id: "neon_fluo", tag: "NEON", label: "Fluo Neon", primary: "#00E5FF", secondary: "#050510", accent: "#AEEA00", dark: true, font: "sans-serif", bg: "#050510", card: "#0c0c1e", text: "#fff", muted: "#444" },
+  { id: "gourmet_dark", tag: "GOURMET", label: "Scuro Elegante", primary: "#C4964A", secondary: "#0a0a0a", accent: "#D4A95A", dark: true, font: "serif", bg: "#0a0a0a", card: "#141414", text: "#fff", muted: "#666", border: "#222" },
+  { id: "classic_cream", tag: "CLASSICO", label: "Crema Raffinato", primary: "#8B6914", secondary: "#F5EDE0", accent: "#A0845C", dark: false, font: "serif", bg: "#F5EDE0", card: "#FFFFFF", text: "#2a2014", muted: "#8a7a6a", border: "#E0D5C5" },
+  { id: "modern_white", tag: "MODERNO", label: "Bianco Premium", primary: "#1a1a1a", secondary: "#FFFFFF", accent: "#555", dark: false, font: "sans-serif", bg: "#FAFAFA", card: "#FFFFFF", text: "#111", muted: "#999", border: "#eee" },
+  { id: "hero_full", tag: "HERO", label: "Hero Immersivo", primary: "#D4A574", secondary: "#111", accent: "#E8C9A0", dark: true, font: "serif", bg: "#111", card: "#1a1a1a", text: "#fff", muted: "#777", border: "#222" },
+  { id: "luxury_minimal", tag: "LUSSO", label: "Lusso Minimale", primary: "#B8860B", secondary: "#0E0E0E", accent: "#DAA520", dark: true, font: "serif", bg: "#0E0E0E", card: "#161616", text: "#F5F0E8", muted: "#666", border: "#252525" },
 ];
 
 const FALLBACK = {
-  ristorazione: { name: "La Tua Trattoria", hero: "https://images.unsplash.com/photo-1517248135467-4c7edcad34c4?w=400&h=280&fit=crop", items: [{ n: "Carbonara", p: "€ 14", img: "https://images.unsplash.com/photo-1504674900247-0877df9cc836?w=80&h=80&fit=crop" }, { n: "Margherita", p: "€ 10", img: "https://images.unsplash.com/photo-1565299624946-b28f40a0ae38?w=80&h=80&fit=crop" }, { n: "Tiramisù", p: "€ 7", img: "https://images.unsplash.com/photo-1546069901-ba9599a7e63c?w=80&h=80&fit=crop" }, { n: "Antipasto", p: "€ 12", img: "https://images.unsplash.com/photo-1555939594-58d7cb561ad1?w=80&h=80&fit=crop" }], cta: "Prenota" },
-  beauty: { name: "Beauty Studio", hero: "https://images.unsplash.com/photo-1560066984-138dadb4c035?w=400&h=280&fit=crop", items: [{ n: "Taglio & Piega", p: "€ 35", img: "https://images.unsplash.com/photo-1522335789203-aabd1fc54bc9?w=80&h=80&fit=crop" }, { n: "Manicure", p: "€ 28", img: "https://images.unsplash.com/photo-1487412947147-5cebf100ffc2?w=80&h=80&fit=crop" }, { n: "Trattamento Viso", p: "€ 55", img: "https://images.unsplash.com/photo-1616394584738-fc6e612e71b9?w=80&h=80&fit=crop" }, { n: "Extension", p: "€ 45", img: "https://images.unsplash.com/photo-1570172619644-dfd03ed5d881?w=80&h=80&fit=crop" }], cta: "Prenota" },
-  fitness: { name: "FitZone", hero: "https://images.unsplash.com/photo-1534438327276-14e5300c3a48?w=400&h=280&fit=crop", items: [{ n: "Open Gym", p: "€ 49/m", img: "https://images.unsplash.com/photo-1571019613454-1cb2f99b2d8b?w=80&h=80&fit=crop" }, { n: "PT Session", p: "€ 40", img: "https://images.unsplash.com/photo-1517836357463-d25dfeac3438?w=80&h=80&fit=crop" }, { n: "Yoga", p: "€ 15", img: "https://images.unsplash.com/photo-1574680096145-d05b474e2155?w=80&h=80&fit=crop" }, { n: "Boxe", p: "€ 20", img: "https://images.unsplash.com/photo-1534438327276-14e5300c3a48?w=80&h=80&fit=crop" }], cta: "Iscriviti" },
-  ecommerce: { name: "ShopNow", hero: "https://images.unsplash.com/photo-1441986300917-64674bd600d8?w=400&h=280&fit=crop", items: [{ n: "Giacca", p: "€ 189", img: "https://images.unsplash.com/photo-1556742049-0cfed4f6a45d?w=80&h=80&fit=crop" }, { n: "Sneakers", p: "€ 129", img: "https://images.unsplash.com/photo-1523275335684-37898b6baf30?w=80&h=80&fit=crop" }, { n: "Borsa", p: "€ 95", img: "https://images.unsplash.com/photo-1441986300917-64674bd600d8?w=80&h=80&fit=crop" }, { n: "Occhiali", p: "€ 75", img: "https://images.unsplash.com/photo-1523275335684-37898b6baf30?w=80&h=80&fit=crop" }], cta: "Acquista" },
-  _default: { name: "MyBusiness", hero: "https://images.unsplash.com/photo-1497366216548-37526070297c?w=400&h=280&fit=crop", items: [{ n: "Consulenza", p: "€ 99", img: "https://images.unsplash.com/photo-1497366216548-37526070297c?w=80&h=80&fit=crop" }, { n: "Premium", p: "€ 199", img: "https://images.unsplash.com/photo-1497215842964-222b430dc094?w=80&h=80&fit=crop" }, { n: "Assistenza", p: "€ 49", img: "https://images.unsplash.com/photo-1553877522-43269d4ea984?w=80&h=80&fit=crop" }, { n: "Formazione", p: "€ 79", img: "https://images.unsplash.com/photo-1542744173-8e7e53415bb0?w=80&h=80&fit=crop" }], cta: "Inizia" },
+  ristorazione: { name: "La Tua Trattoria", hero: "https://images.unsplash.com/photo-1517248135467-4c7edcad34c4?w=400&h=280&fit=crop", items: [{ n: "Carbonara", p: "€ 14", img: "https://images.unsplash.com/photo-1504674900247-0877df9cc836?w=80&h=80&fit=crop", desc: "Guanciale croccante, pecorino DOP" }, { n: "Margherita", p: "€ 10", img: "https://images.unsplash.com/photo-1565299624946-b28f40a0ae38?w=80&h=80&fit=crop", desc: "Pomodoro bio, mozzarella fiordilatte" }, { n: "Tiramisù", p: "€ 7", img: "https://images.unsplash.com/photo-1546069901-ba9599a7e63c?w=80&h=80&fit=crop", desc: "Mascarpone, caffè espresso" }, { n: "Grigliata mista", p: "€ 23", img: "https://images.unsplash.com/photo-1555939594-58d7cb561ad1?w=80&h=80&fit=crop", desc: "Pesce fresco del giorno" }], cta: "Prenota" },
+  beauty: { name: "Beauty Studio", hero: "https://images.unsplash.com/photo-1560066984-138dadb4c035?w=400&h=280&fit=crop", items: [{ n: "Taglio & Piega", p: "€ 35", img: "https://images.unsplash.com/photo-1522335789203-aabd1fc54bc9?w=80&h=80&fit=crop", desc: "Styling professionale" }, { n: "Manicure", p: "€ 28", img: "https://images.unsplash.com/photo-1487412947147-5cebf100ffc2?w=80&h=80&fit=crop", desc: "Semipermanente incluso" }, { n: "Trattamento Viso", p: "€ 55", img: "https://images.unsplash.com/photo-1616394584738-fc6e612e71b9?w=80&h=80&fit=crop", desc: "Pulizia profonda" }, { n: "Extension", p: "€ 45", img: "https://images.unsplash.com/photo-1570172619644-dfd03ed5d881?w=80&h=80&fit=crop", desc: "Ciglia volume naturale" }], cta: "Prenota" },
+  fitness: { name: "FitZone", hero: "https://images.unsplash.com/photo-1534438327276-14e5300c3a48?w=400&h=280&fit=crop", items: [{ n: "Open Gym", p: "€ 49/m", img: "https://images.unsplash.com/photo-1571019613454-1cb2f99b2d8b?w=80&h=80&fit=crop", desc: "Accesso illimitato" }, { n: "PT Session", p: "€ 40", img: "https://images.unsplash.com/photo-1517836357463-d25dfeac3438?w=80&h=80&fit=crop", desc: "Personal trainer dedicato" }, { n: "Yoga", p: "€ 15", img: "https://images.unsplash.com/photo-1574680096145-d05b474e2155?w=80&h=80&fit=crop", desc: "Vinyasa flow" }, { n: "Boxe", p: "€ 20", img: "https://images.unsplash.com/photo-1534438327276-14e5300c3a48?w=80&h=80&fit=crop", desc: "Tecniche base e avanzate" }], cta: "Iscriviti" },
+  ecommerce: { name: "ShopNow", hero: "https://images.unsplash.com/photo-1441986300917-64674bd600d8?w=400&h=280&fit=crop", items: [{ n: "Giacca", p: "€ 189", img: "https://images.unsplash.com/photo-1556742049-0cfed4f6a45d?w=80&h=80&fit=crop", desc: "Pelle italiana" }, { n: "Sneakers", p: "€ 129", img: "https://images.unsplash.com/photo-1523275335684-37898b6baf30?w=80&h=80&fit=crop", desc: "Limited edition" }, { n: "Borsa", p: "€ 95", img: "https://images.unsplash.com/photo-1441986300917-64674bd600d8?w=80&h=80&fit=crop", desc: "Artigianale" }, { n: "Occhiali", p: "€ 75", img: "https://images.unsplash.com/photo-1523275335684-37898b6baf30?w=80&h=80&fit=crop", desc: "UV400" }], cta: "Acquista" },
+  _default: { name: "MyBusiness", hero: "https://images.unsplash.com/photo-1497366216548-37526070297c?w=400&h=280&fit=crop", items: [{ n: "Consulenza", p: "€ 99", img: "https://images.unsplash.com/photo-1497366216548-37526070297c?w=80&h=80&fit=crop", desc: "1 ora dedicata" }, { n: "Premium", p: "€ 199", img: "https://images.unsplash.com/photo-1497215842964-222b430dc094?w=80&h=80&fit=crop", desc: "Pacchetto completo" }, { n: "Assistenza", p: "€ 49", img: "https://images.unsplash.com/photo-1553877522-43269d4ea984?w=80&h=80&fit=crop", desc: "Supporto dedicato" }, { n: "Formazione", p: "€ 79", img: "https://images.unsplash.com/photo-1542744173-8e7e53415bb0?w=80&h=80&fit=crop", desc: "Workshop pratico" }], cta: "Inizia" },
 };
 ["servizi","immobiliare","salute","turismo","educazione","altro"].forEach(k => { if (!FALLBACK[k]) FALLBACK[k] = FALLBACK._default; });
 
-// Merge dati reali dal sito con fallback
 function buildContent(businessType, wa) {
   const fb = FALLBACK[businessType] || FALLBACK._default;
   const name = wa?.name || fb.name;
   const logo = wa?.logoUrl || null;
-  // Hero: prima immagine "hero" dal sito, oppure fallback
   const heroImg = wa?.siteImages?.find(i => /hero|banner|header|main|copertina/i.test(i.context))?.url || fb.hero;
-  // Items: dal sito (menuItems) o fallback
   let items = fb.items;
   if (wa?.menuItems?.length >= 2) {
     items = wa.menuItems.slice(0, 4).map((mi, idx) => ({
       n: mi.name || `Prodotto ${idx + 1}`,
       p: mi.price || "",
+      desc: mi.description || "",
       img: mi.image_url || wa?.siteImages?.[idx]?.url || fb.items[idx % fb.items.length]?.img || "",
     }));
   }
-  const cta = fb.cta;
-  return { name, logo, hero: heroImg, items, cta };
+  return { name, logo, hero: heroImg, items, cta: fb.cta };
 }
 
-// ─── Clickable item with ripple ─────────────────────────────
-
+// Tap interaction
 function Tap({ children, style, className }) {
   const [tapped, setTapped] = useState(false);
   return (
-    <div
-      className={className}
-      style={{ ...style, position: "relative", cursor: "pointer", transition: "transform 0.1s", transform: tapped ? "scale(0.95)" : "scale(1)" }}
-      onPointerDown={() => setTapped(true)}
-      onPointerUp={() => setTimeout(() => setTapped(false), 150)}
-      onPointerLeave={() => setTapped(false)}
-    >
+    <div className={className} style={{ ...style, position: "relative", cursor: "pointer", transition: "transform 0.1s", transform: tapped ? "scale(0.97)" : "scale(1)" }}
+      onPointerDown={() => setTapped(true)} onPointerUp={() => setTimeout(() => setTapped(false), 150)} onPointerLeave={() => setTapped(false)}>
       {children}
-      {tapped && <div style={{ position: "absolute", inset: 0, borderRadius: "inherit", background: "rgba(255,255,255,0.12)", pointerEvents: "none" }} />}
     </div>
   );
 }
 
-// ─── 5 LAYOUT completamente diversi e interattivi ───────────
-
-function LayoutDark({ t, c }) {
+// ─── Layout 1: GOURMET DARK — Scuro con serif, oro su nero ──
+function LayoutGourmetDark({ t, c }) {
   return (
     <div style={{ background: t.bg, height: "100%", fontFamily: "Georgia, serif" }}>
-      <div style={{ position: "relative", height: 105 }}>
-        <img src={c.hero} style={{ width: "100%", height: "100%", objectFit: "cover" }} alt="" />
-        <div style={{ position: "absolute", inset: 0, background: `linear-gradient(to bottom, transparent 20%, ${t.bg})` }} />
-        <div style={{ position: "absolute", bottom: 6, left: 8, right: 8, display: "flex", alignItems: "flex-end", justifyContent: "space-between" }}>
-          <div>
-            {c.logo && <img src={c.logo} style={{ height: 14, marginBottom: 2, borderRadius: 2 }} alt="" onError={e => e.target.style.display = 'none'} />}
-            <div style={{ color: t.primary, fontSize: 10, fontWeight: 700, letterSpacing: 0.5 }}>{c.name}</div>
-          </div>
-          <Tap><div style={{ background: t.primary, borderRadius: 6, padding: "3px 8px" }}><span style={{ color: t.bg, fontSize: 6, fontWeight: 700 }}>{c.cta}</span></div></Tap>
-        </div>
-      </div>
-      <div style={{ padding: "5px 8px" }}>
-        <div style={{ color: t.muted, fontSize: 5, textTransform: "uppercase", letterSpacing: 2, marginBottom: 4 }}>Menu</div>
-        {c.items.map((it, i) => (
-          <Tap key={i}>
-            <div style={{ display: "flex", justifyContent: "space-between", alignItems: "center", padding: "5px 0", borderBottom: `1px solid ${t.primary}12` }}>
-              <div style={{ display: "flex", alignItems: "center", gap: 4 }}>
-                <img src={it.img} style={{ width: 18, height: 18, borderRadius: 4, objectFit: "cover" }} alt="" onError={e => e.target.style.display = 'none'} />
-                <span style={{ color: t.text, fontSize: 6.5, fontWeight: 500 }}>{it.n}</span>
-              </div>
-              <span style={{ color: t.primary, fontSize: 6.5, fontWeight: 700 }}>{it.p}</span>
-            </div>
-          </Tap>
-        ))}
-      </div>
-      <BottomBar t={t} />
-    </div>
-  );
-}
-
-function LayoutLight({ t, c }) {
-  return (
-    <div style={{ background: t.bg, height: "100%", fontFamily: "Inter, sans-serif" }}>
-      <div style={{ padding: "10px 8px 5px", display: "flex", alignItems: "center", justifyContent: "space-between" }}>
+      {/* Header con logo/nome */}
+      <div style={{ padding: "10px 8px 4px", display: "flex", alignItems: "center", justifyContent: "space-between" }}>
         <div style={{ display: "flex", alignItems: "center", gap: 4 }}>
-          {c.logo ? <img src={c.logo} style={{ height: 14, borderRadius: 2 }} alt="" onError={e => e.target.style.display = 'none'} /> : null}
-          <span style={{ color: t.text, fontSize: 9, fontWeight: 800 }}>{c.name}</span>
+          {c.logo ? <img src={c.logo} style={{ height: 16, borderRadius: 2 }} alt="" onError={e => e.target.style.display='none'} /> : null}
+          <span style={{ color: t.primary, fontSize: 9, fontWeight: 700, letterSpacing: 1 }}>{c.name}</span>
         </div>
-        <Tap><div style={{ width: 16, height: 16, borderRadius: 8, background: t.primary + "15", display: "flex", alignItems: "center", justifyContent: "center" }}><span style={{ fontSize: 6, color: t.primary }}>☰</span></div></Tap>
+        <div style={{ display: "flex", gap: 4 }}>
+          <div style={{ width: 14, height: 14, borderRadius: 7, border: `1px solid ${t.primary}40`, display: "flex", alignItems: "center", justifyContent: "center" }}><span style={{ fontSize: 5, color: t.primary }}>☰</span></div>
+        </div>
       </div>
+      {/* Hero */}
+      <div style={{ margin: "4px 8px", borderRadius: 10, overflow: "hidden", height: 72, position: "relative" }}>
+        <img src={c.hero} style={{ width: "100%", height: "100%", objectFit: "cover" }} alt="" />
+        <div style={{ position: "absolute", inset: 0, background: "linear-gradient(to top, rgba(0,0,0,0.7) 0%, transparent 60%)" }} />
+        <div style={{ position: "absolute", bottom: 5, left: 6 }}>
+          <div style={{ color: "#fff", fontSize: 7.5, fontWeight: 700 }}>{c.name}</div>
+          <div style={{ color: t.primary, fontSize: 5, fontWeight: 600, marginTop: 1 }}>dal 1977 • Fano</div>
+        </div>
+      </div>
+      {/* Sottotitolo menu */}
+      <div style={{ padding: "5px 8px 2px" }}>
+        <div style={{ color: t.primary, fontSize: 5, textTransform: "uppercase", letterSpacing: 2, fontWeight: 700 }}>Il Nostro Menu</div>
+        <div style={{ width: 20, height: 1, background: t.primary + "40", marginTop: 2 }} />
+      </div>
+      {/* Items */}
+      <div style={{ padding: "4px 8px" }}>
+        {c.items.map((it, i) => (
+          <Tap key={i}>
+            <div style={{ display: "flex", alignItems: "center", gap: 5, padding: "4px 0", borderBottom: `1px solid ${t.border}` }}>
+              <img src={it.img} style={{ width: 22, height: 22, borderRadius: 6, objectFit: "cover" }} alt="" onError={e => e.target.style.display='none'} />
+              <div style={{ flex: 1 }}>
+                <div style={{ fontSize: 6, fontWeight: 700, color: t.text }}>{it.n}</div>
+                {it.desc && <div style={{ fontSize: 4.5, color: t.muted, marginTop: 0.5 }}>{it.desc}</div>}
+              </div>
+              <span style={{ fontSize: 6.5, fontWeight: 800, color: t.primary }}>{it.p}</span>
+            </div>
+          </Tap>
+        ))}
+      </div>
+      <BottomBar t={t} />
+    </div>
+  );
+}
+
+// ─── Layout 2: CLASSIC CREAM — Sfondo crema, elegante ──
+function LayoutClassicCream({ t, c }) {
+  return (
+    <div style={{ background: t.bg, height: "100%", fontFamily: "Georgia, serif" }}>
+      <div style={{ padding: "10px 8px 3px", textAlign: "center" }}>
+        {c.logo ? <img src={c.logo} style={{ height: 20, margin: "0 auto", borderRadius: 3 }} alt="" onError={e => e.target.style.display='none'} /> :
+          <span style={{ color: t.text, fontSize: 11, fontWeight: 800, letterSpacing: -0.5 }}>{c.name}</span>}
+      </div>
+      <div style={{ textAlign: "center", margin: "2px 0 4px" }}>
+        <span style={{ fontSize: 4.5, color: t.muted, textTransform: "uppercase", letterSpacing: 2 }}>Ristorante • Pizzeria</span>
+      </div>
+      {/* Hero card */}
       <Tap>
-        <div style={{ margin: "0 8px", borderRadius: 8, overflow: "hidden", height: 48, position: "relative" }}>
+        <div style={{ margin: "0 8px", borderRadius: 10, overflow: "hidden", height: 56, position: "relative", boxShadow: "0 2px 8px rgba(0,0,0,0.08)" }}>
           <img src={c.hero} style={{ width: "100%", height: "100%", objectFit: "cover" }} alt="" />
-          <div style={{ position: "absolute", inset: 0, background: "rgba(0,0,0,0.25)", display: "flex", alignItems: "center", justifyContent: "center" }}>
-            <span style={{ color: "#fff", fontSize: 7, fontWeight: 700, background: t.primary, padding: "2px 8px", borderRadius: 5 }}>{c.cta}</span>
+          <div style={{ position: "absolute", inset: 0, background: "linear-gradient(to top, rgba(0,0,0,0.5) 0%, transparent 50%)" }} />
+          <div style={{ position: "absolute", bottom: 4, left: 6 }}>
+            <div style={{ background: t.primary, borderRadius: 5, padding: "2px 6px" }}>
+              <span style={{ color: "#fff", fontSize: 5, fontWeight: 700 }}>{c.cta}</span>
+            </div>
           </div>
         </div>
       </Tap>
-      <div style={{ padding: "5px 8px", display: "grid", gridTemplateColumns: "1fr 1fr", gap: 4, marginTop: 4 }}>
+      {/* Menu items con card bianche */}
+      <div style={{ padding: "5px 8px", display: "flex", flexDirection: "column", gap: 3, marginTop: 3 }}>
         {c.items.map((it, i) => (
           <Tap key={i}>
-            <div style={{ background: t.card, borderRadius: 7, padding: 4, border: `1px solid ${t.primary}10`, boxShadow: "0 1px 3px rgba(0,0,0,0.04)" }}>
-              <img src={it.img} style={{ width: "100%", height: 28, objectFit: "cover", borderRadius: 4, marginBottom: 2 }} alt="" onError={e => e.target.style.display = 'none'} />
-              <div style={{ fontSize: 5.5, fontWeight: 700, color: t.text }}>{it.n}</div>
-              <div style={{ fontSize: 5.5, color: t.primary, fontWeight: 700, marginTop: 1 }}>{it.p}</div>
+            <div style={{ display: "flex", alignItems: "center", gap: 5, padding: 4, background: t.card, borderRadius: 8, border: `1px solid ${t.border}`, boxShadow: "0 1px 3px rgba(0,0,0,0.04)" }}>
+              <img src={it.img} style={{ width: 22, height: 22, borderRadius: 6, objectFit: "cover" }} alt="" onError={e => e.target.style.display='none'} />
+              <div style={{ flex: 1 }}>
+                <div style={{ fontSize: 6, fontWeight: 700, color: t.text }}>{it.n}</div>
+                {it.desc && <div style={{ fontSize: 4.5, color: t.muted }}>{it.desc}</div>}
+              </div>
+              <div style={{ background: t.primary + "15", borderRadius: 5, padding: "2px 4px" }}>
+                <span style={{ fontSize: 6, fontWeight: 800, color: t.primary }}>{it.p}</span>
+              </div>
             </div>
           </Tap>
         ))}
@@ -125,85 +139,46 @@ function LayoutLight({ t, c }) {
   );
 }
 
-function LayoutVivid({ t, c }) {
+// ─── Layout 3: MODERN WHITE — Pulito, card elevate, tipografia forte ──
+function LayoutModernWhite({ t, c }) {
   return (
-    <div style={{ background: t.bg, height: "100%", fontFamily: "Inter, sans-serif" }}>
-      <div style={{ background: `linear-gradient(135deg, ${t.primary}, ${t.accent})`, padding: "10px 8px 18px", borderRadius: "0 0 18px 18px" }}>
-        <div style={{ display: "flex", alignItems: "center", gap: 4, marginBottom: 4 }}>
-          {c.logo ? <img src={c.logo} style={{ height: 14, borderRadius: 2, filter: "brightness(10)" }} alt="" onError={e => e.target.style.display = 'none'} /> : null}
-          <span style={{ color: "#fff", fontSize: 10, fontWeight: 900 }}>{c.name}</span>
+    <div style={{ background: t.bg, height: "100%", fontFamily: "Inter, -apple-system, sans-serif" }}>
+      <div style={{ padding: "10px 8px 4px", display: "flex", alignItems: "center", justifyContent: "space-between" }}>
+        <div style={{ display: "flex", alignItems: "center", gap: 4 }}>
+          {c.logo ? <img src={c.logo} style={{ height: 16, borderRadius: 2 }} alt="" onError={e => e.target.style.display='none'} /> : null}
+          <span style={{ color: t.text, fontSize: 10, fontWeight: 900, letterSpacing: -0.5 }}>{c.name}</span>
         </div>
-        <p style={{ color: "rgba(255,255,255,0.7)", fontSize: 5.5 }}>Scopri le nostre offerte</p>
+        <div style={{ width: 14, height: 14, borderRadius: 7, background: "#f0f0f0", display: "flex", alignItems: "center", justifyContent: "center" }}><span style={{ fontSize: 5 }}>☰</span></div>
       </div>
-      <div style={{ padding: "6px 8px 0", display: "flex", gap: 5, overflowX: "hidden", marginTop: -8 }}>
-        {c.items.slice(0, 3).map((it, i) => (
-          <Tap key={i}>
-            <div style={{ minWidth: 65, background: t.card, borderRadius: 8, overflow: "hidden", border: `1px solid ${t.primary}15`, boxShadow: "0 2px 6px rgba(0,0,0,0.06)" }}>
-              <img src={it.img} style={{ width: "100%", height: 36, objectFit: "cover" }} alt="" onError={e => e.target.style.display = 'none'} />
-              <div style={{ padding: "2px 4px 4px" }}>
-                <div style={{ fontSize: 5.5, fontWeight: 700, color: t.text }}>{it.n}</div>
-                <div style={{ fontSize: 6, fontWeight: 800, color: t.primary }}>{it.p}</div>
-              </div>
-            </div>
-          </Tap>
-        ))}
+      {/* Search bar */}
+      <div style={{ margin: "2px 8px 4px", borderRadius: 8, background: "#f0f0f0", padding: "4px 8px", display: "flex", alignItems: "center", gap: 3 }}>
+        <span style={{ fontSize: 5.5, color: "#999" }}>🔍</span>
+        <span style={{ fontSize: 5.5, color: "#999" }}>Cerca nel menu...</span>
       </div>
-      <div style={{ padding: "5px 8px" }}>
-        <div style={{ fontSize: 6, fontWeight: 800, color: t.text, marginBottom: 3 }}>🔥 Più richiesti</div>
-        {c.items.slice(0, 2).map((it, i) => (
-          <Tap key={i}>
-            <div style={{ display: "flex", gap: 4, alignItems: "center", marginBottom: 3, background: t.card, borderRadius: 6, padding: 3, border: `1px solid ${t.primary}08` }}>
-              <img src={it.img} style={{ width: 20, height: 20, borderRadius: 4, objectFit: "cover" }} alt="" onError={e => e.target.style.display = 'none'} />
-              <div style={{ flex: 1 }}><div style={{ fontSize: 5.5, fontWeight: 600, color: t.text }}>{it.n}</div></div>
-              <span style={{ fontSize: 5.5, color: t.accent, fontWeight: 700 }}>{it.p}</span>
-            </div>
-          </Tap>
-        ))}
-      </div>
+      {/* Hero image */}
       <Tap>
-        <div style={{ margin: "3px 8px", padding: "5px", borderRadius: 8, background: `linear-gradient(135deg, ${t.primary}, ${t.accent})`, textAlign: "center" }}>
-          <span style={{ color: "#fff", fontSize: 6, fontWeight: 800 }}>{c.cta} →</span>
-        </div>
-      </Tap>
-      <BottomBar t={t} />
-    </div>
-  );
-}
-
-function LayoutPastel({ t, c }) {
-  return (
-    <div style={{ background: `linear-gradient(180deg, ${t.primary}10, ${t.accent}08, ${t.bg})`, height: "100%", fontFamily: "Inter, sans-serif" }}>
-      <div style={{ padding: "10px 8px 6px", textAlign: "center" }}>
-        {c.logo ? <img src={c.logo} style={{ height: 18, margin: "0 auto 3px", borderRadius: 4 }} alt="" onError={e => e.target.style.display = 'none'} /> : (
-          <div style={{ width: 26, height: 26, borderRadius: 13, background: `linear-gradient(135deg, ${t.primary}, ${t.accent})`, margin: "0 auto 3px", display: "flex", alignItems: "center", justifyContent: "center" }}>
-            <span style={{ color: "#fff", fontSize: 9, fontWeight: 800 }}>{c.name[0]}</span>
-          </div>
-        )}
-        <div style={{ color: t.text, fontSize: 9, fontWeight: 800 }}>{c.name}</div>
-      </div>
-      <div style={{ display: "flex", justifyContent: "center", gap: 7, padding: "0 8px", marginBottom: 5 }}>
-        {c.items.slice(0, 3).map((it, i) => (
-          <Tap key={i}>
-            <div style={{ textAlign: "center" }}>
-              <div style={{ width: 30, height: 30, borderRadius: 15, overflow: "hidden", border: `2px solid ${t.primary}30`, margin: "0 auto" }}>
-                <img src={it.img} style={{ width: "100%", height: "100%", objectFit: "cover" }} alt="" onError={e => e.target.style.display = 'none'} />
-              </div>
-              <div style={{ fontSize: 4.5, color: t.text, fontWeight: 600, marginTop: 2, maxWidth: 36, overflow: "hidden", textOverflow: "ellipsis", whiteSpace: "nowrap" }}>{it.n}</div>
-            </div>
-          </Tap>
-        ))}
-      </div>
-      <Tap>
-        <div style={{ margin: "0 8px", borderRadius: 10, overflow: "hidden", height: 48, boxShadow: "0 3px 15px rgba(0,0,0,0.05)" }}>
+        <div style={{ margin: "0 8px", borderRadius: 12, overflow: "hidden", height: 52, position: "relative" }}>
           <img src={c.hero} style={{ width: "100%", height: "100%", objectFit: "cover" }} alt="" />
         </div>
       </Tap>
-      <div style={{ padding: "5px 8px" }}>
+      {/* Category pills */}
+      <div style={{ display: "flex", gap: 3, padding: "5px 8px", overflow: "hidden" }}>
+        {["Tutto", "Pizze", "Pesce", "Carne"].map((cat, i) => (
+          <div key={i} style={{ padding: "2px 6px", borderRadius: 6, background: i === 0 ? t.text : "#f0f0f0", whiteSpace: "nowrap" }}>
+            <span style={{ fontSize: 5, fontWeight: 700, color: i === 0 ? "#fff" : t.text }}>{cat}</span>
+          </div>
+        ))}
+      </div>
+      {/* Grid items */}
+      <div style={{ padding: "2px 8px", display: "grid", gridTemplateColumns: "1fr 1fr", gap: 4 }}>
         {c.items.map((it, i) => (
           <Tap key={i}>
-            <div style={{ display: "flex", justifyContent: "space-between", alignItems: "center", padding: "3px 5px", marginBottom: 2, borderRadius: 8, background: t.card, boxShadow: "0 1px 3px rgba(0,0,0,0.02)" }}>
-              <span style={{ fontSize: 5.5, fontWeight: 600, color: t.text }}>{it.n}</span>
-              <span style={{ fontSize: 5.5, fontWeight: 700, color: t.primary, background: t.primary + "15", borderRadius: 5, padding: "1px 4px" }}>{it.p}</span>
+            <div style={{ background: t.card, borderRadius: 10, overflow: "hidden", border: `1px solid ${t.border}`, boxShadow: "0 1px 4px rgba(0,0,0,0.04)" }}>
+              <img src={it.img} style={{ width: "100%", height: 30, objectFit: "cover" }} alt="" onError={e => e.target.style.display='none'} />
+              <div style={{ padding: "3px 4px" }}>
+                <div style={{ fontSize: 5.5, fontWeight: 800, color: t.text }}>{it.n}</div>
+                <div style={{ fontSize: 5.5, fontWeight: 800, color: t.primary, marginTop: 1 }}>{it.p}</div>
+              </div>
             </div>
           </Tap>
         ))}
@@ -213,46 +188,104 @@ function LayoutPastel({ t, c }) {
   );
 }
 
-function LayoutNeon({ t, c }) {
+// ─── Layout 4: HERO FULL — Hero a tutta altezza, overlay ──
+function LayoutHeroFull({ t, c }) {
   return (
-    <div style={{ background: t.bg, height: "100%", fontFamily: "Inter, sans-serif" }}>
-      <div style={{ padding: "10px 8px 5px", display: "flex", alignItems: "center", gap: 4 }}>
-        {c.logo ? <img src={c.logo} style={{ height: 14, borderRadius: 2 }} alt="" onError={e => e.target.style.display = 'none'} /> : null}
-        <span style={{ fontSize: 9, fontWeight: 900, background: `linear-gradient(90deg, ${t.primary}, ${t.accent})`, WebkitBackgroundClip: "text", WebkitTextFillColor: "transparent" }}>{c.name}</span>
-      </div>
-      <Tap>
-        <div style={{ margin: "0 8px", position: "relative", borderRadius: 8, overflow: "hidden", height: 52, border: `1px solid ${t.primary}30`, boxShadow: `0 0 12px ${t.primary}20` }}>
-          <img src={c.hero} style={{ width: "100%", height: "100%", objectFit: "cover", filter: "brightness(0.7) contrast(1.2)" }} alt="" />
-          <div style={{ position: "absolute", bottom: 0, left: 0, right: 0, padding: "2px 6px", background: `linear-gradient(to top, ${t.bg}, transparent)` }}>
-            <span style={{ color: t.primary, fontSize: 6, fontWeight: 800 }}>{c.cta} ⚡</span>
+    <div style={{ background: t.bg, height: "100%", fontFamily: "Georgia, serif", position: "relative" }}>
+      {/* Full hero */}
+      <div style={{ position: "relative", height: 130 }}>
+        <img src={c.hero} style={{ width: "100%", height: "100%", objectFit: "cover" }} alt="" />
+        <div style={{ position: "absolute", inset: 0, background: "linear-gradient(to bottom, rgba(0,0,0,0.2) 0%, rgba(0,0,0,0.8) 100%)" }} />
+        {/* Logo/name overlay */}
+        <div style={{ position: "absolute", top: 8, left: 8, right: 8, display: "flex", justifyContent: "space-between", alignItems: "flex-start" }}>
+          {c.logo ? <img src={c.logo} style={{ height: 18, borderRadius: 3 }} alt="" onError={e => e.target.style.display='none'} /> :
+            <span style={{ color: "#fff", fontSize: 8, fontWeight: 700 }}>{c.name}</span>}
+          <div style={{ width: 16, height: 16, borderRadius: 8, background: "rgba(255,255,255,0.15)", backdropFilter: "blur(4px)", display: "flex", alignItems: "center", justifyContent: "center" }}>
+            <span style={{ fontSize: 6, color: "#fff" }}>☰</span>
           </div>
         </div>
-      </Tap>
-      <div style={{ padding: "5px 8px", marginTop: 3 }}>
-        <div style={{ fontSize: 5, fontWeight: 800, color: t.accent, textTransform: "uppercase", letterSpacing: 2, marginBottom: 3 }}>⚡ Top Picks</div>
+        {/* Info overlay */}
+        <div style={{ position: "absolute", bottom: 8, left: 8, right: 8 }}>
+          <div style={{ color: "#fff", fontSize: 10, fontWeight: 800, lineHeight: 1.2 }}>{c.name}</div>
+          <div style={{ color: t.primary, fontSize: 5, fontWeight: 600, marginTop: 2 }}>⭐ 4.7 • Ristorante • Pizzeria</div>
+          <Tap>
+            <div style={{ marginTop: 4, display: "inline-block", background: t.primary, borderRadius: 6, padding: "3px 10px" }}>
+              <span style={{ color: t.bg, fontSize: 5.5, fontWeight: 700 }}>{c.cta} ora</span>
+            </div>
+          </Tap>
+        </div>
+      </div>
+      {/* Menu items */}
+      <div style={{ padding: "5px 8px" }}>
+        <div style={{ color: t.muted, fontSize: 4.5, textTransform: "uppercase", letterSpacing: 2, marginBottom: 3, fontWeight: 700 }}>Menu del giorno</div>
         {c.items.map((it, i) => (
           <Tap key={i}>
-            <div style={{ display: "flex", gap: 4, alignItems: "center", marginBottom: 3, padding: "3px 5px", borderRadius: 6, background: t.card, border: `1px solid ${i === 0 ? t.primary + "40" : t.primary + "10"}`, boxShadow: i === 0 ? `0 0 6px ${t.primary}15` : "none" }}>
-              <div style={{ width: 18, height: 18, borderRadius: 4, overflow: "hidden", flexShrink: 0, border: `1px solid ${t.primary}20` }}>
-                <img src={it.img} style={{ width: "100%", height: "100%", objectFit: "cover" }} alt="" onError={e => e.target.style.display = 'none'} />
+            <div style={{ display: "flex", alignItems: "center", gap: 4, padding: "4px 0", borderBottom: `1px solid ${t.border}` }}>
+              <img src={it.img} style={{ width: 20, height: 20, borderRadius: 5, objectFit: "cover" }} alt="" onError={e => e.target.style.display='none'} />
+              <div style={{ flex: 1 }}>
+                <div style={{ fontSize: 6, fontWeight: 700, color: t.text }}>{it.n}</div>
+                {it.desc && <div style={{ fontSize: 4, color: t.muted }}>{it.desc}</div>}
               </div>
-              <div style={{ flex: 1 }}><div style={{ fontSize: 5.5, fontWeight: 600, color: t.text }}>{it.n}</div></div>
               <span style={{ fontSize: 6, fontWeight: 800, color: t.primary }}>{it.p}</span>
             </div>
           </Tap>
         ))}
       </div>
-      <div style={{ margin: "3px 8px", height: 2, borderRadius: 1, background: `linear-gradient(90deg, ${t.primary}, ${t.accent}, ${t.primary})` }} />
       <BottomBar t={t} />
     </div>
   );
 }
 
-// Shared bottom nav bar
-function BottomBar({ t }) {
-  const icons = ["●", "◎", "☰", "♡"];
+// ─── Layout 5: LUXURY MINIMAL — Spazi ampi, serif, oro ──
+function LayoutLuxuryMinimal({ t, c }) {
   return (
-    <div style={{ position: "absolute", bottom: 0, left: 0, right: 0, display: "flex", justifyContent: "space-around", alignItems: "center", padding: "4px 6px", background: t.card, borderTop: `1px solid ${t.dark ? "rgba(255,255,255,0.06)" : "rgba(0,0,0,0.06)"}` }}>
+    <div style={{ background: t.bg, height: "100%", fontFamily: "Georgia, serif" }}>
+      <div style={{ padding: "12px 10px 4px", textAlign: "center" }}>
+        {c.logo ? <img src={c.logo} style={{ height: 22, margin: "0 auto", borderRadius: 3 }} alt="" onError={e => e.target.style.display='none'} /> : (
+          <div>
+            <div style={{ width: 20, height: 20, borderRadius: 10, border: `1.5px solid ${t.primary}`, margin: "0 auto 3px", display: "flex", alignItems: "center", justifyContent: "center" }}>
+              <span style={{ fontSize: 8, color: t.primary, fontWeight: 700 }}>{c.name[0]}</span>
+            </div>
+            <span style={{ color: t.text, fontSize: 9, fontWeight: 700, letterSpacing: 2, textTransform: "uppercase" }}>{c.name}</span>
+          </div>
+        )}
+      </div>
+      <div style={{ textAlign: "center", marginBottom: 5 }}>
+        <div style={{ width: 30, height: 1, background: t.primary + "40", margin: "3px auto" }} />
+        <span style={{ fontSize: 4.5, color: t.muted, letterSpacing: 1.5, textTransform: "uppercase" }}>Cucina d'eccellenza</span>
+      </div>
+      {/* Single featured image */}
+      <Tap>
+        <div style={{ margin: "0 10px", borderRadius: 8, overflow: "hidden", height: 50, border: `1px solid ${t.border}` }}>
+          <img src={c.hero} style={{ width: "100%", height: "100%", objectFit: "cover", filter: "brightness(0.9)" }} alt="" />
+        </div>
+      </Tap>
+      {/* Elegant list */}
+      <div style={{ padding: "6px 10px" }}>
+        {c.items.map((it, i) => (
+          <Tap key={i}>
+            <div style={{ display: "flex", justifyContent: "space-between", alignItems: "baseline", padding: "5px 0", borderBottom: `1px solid ${t.border}` }}>
+              <div>
+                <div style={{ fontSize: 6.5, fontWeight: 700, color: t.text, letterSpacing: 0.3 }}>{it.n}</div>
+                {it.desc && <div style={{ fontSize: 4, color: t.muted, fontStyle: "italic", marginTop: 1 }}>{it.desc}</div>}
+              </div>
+              <div style={{ display: "flex", alignItems: "center", gap: 2 }}>
+                <div style={{ width: 20, height: 1, background: t.primary + "20" }} />
+                <span style={{ fontSize: 6, fontWeight: 700, color: t.primary }}>{it.p}</span>
+              </div>
+            </div>
+          </Tap>
+        ))}
+      </div>
+      <BottomBar t={t} />
+    </div>
+  );
+}
+
+function BottomBar({ t }) {
+  const icons = ["🏠", "📋", "🔍", "♡"];
+  return (
+    <div style={{ position: "absolute", bottom: 0, left: 0, right: 0, display: "flex", justifyContent: "space-around", alignItems: "center", padding: "4px 6px", background: t.card, borderTop: `1px solid ${t.border}` }}>
       {icons.map((ic, i) => (
         <Tap key={i}><span style={{ color: i === 0 ? t.primary : t.muted, fontSize: 7, padding: "2px 6px" }}>{ic}</span></Tap>
       ))}
@@ -260,10 +293,9 @@ function BottomBar({ t }) {
   );
 }
 
-const LAYOUTS = [LayoutDark, LayoutLight, LayoutVivid, LayoutPastel, LayoutNeon];
+const LAYOUTS = [LayoutGourmetDark, LayoutClassicCream, LayoutModernWhite, LayoutHeroFull, LayoutLuxuryMinimal];
 
-// ─── Phone wrapper ──────────────────────────────────────────
-
+// ─── Phone Frame ──────────────────────────────────────────
 function PhoneFrame({ theme, content, LayoutComp, isCenter, isSelected, onClick }) {
   const W = 165, H = 310;
   return (
@@ -273,15 +305,15 @@ function PhoneFrame({ theme, content, LayoutComp, isCenter, isSelected, onClick 
     }}>
       <div className="relative overflow-hidden transition-shadow duration-300" style={{
         width: W, height: H, borderRadius: 22,
-        border: isSelected ? "2.5px solid #a855f7" : `2.5px solid ${theme.dark ? "rgba(255,255,255,0.1)" : "rgba(0,0,0,0.1)"}`,
-        boxShadow: isSelected ? "0 0 24px rgba(168,85,247,0.35)" : isCenter ? "0 8px 30px rgba(0,0,0,0.4)" : "0 2px 10px rgba(0,0,0,0.2)",
+        border: isSelected ? `2.5px solid ${theme.primary}` : `2.5px solid ${theme.dark ? "rgba(255,255,255,0.1)" : "rgba(0,0,0,0.1)"}`,
+        boxShadow: isSelected ? `0 0 24px ${theme.primary}50` : isCenter ? "0 8px 30px rgba(0,0,0,0.4)" : "0 2px 10px rgba(0,0,0,0.2)",
       }}>
         <div style={{ position: "absolute", top: 0, left: "50%", transform: "translateX(-50%)", width: 50, height: 12, borderRadius: "0 0 10px 10px", background: theme.dark ? "#000" : "#d1d5db", zIndex: 20 }} />
         <div style={{ position: "absolute", inset: 0, paddingTop: 14, overflow: "hidden" }}>
           <LayoutComp t={theme} c={content} />
         </div>
         {isSelected && (
-          <div style={{ position: "absolute", top: 16, right: 6, width: 18, height: 18, borderRadius: 9, background: "#a855f7", display: "flex", alignItems: "center", justifyContent: "center", zIndex: 30 }}>
+          <div style={{ position: "absolute", top: 16, right: 6, width: 18, height: 18, borderRadius: 9, background: theme.primary, display: "flex", alignItems: "center", justifyContent: "center", zIndex: 30 }}>
             <svg width="10" height="10" viewBox="0 0 24 24" fill="none" stroke="#fff" strokeWidth="3" strokeLinecap="round" strokeLinejoin="round"><path d="M5 13l4 4L19 7"/></svg>
           </div>
         )}
@@ -295,11 +327,18 @@ function PhoneFrame({ theme, content, LayoutComp, isCenter, isSelected, onClick 
 }
 
 // ─── Main ───────────────────────────────────────────────────
-
 export default function StyleTemplates({ businessType, websiteAnalysis, selected, onSelect }) {
   const content = buildContent(businessType, websiteAnalysis);
   const scrollRef = useRef(null);
   const [centerIdx, setCenterIdx] = useState(2);
+
+  // Se abbiamo colori dal sito web, sovrascriviamo i colori dei temi
+  const themesWithSiteColors = THEMES.map(theme => {
+    if (websiteAnalysis?.primaryColor) {
+      return { ...theme, primary: websiteAnalysis.primaryColor, accent: websiteAnalysis.secondaryColor || theme.accent };
+    }
+    return theme;
+  });
 
   useEffect(() => {
     const el = scrollRef.current;
@@ -342,7 +381,7 @@ export default function StyleTemplates({ businessType, websiteAnalysis, selected
       description: theme.label, primaryColor: theme.primary, secondaryColor: theme.secondary,
       accentColor: theme.accent, darkMode: theme.dark, fontStyle: theme.font,
       previewItems: content.items.map(i => i.n), heroImage: content.hero,
-      preview: { bg: "", accent: theme.primary, text: theme.accent, card: "" },
+      preview: { bg: theme.bg, accent: theme.primary, text: theme.accent, card: theme.card },
     });
   };
 
@@ -356,7 +395,7 @@ export default function StyleTemplates({ businessType, websiteAnalysis, selected
       <div ref={scrollRef} onScroll={onScroll} className="flex gap-4 overflow-x-auto pb-4 pt-2"
         style={{ scrollSnapType: "x mandatory", WebkitOverflowScrolling: "touch", scrollbarWidth: "none", msOverflowStyle: "none" }}>
         <div className="flex-shrink-0" style={{ width: "calc(50vw - 82px)" }} />
-        {THEMES.map((theme, i) => (
+        {themesWithSiteColors.map((theme, i) => (
           <div key={theme.id} style={{ scrollSnapAlign: "center" }}>
             <PhoneFrame theme={theme} content={content} LayoutComp={LAYOUTS[i]}
               isCenter={i === centerIdx} isSelected={selected?.id === theme.id}
@@ -367,10 +406,10 @@ export default function StyleTemplates({ businessType, websiteAnalysis, selected
       </div>
 
       <div className="flex justify-center gap-1.5">
-        {THEMES.map((_, i) => (
+        {themesWithSiteColors.map((t, i) => (
           <div key={i} className="rounded-full transition-all duration-300" style={{
             width: i === centerIdx ? 20 : 5, height: 5,
-            background: i === centerIdx ? THEMES[centerIdx].primary : "rgba(255,255,255,0.12)",
+            background: i === centerIdx ? themesWithSiteColors[centerIdx].primary : "rgba(255,255,255,0.12)",
           }} />
         ))}
       </div>
@@ -379,14 +418,14 @@ export default function StyleTemplates({ businessType, websiteAnalysis, selected
         <button onClick={() => onSelect({
           id: "from_scratch", name: "Creazione personalizzata",
           description: websiteAnalysis ? "Basata sul tuo sito web" : "L'AI creerà un'app unica per te",
-          primaryColor: websiteAnalysis?.primaryColor || "#6366F1", secondaryColor: websiteAnalysis?.secondaryColor || "#1a1a2e",
-          accentColor: websiteAnalysis?.secondaryColor || "#818CF8", darkMode: true, fontStyle: "sans-serif",
-          preview: { bg: "", accent: "#6366F1", text: "#818CF8", card: "" },
+          primaryColor: websiteAnalysis?.primaryColor || "#C4964A", secondaryColor: websiteAnalysis?.secondaryColor || "#0a0a0a",
+          accentColor: websiteAnalysis?.secondaryColor || "#D4A95A", darkMode: true, fontStyle: "serif",
+          preview: { bg: "", accent: "#C4964A", text: "#D4A95A", card: "" },
         })} className={`w-full flex items-center gap-3 rounded-2xl border p-3 transition-all active:scale-[0.98] ${
-          selected?.id === "from_scratch" ? "border-purple-500 ring-2 ring-purple-500/30 bg-purple-500/5" : "border-white/[0.08] border-dashed hover:border-white/20"
+          selected?.id === "from_scratch" ? "border-amber-500 ring-2 ring-amber-500/30 bg-amber-500/5" : "border-white/[0.08] border-dashed hover:border-white/20"
         }`}>
-          <div className="w-10 h-10 rounded-xl bg-purple-500/10 border border-purple-500/20 flex items-center justify-center shrink-0">
-            <Sparkles className="w-5 h-5 text-purple-400" />
+          <div className="w-10 h-10 rounded-xl bg-amber-500/10 border border-amber-500/20 flex items-center justify-center shrink-0">
+            <Sparkles className="w-5 h-5 text-amber-400" />
           </div>
           <div className="text-left">
             <h3 className="text-sm font-bold text-white">Crea da zero con AI</h3>
