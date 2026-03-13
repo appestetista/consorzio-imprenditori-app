@@ -65,6 +65,9 @@ const GRUPPI = [
       { k: "imballaggi",      l: "Imballaggi e confezionamento" },
       { k: "consumabili",     l: "Consumabili, utensileria, DPI" },
       { k: "rifiuti",         l: "Smaltimento rifiuti e ambiente" },
+      { k: "lav_esterne",     l: "Lavorazioni esterne / terzisti" },
+      { k: "magazzino",       l: "Costi di magazzino e stoccaggio" },
+      { k: "controllo_qualita", l: "Controllo qualità e certificazioni" },
     ]
   },
   {
@@ -75,6 +78,10 @@ const GRUPPI = [
       { k: "tfr",             l: "TFR accantonato" },
       { k: "interinali",      l: "Interinali / somministrati" },
       { k: "formazione",      l: "Formazione e sicurezza" },
+      { k: "buoni_pasto",     l: "Buoni pasto e benefit" },
+      { k: "straordinari",    l: "Straordinari e premi produzione" },
+      { k: "trasferte_dip",   l: "Trasferte e rimborsi dipendenti" },
+      { k: "welfare_aziendale", l: "Welfare aziendale" },
     ]
   },
   {
@@ -86,6 +93,9 @@ const GRUPPI = [
       { k: "acqua",           l: "Acqua" },
       { k: "manutenzione",    l: "Manutenzione impianti e macc." },
       { k: "pulizie",         l: "Pulizie e vigilanza" },
+      { k: "condominio",      l: "Spese condominiali" },
+      { k: "sicurezza_sede",  l: "Sicurezza sede (allarmi, estintori)" },
+      { k: "smaltimento_rifiuti_sede", l: "Rifiuti speciali sede" },
     ]
   },
   {
@@ -97,6 +107,10 @@ const GRUPPI = [
       { k: "telefonia",       l: "Telefonia e internet" },
       { k: "software",        l: "Software e abbonamenti" },
       { k: "marketing",       l: "Marketing, pubblicità, fiere" },
+      { k: "consulenze_tecniche", l: "Consulenze tecniche e ingegneria" },
+      { k: "postali_corrieri", l: "Spese postali e corrieri" },
+      { k: "certificazioni",  l: "Certificazioni (ISO, CE, ecc.)" },
+      { k: "outsourcing",     l: "Outsourcing IT / amministrativo" },
     ]
   },
   {
@@ -106,6 +120,10 @@ const GRUPPI = [
       { k: "amm_immobili",    l: "Amm.to fabbricato e migliorie" },
       { k: "leasing",         l: "Leasing e noleggio operativo" },
       { k: "interessi",       l: "Interessi passivi su mutui" },
+      { k: "amm_automezzi",   l: "Amm.to automezzi" },
+      { k: "amm_software",    l: "Amm.to software e brevetti" },
+      { k: "commissioni_bancarie", l: "Commissioni e spese bancarie" },
+      { k: "interessi_fido",  l: "Interessi fido e anticipi fatture" },
     ]
   },
   {
@@ -116,6 +134,10 @@ const GRUPPI = [
       { k: "viaggi",          l: "Viaggi e trasferte" },
       { k: "rappresentanza",  l: "Rappresentanza e omaggi" },
       { k: "varie",           l: "Varie e imprevisti" },
+      { k: "bolli_vidimazioni", l: "Bolli, vidimazioni e diritti" },
+      { k: "abbonamenti_riviste", l: "Abbonamenti e riviste tecniche" },
+      { k: "contributi_associativi", l: "Contributi associativi (CNA, Confindustria...)" },
+      { k: "auto_aziendali",  l: "Carburante e gestione auto aziendali" },
     ]
   },
 ];
