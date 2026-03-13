@@ -1,5 +1,6 @@
-import React, { useState } from "react";
+import React from "react";
 import DynamicHeader from "./sections/DynamicHeader";
+import HeroBannerSection from "./sections/HeroBannerSection";
 import MenuListSection from "./sections/MenuListSection";
 import ProductGridSection from "./sections/ProductGridSection";
 import ServiceListSection from "./sections/ServiceListSection";
@@ -15,6 +16,7 @@ import FeaturesSection from "./sections/FeaturesSection";
 import DynamicBottomNav from "./sections/DynamicBottomNav";
 
 const SECTION_MAP = {
+  hero_banner: HeroBannerSection,
   menu_list: MenuListSection,
   product_grid: ProductGridSection,
   service_list: ServiceListSection,
@@ -32,31 +34,44 @@ const SECTION_MAP = {
 export default function DynamicAppRenderer({ data }) {
   if (!data) return null;
 
-  const { appName, tagline, primaryColor, secondaryColor, headerStyle, sections, bottomNav } = data;
+  const { appName, tagline, primaryColor, secondaryColor, accentColor, headerStyle, darkMode, fontStyle, sections, bottomNav } = data;
 
   return (
-    <div className="min-h-full flex flex-col bg-[#0f0f1a]">
+    <div className="min-h-full flex flex-col" style={{ background: darkMode === false ? "#fafafa" : "#0f0f1a" }}>
+      {/* Decorative vertical text */}
+      <div className="fixed right-1 top-1/2 -translate-y-1/2 z-0 pointer-events-none">
+        <span className="text-[7px] text-white/[0.04] tracking-[0.35em] font-semibold uppercase" style={{ writingMode: "vertical-rl" }}>
+          ESPLORA
+        </span>
+      </div>
+
       <DynamicHeader
         appName={appName}
         tagline={tagline}
         primaryColor={primaryColor}
         secondaryColor={secondaryColor}
         style={headerStyle}
+        fontStyle={fontStyle}
+        darkMode={darkMode}
       />
 
-      <div className="flex-1 pb-14">
+      <div className="flex-1 pb-16 relative z-10">
         {sections?.map((section, i) => {
-          if (section.type === "hero") return null; // hero è gestito dall'header
+          if (section.type === "hero") return null;
           const Component = SECTION_MAP[section.type];
           if (!Component) return null;
           return (
-            <Component
-              key={i}
-              title={section.title}
-              items={section.items || []}
-              primaryColor={primaryColor}
-              secondaryColor={secondaryColor}
-            />
+            <div key={i}>
+              {i > 0 && <div className="mx-6 h-px bg-white/[0.03]" />}
+              <Component
+                title={section.title}
+                subtitle={section.subtitle}
+                items={section.items || []}
+                primaryColor={primaryColor}
+                secondaryColor={secondaryColor || primaryColor}
+                accentColor={accentColor || primaryColor}
+              />
+            </div>
           );
         })}
       </div>
