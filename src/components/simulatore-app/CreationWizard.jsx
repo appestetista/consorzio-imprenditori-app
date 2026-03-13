@@ -133,6 +133,77 @@ export default function CreationWizard({ onComplete }) {
     return new Promise(resolve => setTimeout(() => { setAnalyzingWebsite(false); resolve(); }, 800));
   };
 
+  const startPdfProgress = () => {
+    setPdfProgress(0);
+    setPdfPhase("Caricamento file...");
+    const phases = [
+      { at: 15, text: "Lettura del documento..." },
+      { at: 35, text: "Estrazione prodotti e prezzi..." },
+      { at: 55, text: "Organizzazione categorie..." },
+      { at: 75, text: "Validazione dati estratti..." },
+      { at: 90, text: "Finalizzazione..." },
+    ];
+    let current = 0;
+    pdfProgressInterval.current = setInterval(() => {
+      current += Math.random() * 3 + 0.5;
+      if (current > 92) current = 92;
+      setPdfProgress(current);
+      const phase = [...phases].reverse().find(p => current >= p.at);
+      if (phase) setPdfPhase(phase.text);
+    }, 300);
+  };
+
+  const stopPdfProgress = () => {
+    clearInterval(pdfProgressInterval.current);
+    setPdfProgress(100);
+    setPdfPhase("Completato!");
+    return new Promise(resolve => setTimeout(() => { setAnalyzingPdf(false); resolve(); }, 600));
+  };
+
+  const handlePdfUpload = async (e) => {
+    const file = e.target.files?.[0];
+    if (!file) return;
+    setPdfFileName(file.name);
+    setAnalyzingPdf(true);
+    startPdfProgress();
+    try {
+      const { file_url } = await base44.integrations.Core.UploadFile({ file });
+      const extraction = await base44.integrations.Core.ExtractDataFromUploadedFile({
+        file_url,
+        json_schema: {
+          type: "object",
+          properties: {
+            items: {
+              type: "array",
+              items: {
+                type: "object",
+                properties: {
+                  name: { type: "string", description: "Nome piatto/prodotto/servizio" },
+                  description: { type: "string", description: "Descrizione o ingredienti" },
+                  price: { type: "string", description: "Prezzo (es. € 12.00)" },
+                  category: { type: "string", description: "Categoria (es. Antipasti, Primi, Pizze, Bevande)" },
+                },
+              },
+            },
+          },
+        },
+      });
+      if (extraction?.status === "success" && extraction.output?.items?.length > 0) {
+        const items = extraction.output.items;
+        const categories = [...new Set(items.map(i => i.category).filter(Boolean))];
+        setData(prev => ({ ...prev, pdfMenuData: { items, categories, fileName: file.name, itemsCount: items.length } }));
+      } else {
+        setData(prev => ({ ...prev, pdfMenuData: { items: [], categories: [], fileName: file.name, itemsCount: 0, error: true } }));
+      }
+    } catch (err) {
+      console.error("[Wizard] Errore analisi PDF:", err);
+      setData(prev => ({ ...prev, pdfMenuData: { items: [], categories: [], fileName: file.name, itemsCount: 0, error: true } }));
+    } finally {
+      await stopPdfProgress();
+      if (pdfInputRef.current) pdfInputRef.current.value = "";
+    }
+  };
+
   const analyzeWebsite = async () => {
     if (!data.websiteUrl.trim()) return;
     setAnalyzingWebsite(true);
