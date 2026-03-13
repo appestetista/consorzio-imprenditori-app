@@ -29,7 +29,9 @@ function Tip({ text }) {
    Fonti:
    - IRPEF: Legge di Bilancio 2026 (3 scaglioni: 23% fino 28k, 33% 28k-50k, 43% oltre 50k)
    - IRES: art. 77 TUIR — 24% ordinaria
-   - IRAP: art. 16 D.Lgs. 446/1997 — 3,9% base
+   - IRAP: art. 5 e 16 D.Lgs. 446/1997 — 3,9% base su valore produzione netta
+   - IRAP indeducibilità: costo personale, compensi amm.re, interessi passivi (art. 5 co.1)
+   - IRAP impatto CE: riduce utile distribuibile (voce B.14 art. 2425 c.c.)
    - INPS GS co.co.co.: Circ. INPS n.8 del 03/02/2026 — 35,03% (IVS 33% + accessorie 2,03%)
    - INPS GS massimale: 122.295€ (Circ. INPS 8/2026)
    - INPS GS ripartizione: 2/3 committente, 1/3 collaboratore
