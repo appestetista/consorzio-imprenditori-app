@@ -178,12 +178,22 @@ export default function SimulatoreApp() {
     return updatedVersions;
   };
 
-  const generateApp = async (promptText) => {
+  const generateApp = async (promptText, isFromWizard = false) => {
     if (loading) return;
     setLoading(true);
 
-    const userMsg = addMessage("user", promptText);
     const isFirstMessage = !appData;
+
+    // Se è la prima generazione dal wizard, mostra popup progresso (no messaggi visibili)
+    if (isFromWizard && isFirstMessage) {
+      setIsFirstGeneration(true);
+      startGenProgress();
+    }
+
+    // Non mostrare il prompt dell'utente nella chat se è la prima generazione
+    if (!isFromWizard || !isFirstMessage) {
+      addMessage("user", promptText);
+    }
 
     const prompt = isFirstMessage
       ? `${SYSTEM_DESIGN_PROMPT}\n\nL'utente descrive così la sua app: "${promptText}"\n\nGenera il JSON completo dell'app. Includi 5-7 sezioni. Se l'utente menziona funzionalità come pagamenti, API, notifiche push, login ecc., inseriscile nel campo features_requested come array di stringhe.\nLe sezioni disponibili: "hero_banner", "menu_list", "product_grid", "service_list", "stats_grid", "activity_feed", "gallery", "cta_banner", "booking", "contact", "pricing", "testimonials", "features".\nRispondi SOLO con il JSON.`
@@ -194,6 +204,10 @@ export default function SimulatoreApp() {
         prompt,
         response_json_schema: JSON_SCHEMA,
       });
+
+      if (isFirstGeneration || (isFromWizard && isFirstMessage)) {
+        await stopGenProgress();
+      }
 
       if (!result?.sections) {
         addMessage("assistant", "Non sono riuscito a generare il risultato. Riprova con una descrizione diversa.");
@@ -211,11 +225,18 @@ export default function SimulatoreApp() {
             : `Modifica applicata! Controlla l'anteprima.${featureMsg}`
         );
 
-        const allMsgs = [...messages, userMsg, assistantMsg];
+        // Per il salvataggio, includi il prompt come messaggio nascosto
+        const hiddenUserMsg = { role: "user", content: "[Generazione automatica dal wizard]", timestamp: new Date().toISOString() };
+        const allMsgs = isFromWizard && isFirstMessage
+          ? [hiddenUserMsg, assistantMsg]
+          : [...messages, { role: "user", content: promptText, timestamp: new Date().toISOString() }, assistantMsg];
         await saveProject(result, allMsgs, versions, promptText);
       }
     } catch (err) {
       console.error("Errore:", err);
+      if (isFirstGeneration || (isFromWizard && isFirstMessage)) {
+        await stopGenProgress();
+      }
       addMessage("assistant", "Si è verificato un errore. Riprova tra qualche secondo.");
     } finally {
       setLoading(false);
