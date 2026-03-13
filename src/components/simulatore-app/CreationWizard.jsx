@@ -762,7 +762,7 @@ ${!isFromScratch ? "- Ispirati alla struttura del prototipo scelto ma personaliz
       {/* Fine contenuto scrollabile */}
 
       {/* Navigation — fisso in basso */}
-      {!analyzingWebsite && (
+      {!analyzingWebsite && !analyzingPdf && (
         <div className="flex gap-3 pt-3 pb-4 shrink-0">
           {step > 0 && (
             <button
