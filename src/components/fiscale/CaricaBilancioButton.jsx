@@ -212,6 +212,7 @@ Numeri positivi senza €, senza punti migliaia. Se un dato manca, omettilo.`,
       {/* Lista file caricati */}
       {files.length > 0 && (
         <div className="space-y-1.5">
+          <p className="text-[10px] text-slate-500 font-medium">{files.length} file caricat{files.length === 1 ? 'o' : 'i'}</p>
           {files.map((f, i) => (
             <div key={i}
               className={`flex items-center gap-2 px-3 py-2 rounded-lg text-xs transition-all cursor-pointer ${
