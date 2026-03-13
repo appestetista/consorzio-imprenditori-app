@@ -84,7 +84,10 @@ export default function CreationWizard({ onComplete }) {
     features: [],
     techFeatures: [],
     pdfMenuData: null,
+    logoUrl: null,
   });
+  const [uploadingLogo, setUploadingLogo] = useState(false);
+  const logoInputRef = useRef(null);
   const [analyzingWebsite, setAnalyzingWebsite] = useState(false);
   const [analysisProgress, setAnalysisProgress] = useState(0);
   const [analysisPhase, setAnalysisPhase] = useState("");
