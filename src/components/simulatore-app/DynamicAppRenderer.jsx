@@ -60,11 +60,13 @@ export default function DynamicAppRenderer({ data, editable, onDataChange }) {
   return (
     <div className="min-h-full flex flex-col" style={{ background: darkMode === false ? (secondaryColor || "#fafafa") : "#0a0a0a" }}>
       {/* Decorative vertical text */}
-      <div className="fixed right-1 top-1/2 -translate-y-1/2 z-0 pointer-events-none">
-        <span className="text-[7px] text-white/[0.04] tracking-[0.35em] font-semibold uppercase" style={{ writingMode: "vertical-rl" }}>
-          ESPLORA
-        </span>
-      </div>
+      {darkMode !== false && (
+        <div className="fixed right-1 top-1/2 -translate-y-1/2 z-0 pointer-events-none">
+          <span className="text-[7px] text-white/[0.04] tracking-[0.35em] font-semibold uppercase" style={{ writingMode: "vertical-rl" }}>
+            ESPLORA
+          </span>
+        </div>
+      )}
 
       <DynamicHeader
         appName={appName}
