@@ -1,23 +1,25 @@
 import React from "react";
 import { Mail, Phone, MapPin, Clock } from "lucide-react";
+import EditableField from "../EditableField";
 
-export default function ContactSection({ title, subtitle, items, primaryColor }) {
+export default function ContactSection({ title, subtitle, items, primaryColor, editable, onItemChange, onSectionChange }) {
   const info = items?.[0];
   if (!info) return null;
+  const ec = editable ? true : false;
 
   const rows = [
-    { icon: Mail, value: info.email, label: "Email" },
-    { icon: Phone, value: info.phone, label: "Telefono" },
-    { icon: MapPin, value: info.address, label: "Indirizzo" },
-    { icon: Clock, value: info.hours, label: "Orari" },
+    { icon: Mail, value: info.email, field: "email", label: "Email" },
+    { icon: Phone, value: info.phone, field: "phone", label: "Telefono" },
+    { icon: MapPin, value: info.address, field: "address", label: "Indirizzo" },
+    { icon: Clock, value: info.hours, field: "hours", label: "Orari" },
   ].filter(r => r.value);
 
   return (
     <div className="px-4 py-5">
       {title && (
         <div className="mb-4">
-          <p className="text-[10px] font-semibold uppercase tracking-[0.15em] text-white/30 mb-1">{subtitle || "CONTATTI"}</p>
-          <h3 className="text-lg font-bold text-white" style={{ fontFamily: "Georgia, serif" }}>{title}</h3>
+          <EditableField value={subtitle || "CONTATTI"} onChange={ec ? v => onSectionChange?.("subtitle", v) : null} tag="p" className="text-[10px] font-semibold uppercase tracking-[0.15em] text-white/30 mb-1" />
+          <EditableField value={title} onChange={ec ? v => onSectionChange?.("title", v) : null} tag="h3" className="text-lg font-bold text-white" style={{ fontFamily: "Georgia, serif" }} />
         </div>
       )}
       <div className="space-y-3">
@@ -28,7 +30,7 @@ export default function ContactSection({ title, subtitle, items, primaryColor })
             </div>
             <div>
               <p className="text-[10px] text-white/25 font-semibold uppercase tracking-wider">{r.label}</p>
-              <p className="text-xs text-white/70 mt-0.5">{r.value}</p>
+              <EditableField value={r.value} onChange={ec ? v => onItemChange?.(0, r.field, v) : null} className="text-xs text-white/70 mt-0.5" />
             </div>
           </div>
         ))}
