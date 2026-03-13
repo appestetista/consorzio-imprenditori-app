@@ -1,380 +1,459 @@
-import React, { useState, useRef, useEffect, useCallback } from "react";
+import React, { useRef, useEffect, useState, useCallback } from "react";
 import { Sparkles } from "lucide-react";
 
-// 5 TEMI VISIVI universali — ogni business type li usa tutti, cambia solo il contenuto
-const VISUAL_THEMES = [
+// 5 visual themes
+const THEMES = [
   {
     id: "dark_elegance",
-    themeName: "Scuro Elegante",
-    themeTag: "DARK",
-    primaryColor: "#D4A574",
-    secondaryColor: "#0a0a0a",
-    accentColor: "#E8C9A0",
-    darkMode: true,
-    fontStyle: "serif",
-    bgGradient: "linear-gradient(180deg, #0a0a0a 0%, #1a1020 50%, #0a0a0a 100%)",
-    cardBg: "#141414",
-    textColor: "#FFFFFF",
-    mutedColor: "#888",
+    tag: "DARK",
+    label: "Scuro Elegante",
+    primary: "#D4A574", secondary: "#0a0a0a", accent: "#E8C9A0",
+    dark: true, font: "serif",
+    bg: "#0a0a0a", card: "#151515", text: "#fff", muted: "#666",
   },
   {
     id: "light_clean",
-    themeName: "Chiaro Pulito",
-    themeTag: "LIGHT",
-    primaryColor: "#1565C0",
-    secondaryColor: "#FFFFFF",
-    accentColor: "#42A5F5",
-    darkMode: false,
-    fontStyle: "sans-serif",
-    bgGradient: "linear-gradient(180deg, #F8FAFC 0%, #EEF2FF 50%, #F8FAFC 100%)",
-    cardBg: "#FFFFFF",
-    textColor: "#1a1a2e",
-    mutedColor: "#94a3b8",
+    tag: "LIGHT",
+    label: "Chiaro Minimal",
+    primary: "#1565C0", secondary: "#FFFFFF", accent: "#42A5F5",
+    dark: false, font: "sans-serif",
+    bg: "#F7F8FC", card: "#FFFFFF", text: "#111827", muted: "#94a3b8",
   },
   {
     id: "vivid_bold",
-    themeName: "Colori Accesi",
-    themeTag: "VIVID",
-    primaryColor: "#E53935",
-    secondaryColor: "#FFFFFF",
-    accentColor: "#FF6D00",
-    darkMode: false,
-    fontStyle: "sans-serif",
-    bgGradient: "linear-gradient(180deg, #FFF5F5 0%, #FFF0E6 50%, #FFF5F5 100%)",
-    cardBg: "#FFFFFF",
-    textColor: "#1a1a2e",
-    mutedColor: "#94a3b8",
+    tag: "VIVID",
+    label: "Acceso e Forte",
+    primary: "#E53935", secondary: "#FFFFFF", accent: "#FF6D00",
+    dark: false, font: "sans-serif",
+    bg: "#FFFAF5", card: "#FFFFFF", text: "#1a1a2e", muted: "#a1a1aa",
   },
   {
     id: "pastel_soft",
-    themeName: "Pastello Morbido",
-    themeTag: "PASTEL",
-    primaryColor: "#A78BFA",
-    secondaryColor: "#FDF4FF",
-    accentColor: "#F9A8D4",
-    darkMode: false,
-    fontStyle: "sans-serif",
-    bgGradient: "linear-gradient(180deg, #FDF4FF 0%, #F0F4FF 50%, #FFF1F2 100%)",
-    cardBg: "#FFFFFF",
-    textColor: "#3B1F6E",
-    mutedColor: "#a78bfa",
+    tag: "PASTEL",
+    label: "Pastello Morbido",
+    primary: "#A78BFA", secondary: "#FDF4FF", accent: "#F9A8D4",
+    dark: false, font: "sans-serif",
+    bg: "#FDF4FF", card: "#FFFFFF", text: "#3B1F6E", muted: "#c4b5fd",
   },
   {
     id: "neon_fluo",
-    themeName: "Fluo Neon",
-    themeTag: "NEON",
-    primaryColor: "#00E5FF",
-    secondaryColor: "#050510",
-    accentColor: "#AEEA00",
-    darkMode: true,
-    fontStyle: "sans-serif",
-    bgGradient: "linear-gradient(180deg, #050510 0%, #0a0a20 50%, #050510 100%)",
-    cardBg: "#0d0d1f",
-    textColor: "#FFFFFF",
-    mutedColor: "#555",
+    tag: "NEON",
+    label: "Fluo Neon",
+    primary: "#00E5FF", secondary: "#050510", accent: "#AEEA00",
+    dark: true, font: "sans-serif",
+    bg: "#050510", card: "#0c0c1e", text: "#fff", muted: "#444",
   },
 ];
 
-// Contenuti per business type
-const BUSINESS_CONTENT = {
+const CONTENT = {
   ristorazione: {
-    appName: "Gusto App",
-    heroImage: "https://images.unsplash.com/photo-1517248135467-4c7edcad34c4?w=400&h=260&fit=crop",
-    items: ["Carbonara Classica", "Pizza Margherita", "Tiramisù", "Antipasto Misto"],
-    prices: ["€ 14", "€ 10", "€ 7", "€ 12"],
-    badge: "Popolare",
+    fallbackName: "La Tua Trattoria",
+    hero: "https://images.unsplash.com/photo-1517248135467-4c7edcad34c4?w=400&h=280&fit=crop",
+    items: [
+      { n: "Carbonara Classica", p: "€ 14", img: "https://images.unsplash.com/photo-1504674900247-0877df9cc836?w=80&h=80&fit=crop" },
+      { n: "Pizza Margherita", p: "€ 10", img: "https://images.unsplash.com/photo-1565299624946-b28f40a0ae38?w=80&h=80&fit=crop" },
+      { n: "Tiramisù", p: "€ 7", img: "https://images.unsplash.com/photo-1546069901-ba9599a7e63c?w=80&h=80&fit=crop" },
+      { n: "Antipasto Misto", p: "€ 12", img: "https://images.unsplash.com/photo-1555939594-58d7cb561ad1?w=80&h=80&fit=crop" },
+    ],
     cta: "Prenota un Tavolo",
-    category: "Ristorante",
   },
   beauty: {
-    appName: "Beauty Studio",
-    heroImage: "https://images.unsplash.com/photo-1560066984-138dadb4c035?w=400&h=260&fit=crop",
-    items: ["Taglio & Piega", "Manicure Gel", "Trattamento Viso", "Extension Ciglia"],
-    prices: ["€ 35", "€ 28", "€ 55", "€ 45"],
-    badge: "Richiesto",
+    fallbackName: "Beauty Studio",
+    hero: "https://images.unsplash.com/photo-1560066984-138dadb4c035?w=400&h=280&fit=crop",
+    items: [
+      { n: "Taglio & Piega", p: "€ 35", img: "https://images.unsplash.com/photo-1522335789203-aabd1fc54bc9?w=80&h=80&fit=crop" },
+      { n: "Manicure Gel", p: "€ 28", img: "https://images.unsplash.com/photo-1487412947147-5cebf100ffc2?w=80&h=80&fit=crop" },
+      { n: "Trattamento Viso", p: "€ 55", img: "https://images.unsplash.com/photo-1616394584738-fc6e612e71b9?w=80&h=80&fit=crop" },
+      { n: "Extension Ciglia", p: "€ 45", img: "https://images.unsplash.com/photo-1570172619644-dfd03ed5d881?w=80&h=80&fit=crop" },
+    ],
     cta: "Prenota Ora",
-    category: "Salone",
   },
   fitness: {
-    appName: "FitZone",
-    heroImage: "https://images.unsplash.com/photo-1534438327276-14e5300c3a48?w=400&h=260&fit=crop",
-    items: ["Abbonamento Open", "PT Sessione", "Corso Yoga", "Boxe Fitness"],
-    prices: ["€ 49/m", "€ 40", "€ 15", "€ 20"],
-    badge: "Nuovo",
-    cta: "Iscriviti Ora",
-    category: "Palestra",
+    fallbackName: "FitZone",
+    hero: "https://images.unsplash.com/photo-1534438327276-14e5300c3a48?w=400&h=280&fit=crop",
+    items: [
+      { n: "Abbonamento Open", p: "€ 49/m", img: "https://images.unsplash.com/photo-1571019613454-1cb2f99b2d8b?w=80&h=80&fit=crop" },
+      { n: "PT Sessione", p: "€ 40", img: "https://images.unsplash.com/photo-1517836357463-d25dfeac3438?w=80&h=80&fit=crop" },
+      { n: "Corso Yoga", p: "€ 15", img: "https://images.unsplash.com/photo-1574680096145-d05b474e2155?w=80&h=80&fit=crop" },
+      { n: "Boxe Fitness", p: "€ 20", img: "https://images.unsplash.com/photo-1534438327276-14e5300c3a48?w=80&h=80&fit=crop" },
+    ],
+    cta: "Iscriviti",
   },
   ecommerce: {
-    appName: "ShopNow",
-    heroImage: "https://images.unsplash.com/photo-1441986300917-64674bd600d8?w=400&h=260&fit=crop",
-    items: ["Giacca in Pelle", "Sneakers Ltd", "Borsa Tote", "Occhiali"],
-    prices: ["€ 189", "€ 129", "€ 95", "€ 75"],
-    badge: "Best Seller",
+    fallbackName: "ShopNow",
+    hero: "https://images.unsplash.com/photo-1441986300917-64674bd600d8?w=400&h=280&fit=crop",
+    items: [
+      { n: "Giacca in Pelle", p: "€ 189", img: "https://images.unsplash.com/photo-1556742049-0cfed4f6a45d?w=80&h=80&fit=crop" },
+      { n: "Sneakers Ltd", p: "€ 129", img: "https://images.unsplash.com/photo-1523275335684-37898b6baf30?w=80&h=80&fit=crop" },
+      { n: "Borsa Tote", p: "€ 95", img: "https://images.unsplash.com/photo-1441986300917-64674bd600d8?w=80&h=80&fit=crop" },
+      { n: "Occhiali", p: "€ 75", img: "https://images.unsplash.com/photo-1523275335684-37898b6baf30?w=80&h=80&fit=crop" },
+    ],
     cta: "Acquista",
-    category: "Fashion",
   },
   _default: {
-    appName: "MyBusiness",
-    heroImage: "https://images.unsplash.com/photo-1497366216548-37526070297c?w=400&h=260&fit=crop",
-    items: ["Consulenza Base", "Piano Premium", "Assistenza", "Formazione"],
-    prices: ["€ 99", "€ 199", "€ 49", "€ 79"],
-    badge: "Consigliato",
+    fallbackName: "MyBusiness",
+    hero: "https://images.unsplash.com/photo-1497366216548-37526070297c?w=400&h=280&fit=crop",
+    items: [
+      { n: "Consulenza Base", p: "€ 99", img: "https://images.unsplash.com/photo-1497366216548-37526070297c?w=80&h=80&fit=crop" },
+      { n: "Piano Premium", p: "€ 199", img: "https://images.unsplash.com/photo-1497215842964-222b430dc094?w=80&h=80&fit=crop" },
+      { n: "Assistenza", p: "€ 49", img: "https://images.unsplash.com/photo-1553877522-43269d4ea984?w=80&h=80&fit=crop" },
+      { n: "Formazione", p: "€ 79", img: "https://images.unsplash.com/photo-1542744173-8e7e53415bb0?w=80&h=80&fit=crop" },
+    ],
     cta: "Inizia Ora",
-    category: "Servizi",
   },
 };
-["servizi", "immobiliare", "salute", "turismo", "educazione", "altro"].forEach(k => {
-  if (!BUSINESS_CONTENT[k]) BUSINESS_CONTENT[k] = BUSINESS_CONTENT._default;
+["servizi","immobiliare","salute","turismo","educazione","altro"].forEach(k => {
+  if (!CONTENT[k]) CONTENT[k] = CONTENT._default;
 });
 
+// ─── 5 layout completamente diversi ───────────────────────────
 
-// Mini mockup di un telefono con contenuto reale
-function PhoneMockup({ theme, content, isCenter, isSelected, onClick }) {
-  const dark = theme.darkMode;
+function LayoutDark({ t, c, name, logo }) {
+  // Layout 1: Hero full + lista elegante serif
+  return (
+    <div style={{ background: t.bg, height: "100%", fontFamily: "Georgia, serif" }}>
+      <div style={{ position: "relative", height: 110 }}>
+        <img src={c.hero} style={{ width: "100%", height: "100%", objectFit: "cover" }} alt="" />
+        <div style={{ position: "absolute", inset: 0, background: `linear-gradient(to bottom, transparent 20%, ${t.bg})` }} />
+        <div style={{ position: "absolute", bottom: 8, left: 10 }}>
+          {logo && <img src={logo} style={{ height: 18, marginBottom: 3, borderRadius: 3 }} alt="" />}
+          <div style={{ color: t.primary, fontSize: 11, fontWeight: 700, letterSpacing: 1 }}>{name}</div>
+        </div>
+      </div>
+      <div style={{ padding: "6px 8px" }}>
+        <div style={{ color: t.muted, fontSize: 6, textTransform: "uppercase", letterSpacing: 2, marginBottom: 5 }}>Menu del giorno</div>
+        {c.items.map((it, i) => (
+          <div key={i} style={{ display: "flex", justifyContent: "space-between", alignItems: "center", padding: "5px 0", borderBottom: `1px solid ${t.primary}15` }}>
+            <span style={{ color: t.text, fontSize: 7, fontWeight: 500 }}>{it.n}</span>
+            <span style={{ color: t.primary, fontSize: 7, fontWeight: 700 }}>{it.p}</span>
+          </div>
+        ))}
+      </div>
+      <div style={{ margin: "8px 8px", padding: "6px", borderRadius: 8, background: t.primary, textAlign: "center" }}>
+        <span style={{ color: t.bg, fontSize: 7, fontWeight: 700 }}>{c.cta}</span>
+      </div>
+    </div>
+  );
+}
+
+function LayoutLight({ t, c, name, logo }) {
+  // Layout 2: Card-based, header top, griglia 2 colonne
+  return (
+    <div style={{ background: t.bg, height: "100%", fontFamily: "Inter, sans-serif" }}>
+      <div style={{ padding: "12px 10px 6px", display: "flex", alignItems: "center", justifyContent: "space-between" }}>
+        <div style={{ display: "flex", alignItems: "center", gap: 5 }}>
+          {logo && <img src={logo} style={{ height: 16, borderRadius: 3 }} alt="" />}
+          <span style={{ color: t.text, fontSize: 10, fontWeight: 800 }}>{name}</span>
+        </div>
+        <div style={{ width: 18, height: 18, borderRadius: 9, background: t.primary + "15", display: "flex", alignItems: "center", justifyContent: "center" }}>
+          <span style={{ fontSize: 7, color: t.primary }}>☰</span>
+        </div>
+      </div>
+      <div style={{ margin: "0 8px", borderRadius: 10, overflow: "hidden", height: 55 }}>
+        <img src={c.hero} style={{ width: "100%", height: "100%", objectFit: "cover" }} alt="" />
+      </div>
+      <div style={{ padding: "6px 8px", display: "grid", gridTemplateColumns: "1fr 1fr", gap: 5, marginTop: 4 }}>
+        {c.items.map((it, i) => (
+          <div key={i} style={{ background: t.card, borderRadius: 8, padding: 5, border: `1px solid ${t.primary}12`, boxShadow: "0 1px 3px rgba(0,0,0,0.04)" }}>
+            <img src={it.img} style={{ width: "100%", height: 32, objectFit: "cover", borderRadius: 5, marginBottom: 3 }} alt="" />
+            <div style={{ fontSize: 6, fontWeight: 700, color: t.text }}>{it.n}</div>
+            <div style={{ fontSize: 6, color: t.primary, fontWeight: 700, marginTop: 1 }}>{it.p}</div>
+          </div>
+        ))}
+      </div>
+    </div>
+  );
+}
+
+function LayoutVivid({ t, c, name, logo }) {
+  // Layout 3: Bold header band + horizontal scroll items + big CTA
+  return (
+    <div style={{ background: t.bg, height: "100%", fontFamily: "Inter, sans-serif" }}>
+      <div style={{ background: t.primary, padding: "10px 10px 20px", borderRadius: "0 0 20px 20px" }}>
+        <div style={{ display: "flex", alignItems: "center", gap: 5 }}>
+          {logo && <img src={logo} style={{ height: 16, borderRadius: 3, filter: "brightness(10)" }} alt="" />}
+          <span style={{ color: "#fff", fontSize: 11, fontWeight: 900 }}>{name}</span>
+        </div>
+        <p style={{ color: "rgba(255,255,255,0.7)", fontSize: 6, marginTop: 3 }}>Scopri le nostre offerte</p>
+      </div>
+      <div style={{ padding: "8px 8px 0", display: "flex", gap: 6, overflowX: "hidden", marginTop: -10 }}>
+        {c.items.slice(0, 3).map((it, i) => (
+          <div key={i} style={{ minWidth: 70, background: t.card, borderRadius: 10, overflow: "hidden", border: `1px solid ${t.primary}18`, boxShadow: "0 2px 8px rgba(0,0,0,0.06)" }}>
+            <img src={it.img} style={{ width: "100%", height: 42, objectFit: "cover" }} alt="" />
+            <div style={{ padding: "3px 5px 5px" }}>
+              <div style={{ fontSize: 6, fontWeight: 700, color: t.text }}>{it.n}</div>
+              <div style={{ fontSize: 7, fontWeight: 800, color: t.primary }}>{it.p}</div>
+            </div>
+          </div>
+        ))}
+      </div>
+      <div style={{ padding: "6px 8px" }}>
+        <div style={{ fontSize: 7, fontWeight: 800, color: t.text, marginBottom: 4 }}>🔥 Più richiesti</div>
+        {c.items.slice(0, 2).map((it, i) => (
+          <div key={i} style={{ display: "flex", gap: 5, alignItems: "center", marginBottom: 4, background: t.card, borderRadius: 8, padding: 4, border: `1px solid ${t.primary}10` }}>
+            <img src={it.img} style={{ width: 24, height: 24, borderRadius: 6, objectFit: "cover" }} alt="" />
+            <div style={{ flex: 1 }}>
+              <div style={{ fontSize: 6, fontWeight: 600, color: t.text }}>{it.n}</div>
+              <div style={{ fontSize: 6, color: t.accent, fontWeight: 700 }}>{it.p}</div>
+            </div>
+          </div>
+        ))}
+      </div>
+      <div style={{ margin: "4px 8px", padding: "6px", borderRadius: 10, background: `linear-gradient(135deg, ${t.primary}, ${t.accent})`, textAlign: "center" }}>
+        <span style={{ color: "#fff", fontSize: 7, fontWeight: 800 }}>{c.cta} →</span>
+      </div>
+    </div>
+  );
+}
+
+function LayoutPastel({ t, c, name, logo }) {
+  // Layout 4: Rounded/bubbly, avatar circles, soft shadows
+  return (
+    <div style={{ background: `linear-gradient(180deg, ${t.primary}10, ${t.accent}08, ${t.bg})`, height: "100%", fontFamily: "Inter, sans-serif" }}>
+      <div style={{ padding: "12px 10px 8px", textAlign: "center" }}>
+        {logo ? <img src={logo} style={{ height: 20, margin: "0 auto 4px", borderRadius: 5 }} alt="" /> : (
+          <div style={{ width: 28, height: 28, borderRadius: 14, background: `linear-gradient(135deg, ${t.primary}, ${t.accent})`, margin: "0 auto 4px", display: "flex", alignItems: "center", justifyContent: "center" }}>
+            <span style={{ color: "#fff", fontSize: 10, fontWeight: 800 }}>{name[0]}</span>
+          </div>
+        )}
+        <div style={{ color: t.text, fontSize: 10, fontWeight: 800 }}>{name}</div>
+        <p style={{ color: t.muted, fontSize: 6, marginTop: 1 }}>Benvenuto ✨</p>
+      </div>
+      <div style={{ display: "flex", justifyContent: "center", gap: 8, padding: "0 10px", marginBottom: 6 }}>
+        {c.items.slice(0, 3).map((it, i) => (
+          <div key={i} style={{ textAlign: "center" }}>
+            <div style={{ width: 34, height: 34, borderRadius: 17, overflow: "hidden", border: `2px solid ${t.primary}30`, margin: "0 auto" }}>
+              <img src={it.img} style={{ width: "100%", height: "100%", objectFit: "cover" }} alt="" />
+            </div>
+            <div style={{ fontSize: 5, color: t.text, fontWeight: 600, marginTop: 2, maxWidth: 40, overflow: "hidden", textOverflow: "ellipsis", whiteSpace: "nowrap" }}>{it.n}</div>
+          </div>
+        ))}
+      </div>
+      <div style={{ margin: "0 8px", borderRadius: 14, overflow: "hidden", height: 55, boxShadow: "0 4px 20px rgba(0,0,0,0.06)" }}>
+        <img src={c.hero} style={{ width: "100%", height: "100%", objectFit: "cover" }} alt="" />
+      </div>
+      <div style={{ padding: "6px 8px" }}>
+        {c.items.map((it, i) => (
+          <div key={i} style={{ display: "flex", justifyContent: "space-between", alignItems: "center", padding: "4px 6px", marginBottom: 3, borderRadius: 10, background: t.card, boxShadow: "0 1px 4px rgba(0,0,0,0.03)" }}>
+            <span style={{ fontSize: 6, fontWeight: 600, color: t.text }}>{it.n}</span>
+            <span style={{ fontSize: 6, fontWeight: 700, color: t.primary, background: t.primary + "15", borderRadius: 6, padding: "1px 5px" }}>{it.p}</span>
+          </div>
+        ))}
+      </div>
+    </div>
+  );
+}
+
+function LayoutNeon({ t, c, name, logo }) {
+  // Layout 5: Glowing borders, cyberpunk feel, gradient accents
+  return (
+    <div style={{ background: t.bg, height: "100%", fontFamily: "Inter, sans-serif" }}>
+      <div style={{ padding: "10px 10px 6px", display: "flex", alignItems: "center", gap: 5 }}>
+        {logo && <img src={logo} style={{ height: 16, borderRadius: 3 }} alt="" />}
+        <span style={{ fontSize: 10, fontWeight: 900, background: `linear-gradient(90deg, ${t.primary}, ${t.accent})`, WebkitBackgroundClip: "text", WebkitTextFillColor: "transparent" }}>{name}</span>
+      </div>
+      <div style={{ margin: "0 8px", position: "relative", borderRadius: 10, overflow: "hidden", height: 60, border: `1px solid ${t.primary}30`, boxShadow: `0 0 15px ${t.primary}20` }}>
+        <img src={c.hero} style={{ width: "100%", height: "100%", objectFit: "cover", filter: "brightness(0.7) contrast(1.2)" }} alt="" />
+        <div style={{ position: "absolute", bottom: 0, left: 0, right: 0, padding: "3px 8px", background: `linear-gradient(to top, ${t.bg}, transparent)` }}>
+          <span style={{ color: t.primary, fontSize: 7, fontWeight: 800 }}>{c.cta}</span>
+        </div>
+      </div>
+      <div style={{ padding: "6px 8px", marginTop: 4 }}>
+        <div style={{ fontSize: 6, fontWeight: 800, color: t.accent, textTransform: "uppercase", letterSpacing: 2, marginBottom: 4 }}>⚡ Top Picks</div>
+        {c.items.map((it, i) => (
+          <div key={i} style={{ display: "flex", gap: 5, alignItems: "center", marginBottom: 4, padding: "4px 6px", borderRadius: 8, background: t.card, border: `1px solid ${i === 0 ? t.primary + "40" : t.primary + "10"}`, boxShadow: i === 0 ? `0 0 8px ${t.primary}15` : "none" }}>
+            <div style={{ width: 22, height: 22, borderRadius: 5, overflow: "hidden", flexShrink: 0, border: `1px solid ${t.primary}25` }}>
+              <img src={it.img} style={{ width: "100%", height: "100%", objectFit: "cover" }} alt="" />
+            </div>
+            <div style={{ flex: 1 }}>
+              <div style={{ fontSize: 6, fontWeight: 600, color: t.text }}>{it.n}</div>
+            </div>
+            <span style={{ fontSize: 7, fontWeight: 800, color: t.primary }}>{it.p}</span>
+          </div>
+        ))}
+      </div>
+      <div style={{ margin: "2px 8px", height: 2, borderRadius: 1, background: `linear-gradient(90deg, ${t.primary}, ${t.accent}, ${t.primary})` }} />
+    </div>
+  );
+}
+
+const LAYOUTS = [LayoutDark, LayoutLight, LayoutVivid, LayoutPastel, LayoutNeon];
+
+// ─── Wrapper telefono ────────────────────────────────────────
+
+function PhoneFrame({ theme, content, Layout, isCenter, isSelected, onClick, name, logo }) {
+  const PHONE_W = 165;
+  const PHONE_H = 310;
 
   return (
     <button
       onClick={onClick}
-      className="flex-shrink-0 transition-all duration-300 ease-out focus:outline-none"
+      className="flex-shrink-0 focus:outline-none transition-all duration-300"
       style={{
-        width: isCenter ? 200 : 160,
-        opacity: isCenter ? 1 : 0.55,
-        transform: `scale(${isCenter ? 1 : 0.88})`,
+        width: PHONE_W,
+        transform: `scale(${isCenter ? 1.08 : 0.85})`,
+        opacity: isCenter ? 1 : 0.5,
+        zIndex: isCenter ? 10 : 1,
+        filter: isCenter ? "none" : "brightness(0.8)",
       }}
     >
-      {/* Phone frame */}
       <div
-        className={`relative rounded-[24px] overflow-hidden border-[2.5px] transition-all duration-300 ${
-          isSelected
-            ? "border-purple-500 shadow-[0_0_20px_rgba(139,92,246,0.3)]"
-            : dark ? "border-white/10" : "border-black/10"
-        }`}
-        style={{ 
-          background: theme.bgGradient,
-          aspectRatio: "9/18",
+        className="relative overflow-hidden transition-shadow duration-300"
+        style={{
+          width: PHONE_W,
+          height: PHONE_H,
+          borderRadius: 22,
+          border: isSelected ? "2.5px solid #a855f7" : `2.5px solid ${theme.dark ? "rgba(255,255,255,0.1)" : "rgba(0,0,0,0.1)"}`,
+          boxShadow: isSelected
+            ? "0 0 24px rgba(168,85,247,0.35)"
+            : isCenter
+              ? "0 8px 30px rgba(0,0,0,0.4)"
+              : "0 2px 10px rgba(0,0,0,0.2)",
         }}
       >
         {/* Notch */}
-        <div className="absolute top-0 left-1/2 -translate-x-1/2 w-[60px] h-[14px] rounded-b-xl z-20"
-          style={{ background: dark ? "#000" : "#e2e8f0" }}
-        />
-
-        {/* Content inside phone */}
-        <div className="absolute inset-0 pt-[18px] px-[8px] pb-[8px] overflow-hidden">
-          {/* Status bar */}
-          <div className="flex justify-between items-center px-2 mb-2">
-            <span style={{ color: theme.mutedColor, fontSize: 6 }}>9:41</span>
-            <div className="flex gap-0.5">
-              <div className="w-2 h-1.5 rounded-sm" style={{ background: theme.mutedColor }} />
-              <div className="w-2 h-1.5 rounded-sm" style={{ background: theme.mutedColor }} />
-              <div className="w-3 h-1.5 rounded-sm" style={{ background: theme.mutedColor }} />
-            </div>
-          </div>
-
-          {/* App name */}
-          <div className="px-2 mb-2">
-            <span style={{ color: theme.primaryColor, fontSize: 10, fontWeight: 800, fontFamily: theme.fontStyle }}>
-              {content.appName}
-            </span>
-          </div>
-
-          {/* Hero image */}
-          <div className="relative rounded-lg overflow-hidden mb-2" style={{ height: 68 }}>
-            <img src={content.heroImage} className="w-full h-full object-cover" alt="" />
-            <div className="absolute inset-0" style={{ background: `linear-gradient(to top, ${theme.secondaryColor}CC, transparent)` }} />
-            <div className="absolute bottom-1 left-2">
-              <span style={{ color: "#fff", fontSize: 8, fontWeight: 700 }}>{content.cta}</span>
-            </div>
-          </div>
-
-          {/* Badge */}
-          <div className="px-2 mb-1.5">
-            <span
-              className="inline-block rounded-full px-2 py-0.5"
-              style={{ background: theme.primaryColor + "22", color: theme.primaryColor, fontSize: 6, fontWeight: 700 }}
-            >
-              ★ {content.badge}
-            </span>
-          </div>
-
-          {/* Items list */}
-          <div className="space-y-[4px] px-1">
-            {content.items.map((item, i) => (
-              <div
-                key={i}
-                className="flex items-center justify-between rounded-lg px-2 py-[5px]"
-                style={{ background: theme.cardBg, border: `1px solid ${dark ? "rgba(255,255,255,0.06)" : "rgba(0,0,0,0.06)"}` }}
-              >
-                <div className="flex items-center gap-1.5">
-                  <div className="w-[18px] h-[18px] rounded-md" style={{ background: theme.primaryColor + "20" }}>
-                    <div className="w-full h-full rounded-md" style={{ background: `linear-gradient(135deg, ${theme.primaryColor}44, ${theme.accentColor}44)` }} />
-                  </div>
-                  <span style={{ color: theme.textColor, fontSize: 7, fontWeight: 500 }}>{item}</span>
-                </div>
-                <span style={{ color: theme.primaryColor, fontSize: 7, fontWeight: 700 }}>{content.prices[i]}</span>
-              </div>
-            ))}
-          </div>
-
-          {/* Bottom nav */}
-          <div
-            className="absolute bottom-0 left-0 right-0 flex justify-around items-center py-1.5 px-2"
-            style={{ background: theme.cardBg, borderTop: `1px solid ${dark ? "rgba(255,255,255,0.06)" : "rgba(0,0,0,0.06)"}` }}
-          >
-            {["●", "◎", "☰", "♡"].map((icon, i) => (
-              <span key={i} style={{ color: i === 0 ? theme.primaryColor : theme.mutedColor, fontSize: 8 }}>{icon}</span>
-            ))}
-          </div>
+        <div style={{ position: "absolute", top: 0, left: "50%", transform: "translateX(-50%)", width: 50, height: 12, borderRadius: "0 0 10px 10px", background: theme.dark ? "#000" : "#d1d5db", zIndex: 20 }} />
+        {/* Content */}
+        <div style={{ position: "absolute", inset: 0, paddingTop: 14, overflow: "hidden" }}>
+          <Layout t={theme} c={content} name={name} logo={logo} />
         </div>
-
-        {/* Selected overlay */}
+        {/* Selected check */}
         {isSelected && (
-          <div className="absolute top-5 right-2 w-5 h-5 rounded-full bg-purple-500 flex items-center justify-center z-30">
-            <svg className="w-3 h-3 text-white" fill="none" viewBox="0 0 24 24" stroke="currentColor" strokeWidth={3}>
-              <path strokeLinecap="round" strokeLinejoin="round" d="M5 13l4 4L19 7" />
-            </svg>
+          <div style={{ position: "absolute", top: 16, right: 6, width: 18, height: 18, borderRadius: 9, background: "#a855f7", display: "flex", alignItems: "center", justifyContent: "center", zIndex: 30 }}>
+            <svg width="10" height="10" viewBox="0 0 24 24" fill="none" stroke="#fff" strokeWidth="3" strokeLinecap="round" strokeLinejoin="round"><path d="M5 13l4 4L19 7"/></svg>
           </div>
         )}
       </div>
-
-      {/* Theme label under phone */}
-      <div className="mt-2 text-center">
-        <span
-          className="text-[9px] font-bold uppercase tracking-[0.12em] px-2 py-0.5 rounded-full"
-          style={{
-            background: theme.primaryColor + "18",
-            color: theme.primaryColor,
-          }}
-        >
-          {theme.themeTag}
-        </span>
-        <p className="text-[10px] text-gray-400 mt-0.5">{theme.themeName}</p>
+      {/* Label */}
+      <div style={{ marginTop: 8, textAlign: "center" }}>
+        <span style={{ fontSize: 8, fontWeight: 800, textTransform: "uppercase", letterSpacing: 1.5, padding: "2px 8px", borderRadius: 10, background: theme.primary + "20", color: theme.primary }}>{theme.tag}</span>
+        <p style={{ fontSize: 10, color: "#9ca3af", marginTop: 3 }}>{theme.label}</p>
       </div>
     </button>
   );
 }
 
+// ─── Main component ──────────────────────────────────────────
 
 export default function StyleTemplates({ businessType, websiteAnalysis, selected, onSelect }) {
-  const content = BUSINESS_CONTENT[businessType] || BUSINESS_CONTENT._default;
-  const scrollRef = useRef(null);
-  const [centerIdx, setCenterIdx] = useState(2); // Start with middle item
+  const c = CONTENT[businessType] || CONTENT._default;
+  const appName = websiteAnalysis?.name || c.fallbackName;
+  const logo = websiteAnalysis?.logoUrl || null;
 
-  // Scroll to center on mount
+  const scrollRef = useRef(null);
+  const [centerIdx, setCenterIdx] = useState(2);
+
+  // Scroll to middle on mount
   useEffect(() => {
     const el = scrollRef.current;
     if (!el) return;
-    const timer = setTimeout(() => {
-      const phoneWidth = 200;
-      const gap = 12;
-      const containerWidth = el.offsetWidth;
-      const scrollTo = (2 * (phoneWidth + gap)) - (containerWidth / 2) + (phoneWidth / 2);
-      el.scrollTo({ left: Math.max(0, scrollTo), behavior: "auto" });
-    }, 50);
-    return () => clearTimeout(timer);
+    requestAnimationFrame(() => {
+      const containerW = el.offsetWidth;
+      const phoneW = 165;
+      const gap = 16;
+      const scrollTo = 2 * (phoneW + gap) - containerW / 2 + phoneW / 2;
+      el.scrollLeft = Math.max(0, scrollTo);
+    });
   }, []);
 
-  // Track which phone is centered
-  const handleScroll = useCallback(() => {
+  const detectCenter = useCallback(() => {
     const el = scrollRef.current;
     if (!el) return;
     const scrollCenter = el.scrollLeft + el.offsetWidth / 2;
-    const phoneWidth = 200;
-    const gap = 12;
-    const padding = 80;
-    let closestIdx = 0;
-    let closestDist = Infinity;
-    VISUAL_THEMES.forEach((_, i) => {
-      const itemCenter = padding + i * (phoneWidth + gap) + phoneWidth / 2;
-      const dist = Math.abs(scrollCenter - itemCenter);
-      if (dist < closestDist) {
-        closestDist = dist;
-        closestIdx = i;
-      }
-    });
-    setCenterIdx(closestIdx);
+    const phoneW = 165;
+    const gap = 16;
+    const pad = el.offsetWidth / 2 - phoneW / 2;
+    let best = 0, bestDist = Infinity;
+    for (let i = 0; i < 5; i++) {
+      const itemCenter = pad + i * (phoneW + gap) + phoneW / 2;
+      const d = Math.abs(scrollCenter - itemCenter);
+      if (d < bestDist) { bestDist = d; best = i; }
+    }
+    setCenterIdx(best);
   }, []);
+
+  // Snap on scroll end
+  const snapTimer = useRef(null);
+  const onScroll = useCallback(() => {
+    detectCenter();
+    clearTimeout(snapTimer.current);
+    snapTimer.current = setTimeout(() => {
+      const el = scrollRef.current;
+      if (!el) return;
+      const phoneW = 165;
+      const gap = 16;
+      const pad = el.offsetWidth / 2 - phoneW / 2;
+      const target = pad + centerIdx * (phoneW + gap) - (el.offsetWidth / 2 - phoneW / 2);
+      el.scrollTo({ left: target, behavior: "smooth" });
+    }, 150);
+  }, [detectCenter, centerIdx]);
 
   const handleSelect = (theme) => {
     onSelect({
       id: theme.id,
-      name: `${content.appName} — ${theme.themeName}`,
-      category: content.category,
-      description: theme.themeName,
-      primaryColor: theme.primaryColor,
-      secondaryColor: theme.secondaryColor,
-      accentColor: theme.accentColor,
-      darkMode: theme.darkMode,
-      fontStyle: theme.fontStyle,
-      previewItems: content.items,
-      heroImage: content.heroImage,
-      preview: { bg: "", accent: theme.primaryColor, text: theme.accentColor, card: "" },
+      name: `${appName} — ${theme.label}`,
+      category: businessType,
+      description: theme.label,
+      primaryColor: theme.primary,
+      secondaryColor: theme.secondary,
+      accentColor: theme.accent,
+      darkMode: theme.dark,
+      fontStyle: theme.font,
+      previewItems: c.items.map(i => i.n),
+      heroImage: c.hero,
+      preview: { bg: "", accent: theme.primary, text: theme.accent, card: "" },
     });
   };
 
-  // Snap to nearest phone center on scroll end
-  const snapTimeout = useRef(null);
-  const handleScrollEnd = useCallback(() => {
-    clearTimeout(snapTimeout.current);
-    snapTimeout.current = setTimeout(() => {
-      const el = scrollRef.current;
-      if (!el) return;
-      const phoneWidth = 200;
-      const gap = 12;
-      const padding = 80;
-      const targetLeft = padding + centerIdx * (phoneWidth + gap) - (el.offsetWidth / 2) + (phoneWidth / 2);
-      el.scrollTo({ left: Math.max(0, targetLeft), behavior: "smooth" });
-    }, 120);
-  }, [centerIdx]);
-
   return (
     <div className="space-y-4 -mx-4">
-      <div className="text-center mb-2 px-4">
+      <div className="text-center px-4 mb-1">
         <h2 className="text-lg font-black text-white">Scegli lo stile</h2>
-        <p className="text-xs text-gray-400 mt-1">Scorri per esplorare i 5 temi — tocca per selezionare</p>
+        <p className="text-xs text-gray-400 mt-1">Scorri e tocca il design che preferisci</p>
       </div>
 
-      {/* Horizontal scrollable carousel */}
       <div
         ref={scrollRef}
-        onScroll={() => { handleScroll(); handleScrollEnd(); }}
-        className="flex gap-3 overflow-x-auto pb-4 pt-2 no-scrollbar"
+        onScroll={onScroll}
+        className="flex gap-4 overflow-x-auto pb-4 pt-2"
         style={{
           scrollSnapType: "x mandatory",
           WebkitOverflowScrolling: "touch",
-          paddingLeft: 80,
-          paddingRight: 80,
+          scrollbarWidth: "none",
+          msOverflowStyle: "none",
         }}
       >
-        {VISUAL_THEMES.map((theme, i) => (
+        {/* Padding spacers for centering first/last items */}
+        <div className="flex-shrink-0" style={{ width: `calc(50vw - 82px)` }} />
+        {THEMES.map((theme, i) => (
           <div key={theme.id} style={{ scrollSnapAlign: "center" }}>
-            <PhoneMockup
+            <PhoneFrame
               theme={theme}
-              content={content}
+              content={c}
+              Layout={LAYOUTS[i]}
               isCenter={i === centerIdx}
               isSelected={selected?.id === theme.id}
               onClick={() => handleSelect(theme)}
+              name={appName}
+              logo={logo}
             />
           </div>
         ))}
+        <div className="flex-shrink-0" style={{ width: `calc(50vw - 82px)` }} />
       </div>
 
-      {/* Dots indicator */}
-      <div className="flex justify-center gap-1.5 px-4">
-        {VISUAL_THEMES.map((_, i) => (
-          <div
-            key={i}
-            className="rounded-full transition-all duration-300"
-            style={{
-              width: i === centerIdx ? 18 : 5,
-              height: 5,
-              background: i === centerIdx ? VISUAL_THEMES[centerIdx].primaryColor : "rgba(255,255,255,0.15)",
-            }}
-          />
+      {/* Dots */}
+      <div className="flex justify-center gap-1.5">
+        {THEMES.map((_, i) => (
+          <div key={i} className="rounded-full transition-all duration-300" style={{
+            width: i === centerIdx ? 20 : 5,
+            height: 5,
+            background: i === centerIdx ? THEMES[centerIdx].primary : "rgba(255,255,255,0.12)",
+          }} />
         ))}
       </div>
 
-      {/* Custom / scratch option */}
+      {/* Scratch option */}
       <div className="px-4">
         <button
           onClick={() => onSelect({
@@ -399,14 +478,13 @@ export default function StyleTemplates({ businessType, websiteAnalysis, selected
           </div>
           <div className="text-left">
             <h3 className="text-sm font-bold text-white">Crea da zero con AI</h3>
-            <p className="text-[10px] text-gray-500 leading-relaxed">Stile completamente personalizzato</p>
+            <p className="text-[10px] text-gray-500">Stile completamente personalizzato</p>
           </div>
         </button>
       </div>
 
       <style>{`
-        .no-scrollbar::-webkit-scrollbar { display: none; }
-        .no-scrollbar { -ms-overflow-style: none; scrollbar-width: none; }
+        div::-webkit-scrollbar { display: none; }
       `}</style>
     </div>
   );
