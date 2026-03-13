@@ -31,10 +31,31 @@ const SECTION_MAP = {
   features: FeaturesSection,
 };
 
-export default function DynamicAppRenderer({ data }) {
+export default function DynamicAppRenderer({ data, editable, onDataChange }) {
   if (!data) return null;
 
   const { appName, tagline, primaryColor, secondaryColor, accentColor, headerStyle, darkMode, fontStyle, sections, bottomNav } = data;
+
+  const handleItemChange = (sectionIndex, itemIndex, field, value) => {
+    if (!onDataChange) return;
+    const newData = { ...data, sections: data.sections.map((s, si) => {
+      if (si !== sectionIndex) return s;
+      return { ...s, items: s.items.map((item, ii) => {
+        if (ii !== itemIndex) return item;
+        return { ...item, [field]: value };
+      })};
+    })};
+    onDataChange(newData);
+  };
+
+  const handleSectionChange = (sectionIndex, field, value) => {
+    if (!onDataChange) return;
+    const newData = { ...data, sections: data.sections.map((s, si) => {
+      if (si !== sectionIndex) return s;
+      return { ...s, [field]: value };
+    })};
+    onDataChange(newData);
+  };
 
   return (
     <div className="min-h-full flex flex-col" style={{ background: darkMode === false ? "#fafafa" : "#0f0f1a" }}>
