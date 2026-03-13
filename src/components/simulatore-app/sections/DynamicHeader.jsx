@@ -1,45 +1,59 @@
 import React from "react";
 import EditableField from "../EditableField";
 
-export default function DynamicHeader({ appName, tagline, primaryColor, secondaryColor, style, fontStyle, darkMode, editable, onAppNameChange, onTaglineChange }) {
+export default function DynamicHeader({ appName, tagline, primaryColor, secondaryColor, logoUrl, style, fontStyle, darkMode, editable, onAppNameChange, onTaglineChange }) {
   const isSerif = fontStyle === "serif";
+  const bgColor = darkMode === false ? (secondaryColor || "#F5F0E8") : "#0a0a0a";
 
   return (
-    <div className="relative overflow-hidden" style={{ minHeight: 160 }}>
+    <div className="relative overflow-hidden" style={{ minHeight: logoUrl ? 130 : 160 }}>
       <div className="absolute inset-0" style={{
         background: style === "gradient"
-          ? `linear-gradient(145deg, ${primaryColor} 0%, ${secondaryColor || primaryColor}90 50%, #0f0f1a 100%)`
-          : primaryColor
+          ? `linear-gradient(145deg, ${primaryColor}30 0%, ${bgColor} 100%)`
+          : bgColor
       }} />
-      <div className="absolute top-0 right-0 w-40 h-40 rounded-full opacity-20 blur-3xl" style={{ background: primaryColor }} />
-      <div className="absolute bottom-0 left-0 w-32 h-32 rounded-full opacity-10 blur-3xl" style={{ background: secondaryColor || primaryColor }} />
-      
-      <div className="absolute right-2 top-4 bottom-4 flex items-center">
-        <span className="text-[8px] text-white/10 tracking-[0.3em] font-semibold uppercase" style={{ writingMode: "vertical-rl" }}>
-          DISCOVER
-        </span>
-      </div>
+      <div className="absolute top-0 right-0 w-40 h-40 rounded-full opacity-10 blur-3xl" style={{ background: primaryColor }} />
 
-      <div className="relative z-10 px-5 pt-10 pb-6">
-        <EditableField
-          value={appName}
-          onChange={onAppNameChange}
-          tag="h1"
-          className="text-white leading-tight tracking-tight"
-          style={{ 
-            fontSize: 28, fontWeight: 800,
-            fontFamily: isSerif ? "Georgia, 'Times New Roman', serif" : "inherit",
-            letterSpacing: isSerif ? "-0.02em" : "-0.01em",
-            lineHeight: 1.15,
-          }}
-        />
+      <div className="relative z-10 px-5 pt-8 pb-5">
+        {/* Logo */}
+        {logoUrl && (
+          <div className="mb-3">
+            <img 
+              src={logoUrl} 
+              alt={appName} 
+              className="h-12 object-contain" 
+              style={{ maxWidth: 160 }}
+              onError={e => { e.target.style.display = 'none'; }}
+            />
+          </div>
+        )}
+        
+        {!logoUrl && (
+          <EditableField
+            value={appName}
+            onChange={onAppNameChange}
+            tag="h1"
+            className="leading-tight tracking-tight"
+            style={{ 
+              fontSize: 28, fontWeight: 800,
+              color: darkMode === false ? "#1a1a1a" : "#fff",
+              fontFamily: isSerif ? "Georgia, 'Times New Roman', serif" : "inherit",
+              letterSpacing: isSerif ? "-0.02em" : "-0.01em",
+              lineHeight: 1.15,
+            }}
+          />
+        )}
+        
         {tagline && (
           <EditableField
             value={tagline}
             onChange={onTaglineChange}
             tag="p"
-            className="text-white/45 mt-2 text-sm font-light leading-relaxed"
-            style={{ maxWidth: "85%" }}
+            className="mt-2 text-sm font-light leading-relaxed"
+            style={{ 
+              maxWidth: "85%",
+              color: darkMode === false ? "rgba(0,0,0,0.5)" : "rgba(255,255,255,0.45)",
+            }}
           />
         )}
         <div className="mt-4 w-10 h-[1px] opacity-30" style={{ background: primaryColor }} />

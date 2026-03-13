@@ -34,7 +34,7 @@ const SECTION_MAP = {
 export default function DynamicAppRenderer({ data, editable, onDataChange }) {
   if (!data) return null;
 
-  const { appName, tagline, primaryColor, secondaryColor, accentColor, headerStyle, darkMode, fontStyle, sections, bottomNav } = data;
+  const { appName, tagline, logoUrl, primaryColor, secondaryColor, accentColor, headerStyle, darkMode, fontStyle, sections, bottomNav } = data;
 
   const handleItemChange = (sectionIndex, itemIndex, field, value) => {
     if (!onDataChange) return;
@@ -58,7 +58,7 @@ export default function DynamicAppRenderer({ data, editable, onDataChange }) {
   };
 
   return (
-    <div className="min-h-full flex flex-col" style={{ background: darkMode === false ? "#fafafa" : "#0f0f1a" }}>
+    <div className="min-h-full flex flex-col" style={{ background: darkMode === false ? (secondaryColor || "#fafafa") : "#0a0a0a" }}>
       {/* Decorative vertical text */}
       <div className="fixed right-1 top-1/2 -translate-y-1/2 z-0 pointer-events-none">
         <span className="text-[7px] text-white/[0.04] tracking-[0.35em] font-semibold uppercase" style={{ writingMode: "vertical-rl" }}>
@@ -69,6 +69,7 @@ export default function DynamicAppRenderer({ data, editable, onDataChange }) {
       <DynamicHeader
         appName={appName}
         tagline={tagline}
+        logoUrl={logoUrl}
         primaryColor={primaryColor}
         secondaryColor={secondaryColor}
         style={headerStyle}
