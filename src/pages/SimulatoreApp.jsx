@@ -90,6 +90,8 @@ export default function SimulatoreApp() {
   const fileInputRef = useRef(null);
   const navigate = useNavigate();
 
+  useDisablePullToRefresh();
+
   useEffect(() => {
     base44.auth.me().then(setUser).catch(() => {});
   }, []);
