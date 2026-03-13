@@ -187,6 +187,10 @@ export default function SimulatoreApp() {
 
   const handleWizardComplete = (prompt, wizardData) => {
     setShowWizard(false);
+    // Passa il template scelto per poterlo usare nella preview
+    if (wizardData?.selectedTemplate) {
+      sessionStorage.setItem("simulatore_template", JSON.stringify(wizardData.selectedTemplate));
+    }
     generateApp(prompt);
   };
 
