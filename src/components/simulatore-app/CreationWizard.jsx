@@ -92,24 +92,36 @@ export default function CreationWizard({ onComplete }) {
     setAnalyzingWebsite(true);
     try {
       const result = await base44.integrations.Core.InvokeLLM({
-        prompt: `Analizza questo sito web di un'attività: ${data.websiteUrl}
-Estrai queste informazioni se disponibili:
-- Nome dell'attività
-- Colore primario (hex)
-- Colore secondario (hex)
-- Stile generale (moderno, classico, minimalista, lusso, ecc.)
-- Descrizione breve dell'attività
-- Tipo di attività`,
+        prompt: `Analizza in dettaglio questo sito web: ${data.websiteUrl}
+
+Estrai TUTTE queste informazioni:
+1. Nome dell'attività
+2. Colore primario (hex esatto dal sito)
+3. Colore secondario (hex esatto dal sito)
+4. Stile grafico generale (moderno, classico, minimalista, lusso, rustico, ecc.)
+5. Descrizione dell'attività (cosa fa, cosa offre)
+6. Tipo di attività (ristorazione, beauty, fitness, ecommerce, servizi, ecc.)
+7. Le SEZIONI del sito nell'ORDINE ESATTO in cui appaiono (es: hero, menu, chi siamo, gallery, recensioni, contatti...)
+8. I CONTENUTI principali: nomi di piatti/servizi/prodotti, prezzi, categorie, descrizioni che trovi nel sito
+9. URL del logo se visibile
+10. Orari di apertura, indirizzo, telefono se presenti`,
         add_context_from_internet: true,
         response_json_schema: {
           type: "object",
           properties: {
-            name: { type: "string" },
-            primaryColor: { type: "string" },
-            secondaryColor: { type: "string" },
-            style: { type: "string" },
-            description: { type: "string" },
-            businessType: { type: "string" },
+            name: { type: "string", description: "Nome attività" },
+            primaryColor: { type: "string", description: "Colore primario hex" },
+            secondaryColor: { type: "string", description: "Colore secondario hex" },
+            style: { type: "string", description: "Stile grafico" },
+            description: { type: "string", description: "Descrizione attività" },
+            businessType: { type: "string", description: "Tipo attività" },
+            sectionsOrder: { type: "array", items: { type: "string" }, description: "Ordine sezioni del sito (es: hero, menu, about, gallery, reviews, contact)" },
+            menuItems: { type: "array", items: { type: "object", properties: { name: { type: "string" }, description: { type: "string" }, price: { type: "string" }, category: { type: "string" } } }, description: "Piatti/servizi/prodotti trovati con prezzi" },
+            categories: { type: "array", items: { type: "string" }, description: "Categorie di prodotti/servizi" },
+            address: { type: "string" },
+            phone: { type: "string" },
+            hours: { type: "string" },
+            logoUrl: { type: "string" },
           },
         },
         model: "gemini_3_flash",
@@ -245,7 +257,7 @@ Usa ESATTAMENTE i colori e lo stile del template scelto.`;
                   <span className="text-xs font-bold text-green-400">Sito analizzato!</span>
                 </div>
                 <div className="flex items-center gap-2 mt-2">
-                  <span className="text-[10px] text-gray-400">Colori trovati:</span>
+                  <span className="text-[10px] text-gray-400">Colori:</span>
                   {data.websiteAnalysis.primaryColor && (
                     <div className="w-5 h-5 rounded-full border border-white/20" style={{ background: data.websiteAnalysis.primaryColor }} />
                   )}
@@ -254,6 +266,17 @@ Usa ESATTAMENTE i colori e lo stile del template scelto.`;
                   )}
                   <span className="text-[10px] text-gray-500">{data.websiteAnalysis.style}</span>
                 </div>
+                {data.websiteAnalysis.sectionsOrder?.length > 0 && (
+                  <div className="mt-2 flex flex-wrap gap-1">
+                    <span className="text-[10px] text-gray-400">Sezioni:</span>
+                    {data.websiteAnalysis.sectionsOrder.map((s, i) => (
+                      <span key={i} className="text-[9px] bg-green-500/15 text-green-400 rounded-full px-1.5 py-0.5">{s}</span>
+                    ))}
+                  </div>
+                )}
+                {data.websiteAnalysis.menuItems?.length > 0 && (
+                  <p className="text-[10px] text-green-400/70 mt-1">📋 {data.websiteAnalysis.menuItems.length} prodotti/servizi trovati</p>
+                )}
               </div>
             )}
           </div>
