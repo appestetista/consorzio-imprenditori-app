@@ -500,7 +500,7 @@ export default function SimulatoreInterattivo({ user }) {
                                 inputMode="numeric"
                                 value={val}
                                 onChange={e => updCat(v.k, Math.max(0, Number(e.target.value) || 0))}
-                                className="text-xs font-bold text-gray-200 text-right bg-transparent border-b border-gray-600 focus:border-blue-500 outline-none w-20 px-1 [appearance:textfield] [&::-webkit-outer-spin-button]:appearance-none [&::-webkit-inner-spin-button]:appearance-none"
+                                className="text-xs font-bold text-white text-right bg-slate-800 border border-slate-600 focus:border-blue-500 rounded px-2 py-0.5 outline-none w-24 [appearance:textfield] [&::-webkit-outer-spin-button]:appearance-none [&::-webkit-inner-spin-button]:appearance-none"
                               />
                             </div>
                             <input type="range" min={0} max={mx} step={500} value={val}
