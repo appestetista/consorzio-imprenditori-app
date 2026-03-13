@@ -14,8 +14,9 @@ REGOLE ASSOLUTE DI DESIGN:
 - Ogni app DEVE avere un nome proprio professionale, palette cromatica forte e riconoscibile.
 
 IMMAGINI — REGOLA FONDAMENTALE:
-- OGNI item DEVE avere un campo "image_url" con un URL Unsplash REALE e pertinente.
-- Formato URL: https://images.unsplash.com/photo-XXXXXXXXX?w=400&h=300&fit=crop
+- OGNI item DEVE avere un campo "image_url".
+- PRIORITÀ IMMAGINI: 1) Se l'utente ha fornito un sito web e sono state estratte immagini originali, USA QUELLE (sono di proprietà dell'utente). 2) Solo se non ci sono immagini dal sito, usa Unsplash.
+- Formato URL Unsplash: https://images.unsplash.com/photo-XXXXXXXXX?w=400&h=300&fit=crop
 - Usa SOLO photo ID che conosci esistere su Unsplash. Ecco ID sicuri per categoria:
   RISTORAZIONE: photo-1504674900247-0877df9cc836 (pasta), photo-1565299624946-b28f40a0ae38 (pizza), photo-1555939594-58d7cb561ad1 (carne), photo-1546069901-ba9599a7e63c (dessert), photo-1551782450-a2132b4ba21d (hamburger), photo-1414235077428-338989a2e8c0 (pesce), photo-1563379091339-03b21ab4a4f4 (cocktail), photo-1517248135467-4c7edcad34c4 (ristorante interno), photo-1552566626-52f8b828add9 (ristorante elegante)
   BEAUTY: photo-1560066984-138dadb4c035 (salone), photo-1522335789203-aabd1fc54bc9 (manicure), photo-1487412947147-5cebf100ffc2 (capelli), photo-1570172619644-dfd03ed5d881 (spa), photo-1616394584738-fc6e612e71b9 (trattamento viso)
