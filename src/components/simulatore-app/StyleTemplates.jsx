@@ -1,407 +1,413 @@
-import React, { useState } from "react";
-import { Sparkles, Plus } from "lucide-react";
+import React, { useState, useRef, useEffect, useCallback } from "react";
+import { Sparkles } from "lucide-react";
 
-// Prototipi completi di app reali — ognuno è un'app finita con contenuti, immagini e sezioni
-const APP_PROTOTYPES = {
-  ristorazione: [
-    {
-      id: "rist_sushi",
-      name: "Sakura Sushi",
-      category: "Ristorante Giapponese",
-      heroImage: "https://images.unsplash.com/photo-1579871494447-9811cf80d66c?w=600&h=400&fit=crop",
-      primaryColor: "#D4A574",
-      secondaryColor: "#1a1a1a",
-      accentColor: "#E8C9A0",
-      darkMode: true,
-      fontStyle: "serif",
-      screenshots: [
-        "https://images.unsplash.com/photo-1579871494447-9811cf80d66c?w=300&h=500&fit=crop",
-        "https://images.unsplash.com/photo-1553621042-f6e147245754?w=300&h=500&fit=crop",
-      ],
-      description: "Elegante e scuro, accenti dorati. Perfetto per ristoranti gourmet e fine dining.",
-      previewItems: ["Sashimi Misto", "Ramen Tonkotsu", "Gyoza", "Matcha Tiramisu"],
-    },
-    {
-      id: "rist_pizza",
-      name: "Napoli Express",
-      category: "Pizzeria & Delivery",
-      heroImage: "https://images.unsplash.com/photo-1565299624946-b28f40a0ae38?w=600&h=400&fit=crop",
-      primaryColor: "#E53935",
-      secondaryColor: "#FFFFFF",
-      accentColor: "#FF7043",
-      darkMode: false,
-      fontStyle: "sans-serif",
-      screenshots: [
-        "https://images.unsplash.com/photo-1565299624946-b28f40a0ae38?w=300&h=500&fit=crop",
-        "https://images.unsplash.com/photo-1574071318508-1cdbab80d002?w=300&h=500&fit=crop",
-      ],
-      description: "Rosso e bianco, layout dinamico. Ideale per pizzerie, delivery, fast casual.",
-      previewItems: ["Margherita DOP", "Diavola", "Calzone Fritto", "Tiramisù"],
-    },
-    {
-      id: "rist_bio",
-      name: "Verde & Crudo",
-      category: "Bistrot Bio & Vegan",
-      heroImage: "https://images.unsplash.com/photo-1512621776951-a57141f2eefd?w=600&h=400&fit=crop",
-      primaryColor: "#2E7D32",
-      secondaryColor: "#FFF8E1",
-      accentColor: "#66BB6A",
-      darkMode: false,
-      fontStyle: "sans-serif",
-      screenshots: [
-        "https://images.unsplash.com/photo-1512621776951-a57141f2eefd?w=300&h=500&fit=crop",
-        "https://images.unsplash.com/photo-1490818387583-1baba5e638af?w=300&h=500&fit=crop",
-      ],
-      description: "Toni verdi e crema, stile naturale. Bistrot, vegan, farm-to-table.",
-      previewItems: ["Buddha Bowl", "Smoothie Verde", "Avocado Toast", "Poke Bowl"],
-    },
-  ],
-  beauty: [
-    {
-      id: "beauty_glam",
-      name: "Glam Studio",
-      category: "Salone di Bellezza",
-      heroImage: "https://images.unsplash.com/photo-1560066984-138dadb4c035?w=600&h=400&fit=crop",
-      primaryColor: "#E91E63",
-      secondaryColor: "#FCE4EC",
-      accentColor: "#F48FB1",
-      darkMode: false,
-      fontStyle: "sans-serif",
-      screenshots: [
-        "https://images.unsplash.com/photo-1560066984-138dadb4c035?w=300&h=500&fit=crop",
-        "https://images.unsplash.com/photo-1522335789203-aabd1fc54bc9?w=300&h=500&fit=crop",
-      ],
-      description: "Rosa delicato, look femminile e pulito. Centri estetici e parrucchieri.",
-      previewItems: ["Taglio & Piega", "Manicure Gel", "Trattamento Viso", "Extension Ciglia"],
-    },
-    {
-      id: "beauty_spa",
-      name: "Oasi Wellness",
-      category: "Spa & Centro Benessere",
-      heroImage: "https://images.unsplash.com/photo-1570172619644-dfd03ed5d881?w=600&h=400&fit=crop",
-      primaryColor: "#CFB991",
-      secondaryColor: "#0D0D0D",
-      accentColor: "#E8D5B5",
-      darkMode: true,
-      fontStyle: "serif",
-      screenshots: [
-        "https://images.unsplash.com/photo-1570172619644-dfd03ed5d881?w=300&h=500&fit=crop",
-        "https://images.unsplash.com/photo-1616394584738-fc6e612e71b9?w=300&h=500&fit=crop",
-      ],
-      description: "Nero e oro, lusso premium. Spa, centri benessere esclusivi.",
-      previewItems: ["Massaggio Hot Stone", "Percorso Termale", "Facial Luxury", "Scrub Corpo"],
-    },
-    {
-      id: "beauty_barber",
-      name: "The Barber Club",
-      category: "Barbiere & Grooming",
-      heroImage: "https://images.unsplash.com/photo-1503951914875-452162b0f3f1?w=600&h=400&fit=crop",
-      primaryColor: "#00BCD4",
-      secondaryColor: "#E0F7FA",
-      accentColor: "#4DD0E1",
-      darkMode: false,
-      fontStyle: "sans-serif",
-      screenshots: [
-        "https://images.unsplash.com/photo-1503951914875-452162b0f3f1?w=300&h=500&fit=crop",
-        "https://images.unsplash.com/photo-1521590832167-7bcbfaa6381f?w=300&h=500&fit=crop",
-      ],
-      description: "Turchese e bianco, fresco e moderno. Barber shop e centri unisex.",
-      previewItems: ["Taglio Classico", "Barba & Baffi", "Trattamento Scalpo", "Rasatura Luxury"],
-    },
-  ],
-  fitness: [
-    {
-      id: "fit_crossfit",
-      name: "Iron Box",
-      category: "CrossFit & Functional",
-      heroImage: "https://images.unsplash.com/photo-1534438327276-14e5300c3a48?w=600&h=400&fit=crop",
-      primaryColor: "#AEEA00",
-      secondaryColor: "#0a0a0a",
-      accentColor: "#C6FF00",
-      darkMode: true,
-      fontStyle: "sans-serif",
-      screenshots: [
-        "https://images.unsplash.com/photo-1534438327276-14e5300c3a48?w=300&h=500&fit=crop",
-        "https://images.unsplash.com/photo-1571019613454-1cb2f99b2d8b?w=300&h=500&fit=crop",
-      ],
-      description: "Nero con neon lime. Energia pura per palestre e CrossFit.",
-      previewItems: ["WOD del Giorno", "Abbonamento Monthly", "PT 1-to-1", "Open Gym"],
-    },
-    {
-      id: "fit_pt",
-      name: "FitPro Training",
-      category: "Personal Trainer",
-      heroImage: "https://images.unsplash.com/photo-1571019613454-1cb2f99b2d8b?w=600&h=400&fit=crop",
-      primaryColor: "#FF6D00",
-      secondaryColor: "#121212",
-      accentColor: "#FF9100",
-      darkMode: true,
-      fontStyle: "sans-serif",
-      screenshots: [
-        "https://images.unsplash.com/photo-1571019613454-1cb2f99b2d8b?w=300&h=500&fit=crop",
-        "https://images.unsplash.com/photo-1517836357463-d25dfeac3438?w=300&h=500&fit=crop",
-      ],
-      description: "Arancio e nero, dinamico e potente. Personal trainer, bootcamp.",
-      previewItems: ["Scheda Personalizzata", "Sessione PT", "Nutrizione", "Check-up Corpo"],
-    },
-    {
-      id: "fit_yoga",
-      name: "Zen Flow",
-      category: "Yoga & Pilates",
-      heroImage: "https://images.unsplash.com/photo-1574680096145-d05b474e2155?w=600&h=400&fit=crop",
-      primaryColor: "#1565C0",
-      secondaryColor: "#E3F2FD",
-      accentColor: "#42A5F5",
-      darkMode: false,
-      fontStyle: "sans-serif",
-      screenshots: [
-        "https://images.unsplash.com/photo-1574680096145-d05b474e2155?w=300&h=500&fit=crop",
-        "https://images.unsplash.com/photo-1544367567-0f2fcb009e0b?w=300&h=500&fit=crop",
-      ],
-      description: "Blu e bianco, armonioso. Centri yoga, pilates, meditazione.",
-      previewItems: ["Hatha Yoga", "Pilates Reformer", "Meditazione", "Stretching"],
-    },
-  ],
-  ecommerce: [
-    {
-      id: "ecom_fashion",
-      name: "Maison Style",
-      category: "Moda & Accessori",
-      heroImage: "https://images.unsplash.com/photo-1441986300917-64674bd600d8?w=600&h=400&fit=crop",
-      primaryColor: "#212121",
-      secondaryColor: "#FFFFFF",
-      accentColor: "#FF4081",
-      darkMode: false,
-      fontStyle: "sans-serif",
-      screenshots: [
-        "https://images.unsplash.com/photo-1441986300917-64674bd600d8?w=300&h=500&fit=crop",
-        "https://images.unsplash.com/photo-1556742049-0cfed4f6a45d?w=300&h=500&fit=crop",
-      ],
-      description: "Minimalista Apple-style. Bianco e nero con accento rosa. Moda e accessori.",
-      previewItems: ["Giacca in Pelle", "Sneakers Limited", "Borsa Tote", "Occhiali da Sole"],
-    },
-    {
-      id: "ecom_marketplace",
-      name: "ShopZone",
-      category: "Marketplace Generale",
-      heroImage: "https://images.unsplash.com/photo-1556742049-0cfed4f6a45d?w=600&h=400&fit=crop",
-      primaryColor: "#7C4DFF",
-      secondaryColor: "#FFFFFF",
-      accentColor: "#FF6E40",
-      darkMode: false,
-      fontStyle: "sans-serif",
-      screenshots: [
-        "https://images.unsplash.com/photo-1556742049-0cfed4f6a45d?w=300&h=500&fit=crop",
-        "https://images.unsplash.com/photo-1523275335684-37898b6baf30?w=300&h=500&fit=crop",
-      ],
-      description: "Viola e arancio, vivace e dinamico. Marketplace multi-categoria.",
-      previewItems: ["Elettronica", "Casa & Design", "Sport", "Beauty"],
-    },
-    {
-      id: "ecom_tech",
-      name: "TechVault",
-      category: "Elettronica & Tech",
-      heroImage: "https://images.unsplash.com/photo-1523275335684-37898b6baf30?w=600&h=400&fit=crop",
-      primaryColor: "#00E5FF",
-      secondaryColor: "#121212",
-      accentColor: "#18FFFF",
-      darkMode: true,
-      fontStyle: "sans-serif",
-      screenshots: [
-        "https://images.unsplash.com/photo-1523275335684-37898b6baf30?w=300&h=500&fit=crop",
-        "https://images.unsplash.com/photo-1505740420928-5e560c06d30e?w=300&h=500&fit=crop",
-      ],
-      description: "Dark premium, accenti cyan. Elettronica, tech, prodotti premium.",
-      previewItems: ["AirPods Pro", "Smart Watch", "Speaker BT", "Drone Mini"],
-    },
-  ],
-  _default: [
-    {
-      id: "def_studio",
-      name: "Studio Pro",
-      category: "Studio Professionale",
-      heroImage: "https://images.unsplash.com/photo-1497366216548-37526070297c?w=600&h=400&fit=crop",
-      primaryColor: "#1565C0",
-      secondaryColor: "#FFFFFF",
-      accentColor: "#42A5F5",
-      darkMode: false,
-      fontStyle: "sans-serif",
-      screenshots: [
-        "https://images.unsplash.com/photo-1497366216548-37526070297c?w=300&h=500&fit=crop",
-        "https://images.unsplash.com/photo-1497215842964-222b430dc094?w=300&h=500&fit=crop",
-      ],
-      description: "Blu professionale, affidabile. Studi professionali, consulenze, agenzie.",
-      previewItems: ["Consulenza", "Assistenza", "Formazione", "Analisi"],
-    },
-    {
-      id: "def_creative",
-      name: "Creative Agency",
-      category: "Agenzia Creativa",
-      heroImage: "https://images.unsplash.com/photo-1542744173-8e7e53415bb0?w=600&h=400&fit=crop",
-      primaryColor: "#BB86FC",
-      secondaryColor: "#121212",
-      accentColor: "#CF6679",
-      darkMode: true,
-      fontStyle: "sans-serif",
-      screenshots: [
-        "https://images.unsplash.com/photo-1542744173-8e7e53415bb0?w=300&h=500&fit=crop",
-        "https://images.unsplash.com/photo-1522071820081-009f0129c71c?w=300&h=500&fit=crop",
-      ],
-      description: "Scuro con viola, moderno e creativo. Agenzie, startup, tech.",
-      previewItems: ["Branding", "Web Design", "Social Media", "Campagne ADV"],
-    },
-    {
-      id: "def_green",
-      name: "EcoService",
-      category: "Servizi Innovativi",
-      heroImage: "https://images.unsplash.com/photo-1497215842964-222b430dc094?w=600&h=400&fit=crop",
-      primaryColor: "#00897B",
-      secondaryColor: "#E0F2F1",
-      accentColor: "#26A69A",
-      darkMode: false,
-      fontStyle: "sans-serif",
-      screenshots: [
-        "https://images.unsplash.com/photo-1497215842964-222b430dc094?w=300&h=500&fit=crop",
-        "https://images.unsplash.com/photo-1553877522-43269d4ea984?w=300&h=500&fit=crop",
-      ],
-      description: "Turchese e bianco, fresco. Startup e servizi innovativi.",
-      previewItems: ["Audit Energetico", "Consulenza Green", "Report ESG", "Formazione"],
-    },
-  ],
+// 5 TEMI VISIVI universali — ogni business type li usa tutti, cambia solo il contenuto
+const VISUAL_THEMES = [
+  {
+    id: "dark_elegance",
+    themeName: "Scuro Elegante",
+    themeTag: "DARK",
+    primaryColor: "#D4A574",
+    secondaryColor: "#0a0a0a",
+    accentColor: "#E8C9A0",
+    darkMode: true,
+    fontStyle: "serif",
+    bgGradient: "linear-gradient(180deg, #0a0a0a 0%, #1a1020 50%, #0a0a0a 100%)",
+    cardBg: "#141414",
+    textColor: "#FFFFFF",
+    mutedColor: "#888",
+  },
+  {
+    id: "light_clean",
+    themeName: "Chiaro Pulito",
+    themeTag: "LIGHT",
+    primaryColor: "#1565C0",
+    secondaryColor: "#FFFFFF",
+    accentColor: "#42A5F5",
+    darkMode: false,
+    fontStyle: "sans-serif",
+    bgGradient: "linear-gradient(180deg, #F8FAFC 0%, #EEF2FF 50%, #F8FAFC 100%)",
+    cardBg: "#FFFFFF",
+    textColor: "#1a1a2e",
+    mutedColor: "#94a3b8",
+  },
+  {
+    id: "vivid_bold",
+    themeName: "Colori Accesi",
+    themeTag: "VIVID",
+    primaryColor: "#E53935",
+    secondaryColor: "#FFFFFF",
+    accentColor: "#FF6D00",
+    darkMode: false,
+    fontStyle: "sans-serif",
+    bgGradient: "linear-gradient(180deg, #FFF5F5 0%, #FFF0E6 50%, #FFF5F5 100%)",
+    cardBg: "#FFFFFF",
+    textColor: "#1a1a2e",
+    mutedColor: "#94a3b8",
+  },
+  {
+    id: "pastel_soft",
+    themeName: "Pastello Morbido",
+    themeTag: "PASTEL",
+    primaryColor: "#A78BFA",
+    secondaryColor: "#FDF4FF",
+    accentColor: "#F9A8D4",
+    darkMode: false,
+    fontStyle: "sans-serif",
+    bgGradient: "linear-gradient(180deg, #FDF4FF 0%, #F0F4FF 50%, #FFF1F2 100%)",
+    cardBg: "#FFFFFF",
+    textColor: "#3B1F6E",
+    mutedColor: "#a78bfa",
+  },
+  {
+    id: "neon_fluo",
+    themeName: "Fluo Neon",
+    themeTag: "NEON",
+    primaryColor: "#00E5FF",
+    secondaryColor: "#050510",
+    accentColor: "#AEEA00",
+    darkMode: true,
+    fontStyle: "sans-serif",
+    bgGradient: "linear-gradient(180deg, #050510 0%, #0a0a20 50%, #050510 100%)",
+    cardBg: "#0d0d1f",
+    textColor: "#FFFFFF",
+    mutedColor: "#555",
+  },
+];
+
+// Contenuti per business type
+const BUSINESS_CONTENT = {
+  ristorazione: {
+    appName: "Gusto App",
+    heroImage: "https://images.unsplash.com/photo-1517248135467-4c7edcad34c4?w=400&h=260&fit=crop",
+    items: ["Carbonara Classica", "Pizza Margherita", "Tiramisù", "Antipasto Misto"],
+    prices: ["€ 14", "€ 10", "€ 7", "€ 12"],
+    badge: "Popolare",
+    cta: "Prenota un Tavolo",
+    category: "Ristorante",
+  },
+  beauty: {
+    appName: "Beauty Studio",
+    heroImage: "https://images.unsplash.com/photo-1560066984-138dadb4c035?w=400&h=260&fit=crop",
+    items: ["Taglio & Piega", "Manicure Gel", "Trattamento Viso", "Extension Ciglia"],
+    prices: ["€ 35", "€ 28", "€ 55", "€ 45"],
+    badge: "Richiesto",
+    cta: "Prenota Ora",
+    category: "Salone",
+  },
+  fitness: {
+    appName: "FitZone",
+    heroImage: "https://images.unsplash.com/photo-1534438327276-14e5300c3a48?w=400&h=260&fit=crop",
+    items: ["Abbonamento Open", "PT Sessione", "Corso Yoga", "Boxe Fitness"],
+    prices: ["€ 49/m", "€ 40", "€ 15", "€ 20"],
+    badge: "Nuovo",
+    cta: "Iscriviti Ora",
+    category: "Palestra",
+  },
+  ecommerce: {
+    appName: "ShopNow",
+    heroImage: "https://images.unsplash.com/photo-1441986300917-64674bd600d8?w=400&h=260&fit=crop",
+    items: ["Giacca in Pelle", "Sneakers Ltd", "Borsa Tote", "Occhiali"],
+    prices: ["€ 189", "€ 129", "€ 95", "€ 75"],
+    badge: "Best Seller",
+    cta: "Acquista",
+    category: "Fashion",
+  },
+  _default: {
+    appName: "MyBusiness",
+    heroImage: "https://images.unsplash.com/photo-1497366216548-37526070297c?w=400&h=260&fit=crop",
+    items: ["Consulenza Base", "Piano Premium", "Assistenza", "Formazione"],
+    prices: ["€ 99", "€ 199", "€ 49", "€ 79"],
+    badge: "Consigliato",
+    cta: "Inizia Ora",
+    category: "Servizi",
+  },
 };
-
-// Alias
-["servizi", "immobiliare", "salute", "turismo", "educazione", "altro"].forEach(cat => {
-  if (!APP_PROTOTYPES[cat]) APP_PROTOTYPES[cat] = APP_PROTOTYPES._default;
+["servizi", "immobiliare", "salute", "turismo", "educazione", "altro"].forEach(k => {
+  if (!BUSINESS_CONTENT[k]) BUSINESS_CONTENT[k] = BUSINESS_CONTENT._default;
 });
 
-function PrototypeCard({ proto, isSelected, onClick }) {
+
+// Mini mockup di un telefono con contenuto reale
+function PhoneMockup({ theme, content, isCenter, isSelected, onClick }) {
+  const dark = theme.darkMode;
+
   return (
     <button
       onClick={onClick}
-      className={`w-full rounded-2xl border overflow-hidden transition-all active:scale-[0.98] ${
-        isSelected
-          ? "border-purple-500 ring-2 ring-purple-500/30 shadow-lg shadow-purple-500/10"
-          : "border-white/[0.08] hover:border-white/20"
-      }`}
+      className="flex-shrink-0 transition-all duration-300 ease-out focus:outline-none"
+      style={{
+        width: isCenter ? 200 : 160,
+        opacity: isCenter ? 1 : 0.55,
+        transform: `scale(${isCenter ? 1 : 0.88})`,
+      }}
     >
-      {/* Hero image reale */}
-      <div className="relative h-[180px] overflow-hidden">
-        <img
-          src={proto.heroImage}
-          alt={proto.name}
-          className="w-full h-full object-cover"
-          onError={(e) => {
-            e.target.style.display = "none";
-          }}
+      {/* Phone frame */}
+      <div
+        className={`relative rounded-[24px] overflow-hidden border-[2.5px] transition-all duration-300 ${
+          isSelected
+            ? "border-purple-500 shadow-[0_0_20px_rgba(139,92,246,0.3)]"
+            : dark ? "border-white/10" : "border-black/10"
+        }`}
+        style={{ 
+          background: theme.bgGradient,
+          aspectRatio: "9/18",
+        }}
+      >
+        {/* Notch */}
+        <div className="absolute top-0 left-1/2 -translate-x-1/2 w-[60px] h-[14px] rounded-b-xl z-20"
+          style={{ background: dark ? "#000" : "#e2e8f0" }}
         />
-        <div className="absolute inset-0 bg-gradient-to-t from-black/80 via-black/30 to-transparent" />
 
-        {/* App name overlay */}
-        <div className="absolute bottom-0 left-0 right-0 p-4">
-          <span className="text-[9px] font-bold uppercase tracking-[0.15em] px-2 py-0.5 rounded-full bg-white/15 backdrop-blur-sm text-white/80">
-            {proto.category}
-          </span>
-          <h3 className="text-lg font-black text-white mt-2 leading-tight">{proto.name}</h3>
+        {/* Content inside phone */}
+        <div className="absolute inset-0 pt-[18px] px-[8px] pb-[8px] overflow-hidden">
+          {/* Status bar */}
+          <div className="flex justify-between items-center px-2 mb-2">
+            <span style={{ color: theme.mutedColor, fontSize: 6 }}>9:41</span>
+            <div className="flex gap-0.5">
+              <div className="w-2 h-1.5 rounded-sm" style={{ background: theme.mutedColor }} />
+              <div className="w-2 h-1.5 rounded-sm" style={{ background: theme.mutedColor }} />
+              <div className="w-3 h-1.5 rounded-sm" style={{ background: theme.mutedColor }} />
+            </div>
+          </div>
+
+          {/* App name */}
+          <div className="px-2 mb-2">
+            <span style={{ color: theme.primaryColor, fontSize: 10, fontWeight: 800, fontFamily: theme.fontStyle }}>
+              {content.appName}
+            </span>
+          </div>
+
+          {/* Hero image */}
+          <div className="relative rounded-lg overflow-hidden mb-2" style={{ height: 68 }}>
+            <img src={content.heroImage} className="w-full h-full object-cover" alt="" />
+            <div className="absolute inset-0" style={{ background: `linear-gradient(to top, ${theme.secondaryColor}CC, transparent)` }} />
+            <div className="absolute bottom-1 left-2">
+              <span style={{ color: "#fff", fontSize: 8, fontWeight: 700 }}>{content.cta}</span>
+            </div>
+          </div>
+
+          {/* Badge */}
+          <div className="px-2 mb-1.5">
+            <span
+              className="inline-block rounded-full px-2 py-0.5"
+              style={{ background: theme.primaryColor + "22", color: theme.primaryColor, fontSize: 6, fontWeight: 700 }}
+            >
+              ★ {content.badge}
+            </span>
+          </div>
+
+          {/* Items list */}
+          <div className="space-y-[4px] px-1">
+            {content.items.map((item, i) => (
+              <div
+                key={i}
+                className="flex items-center justify-between rounded-lg px-2 py-[5px]"
+                style={{ background: theme.cardBg, border: `1px solid ${dark ? "rgba(255,255,255,0.06)" : "rgba(0,0,0,0.06)"}` }}
+              >
+                <div className="flex items-center gap-1.5">
+                  <div className="w-[18px] h-[18px] rounded-md" style={{ background: theme.primaryColor + "20" }}>
+                    <div className="w-full h-full rounded-md" style={{ background: `linear-gradient(135deg, ${theme.primaryColor}44, ${theme.accentColor}44)` }} />
+                  </div>
+                  <span style={{ color: theme.textColor, fontSize: 7, fontWeight: 500 }}>{item}</span>
+                </div>
+                <span style={{ color: theme.primaryColor, fontSize: 7, fontWeight: 700 }}>{content.prices[i]}</span>
+              </div>
+            ))}
+          </div>
+
+          {/* Bottom nav */}
+          <div
+            className="absolute bottom-0 left-0 right-0 flex justify-around items-center py-1.5 px-2"
+            style={{ background: theme.cardBg, borderTop: `1px solid ${dark ? "rgba(255,255,255,0.06)" : "rgba(0,0,0,0.06)"}` }}
+          >
+            {["●", "◎", "☰", "♡"].map((icon, i) => (
+              <span key={i} style={{ color: i === 0 ? theme.primaryColor : theme.mutedColor, fontSize: 8 }}>{icon}</span>
+            ))}
+          </div>
         </div>
 
-        {/* Color dots */}
-        <div className="absolute top-3 right-3 flex gap-1.5">
-          <div className="w-5 h-5 rounded-full border-2 border-white/30 shadow-lg" style={{ background: proto.primaryColor }} />
-          <div className="w-5 h-5 rounded-full border-2 border-white/30 shadow-lg" style={{ background: proto.accentColor }} />
-        </div>
-
+        {/* Selected overlay */}
         {isSelected && (
-          <div className="absolute top-3 left-3 w-6 h-6 rounded-full bg-purple-500 flex items-center justify-center">
-            <svg className="w-3.5 h-3.5 text-white" fill="none" viewBox="0 0 24 24" stroke="currentColor" strokeWidth={3}>
+          <div className="absolute top-5 right-2 w-5 h-5 rounded-full bg-purple-500 flex items-center justify-center z-30">
+            <svg className="w-3 h-3 text-white" fill="none" viewBox="0 0 24 24" stroke="currentColor" strokeWidth={3}>
               <path strokeLinecap="round" strokeLinejoin="round" d="M5 13l4 4L19 7" />
             </svg>
           </div>
         )}
       </div>
 
-      {/* Preview items */}
-      <div className="p-3 bg-[#0f0f1a]">
-        <p className="text-[10px] text-gray-500 mb-2">{proto.description}</p>
-        <div className="flex flex-wrap gap-1">
-          {proto.previewItems.map((item, i) => (
-            <span key={i} className="text-[9px] px-2 py-0.5 rounded-full bg-white/5 text-white/50 border border-white/5">
-              {item}
-            </span>
-          ))}
-        </div>
+      {/* Theme label under phone */}
+      <div className="mt-2 text-center">
+        <span
+          className="text-[9px] font-bold uppercase tracking-[0.12em] px-2 py-0.5 rounded-full"
+          style={{
+            background: theme.primaryColor + "18",
+            color: theme.primaryColor,
+          }}
+        >
+          {theme.themeTag}
+        </span>
+        <p className="text-[10px] text-gray-400 mt-0.5">{theme.themeName}</p>
       </div>
     </button>
   );
 }
 
-function ScratchCard({ isSelected, onClick }) {
-  return (
-    <button
-      onClick={onClick}
-      className={`w-full rounded-2xl border overflow-hidden transition-all active:scale-[0.98] ${
-        isSelected
-          ? "border-purple-500 ring-2 ring-purple-500/30 shadow-lg shadow-purple-500/10"
-          : "border-white/[0.08] border-dashed hover:border-white/20"
-      }`}
-    >
-      <div className="py-8 px-4 flex flex-col items-center justify-center gap-3 bg-gradient-to-b from-purple-500/5 to-transparent">
-        <div className="w-14 h-14 rounded-2xl bg-purple-500/10 border border-purple-500/20 flex items-center justify-center">
-          <Plus className="w-6 h-6 text-purple-400" />
-        </div>
-        <div className="text-center">
-          <h3 className="text-sm font-bold text-white">Crea da zero</h3>
-          <p className="text-[10px] text-gray-500 mt-1 leading-relaxed max-w-[200px]">
-            L'AI genererà un'app unica basata sulla tua descrizione e preferenze
-          </p>
-        </div>
-      </div>
-    </button>
-  );
-}
 
 export default function StyleTemplates({ businessType, websiteAnalysis, selected, onSelect }) {
-  const prototypes = APP_PROTOTYPES[businessType] || APP_PROTOTYPES._default;
+  const content = BUSINESS_CONTENT[businessType] || BUSINESS_CONTENT._default;
+  const scrollRef = useRef(null);
+  const [centerIdx, setCenterIdx] = useState(2); // Start with middle item
 
-  // "Da zero" template con colori default o dal sito
-  const scratchTemplate = {
-    id: "from_scratch",
-    name: "Creazione personalizzata",
-    description: websiteAnalysis ? `Basata sul tuo sito web (${websiteAnalysis.style || "personalizzata"})` : "L'AI creerà un'app unica per te",
-    primaryColor: websiteAnalysis?.primaryColor || "#6366F1",
-    secondaryColor: websiteAnalysis?.secondaryColor || "#1a1a2e",
-    accentColor: websiteAnalysis?.secondaryColor || "#818CF8",
-    darkMode: true,
-    fontStyle: "sans-serif",
+  // Scroll to center on mount
+  useEffect(() => {
+    const el = scrollRef.current;
+    if (!el) return;
+    const timer = setTimeout(() => {
+      const phoneWidth = 200;
+      const gap = 12;
+      const containerWidth = el.offsetWidth;
+      const scrollTo = (2 * (phoneWidth + gap)) - (containerWidth / 2) + (phoneWidth / 2);
+      el.scrollTo({ left: Math.max(0, scrollTo), behavior: "auto" });
+    }, 50);
+    return () => clearTimeout(timer);
+  }, []);
+
+  // Track which phone is centered
+  const handleScroll = useCallback(() => {
+    const el = scrollRef.current;
+    if (!el) return;
+    const scrollCenter = el.scrollLeft + el.offsetWidth / 2;
+    const phoneWidth = 200;
+    const gap = 12;
+    const padding = 80;
+    let closestIdx = 0;
+    let closestDist = Infinity;
+    VISUAL_THEMES.forEach((_, i) => {
+      const itemCenter = padding + i * (phoneWidth + gap) + phoneWidth / 2;
+      const dist = Math.abs(scrollCenter - itemCenter);
+      if (dist < closestDist) {
+        closestDist = dist;
+        closestIdx = i;
+      }
+    });
+    setCenterIdx(closestIdx);
+  }, []);
+
+  const handleSelect = (theme) => {
+    onSelect({
+      id: theme.id,
+      name: `${content.appName} — ${theme.themeName}`,
+      category: content.category,
+      description: theme.themeName,
+      primaryColor: theme.primaryColor,
+      secondaryColor: theme.secondaryColor,
+      accentColor: theme.accentColor,
+      darkMode: theme.darkMode,
+      fontStyle: theme.fontStyle,
+      previewItems: content.items,
+      heroImage: content.heroImage,
+      preview: { bg: "", accent: theme.primaryColor, text: theme.accentColor, card: "" },
+    });
   };
 
+  // Snap to nearest phone center on scroll end
+  const snapTimeout = useRef(null);
+  const handleScrollEnd = useCallback(() => {
+    clearTimeout(snapTimeout.current);
+    snapTimeout.current = setTimeout(() => {
+      const el = scrollRef.current;
+      if (!el) return;
+      const phoneWidth = 200;
+      const gap = 12;
+      const padding = 80;
+      const targetLeft = padding + centerIdx * (phoneWidth + gap) - (el.offsetWidth / 2) + (phoneWidth / 2);
+      el.scrollTo({ left: Math.max(0, targetLeft), behavior: "smooth" });
+    }, 120);
+  }, [centerIdx]);
+
   return (
-    <div className="space-y-4">
-      <div className="text-center mb-4">
-        <h2 className="text-lg font-black text-white">Scegli un prototipo</h2>
-        <p className="text-xs text-gray-400 mt-1">Seleziona un'app da personalizzare oppure crea da zero</p>
+    <div className="space-y-4 -mx-4">
+      <div className="text-center mb-2 px-4">
+        <h2 className="text-lg font-black text-white">Scegli lo stile</h2>
+        <p className="text-xs text-gray-400 mt-1">Scorri per esplorare i 5 temi — tocca per selezionare</p>
       </div>
 
-      <div className="space-y-3">
-        {prototypes.map(proto => (
-          <PrototypeCard
-            key={proto.id}
-            proto={proto}
-            isSelected={selected?.id === proto.id}
-            onClick={() => onSelect({
-              ...proto,
-              // Manteniamo i campi che handleComplete si aspetta
-              preview: { bg: "", accent: proto.primaryColor, text: proto.accentColor, card: "" },
-            })}
+      {/* Horizontal scrollable carousel */}
+      <div
+        ref={scrollRef}
+        onScroll={() => { handleScroll(); handleScrollEnd(); }}
+        className="flex gap-3 overflow-x-auto pb-4 pt-2 no-scrollbar"
+        style={{
+          scrollSnapType: "x mandatory",
+          WebkitOverflowScrolling: "touch",
+          paddingLeft: 80,
+          paddingRight: 80,
+        }}
+      >
+        {VISUAL_THEMES.map((theme, i) => (
+          <div key={theme.id} style={{ scrollSnapAlign: "center" }}>
+            <PhoneMockup
+              theme={theme}
+              content={content}
+              isCenter={i === centerIdx}
+              isSelected={selected?.id === theme.id}
+              onClick={() => handleSelect(theme)}
+            />
+          </div>
+        ))}
+      </div>
+
+      {/* Dots indicator */}
+      <div className="flex justify-center gap-1.5 px-4">
+        {VISUAL_THEMES.map((_, i) => (
+          <div
+            key={i}
+            className="rounded-full transition-all duration-300"
+            style={{
+              width: i === centerIdx ? 18 : 5,
+              height: 5,
+              background: i === centerIdx ? VISUAL_THEMES[centerIdx].primaryColor : "rgba(255,255,255,0.15)",
+            }}
           />
         ))}
-
-        {/* Opzione crea da zero */}
-        <ScratchCard
-          isSelected={selected?.id === "from_scratch"}
-          onClick={() => onSelect(scratchTemplate)}
-        />
       </div>
+
+      {/* Custom / scratch option */}
+      <div className="px-4">
+        <button
+          onClick={() => onSelect({
+            id: "from_scratch",
+            name: "Creazione personalizzata",
+            description: websiteAnalysis ? "Basata sul tuo sito web" : "L'AI creerà un'app unica per te",
+            primaryColor: websiteAnalysis?.primaryColor || "#6366F1",
+            secondaryColor: websiteAnalysis?.secondaryColor || "#1a1a2e",
+            accentColor: websiteAnalysis?.secondaryColor || "#818CF8",
+            darkMode: true,
+            fontStyle: "sans-serif",
+            preview: { bg: "", accent: "#6366F1", text: "#818CF8", card: "" },
+          })}
+          className={`w-full flex items-center gap-3 rounded-2xl border p-3 transition-all active:scale-[0.98] ${
+            selected?.id === "from_scratch"
+              ? "border-purple-500 ring-2 ring-purple-500/30 bg-purple-500/5"
+              : "border-white/[0.08] border-dashed hover:border-white/20"
+          }`}
+        >
+          <div className="w-10 h-10 rounded-xl bg-purple-500/10 border border-purple-500/20 flex items-center justify-center shrink-0">
+            <Sparkles className="w-5 h-5 text-purple-400" />
+          </div>
+          <div className="text-left">
+            <h3 className="text-sm font-bold text-white">Crea da zero con AI</h3>
+            <p className="text-[10px] text-gray-500 leading-relaxed">Stile completamente personalizzato</p>
+          </div>
+        </button>
+      </div>
+
+      <style>{`
+        .no-scrollbar::-webkit-scrollbar { display: none; }
+        .no-scrollbar { -ms-overflow-style: none; scrollbar-width: none; }
+      `}</style>
     </div>
   );
 }
