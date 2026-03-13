@@ -415,6 +415,10 @@ export default function SimulatoreInterattivo({ user }) {
 
   const costi = useMemo(() => Object.values(cv).reduce((a, b) => a + b, 0), [cv]);
 
+  // Somma voci indeducibili IRAP (personale dip. + oneri finanziari) — D.Lgs. 446/97 art. 5
+  const costiIndeducibiliIrap = useMemo(() =>
+    IRAP_INDEDUCIBILI_KEYS.reduce((s, k) => s + (cv[k] || 0), 0), [cv]);
+
   const updCat = (k, v) => setCv(prev => ({ ...prev, [k]: v }));
   const toggleGruppo = (id) => setOpenGruppi(prev => ({ ...prev, [id]: !prev[id] }));
 
