@@ -166,17 +166,40 @@ Estrai TUTTE queste informazioni:
     const template = data.selectedTemplate;
     const wa = data.websiteAnalysis;
 
-    const colorInfo = wa
-      ? `Colori dal sito: primario ${wa.primaryColor}, secondario ${wa.secondaryColor}. Stile dal sito: ${wa.style}.`
-      : "";
+    let siteInfo = "";
+    if (wa) {
+      siteInfo = `\n--- DATI ESTRATTI DAL SITO WEB ---\n`;
+      siteInfo += `Colori dal sito: primario ${wa.primaryColor}, secondario ${wa.secondaryColor}. Stile: ${wa.style}.\n`;
+      if (wa.sectionsOrder?.length > 0) {
+        siteInfo += `ORDINE SEZIONI DAL SITO (RISPETTA QUESTO ORDINE): ${wa.sectionsOrder.join(" → ")}.\n`;
+      }
+      if (wa.menuItems?.length > 0) {
+        siteInfo += `PRODOTTI/SERVIZI REALI DAL SITO (usa QUESTI nomi, prezzi, descrizioni):\n`;
+        wa.menuItems.forEach(item => {
+          siteInfo += `- ${item.name}${item.price ? ` — ${item.price}` : ""}${item.description ? ` — ${item.description}` : ""}${item.category ? ` [${item.category}]` : ""}\n`;
+        });
+      }
+      if (wa.categories?.length > 0) {
+        siteInfo += `Categorie: ${wa.categories.join(", ")}.\n`;
+      }
+      if (wa.address) siteInfo += `Indirizzo: ${wa.address}.\n`;
+      if (wa.phone) siteInfo += `Telefono: ${wa.phone}.\n`;
+      if (wa.hours) siteInfo += `Orari: ${wa.hours}.\n`;
+      siteInfo += `--- FINE DATI SITO ---\n`;
+    }
 
     const prompt = `Crea un'app per "${data.businessName}" — settore: ${data.businessType}.
 ${data.description ? `Descrizione: ${data.description}.` : ""}
-${colorInfo}
+${siteInfo}
 Stile template scelto: "${template.name}" — ${template.description}. Colore primario: ${template.primaryColor}, secondario: ${template.secondaryColor}, accento: ${template.accentColor}. Dark mode: ${template.darkMode}. Font style: ${template.fontStyle}.
 Sezioni richieste: ${data.features.join(", ") || "automatiche per il settore"}.
 ${data.techFeatures.length > 0 ? `Funzionalità tecniche (features_requested): ${data.techFeatures.join(", ")}.` : ""}
-Usa ESATTAMENTE i colori e lo stile del template scelto.`;
+
+REGOLE IMPORTANTI:
+- Usa ESATTAMENTE i colori del template scelto.
+- Se ci sono dati dal sito web, USA I CONTENUTI REALI (nomi, prezzi, descrizioni) e RISPETTA L'ORDINE DELLE SEZIONI del sito.
+- Per ogni item, aggiungi un campo "image_url" con un URL Unsplash pertinente. Formato: https://images.unsplash.com/photo-XXXX?w=400&h=300&fit=crop
+- Non inventare prodotti/piatti se ci sono quelli reali dal sito.`;
 
     onComplete(prompt, data);
   };
