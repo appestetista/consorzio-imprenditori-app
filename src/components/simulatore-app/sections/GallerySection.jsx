@@ -1,36 +1,52 @@
 import React, { useState } from "react";
 
-const EMOJIS = ["🎨", "💻", "📱", "🎯", "📦", "🎬", "📸", "🖼️", "✏️", "🎭"];
+const DEFAULT_GRADIENTS = [
+  ["#667eea", "#764ba2"],
+  ["#f093fb", "#f5576c"],
+  ["#4facfe", "#00f2fe"],
+  ["#43e97b", "#38f9d7"],
+  ["#fa709a", "#fee140"],
+  ["#a18cd1", "#fbc2eb"],
+];
 
-export default function GallerySection({ title, items, primaryColor }) {
+export default function GallerySection({ title, subtitle, items, primaryColor }) {
   const [selected, setSelected] = useState(null);
 
   return (
-    <div className="px-3 py-3">
-      {title && <p className="text-xs font-bold text-gray-400 mb-2 px-1">{title}</p>}
-      <div className="grid grid-cols-2 gap-2">
-        {items.map((w, i) => (
-          <button
-            key={i}
-            onClick={() => setSelected(selected === i ? null : i)}
-            className={`rounded-xl overflow-hidden border transition-all ${
-              selected === i ? "border-opacity-40 scale-[0.97]" : "border-white/5"
-            }`}
-            style={selected === i ? { borderColor: primaryColor } : {}}
-          >
-            <div className="h-16 flex items-center justify-center text-2xl" style={{ background: primaryColor + "15" }}>
-              {EMOJIS[i % EMOJIS.length]}
-            </div>
-            <div className="p-2 bg-[#1a1a2e]">
-              <p className="text-[10px] font-bold text-white truncate">{w.title}</p>
-              {w.tag && (
-                <span className="text-[8px] px-1.5 py-0.5 rounded mt-0.5 inline-block" style={{ background: primaryColor + "20", color: primaryColor }}>
-                  {w.tag}
-                </span>
-              )}
-            </div>
-          </button>
-        ))}
+    <div className="px-4 py-5">
+      {title && (
+        <div className="mb-4">
+          <p className="text-[10px] font-semibold uppercase tracking-[0.15em] text-white/30 mb-1">{subtitle || "GALLERIA"}</p>
+          <h3 className="text-lg font-bold text-white" style={{ fontFamily: "Georgia, serif" }}>{title}</h3>
+        </div>
+      )}
+      <div className="grid grid-cols-2 gap-3">
+        {items.map((w, i) => {
+          const grad = w.gradient || DEFAULT_GRADIENTS[i % DEFAULT_GRADIENTS.length];
+          return (
+            <button
+              key={i}
+              onClick={() => setSelected(selected === i ? null : i)}
+              className="rounded-2xl overflow-hidden border transition-all duration-300 active:scale-[0.95]"
+              style={{ borderColor: selected === i ? primaryColor + "40" : "rgba(255,255,255,0.04)" }}
+            >
+              <div className="relative h-24 flex items-end p-3 overflow-hidden" style={{
+                background: `linear-gradient(135deg, ${grad[0]}, ${grad[1]})`
+              }}>
+                {/* Light reflection */}
+                <div className="absolute inset-0 bg-gradient-to-b from-white/10 to-transparent" style={{ height: "50%" }} />
+                {/* Bottom overlay for text */}
+                <div className="absolute inset-0 bg-gradient-to-t from-black/50 to-transparent" />
+                <div className="relative z-10">
+                  <p className="text-[11px] font-bold text-white">{w.title}</p>
+                  {w.tag && (
+                    <span className="text-[8px] font-semibold uppercase tracking-wider text-white/60">{w.tag}</span>
+                  )}
+                </div>
+              </div>
+            </button>
+          );
+        })}
       </div>
     </div>
   );

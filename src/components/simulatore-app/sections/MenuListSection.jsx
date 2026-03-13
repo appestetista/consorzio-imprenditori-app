@@ -1,31 +1,49 @@
 import React, { useState } from "react";
 
-export default function MenuListSection({ title, items, primaryColor }) {
+export default function MenuListSection({ title, subtitle, items, primaryColor }) {
   const [cart, setCart] = useState([]);
-
   const add = (item) => setCart(prev => [...prev, item]);
   const totale = cart.reduce((s, i) => s + (parseFloat(i.price) || 0), 0);
 
   return (
-    <div className="px-4 py-3">
-      {title && <p className="text-xs font-bold text-gray-400 mb-2">{title}</p>}
-      <div className="space-y-2.5">
+    <div className="px-4 py-5">
+      {title && (
+        <div className="mb-4">
+          <p className="text-[10px] font-semibold uppercase tracking-[0.15em] text-white/30 mb-1">{subtitle || "MENU"}</p>
+          <h3 className="text-lg font-bold text-white" style={{ fontFamily: "Georgia, serif" }}>{title}</h3>
+        </div>
+      )}
+      {/* Thin separator */}
+      <div className="h-px bg-white/5 mb-4" />
+      <div className="space-y-3">
         {items.map((item, i) => (
-          <div key={i} className="flex items-center justify-between">
+          <div key={i} className="group flex items-start gap-3 p-3 rounded-2xl bg-white/[0.03] border border-white/[0.04] hover:bg-white/[0.06] transition-all duration-300">
+            {item.emoji && (
+              <div className="w-10 h-10 rounded-xl flex items-center justify-center text-lg shrink-0" style={{ background: primaryColor + "15" }}>
+                {item.emoji}
+              </div>
+            )}
             <div className="flex-1 min-w-0">
-              <p className="text-sm font-bold text-white">{item.name}</p>
-              {item.description && <p className="text-xs text-gray-500">{item.description}</p>}
+              <div className="flex items-center gap-2">
+                <p className="text-sm font-bold text-white">{item.name}</p>
+                {item.badge && (
+                  <span className="text-[8px] font-bold uppercase tracking-wider px-1.5 py-0.5 rounded-full" style={{ background: primaryColor + "20", color: primaryColor }}>
+                    {item.badge}
+                  </span>
+                )}
+              </div>
+              {item.description && <p className="text-[11px] text-white/35 mt-0.5 leading-relaxed">{item.description}</p>}
             </div>
-            <div className="flex items-center gap-2 ml-2">
-              {item.price && (
-                <span className="text-sm font-bold" style={{ color: primaryColor }}>
-                  {typeof item.price === "number" ? `€${item.price.toFixed(2)}` : item.price}
+            <div className="flex items-center gap-2 shrink-0">
+              {item.price != null && (
+                <span className="text-base font-black tabular-nums" style={{ color: primaryColor }}>
+                  €{typeof item.price === "number" ? item.price.toFixed(2) : item.price}
                 </span>
               )}
               <button
                 onClick={() => add(item)}
-                className="w-6 h-6 rounded-full flex items-center justify-center text-xs font-bold border transition-colors"
-                style={{ borderColor: primaryColor + "50", color: primaryColor, background: primaryColor + "15" }}
+                className="w-7 h-7 rounded-full flex items-center justify-center text-xs font-bold text-white transition-all active:scale-90"
+                style={{ background: primaryColor + "25", color: primaryColor }}
               >
                 +
               </button>
@@ -34,9 +52,9 @@ export default function MenuListSection({ title, items, primaryColor }) {
         ))}
       </div>
       {cart.length > 0 && (
-        <div className="mt-3 pt-2 border-t border-white/10 flex items-center justify-between">
-          <span className="text-xs text-gray-400">{cart.length} element{cart.length > 1 ? "i" : "o"}</span>
-          <span className="text-sm font-black text-white">€{totale.toFixed(2)}</span>
+        <div className="mt-4 p-3 rounded-2xl flex items-center justify-between" style={{ background: primaryColor + "10", border: `1px solid ${primaryColor}20` }}>
+          <span className="text-xs text-white/50">{cart.length} element{cart.length > 1 ? "i" : "o"} selezionat{cart.length > 1 ? "i" : "o"}</span>
+          <span className="text-lg font-black text-white">€{totale.toFixed(2)}</span>
         </div>
       )}
     </div>

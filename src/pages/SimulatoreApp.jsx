@@ -17,43 +17,63 @@ const CATEGORIES = [
   { id: "altro", label: "Altro", icon: "✨" },
 ];
 
-const PROMPT_TEMPLATE = `Sei un UI/UX designer professionista di livello mondiale. Crei interfacce mobile che sembrano app reali pubblicate su App Store.
+const SYSTEM_DESIGN_PROMPT = `Sei un designer-developer di livello mondiale. Crei applicazioni mobile con qualità visiva al livello delle app premiate da Apple Design Awards.
+
+REGOLE ASSOLUTE DI DESIGN:
+- Non importa quanto sia breve la descrizione dell'utente. Tu produci SEMPRE un risultato completo, dettagliato e visivamente spettacolare.
+- Non usare MAI testo segnaposto. Inventa nomi, prezzi, descrizioni realistici e coerenti per il settore e mercato italiano.
+- Ogni app DEVE avere un nome proprio professionale, palette cromatica forte e riconoscibile.
+
+PALETTE COLORI PER SETTORE:
+- Ristorazione: toni scuri con accenti caldi (ambra, arancio, bordeaux)
+- Beauty/Wellness: rosa, lilla, colori morbidi e desaturati
+- Fitness: sfondo nero con accenti neon (lime, cyan)
+- E-commerce: sfondo pulito con colore accento forte
+- Gestionali: sidebar scura con indigo o blu
+- Premium/Lifestyle: sfondi scuri atmosferici, colori desaturati, stile editoriale
+
+CONTENUTI:
+- Almeno 5-8 items per ogni lista/griglia
+- Prezzi plausibili per il mercato italiano
+- Descrizioni brevi, specifiche, evocative
+- Nomi di attività che suonano autentici
+- Badge realistici: "Popolare", "Nuovo", "Consigliato", "Ultimi posti", "Sconto"`;
+
+const PROMPT_TEMPLATE = SYSTEM_DESIGN_PROMPT + `
 
 L'utente vuole un'app per il settore "{category}".
 Descrizione: "{description}"
 
-REGOLE DI DESIGN FONDAMENTALI:
-- Scegli una palette colori SOFISTICATA e moderna (non colori banali). Usa colori che creino atmosfera.
-- Genera ALMENO 5-6 sezioni per dare profondità all'app.
-- I contenuti devono essere IPER-REALISTICI: nomi di piatti veri, prezzi reali italiani, orari credibili, recensioni che sembrano vere.
-- Pensa come se fosse un'app vera: aggiungi dettagli che un utente reale si aspetterebbe.
-- Usa emoji pertinenti e varie per ogni prodotto/servizio.
-
-STRUTTURA JSON richiesta:
-- appName: nome dell'app professionale e accattivante
-- tagline: sottotitolo breve ed efficace
-- primaryColor: colore HEX primario (sceglilo con cura)
+STRUTTURA JSON da generare:
+- appName: nome professionale dell'app (se premium/lifestyle, usa stile editoriale)
+- tagline: sottotitolo evocativo
+- primaryColor: colore HEX primario (scelto con cura per il settore)
 - secondaryColor: colore HEX secondario (complementare)
+- accentColor: colore HEX di accento per badge e evidenziazioni
 - headerStyle: "gradient" | "solid"
-- sections: array di sezioni, ogni sezione ha:
-  - type: uno tra "menu_list", "product_grid", "service_list", "stats_grid", "activity_feed", "gallery", "cta_banner", "booking", "contact", "pricing", "testimonials", "features"
-  - title: titolo sezione
+- darkMode: true | false (scegli in base al settore)
+- fontStyle: "serif" | "sans" (serif per premium/lifestyle/food, sans per tech/fitness)
+- sections: array di 5-7 sezioni, ogni sezione ha:
+  - type: uno tra "hero_banner", "menu_list", "product_grid", "service_list", "stats_grid", "activity_feed", "gallery", "cta_banner", "booking", "contact", "pricing", "testimonials", "features"
+  - title: titolo sezione (breve, evocativo)
+  - subtitle: sottotitolo opzionale
   - items: array di oggetti per tipo:
-    "menu_list": {name, description, price} — almeno 5-6 items
-    "product_grid": {name, price, tag, emoji} — almeno 4-6 items
-    "service_list": {name, duration, price, description} — almeno 4 items
-    "stats_grid": {label, value, trend, trendDirection} — 4 items
+    "hero_banner": {headline, subtitle, buttonText, badge}
+    "menu_list": {name, description, price, badge, emoji} — almeno 5 items con badge opzionale
+    "product_grid": {name, price, originalPrice, tag, emoji, badge} — almeno 6 items
+    "service_list": {name, duration, price, description, badge} — almeno 4 items
+    "stats_grid": {label, value, trend, trendDirection, icon} — 4 items
     "activity_feed": {text, detail, time, valueText, valueColor}
-    "gallery": {title, tag} — almeno 4 items
-    "cta_banner": {text, buttonText}
-    "booking": {slots: ["09:00","10:30",...]} — almeno 6 slot
-    "contact": {email, phone, address}
-    "pricing": {name, price, period, features} — features è array di stringhe
-    "testimonials": {name, text, rating} — almeno 3 con testi dettagliati
+    "gallery": {title, tag, gradient} — almeno 4 items, gradient è array [colore1, colore2]
+    "cta_banner": {text, buttonText, badge}
+    "booking": {slots: [{time, available},...]} — almeno 8 slot
+    "contact": {email, phone, address, hours}
+    "pricing": {name, price, period, features, popular} — features array stringhe, popular boolean
+    "testimonials": {name, role, text, rating, avatar_emoji} — almeno 3 dettagliati
     "features": {name, description, emoji} — almeno 4
-- bottomNav: array di {label, active} (4 voci)
+- bottomNav: array di {label, icon, active} (4-5 voci, icon è nome emoji)
 
-Genera un'app che faccia dire "WOW, sembra vera!". Rispondi SOLO con il JSON.`;
+Genera un'app da "WOW". Rispondi SOLO con il JSON.`;
 
 export default function SimulatoreApp() {
   const [selected, setSelected] = useState(null);
