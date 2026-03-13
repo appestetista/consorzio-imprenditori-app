@@ -875,7 +875,8 @@ export default function SimulatoreInterattivo({ user }) {
               fatturato: fatt + 50000,
               costiTotali: costi + Math.round(50000 * costi / fatt),
               compensoLordo: comp,
-              percDividendi: pDiv
+              percDividendi: pDiv,
+              costiIndeducibiliIrap,
             }).totaleTasca - A.totaleTasca)}
           </div>
           <div className="text-xs text-gray-500">netti in più in tasca</div>
