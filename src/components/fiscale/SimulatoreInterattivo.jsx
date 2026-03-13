@@ -687,7 +687,10 @@ export default function SimulatoreInterattivo({ user }) {
         </div>
         <div className="text-xs text-gray-500 mt-1">
           Pressione fiscale: <span className="text-amber-400 font-bold">{A.pressioneFiscale.toFixed(1)}%</span>
-          <Tip text={`Significa che su ogni €100 di margine (fatturato meno costi), ${A.pressioneFiscale.toFixed(0)} euro vanno in tasse e contributi. Il resto è tuo.`} />
+          <Tip text={`Totale imposte e contributi (${fmt(A.totaleImposteContributi)}) diviso il margine operativo (${fmt(A.margine)}). Misura quanto del margine viene assorbito dal fisco.`} />
+          {A.percTasca > 0 && (
+            <span className="ml-2">· In tasca: <span className="text-green-400 font-bold">{A.percTasca.toFixed(1)}%</span> del margine</span>
+          )}
         </div>
         {/* Dettaglio: da dove arrivano i soldi */}
         <div className="grid grid-cols-2 gap-3 mt-4 text-left">
