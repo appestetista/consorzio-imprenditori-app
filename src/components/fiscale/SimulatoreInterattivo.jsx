@@ -54,6 +54,21 @@ const FISCO = {
 };
 
 /* ═══════════════════════════════════════════════════════
+   VOCI INDEDUCIBILI AI FINI IRAP (D.Lgs. 446/97, art. 5)
+   Per società di capitali, NON sono deducibili dalla base IRAP:
+   - Costo del lavoro dipendente (salari, oneri, TFR, interinali, ecc.)
+   - Compensi amministratori e relativi oneri previdenziali
+   - Interessi passivi e oneri finanziari assimilati
+   ═══════════════════════════════════════════════════════ */
+const IRAP_INDEDUCIBILI_KEYS = [
+  // Personale dipendente — art. 5 co. 1 D.Lgs. 446/97
+  "salari", "oneri_sociali", "tfr", "interinali", "formazione",
+  "buoni_pasto", "straordinari", "trasferte_dip", "welfare_aziendale",
+  // Oneri finanziari — art. 5 co. 1 D.Lgs. 446/97
+  "interessi", "interessi_fido", "commissioni_bancarie",
+];
+
+/* ═══════════════════════════════════════════════════════
    VOCI DI COSTO — Art. 2425 c.c. Sez. B + C.17
    ═══════════════════════════════════════════════════════ */
 const GRUPPI = [
