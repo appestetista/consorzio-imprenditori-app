@@ -891,7 +891,8 @@ export default function SimulatoreInterattivo({ user }) {
               fatturato: fatt,
               costiTotali: costi + 1000,
               compensoLordo: comp,
-              percDividendi: pDiv
+              percDividendi: pDiv,
+              costiIndeducibiliIrap,
             }).totaleTasca - A.totaleTasca)}
           </div>
           <div className="text-xs text-gray-500">effetto netto in tasca</div>
