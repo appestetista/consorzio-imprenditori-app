@@ -256,7 +256,7 @@ export default function SimulatoreApp() {
     if (wizardData?.selectedTemplate) {
       sessionStorage.setItem("simulatore_template", JSON.stringify(wizardData.selectedTemplate));
     }
-    generateApp(prompt);
+    generateApp(prompt, true);
   };
 
   const handleImageUpload = async (e) => {
