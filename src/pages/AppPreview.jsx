@@ -137,6 +137,18 @@ export default function AppPreview() {
     await saveVersion(newData, "Modifica rapida (colori/sezioni)");
   };
 
+  // Inline edit (testo/immagine direttamente nell'anteprima)
+  const inlineEditTimer = useRef(null);
+  const handleInlineEdit = (newData) => {
+    setAppData(newData);
+    persist(newData, versions, projectId);
+    // Debounce salvataggio su DB per evitare troppe chiamate
+    clearTimeout(inlineEditTimer.current);
+    inlineEditTimer.current = setTimeout(() => {
+      saveVersion(newData, "Modifica inline");
+    }, 2000);
+  };
+
   const handleSubmit = async () => {
     if (!projectId || !appData) return;
     await base44.entities.AppProject.update(projectId, { status: "submitted" });
