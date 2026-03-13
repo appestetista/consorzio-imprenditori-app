@@ -66,43 +66,55 @@ export default function SimulatoreApp() {
       .replace("{category}", cat.label)
       .replace("{description}", description.trim());
 
-    const result = await base44.integrations.Core.InvokeLLM({
-      prompt,
-      response_json_schema: {
-        type: "object",
-        properties: {
-          appName: { type: "string" },
-          tagline: { type: "string" },
-          primaryColor: { type: "string" },
-          secondaryColor: { type: "string" },
-          headerStyle: { type: "string" },
-          sections: {
-            type: "array",
-            items: {
-              type: "object",
-              properties: {
-                type: { type: "string" },
-                title: { type: "string" },
-                items: { type: "array", items: { type: "object" } },
+    try {
+      const result = await base44.integrations.Core.InvokeLLM({
+        prompt,
+        response_json_schema: {
+          type: "object",
+          properties: {
+            appName: { type: "string" },
+            tagline: { type: "string" },
+            primaryColor: { type: "string" },
+            secondaryColor: { type: "string" },
+            headerStyle: { type: "string" },
+            sections: {
+              type: "array",
+              items: {
+                type: "object",
+                properties: {
+                  type: { type: "string" },
+                  title: { type: "string" },
+                  items: { type: "array", items: { type: "object" } },
+                },
               },
             },
-          },
-          bottomNav: {
-            type: "array",
-            items: {
-              type: "object",
-              properties: {
-                label: { type: "string" },
-                active: { type: "boolean" },
+            bottomNav: {
+              type: "array",
+              items: {
+                type: "object",
+                properties: {
+                  label: { type: "string" },
+                  active: { type: "boolean" },
+                },
               },
             },
           },
         },
-      },
-    });
+      });
 
-    setAppData(result);
-    setLoading(false);
+      console.log("LLM result:", result);
+
+      if (!result || !result.sections) {
+        setError("L'AI non ha generato un risultato valido. Riprova.");
+      } else {
+        setAppData(result);
+      }
+    } catch (err) {
+      console.error("Errore generazione:", err);
+      setError("Si è verificato un errore. Riprova tra qualche secondo.");
+    } finally {
+      setLoading(false);
+    }
   };
 
   const handleReset = () => {
