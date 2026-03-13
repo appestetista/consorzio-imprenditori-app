@@ -2,7 +2,8 @@ import React from "react";
 import EditableField from "../EditableField";
 import EditableImage from "../EditableImage";
 
-export default function HeroBannerSection({ items, primaryColor, secondaryColor, editable, onItemChange }) {
+export default function HeroBannerSection({ items, primaryColor, secondaryColor, accentColor, editable, onItemChange }) {
+  const isDark = !secondaryColor || secondaryColor.startsWith("#0") || secondaryColor.startsWith("#1") || secondaryColor === "#000";
   const hero = items?.[0];
   if (!hero) return null;
 
@@ -43,7 +44,7 @@ export default function HeroBannerSection({ items, primaryColor, secondaryColor,
           value={hero.headline}
           onChange={ec ? v => change("headline", v) : null}
           tag="h2"
-          className="text-2xl font-black text-white leading-tight"
+          className={`text-2xl font-black leading-tight ${hasImage ? "text-white" : (isDark ? "text-white" : "text-gray-900")}`}
           style={{ fontFamily: "Georgia, serif", lineHeight: 1.15, textShadow: hasImage ? "0 2px 8px rgba(0,0,0,0.5)" : "none" }}
         />
         {hero.subtitle && (
@@ -51,7 +52,7 @@ export default function HeroBannerSection({ items, primaryColor, secondaryColor,
             value={hero.subtitle}
             onChange={ec ? v => change("subtitle", v) : null}
             tag="p"
-            className="text-sm text-white/60 mt-3 leading-relaxed font-light"
+            className={`text-sm mt-3 leading-relaxed font-light ${hasImage ? "text-white/60" : (isDark ? "text-white/60" : "text-gray-500")}`}
             style={{ textShadow: hasImage ? "0 1px 4px rgba(0,0,0,0.5)" : "none" }}
           />
         )}
