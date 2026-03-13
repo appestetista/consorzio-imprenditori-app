@@ -658,7 +658,6 @@ ${!isFromScratch ? "- Ispirati alla struttura del prototipo scelto ma personaliz
                 </div>
               </button>
               <input ref={pdfInputRef} type="file" accept=".pdf" onChange={handlePdfUpload} className="hidden" />
-              <p className="text-center text-[10px] text-gray-500">Questo passaggio è opzionale — puoi saltarlo</p>
             </div>
           ) : data.pdfMenuData.error ? (
             <div className="space-y-3">
