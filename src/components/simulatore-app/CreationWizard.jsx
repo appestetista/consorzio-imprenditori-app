@@ -402,7 +402,7 @@ ${!isFromScratch ? "- Ispirati alla struttura del prototipo scelto ma personaliz
             </div>
             {data.websiteUrl.trim() && !data.websiteAnalysis && (
               <p className="text-[10px] text-purple-400 mt-1.5 flex items-center gap-1">
-                <Sparkles className="w-3 h-3" /> Analizzeremo il sito automaticamente al prossimo step
+                <Sparkles className="w-3 h-3" /> Premendo Avanti analizzeremo il sito e genereremo la tua app
               </p>
             )}
           </div>
