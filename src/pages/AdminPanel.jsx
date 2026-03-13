@@ -32,6 +32,7 @@ import ImportExportAdmin from '../components/admin/ImportExportAdmin';
 import CostoPersonaleAdmin from '../components/admin/CostoPersonaleAdmin';
 import KnowledgeBaseGenerator from '../components/admin/KnowledgeBaseGenerator';
 import AbbonamentiAdmin from '../components/admin/AbbonamentiAdmin';
+import AppProjectsAdmin from '../components/admin/AppProjectsAdmin';
 
 import AdminSectionGrid from '../components/admin/AdminSectionGrid';
 import AdminRisparmioGrid from '../components/admin/AdminRisparmioGrid';
@@ -95,6 +96,7 @@ export default function AdminPanel() {
   const [showImportExportPanel, setShowImportExportPanel] = useState(false);
   const [showCostoPersonalePanel, setShowCostoPersonalePanel] = useState(false);
   const [showAbbonamentiPanel, setShowAbbonamentiPanel] = useState(false);
+  const [showAppProjectsPanel, setShowAppProjectsPanel] = useState(false);
   const [menuOpen, setMenuOpen] = useState(false);
 
   useEffect(() => {
@@ -325,12 +327,18 @@ export default function AdminPanel() {
         <AdminRisparmioGrid onSelectCategory={(cat) => { setSelectedRisparmioCategory(cat); setShowRisparmioPanel(true); }} />
         <AdminAltreSezGrid allAdminMessages={allAdminMessages} unreadAdminMessages={unreadAdminMessages} onOpenImportExport={() => setShowImportExportPanel(true)} onOpenSimulatore={() => setShowSimulatorePanel(true)} onOpenVideoRecensioni={() => setShowVideoRecensioniPanel(true)} onOpenCostoPersonale={() => setShowCostoPersonalePanel(true)} onOpenImportAste={() => setShowImportAste(true)} onOpenAdminMessages={() => setShowAdminMessages(true)} />
 
-        {/* Abbonamenti */}
-        <div className="mb-4">
+        {/* Abbonamenti + Progetti App */}
+        <div className="mb-4 space-y-2">
           <Card className="bg-slate-800 border-slate-700 cursor-pointer hover:bg-slate-700" onClick={() => setShowAbbonamentiPanel(true)}>
             <CardContent className="p-3 flex items-center gap-3">
               <div className="w-10 h-10 rounded-lg bg-[#d4af37]/20 flex items-center justify-center"><DollarSign className="w-5 h-5 text-[#d4af37]" /></div>
               <div><p className="text-white font-medium text-sm">Abbonamenti</p><p className="text-slate-400 text-[10px]">Gestisci richieste e attivazioni</p></div>
+            </CardContent>
+          </Card>
+          <Card className="bg-slate-800 border-slate-700 cursor-pointer hover:bg-slate-700" onClick={() => setShowAppProjectsPanel(true)}>
+            <CardContent className="p-3 flex items-center gap-3">
+              <div className="w-10 h-10 rounded-lg bg-purple-500/20 flex items-center justify-center"><Briefcase className="w-5 h-5 text-purple-400" /></div>
+              <div><p className="text-white font-medium text-sm">Progetti App</p><p className="text-slate-400 text-[10px]">Gestisci mockup e richieste utenti</p></div>
             </CardContent>
           </Card>
         </div>
@@ -464,6 +472,8 @@ export default function AdminPanel() {
       <Dialog open={showVideoRecensioniPanel} onOpenChange={setShowVideoRecensioniPanel}><DialogContent className="bg-slate-900 border-slate-700 max-w-lg max-h-[90vh] overflow-y-auto p-0"><DialogHeader className="p-4 border-b border-slate-700 sticky top-0 bg-slate-900 z-10"><DialogTitle className="text-white flex items-center gap-2"><Star className="w-5 h-5 text-[#d4af37]" />Video Recensioni</DialogTitle></DialogHeader><div className="p-4"><VideoRecensioniAdmin user={user} /></div></DialogContent></Dialog>
 
       <Dialog open={showAbbonamentiPanel} onOpenChange={setShowAbbonamentiPanel}><DialogContent className="bg-slate-900 border-slate-700 max-w-lg max-h-[90vh] overflow-y-auto p-0"><DialogHeader className="p-4 border-b border-slate-700 sticky top-0 bg-slate-900 z-10"><DialogTitle className="text-white flex items-center gap-2"><DollarSign className="w-5 h-5 text-[#d4af37]" />Gestione Abbonamenti</DialogTitle></DialogHeader><div className="p-4"><AbbonamentiAdmin /></div></DialogContent></Dialog>
+
+      <Dialog open={showAppProjectsPanel} onOpenChange={setShowAppProjectsPanel}><DialogContent className="bg-slate-900 border-slate-700 max-w-lg max-h-[90vh] overflow-y-auto p-0"><DialogHeader className="p-4 border-b border-slate-700 sticky top-0 bg-slate-900 z-10"><DialogTitle className="text-white flex items-center gap-2"><Briefcase className="w-5 h-5 text-purple-400" />Progetti App</DialogTitle></DialogHeader><div className="p-4"><AppProjectsAdmin /></div></DialogContent></Dialog>
 
       {/* Consulenze Panel */}
       <Dialog open={showConsulenzePanel} onOpenChange={setShowConsulenzePanel}>
