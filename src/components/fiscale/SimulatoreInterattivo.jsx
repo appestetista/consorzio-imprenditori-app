@@ -410,9 +410,6 @@ export default function SimulatoreInterattivo({ user }) {
   const [detCosti, setDetCosti] = useState(false);
   const [openGruppi, setOpenGruppi] = useState({});
   const [detComp, setDetComp] = useState(false);
-  const [confronto, setConfronto] = useState(false);
-  const [compB, setCompB] = useState(60000);
-  const [pDivB, setPDivB] = useState(50);
   const [showAteco, setShowAteco] = useState(false);
   const [showPianificatore, setShowPianificatore] = useState(false);
   const [bilancioApplicato, setBilancioApplicato] = useState(false);
