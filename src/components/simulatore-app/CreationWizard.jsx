@@ -417,8 +417,8 @@ ${!isFromScratch ? "- Ispirati alla struttura del prototipo scelto ma personaliz
               <div className="w-14 h-14 rounded-full bg-purple-500/15 border border-purple-500/20 flex items-center justify-center mx-auto mb-3">
                 <Globe className="w-7 h-7 text-purple-400 animate-pulse" />
               </div>
-              <h3 className="text-base font-bold text-white">Stiamo analizzando il sito</h3>
-              <p className="text-xs text-gray-400 mt-1">Estraiamo logo, colori, immagini, prodotti e molto altro</p>
+              <h3 className="text-base font-bold text-white">Stiamo creando la tua app</h3>
+              <p className="text-xs text-gray-400 mt-1">Analizziamo il sito e generiamo la tua app personalizzata</p>
             </div>
             <div className="space-y-3">
               <div className="w-full h-2 bg-white/5 rounded-full overflow-hidden">
