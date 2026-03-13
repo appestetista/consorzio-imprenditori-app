@@ -817,6 +817,12 @@ ${!isFromScratch ? "- Ispirati alla struttura del prototipo scelto ma personaliz
                 </div>
               </div>
             )}
+            {data.logoUrl && (
+              <div className="flex items-center gap-2 pt-2 border-t border-white/5">
+                <img src={data.logoUrl} alt="Logo" className="w-6 h-6 rounded object-contain bg-white/10" />
+                <span className="text-[10px] text-green-400">Logo caricato</span>
+              </div>
+            )}
             {data.pdfMenuData && !data.pdfMenuData.error && (
               <div className="flex items-center gap-2 pt-2 border-t border-white/5">
                 <FileText className="w-3.5 h-3.5 text-green-400" />
