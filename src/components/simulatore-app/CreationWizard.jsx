@@ -603,7 +603,7 @@ ${!isFromScratch ? "- Ispirati alla struttura del prototipo scelto ma personaliz
 
           {/* --- Logo Upload --- */}
           <div>
-            <p className="text-xs text-gray-400 font-semibold mb-2 flex items-center gap-1.5"><Image className="w-3.5 h-3.5" /> Logo della tua attività</p>
+            <p className="text-xs text-gray-400 font-semibold mb-2 flex items-center gap-1.5"><ImageIcon className="w-3.5 h-3.5" /> Logo della tua attività</p>
             {!data.logoUrl ? (
               <div className="space-y-2">
                 <button
