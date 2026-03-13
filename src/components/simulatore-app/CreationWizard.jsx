@@ -1,5 +1,5 @@
 import React, { useState, useEffect, useRef } from "react";
-import { ArrowRight, ArrowLeft, Sparkles, Globe, Loader2, Check, Upload, FileText, X, Image } from "lucide-react";
+import { ArrowRight, ArrowLeft, Sparkles, Globe, Loader2, Check, Upload, FileText, X, ImageIcon } from "lucide-react";
 import { base44 } from "@/api/base44Client";
 import StyleTemplates from "./StyleTemplates";
 
