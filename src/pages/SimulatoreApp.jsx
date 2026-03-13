@@ -13,19 +13,22 @@ REGOLE ASSOLUTE DI DESIGN:
 - Non usare MAI testo segnaposto. Inventa nomi, prezzi, descrizioni realistici e coerenti per il settore e mercato italiano.
 - Ogni app DEVE avere un nome proprio professionale, palette cromatica forte e riconoscibile.
 
-PALETTE COLORI PER SETTORE:
-- Ristorazione: toni scuri con accenti caldi (ambra, arancio, bordeaux)
-- Beauty/Wellness: rosa, lilla, colori morbidi e desaturati
-- Fitness: sfondo nero con accenti neon (lime, cyan)
-- E-commerce: sfondo pulito con colore accento forte
-- Gestionali: sidebar scura con indigo o blu
-- Premium/Lifestyle: sfondi scuri atmosferici, colori desaturati, stile editoriale
+IMMAGINI — REGOLA FONDAMENTALE:
+- OGNI item DEVE avere un campo "image_url" con un URL Unsplash REALE e pertinente.
+- Formato URL: https://images.unsplash.com/photo-XXXXXXXXX?w=400&h=300&fit=crop
+- Usa SOLO photo ID che conosci esistere su Unsplash. Ecco ID sicuri per categoria:
+  RISTORAZIONE: photo-1504674900247-0877df9cc836 (pasta), photo-1565299624946-b28f40a0ae38 (pizza), photo-1555939594-58d7cb561ad1 (carne), photo-1546069901-ba9599a7e63c (dessert), photo-1551782450-a2132b4ba21d (hamburger), photo-1414235077428-338989a2e8c0 (pesce), photo-1563379091339-03b21ab4a4f4 (cocktail), photo-1517248135467-4c7edcad34c4 (ristorante interno), photo-1552566626-52f8b828add9 (ristorante elegante)
+  BEAUTY: photo-1560066984-138dadb4c035 (salone), photo-1522335789203-aabd1fc54bc9 (manicure), photo-1487412947147-5cebf100ffc2 (capelli), photo-1570172619644-dfd03ed5d881 (spa), photo-1616394584738-fc6e612e71b9 (trattamento viso)
+  FITNESS: photo-1534438327276-14e5300c3a48 (palestra), photo-1571019613454-1cb2f99b2d8b (workout), photo-1517836357463-d25dfeac3438 (pesi), photo-1574680096145-d05b474e2155 (yoga)
+  ECOMMERCE: photo-1441986300917-64674bd600d8 (shopping), photo-1556742049-0cfed4f6a45d (vestiti), photo-1523275335684-37898b6baf30 (prodotto)
+  HERO/BANNER: photo-1517248135467-4c7edcad34c4 (ristorante), photo-1600891964599-f94d51f96eca (beauty), photo-1534438327276-14e5300c3a48 (fitness)
+- Per l'hero_banner: usa sempre un image_url nel primo item.
+- Se ci sono dati dal sito web dell'utente, RISPETTA l'ordine delle sezioni e usa i contenuti reali.
 
 CONTENUTI:
 - Almeno 5-8 items per ogni lista/griglia
 - Prezzi plausibili per il mercato italiano
 - Descrizioni brevi, specifiche, evocative
-- Nomi di attività che suonano autentici
 - Badge realistici: "Popolare", "Nuovo", "Consigliato", "Ultimi posti", "Sconto"
 
 FUNZIONALITÀ AVANZATE:
