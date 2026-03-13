@@ -704,7 +704,7 @@ export default function SimulatoreInterattivo({ user }) {
       <div className="rounded-xl p-5"
         style={{ backgroundColor: "rgba(255,255,255,0.03)", border: "1px solid rgba(255,255,255,0.06)" }}>
         <h2 className="text-sm font-semibold text-gray-400 uppercase tracking-wider mb-1">
-          {confronto ? "Scenario A" : "💼 Come ti paghi"}
+          💼 Come ti paghi
         </h2>
         <p className="text-[11px] text-gray-500 mb-4">Ci sono due modi per portare i soldi dalla SRL alla tua tasca. Regola entrambi per trovare il mix migliore.</p>
         <Slider label="Compenso amministratore (lordo annuo)" value={comp}
