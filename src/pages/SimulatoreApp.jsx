@@ -1,6 +1,6 @@
 import React, { useState } from "react";
-import { ArrowLeft, Loader2 } from "lucide-react";
-import { Link } from "react-router-dom";
+import { ArrowLeft, Loader2, ExternalLink } from "lucide-react";
+import { Link, useNavigate } from "react-router-dom";
 import { base44 } from "@/api/base44Client";
 import CategorySelector from "../components/simulatore-app/CategorySelector";
 import PhoneFrame from "../components/simulatore-app/PhoneFrame";
@@ -17,35 +17,43 @@ const CATEGORIES = [
   { id: "altro", label: "Altro", icon: "✨" },
 ];
 
-const PROMPT_TEMPLATE = `Sei un designer di app mobile. L'utente vuole un'app per il settore "{category}".
-Descrizione dell'utente: "{description}"
+const PROMPT_TEMPLATE = `Sei un UI/UX designer professionista di livello mondiale. Crei interfacce mobile che sembrano app reali pubblicate su App Store.
 
-Genera un mockup JSON dell'app. La struttura deve essere un oggetto con queste proprietà:
-- appName: nome dell'app (string)
-- tagline: sottotitolo breve (string)
-- primaryColor: colore primario HEX (string, es "#e8912d")
-- secondaryColor: colore secondario HEX (string)
-- headerStyle: "gradient" | "solid" | "image"
+L'utente vuole un'app per il settore "{category}".
+Descrizione: "{description}"
+
+REGOLE DI DESIGN FONDAMENTALI:
+- Scegli una palette colori SOFISTICATA e moderna (non colori banali). Usa colori che creino atmosfera.
+- Genera ALMENO 5-6 sezioni per dare profondità all'app.
+- I contenuti devono essere IPER-REALISTICI: nomi di piatti veri, prezzi reali italiani, orari credibili, recensioni che sembrano vere.
+- Pensa come se fosse un'app vera: aggiungi dettagli che un utente reale si aspetterebbe.
+- Usa emoji pertinenti e varie per ogni prodotto/servizio.
+
+STRUTTURA JSON richiesta:
+- appName: nome dell'app professionale e accattivante
+- tagline: sottotitolo breve ed efficace
+- primaryColor: colore HEX primario (sceglilo con cura)
+- secondaryColor: colore HEX secondario (complementare)
+- headerStyle: "gradient" | "solid"
 - sections: array di sezioni, ogni sezione ha:
-  - type: uno tra "hero", "menu_list", "product_grid", "service_list", "stats_grid", "activity_feed", "gallery", "cta_banner", "booking", "contact", "pricing", "testimonials", "features"
-  - title: titolo sezione (string, opzionale)
-  - items: array di oggetti specifici per il tipo:
-    Per "menu_list": {name, description, price}
-    Per "product_grid": {name, price, tag, emoji}
-    Per "service_list": {name, duration, price, description}
-    Per "stats_grid": {label, value, trend, trendDirection}
-    Per "activity_feed": {text, detail, time, valueText, valueColor}
-    Per "gallery": {title, tag}
-    Per "cta_banner": {text, buttonText}
-    Per "booking": {slots: ["09:00","10:30",...]}
-    Per "contact": {email, phone, address}
-    Per "pricing": {name, price, period, features}
-    Per "testimonials": {name, text, rating}
-    Per "features": {name, description, emoji}
-- bottomNav: array di {label, active} per la barra navigazione in basso (max 4)
+  - type: uno tra "menu_list", "product_grid", "service_list", "stats_grid", "activity_feed", "gallery", "cta_banner", "booking", "contact", "pricing", "testimonials", "features"
+  - title: titolo sezione
+  - items: array di oggetti per tipo:
+    "menu_list": {name, description, price} — almeno 5-6 items
+    "product_grid": {name, price, tag, emoji} — almeno 4-6 items
+    "service_list": {name, duration, price, description} — almeno 4 items
+    "stats_grid": {label, value, trend, trendDirection} — 4 items
+    "activity_feed": {text, detail, time, valueText, valueColor}
+    "gallery": {title, tag} — almeno 4 items
+    "cta_banner": {text, buttonText}
+    "booking": {slots: ["09:00","10:30",...]} — almeno 6 slot
+    "contact": {email, phone, address}
+    "pricing": {name, price, period, features} — features è array di stringhe
+    "testimonials": {name, text, rating} — almeno 3 con testi dettagliati
+    "features": {name, description, emoji} — almeno 4
+- bottomNav: array di {label, active} (4 voci)
 
-Genera contenuti realistici e coerenti con la descrizione. Usa 3-5 sezioni. I prezzi e dati devono essere realistici per il settore italiano.
-Rispondi SOLO con il JSON, senza altro testo.`;
+Genera un'app che faccia dire "WOW, sembra vera!". Rispondi SOLO con il JSON.`;
 
 export default function SimulatoreApp() {
   const [selected, setSelected] = useState(null);
@@ -53,6 +61,7 @@ export default function SimulatoreApp() {
   const [loading, setLoading] = useState(false);
   const [appData, setAppData] = useState(null);
   const [error, setError] = useState(null);
+  const navigate = useNavigate();
 
   const cat = CATEGORIES.find(c => c.id === selected);
 
@@ -200,6 +209,21 @@ export default function SimulatoreApp() {
             <PhoneFrame>
               <DynamicAppRenderer data={appData} />
             </PhoneFrame>
+
+            {/* Link per aprire fullscreen */}
+            <div className="mt-6 text-center">
+              <button
+                onClick={() => {
+                  sessionStorage.setItem("simulatore_app_data", JSON.stringify(appData));
+                  navigate("/AppPreview");
+                }}
+                className="inline-flex items-center gap-2 px-6 py-3 rounded-xl bg-purple-600 hover:bg-purple-500 text-white font-bold text-sm transition-all"
+              >
+                <ExternalLink className="w-4 h-4" />
+                Apri anteprima completa
+              </button>
+              <p className="text-xs text-gray-500 mt-2">Vedrai l'app a schermo intero e potrai modificarla</p>
+            </div>
 
             <CTASection onReset={handleReset} />
           </>
