@@ -1,9 +1,10 @@
 import React, { useState, useEffect, useRef } from "react";
-import { ArrowLeft, Send, Mic, MicOff, Loader2, Eye, History } from "lucide-react";
+import { ArrowLeft, Send, Mic, MicOff, Loader2, Eye, History, Upload, ImagePlus } from "lucide-react";
 import { Link, useNavigate } from "react-router-dom";
 import { base44 } from "@/api/base44Client";
 import DynamicAppRenderer from "../components/simulatore-app/DynamicAppRenderer";
 import ProjectHistory from "../components/simulatore-app/ProjectHistory";
+import CreationWizard from "../components/simulatore-app/CreationWizard";
 
 const SYSTEM_DESIGN_PROMPT = `Sei un designer-developer di livello mondiale. Crei applicazioni mobile con qualità visiva al livello delle app premiate da Apple Design Awards.
 
@@ -77,8 +78,11 @@ export default function SimulatoreApp() {
   const [versions, setVersions] = useState([]);
   const [user, setUser] = useState(null);
   const [showHistory, setShowHistory] = useState(false);
+  const [showWizard, setShowWizard] = useState(true);
   const [isRecording, setIsRecording] = useState(false);
+  const [uploadingImage, setUploadingImage] = useState(false);
   const chatEndRef = useRef(null);
+  const fileInputRef = useRef(null);
   const navigate = useNavigate();
 
   useEffect(() => {
@@ -130,34 +134,16 @@ export default function SimulatoreApp() {
     return updatedVersions;
   };
 
-  const handleSend = async () => {
-    if (!input.trim() || loading) return;
-    const userText = input.trim();
-    setInput("");
-
-    const userMsg = addMessage("user", userText);
+  const generateApp = async (promptText) => {
+    if (loading) return;
     setLoading(true);
 
+    const userMsg = addMessage("user", promptText);
     const isFirstMessage = !appData;
 
     const prompt = isFirstMessage
-      ? `${SYSTEM_DESIGN_PROMPT}
-
-L'utente descrive così la sua app: "${userText}"
-
-Genera il JSON completo dell'app. Includi 5-7 sezioni. Se l'utente menziona funzionalità come pagamenti, API, notifiche push, login ecc., inseriscile nel campo features_requested come array di stringhe.
-Le sezioni disponibili: "hero_banner", "menu_list", "product_grid", "service_list", "stats_grid", "activity_feed", "gallery", "cta_banner", "booking", "contact", "pricing", "testimonials", "features".
-Rispondi SOLO con il JSON.`
-      : `${SYSTEM_DESIGN_PROMPT}
-
-Ecco il mockup JSON attuale dell'app:
-${JSON.stringify(appData, null, 2)}
-
-L'utente chiede: "${userText}"
-
-REGOLA IMPORTANTE: L'utente può modificare SOLO aspetti grafici/estetici (colori, testi, layout, sezioni, contenuti, immagini). Se la modifica riguarda struttura tecnica (pagamenti, API, database, autenticazione), NON applicarla al JSON ma aggiungila a features_requested.
-
-Applica le modifiche grafiche e restituisci il JSON completo aggiornato. Rispondi SOLO con il JSON.`;
+      ? `${SYSTEM_DESIGN_PROMPT}\n\nL'utente descrive così la sua app: "${promptText}"\n\nGenera il JSON completo dell'app. Includi 5-7 sezioni. Se l'utente menziona funzionalità come pagamenti, API, notifiche push, login ecc., inseriscile nel campo features_requested come array di stringhe.\nLe sezioni disponibili: "hero_banner", "menu_list", "product_grid", "service_list", "stats_grid", "activity_feed", "gallery", "cta_banner", "booking", "contact", "pricing", "testimonials", "features".\nRispondi SOLO con il JSON.`
+      : `${SYSTEM_DESIGN_PROMPT}\n\nEcco il mockup JSON attuale dell'app:\n${JSON.stringify(appData, null, 2)}\n\nL'utente chiede: "${promptText}"\n\nREGOLA IMPORTANTE: L'utente può modificare SOLO aspetti grafici/estetici (colori, testi, layout, sezioni, contenuti, immagini). Se la modifica riguarda struttura tecnica (pagamenti, API, database, autenticazione), NON applicarla al JSON ma aggiungila a features_requested.\n\nApplica le modifiche grafiche e restituisci il JSON completo aggiornato. Rispondi SOLO con il JSON.`;
 
     try {
       const result = await base44.integrations.Core.InvokeLLM({
@@ -172,23 +158,52 @@ Applica le modifiche grafiche e restituisci il JSON completo aggiornato. Rispond
 
         const newFeatures = result.features_requested || [];
         const featureMsg = newFeatures.length > 0
-          ? `\n\n📋 **Funzionalità richieste** (verranno configurate dall'admin): ${newFeatures.join(", ")}`
+          ? `\n\n📋 Funzionalità richieste (verranno configurate dall'admin): ${newFeatures.join(", ")}`
           : "";
 
         const assistantMsg = addMessage("assistant",
           isFirstMessage
-            ? `Ho creato **${result.appName}**! ${result.tagline}\n\nPremi 👁️ per vedere l'anteprima completa, oppure scrivimi per modificare colori, testi, sezioni...${featureMsg}`
+            ? `Ho creato ${result.appName}! ${result.tagline}\n\nPremi 👁️ per vedere l'anteprima completa, oppure scrivimi per modificare colori, testi, sezioni...${featureMsg}`
             : `Modifica applicata! Controlla l'anteprima.${featureMsg}`
         );
 
         const allMsgs = [...messages, userMsg, assistantMsg];
-        await saveProject(result, allMsgs, versions, userText);
+        await saveProject(result, allMsgs, versions, promptText);
       }
     } catch (err) {
       console.error("Errore:", err);
       addMessage("assistant", "Si è verificato un errore. Riprova tra qualche secondo.");
     } finally {
       setLoading(false);
+    }
+  };
+
+  const handleSend = () => {
+    if (!input.trim() || loading) return;
+    const text = input.trim();
+    setInput("");
+    generateApp(text);
+  };
+
+  const handleWizardComplete = (prompt, wizardData) => {
+    setShowWizard(false);
+    generateApp(prompt);
+  };
+
+  const handleImageUpload = async (e) => {
+    const file = e.target.files?.[0];
+    if (!file) return;
+    setUploadingImage(true);
+    try {
+      const { file_url } = await base44.integrations.Core.UploadFile({ file });
+      setInput(prev => prev + (prev ? " " : "") + `[Immagine caricata: ${file_url}]`);
+      addMessage("assistant", `📎 Immagine caricata! Ora dimmi come vuoi usarla (es. "usa questa come logo", "metti questa immagine nella gallery").`);
+    } catch (err) {
+      console.error("Upload error:", err);
+      addMessage("assistant", "Errore durante il caricamento dell'immagine.");
+    } finally {
+      setUploadingImage(false);
+      if (fileInputRef.current) fileInputRef.current.value = "";
     }
   };
 
@@ -202,13 +217,9 @@ Applica le modifiche grafiche e restituisci il JSON completo aggiornato. Rispond
     recognition.lang = "it-IT";
     recognition.continuous = false;
     recognition.interimResults = false;
-
     recognition.onstart = () => setIsRecording(true);
     recognition.onend = () => setIsRecording(false);
-    recognition.onresult = (e) => {
-      const text = e.results[0][0].transcript;
-      setInput(prev => prev + text);
-    };
+    recognition.onresult = (e) => setInput(prev => prev + e.results[0][0].transcript);
     recognition.onerror = () => setIsRecording(false);
     recognition.start();
   };
@@ -217,6 +228,7 @@ Applica le modifiche grafiche e restituisci il JSON completo aggiornato. Rispond
     if (!appData) return;
     sessionStorage.setItem("simulatore_app_data", JSON.stringify(appData));
     sessionStorage.setItem("simulatore_project_id", projectId || "");
+    sessionStorage.setItem("simulatore_versions", JSON.stringify(versions));
     navigate("/AppPreview");
   };
 
@@ -226,6 +238,7 @@ Applica le modifiche grafiche e restituisci il JSON completo aggiornato. Rispond
     setVersions(project.versions || []);
     setAppData(project.current_data ? JSON.parse(project.current_data) : null);
     setShowHistory(false);
+    setShowWizard(false);
   };
 
   return (
@@ -245,7 +258,7 @@ Applica le modifiche grafiche e restituisci il JSON completo aggiornato. Rispond
                 <Eye className="w-4 h-4" />
               </button>
             )}
-            <button onClick={() => setShowHistory(!showHistory)} className="p-2 rounded-lg bg-white/5 text-gray-400 hover:text-white transition-colors">
+            <button onClick={() => { setShowHistory(!showHistory); setShowWizard(false); }} className="p-2 rounded-lg bg-white/5 text-gray-400 hover:text-white transition-colors">
               <History className="w-4 h-4" />
             </button>
           </div>
@@ -254,24 +267,16 @@ Applica le modifiche grafiche e restituisci il JSON completo aggiornato. Rispond
 
       {showHistory ? (
         <ProjectHistory userEmail={user?.email} onSelectProject={loadProject} onClose={() => setShowHistory(false)} />
+      ) : showWizard && !appData && messages.length === 0 ? (
+        <CreationWizard onComplete={handleWizardComplete} />
       ) : (
         <>
           {/* Chat area */}
           <div className="flex-1 overflow-y-auto px-4 max-w-lg mx-auto w-full">
             {messages.length === 0 && !loading && (
               <div className="text-center py-16">
-                <div className="w-16 h-16 rounded-2xl bg-purple-600/10 flex items-center justify-center mx-auto mb-4">
-                  <span className="text-3xl">✨</span>
-                </div>
-                <h2 className="text-xl font-black mb-2">Crea la tua app</h2>
-                <p className="text-sm text-gray-400 max-w-xs mx-auto">Descrivi l'app che vuoi creare. Puoi chiedere modifiche dopo averla generata.</p>
-                <div className="mt-6 flex flex-wrap gap-2 justify-center">
-                  {["Un ristorante con ordini al tavolo", "Un e-commerce di abbigliamento", "Un'app per centro estetico"].map(s => (
-                    <button key={s} onClick={() => setInput(s)} className="text-xs bg-white/5 border border-white/10 rounded-full px-3 py-1.5 text-gray-400 hover:text-white hover:border-purple-500/30 transition-colors">
-                      {s}
-                    </button>
-                  ))}
-                </div>
+                <Loader2 className="w-8 h-8 text-purple-400 animate-spin mx-auto" />
+                <p className="text-sm text-gray-400 mt-3">Generazione in corso...</p>
               </div>
             )}
 
@@ -296,10 +301,10 @@ Applica le modifiche grafiche e restituisci il JSON completo aggiornato. Rispond
               </div>
             )}
 
-            {/* Anteprima inline piccola */}
+            {/* Mini preview */}
             {appData && !loading && messages.length > 0 && (
               <div className="mb-4 flex justify-center">
-                <div className="w-[180px] transform scale-100">
+                <div className="w-[180px]">
                   <div className="rounded-2xl border border-white/10 overflow-hidden shadow-xl cursor-pointer hover:border-purple-500/30 transition-colors" onClick={openPreview}>
                     <div className="h-[280px] overflow-hidden">
                       <div className="transform scale-[0.6] origin-top-left" style={{ width: "300px" }}>
@@ -317,9 +322,19 @@ Applica le modifiche grafiche e restituisci il JSON completo aggiornato. Rispond
             <div ref={chatEndRef} />
           </div>
 
-          {/* Input bar — stile Base44 */}
+          {/* Input bar */}
           <div className="sticky bottom-0 z-50 bg-[#0a0a14] border-t border-white/[0.06] px-3 py-3">
             <div className="max-w-lg mx-auto flex items-end gap-2">
+              {/* Upload image button */}
+              <button
+                onClick={() => fileInputRef.current?.click()}
+                disabled={uploadingImage}
+                className="p-3 rounded-2xl bg-white/5 text-gray-400 hover:text-white transition-colors shrink-0"
+              >
+                {uploadingImage ? <Loader2 className="w-5 h-5 animate-spin" /> : <ImagePlus className="w-5 h-5" />}
+              </button>
+              <input ref={fileInputRef} type="file" accept="image/*" onChange={handleImageUpload} className="hidden" />
+
               <div className="flex-1 relative">
                 <textarea
                   value={input}

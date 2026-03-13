@@ -1,8 +1,10 @@
-import React, { useState, useEffect } from "react";
-import { ArrowLeft, Pencil, X, Send, RotateCcw, Mic, MicOff, Clock, Check, Loader2 } from "lucide-react";
+import React, { useState, useEffect, useRef } from "react";
+import { ArrowLeft, Send, Mic, MicOff, Clock, Check, Loader2, Sliders, Layers, ImagePlus } from "lucide-react";
 import { Link } from "react-router-dom";
 import { base44 } from "@/api/base44Client";
 import DynamicAppRenderer from "../components/simulatore-app/DynamicAppRenderer";
+import QuickEditor from "../components/simulatore-app/QuickEditor";
+import VersionCompare from "../components/simulatore-app/VersionCompare";
 
 const EDIT_SCHEMA = {
   type: "object",
@@ -29,15 +31,19 @@ export default function AppPreview() {
   const [submitted, setSubmitted] = useState(false);
   const [isRecording, setIsRecording] = useState(false);
   const [showVersions, setShowVersions] = useState(false);
+  const [showQuickEditor, setShowQuickEditor] = useState(false);
   const [versions, setVersions] = useState([]);
+  const [uploadingImage, setUploadingImage] = useState(false);
+  const fileInputRef = useRef(null);
 
   useEffect(() => {
     const stored = sessionStorage.getItem("simulatore_app_data");
     const pid = sessionStorage.getItem("simulatore_project_id");
+    const storedVersions = sessionStorage.getItem("simulatore_versions");
     if (stored) setAppData(JSON.parse(stored));
+    if (storedVersions) setVersions(JSON.parse(storedVersions));
     if (pid) {
       setProjectId(pid);
-      // Carica versioni dal DB
       base44.entities.AppProject.filter({ id: pid }).then(res => {
         if (res?.[0]) {
           setVersions(res[0].versions || []);
@@ -47,44 +53,41 @@ export default function AppPreview() {
     }
   }, []);
 
+  const saveVersion = async (data, prompt) => {
+    sessionStorage.setItem("simulatore_app_data", JSON.stringify(data));
+    if (!projectId) return;
+    const newVersion = {
+      version: versions.length + 1,
+      data: JSON.stringify(data),
+      prompt: prompt || "Modifica rapida",
+      timestamp: new Date().toISOString(),
+      type: "edit",
+    };
+    const updatedVersions = [...versions, newVersion];
+    setVersions(updatedVersions);
+    sessionStorage.setItem("simulatore_versions", JSON.stringify(updatedVersions));
+    await base44.entities.AppProject.update(projectId, {
+      current_data: JSON.stringify(data),
+      current_version: updatedVersions.length,
+      versions: updatedVersions,
+    });
+  };
+
   const handleEdit = async () => {
     if (!editText.trim() || !appData || loading) return;
     setLoading(true);
+    const promptText = editText.trim();
+    setEditText("");
 
     try {
       const result = await base44.integrations.Core.InvokeLLM({
-        prompt: `Sei un designer Apple Design Awards level. Mockup attuale:
-${JSON.stringify(appData, null, 2)}
-
-Modifica richiesta: "${editText.trim()}"
-
-REGOLA: L'utente può modificare SOLO aspetti grafici (colori, testi, layout, sezioni, contenuti). Se la richiesta riguarda struttura tecnica (pagamenti, API, autenticazione), NON modificare il JSON ma aggiungila a features_requested.
-Restituisci il JSON completo aggiornato.`,
+        prompt: `Sei un designer Apple Design Awards level. Mockup attuale:\n${JSON.stringify(appData, null, 2)}\n\nModifica richiesta: "${promptText}"\n\nREGOLA: L'utente può modificare SOLO aspetti grafici (colori, testi, layout, sezioni, contenuti). Se la richiesta riguarda struttura tecnica (pagamenti, API, autenticazione), NON modificare il JSON ma aggiungila a features_requested.\nRestituisci il JSON completo aggiornato.`,
         response_json_schema: EDIT_SCHEMA,
       });
 
       if (result?.sections) {
         setAppData(result);
-        sessionStorage.setItem("simulatore_app_data", JSON.stringify(result));
-        setEditText("");
-
-        // Salva versione
-        if (projectId) {
-          const newVersion = {
-            version: versions.length + 1,
-            data: JSON.stringify(result),
-            prompt: editText.trim(),
-            timestamp: new Date().toISOString(),
-            type: "edit",
-          };
-          const updatedVersions = [...versions, newVersion];
-          setVersions(updatedVersions);
-          await base44.entities.AppProject.update(projectId, {
-            current_data: JSON.stringify(result),
-            current_version: updatedVersions.length,
-            versions: updatedVersions,
-          });
-        }
+        await saveVersion(result, promptText);
       }
     } catch (err) {
       console.error("Errore modifica:", err);
@@ -93,10 +96,28 @@ Restituisci il JSON completo aggiornato.`,
     }
   };
 
+  const handleQuickUpdate = async (newData) => {
+    setAppData(newData);
+    await saveVersion(newData, "Modifica rapida (colori/sezioni)");
+  };
+
   const handleSubmit = async () => {
     if (!projectId || !appData) return;
     await base44.entities.AppProject.update(projectId, { status: "submitted" });
     setSubmitted(true);
+    // Notifica admin via email
+    try {
+      const user = await base44.auth.me();
+      await base44.integrations.Core.SendEmail({
+        to: "admin@consorzioimprenditori.it",
+        subject: `Nuovo progetto app inviato: ${appData.appName || "App"}`,
+        body: `<h2>Nuovo progetto app pronto per la revisione</h2>
+<p><strong>App:</strong> ${appData.appName || "N/D"}</p>
+<p><strong>Utente:</strong> ${user?.full_name || user?.email || "N/D"}</p>
+<p><strong>Funzionalità richieste:</strong> ${(appData.features_requested || []).join(", ") || "Nessuna"}</p>
+<p>Vai al pannello admin per gestire il progetto.</p>`,
+      });
+    } catch {}
   };
 
   const restoreVersion = async (v) => {
@@ -106,6 +127,21 @@ Restituisci il JSON completo aggiornato.`,
     setShowVersions(false);
     if (projectId) {
       await base44.entities.AppProject.update(projectId, { current_data: v.data });
+    }
+  };
+
+  const handleImageUpload = async (e) => {
+    const file = e.target.files?.[0];
+    if (!file) return;
+    setUploadingImage(true);
+    try {
+      const { file_url } = await base44.integrations.Core.UploadFile({ file });
+      setEditText(prev => prev + (prev ? " " : "") + `[Immagine: ${file_url}]`);
+    } catch (err) {
+      console.error("Upload error:", err);
+    } finally {
+      setUploadingImage(false);
+      if (fileInputRef.current) fileInputRef.current.value = "";
     }
   };
 
@@ -136,27 +172,23 @@ Restituisci il JSON completo aggiornato.`,
 
   return (
     <div className="min-h-screen bg-[#0f0f1a] flex flex-col">
-      {/* Versioni drawer */}
+      {/* Version compare overlay */}
       {showVersions && (
-        <div className="fixed inset-0 z-[60] bg-black/70 backdrop-blur-sm" onClick={() => setShowVersions(false)}>
-          <div className="absolute bottom-0 left-0 right-0 max-h-[60vh] bg-[#12121f] rounded-t-3xl border-t border-white/10 p-4 overflow-y-auto" onClick={e => e.stopPropagation()}>
-            <div className="w-10 h-1 bg-white/20 rounded-full mx-auto mb-4" />
-            <h3 className="text-sm font-bold text-white mb-3">Versioni ({versions.length})</h3>
-            <div className="space-y-2">
-              {versions.slice().reverse().map((v, i) => (
-                <button key={i} onClick={() => restoreVersion(v)} className="w-full text-left p-3 rounded-xl bg-white/[0.04] border border-white/[0.06] hover:border-purple-500/30 transition-all">
-                  <div className="flex items-center justify-between">
-                    <div>
-                      <p className="text-xs font-bold text-white">Versione {v.version}</p>
-                      <p className="text-[10px] text-gray-500 mt-0.5 truncate max-w-[200px]">{v.prompt}</p>
-                    </div>
-                    <span className="text-[9px] text-gray-600">{new Date(v.timestamp).toLocaleTimeString("it-IT", { hour: "2-digit", minute: "2-digit" })}</span>
-                  </div>
-                </button>
-              ))}
-            </div>
-          </div>
-        </div>
+        <VersionCompare
+          versions={versions}
+          currentData={appData}
+          onRestore={restoreVersion}
+          onClose={() => setShowVersions(false)}
+        />
+      )}
+
+      {/* Quick editor overlay */}
+      {showQuickEditor && (
+        <QuickEditor
+          appData={appData}
+          onUpdate={handleQuickUpdate}
+          onClose={() => setShowQuickEditor(false)}
+        />
       )}
 
       {/* App rendering */}
@@ -164,9 +196,9 @@ Restituisci il JSON completo aggiornato.`,
         <DynamicAppRenderer data={appData} />
       </div>
 
-      {/* Barra inferiore */}
+      {/* Bottom bar */}
       <div className="sticky bottom-0 z-50 bg-[#0a0a14]/95 border-t border-white/[0.06] backdrop-blur-xl">
-        {/* Azioni rapide */}
+        {/* Quick actions */}
         <div className="flex items-center justify-between px-3 py-2 border-b border-white/[0.04]">
           <div className="flex items-center gap-2">
             <Link to="/SimulatoreApp" className="p-1.5 text-gray-500 hover:text-gray-300">
@@ -178,6 +210,10 @@ Restituisci il JSON completo aggiornato.`,
                 v{versions.length}
               </button>
             )}
+            <button onClick={() => setShowQuickEditor(true)} className="flex items-center gap-1 text-[10px] text-purple-400 hover:text-purple-300 bg-purple-600/10 rounded-full px-2 py-1">
+              <Sliders className="w-3 h-3" />
+              Modifica rapida
+            </button>
           </div>
           {!submitted ? (
             <button onClick={handleSubmit} className="flex items-center gap-1.5 text-xs font-bold text-green-400 bg-green-400/10 rounded-full px-3 py-1.5 hover:bg-green-400/20 transition-colors">
@@ -191,8 +227,17 @@ Restituisci il JSON completo aggiornato.`,
             </span>
           )}
         </div>
-        {/* Input modifica */}
+        {/* Edit input */}
         <div className="px-3 py-2.5 flex items-end gap-2">
+          <button
+            onClick={() => fileInputRef.current?.click()}
+            disabled={uploadingImage}
+            className="p-3 rounded-2xl bg-white/5 text-gray-400 hover:text-white transition-colors shrink-0"
+          >
+            {uploadingImage ? <Loader2 className="w-4 h-4 animate-spin" /> : <ImagePlus className="w-4 h-4" />}
+          </button>
+          <input ref={fileInputRef} type="file" accept="image/*" onChange={handleImageUpload} className="hidden" />
+
           <div className="flex-1 relative">
             <textarea
               value={editText}
