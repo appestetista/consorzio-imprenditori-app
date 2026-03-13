@@ -770,10 +770,10 @@ export default function SimulatoreInterattivo({ user }) {
           <div className="rounded-lg p-3" style={{ backgroundColor: "rgba(239,68,68,0.08)", border: "1px solid rgba(239,68,68,0.15)" }}>
             <div className="text-xs text-gray-400 mb-1">
               IRAP (tassa regionale)
-              <Tip text="L'IRAP è un'imposta regionale che si paga sul margine (fatturato - costi). L'aliquota base è del 3,9%. Non puoi dedurre il compenso dell'amministratore dall'IRAP, quindi si calcola sul margine pieno." />
+              <Tip text="L'IRAP si calcola sul valore della produzione netta (D.Lgs. 446/97 art. 5). Il costo del personale, il compenso amministratore e gli interessi passivi NON sono deducibili dalla base IRAP. Quindi la base è più alta del margine contabile." />
             </div>
             <div className="text-xl font-bold text-red-400">{fmt(A.irap)}</div>
-            <div className="text-[10px] text-gray-500 mt-0.5">3,9% sul margine lordo</div>
+            <div className="text-[10px] text-gray-500 mt-0.5">3,9% su base {fmt(A.baseIrap)}</div>
           </div>
           {/* Ritenuta dividendi */}
           {A.dividendiLordi > 0 && (
