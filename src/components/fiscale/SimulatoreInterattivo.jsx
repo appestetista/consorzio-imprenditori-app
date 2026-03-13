@@ -440,12 +440,14 @@ export default function SimulatoreInterattivo({ user }) {
   const gruppoTotale = (g) => g.voci.reduce((s, v) => s + (cv[v.k] || 0), 0);
 
   const A = useMemo(() => calcolaScenario({
-    fatturato: fatt, costiTotali: costi, compensoLordo: comp, percDividendi: pDiv
-  }), [fatt, costi, comp, pDiv]);
+    fatturato: fatt, costiTotali: costi, compensoLordo: comp, percDividendi: pDiv,
+    costiIndeducibiliIrap,
+  }), [fatt, costi, comp, pDiv, costiIndeducibiliIrap]);
 
   const B = useMemo(() => calcolaScenario({
-    fatturato: fatt, costiTotali: costi, compensoLordo: compB, percDividendi: pDivB
-  }), [fatt, costi, compB, pDivB]);
+    fatturato: fatt, costiTotali: costi, compensoLordo: compB, percDividendi: pDivB,
+    costiIndeducibiliIrap,
+  }), [fatt, costi, compB, pDivB, costiIndeducibiliIrap]);
 
   return (
     <div className="space-y-4">
