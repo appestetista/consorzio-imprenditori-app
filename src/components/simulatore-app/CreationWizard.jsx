@@ -274,14 +274,12 @@ REGOLE IMMAGINI — FONDAMENTALE:
     return true;
   };
 
-  const handleComplete = () => {
-    const template = data.selectedTemplate;
-    const wa = data.websiteAnalysis;
-
+  const buildAndComplete = (wizardData, template, featuresList, techFeaturesList, wa) => {
     let siteInfo = "";
     if (wa) {
       siteInfo = `\n--- DATI ESTRATTI DAL SITO WEB ---\n`;
       siteInfo += `Colori dal sito: primario ${wa.primaryColor}, secondario ${wa.secondaryColor}. Stile: ${wa.style}.\n`;
+      if (wa.logoUrl) siteInfo += `LOGO URL: ${wa.logoUrl}\n`;
       if (wa.sectionsOrder?.length > 0) {
         siteInfo += `ORDINE SEZIONI DAL SITO (RISPETTA QUESTO ORDINE): ${wa.sectionsOrder.join(" → ")}.\n`;
       }
@@ -292,7 +290,7 @@ REGOLE IMMAGINI — FONDAMENTALE:
         });
       }
       if (wa.siteImages?.length > 0) {
-        siteInfo += `\nIMMAGINI ORIGINALI DAL SITO (PRIORITÀ MASSIMA — usa queste invece di Unsplash quando pertinenti):\n`;
+        siteInfo += `\nIMMAGINI ORIGINALI DAL SITO (PRIORITÀ MASSIMA — usa queste URL esatte invece di Unsplash):\n`;
         wa.siteImages.forEach(img => {
           siteInfo += `- ${img.context}: ${img.url}\n`;
         });
@@ -303,31 +301,36 @@ REGOLE IMMAGINI — FONDAMENTALE:
       if (wa.address) siteInfo += `Indirizzo: ${wa.address}.\n`;
       if (wa.phone) siteInfo += `Telefono: ${wa.phone}.\n`;
       if (wa.hours) siteInfo += `Orari: ${wa.hours}.\n`;
+      if (wa.pdfAnalyzed) siteInfo += `[PDF menu analizzato: ${wa.pdfItemsCount} items estratti]\n`;
       siteInfo += `--- FINE DATI SITO ---\n`;
     }
 
     const isFromScratch = template.id === "from_scratch";
     const protoInfo = !isFromScratch && template.previewItems
-      ? `\nPROTOTIPO BASE SCELTO: "${template.name}" (${template.category}). L'utente vuole un'app simile a questa, con lo stesso stile e struttura ma personalizzata per la sua attività "${data.businessName}". Esempio items del prototipo: ${template.previewItems.join(", ")}. Immagine hero del prototipo: ${template.heroImage || ""}.`
+      ? `\nPROTOTIPO BASE SCELTO: "${template.name}" (${template.category}). Personalizza per "${wizardData.businessName}". Items prototipo: ${template.previewItems.join(", ")}. Hero: ${template.heroImage || ""}.`
       : "";
 
-    const prompt = `Crea un'app per "${data.businessName}" — settore: ${data.businessType}.
-${data.description ? `Descrizione: ${data.description}.` : ""}
+    const prompt = `Crea un'app per "${wizardData.businessName}" — settore: ${wizardData.businessType}.
+${wizardData.description ? `Descrizione: ${wizardData.description}.` : ""}
 ${protoInfo}
 ${siteInfo}
-Colore primario: ${template.primaryColor}, secondario: ${template.secondaryColor}, accento: ${template.accentColor}. Dark mode: ${template.darkMode}. Font style: ${template.fontStyle}.
-Sezioni richieste: ${data.features.join(", ") || "automatiche per il settore"}.
-${data.techFeatures.length > 0 ? `Funzionalità tecniche (features_requested): ${data.techFeatures.join(", ")}.` : ""}
+Colore primario: ${template.primaryColor}, secondario: ${template.secondaryColor}, accento: ${template.accentColor || template.secondaryColor}. Dark mode: ${template.darkMode}. Font style: ${template.fontStyle}.
+Sezioni richieste: ${featuresList.join(", ") || "automatiche per il settore"}.
+${techFeaturesList.length > 0 ? `Funzionalità tecniche (features_requested): ${techFeaturesList.join(", ")}.` : ""}
 
 REGOLE IMPORTANTI:
 - Usa ESATTAMENTE i colori indicati.
-${!isFromScratch ? "- L'utente ha scelto un prototipo esistente: ISPIRATI alla struttura e allo stile di quell'app, ma personalizzala con il nome, i contenuti e il settore dell'utente." : "- L'utente vuole un'app creata da zero: genera una struttura originale e unica."}
-- Se ci sono dati dal sito web, USA I CONTENUTI REALI (nomi, prezzi, descrizioni) e RISPETTA L'ORDINE DELLE SEZIONI del sito.
-- Per ogni item, aggiungi un campo "image_url". PRIORITÀ: 1) usa le immagini ORIGINALI dal sito dell'utente quando disponibili e pertinenti 2) solo se non ci sono immagini dal sito, usa Unsplash (formato: https://images.unsplash.com/photo-XXXX?w=400&h=300&fit=crop).
+${!isFromScratch ? "- Ispirati alla struttura del prototipo scelto ma personalizzala." : "- Genera una struttura originale e unica."}
+- Se ci sono dati dal sito web, USA I CONTENUTI REALI (nomi, prezzi, descrizioni) e RISPETTA L'ORDINE DELLE SEZIONI.
+- Per ogni item, aggiungi un campo "image_url". PRIORITÀ: 1) immagini ORIGINALI dal sito dell'utente 2) solo se non ci sono, usa Unsplash (formato: https://images.unsplash.com/photo-XXXX?w=400&h=300&fit=crop).
 - Non inventare prodotti/piatti se ci sono quelli reali dal sito.
-- Le immagini del sito dell'utente sono di sua proprietà, quindi puoi riutilizzarle liberamente.`;
+- Se c'è un logoUrl, usalo nell'header dell'app.`;
 
-    onComplete(prompt, data);
+    onComplete(prompt, { ...wizardData, selectedTemplate: template, features: featuresList, techFeatures: techFeaturesList });
+  };
+
+  const handleComplete = () => {
+    buildAndComplete(data, data.selectedTemplate, data.features, data.techFeatures, data.websiteAnalysis);
   };
 
   return (
