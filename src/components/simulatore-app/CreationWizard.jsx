@@ -400,7 +400,8 @@ REGOLE IMMAGINI — FONDAMENTALE:
     if (wa) {
       siteInfo = `\n--- DATI ESTRATTI DAL SITO WEB ---\n`;
       siteInfo += `Colori dal sito: primario ${wa.primaryColor}, secondario ${wa.secondaryColor}. Stile: ${wa.style}.\n`;
-      if (wa.logoUrl) siteInfo += `LOGO URL: ${wa.logoUrl}\n`;
+      if (wizardData.logoUrl) siteInfo += `LOGO URL CARICATO DALL'UTENTE (PRIORITÀ MASSIMA): ${wizardData.logoUrl}\n`;
+      else if (wa.logoUrl) siteInfo += `LOGO URL: ${wa.logoUrl}\n`;
       if (wa.sectionsOrder?.length > 0) {
         siteInfo += `ORDINE SEZIONI DAL SITO (RISPETTA QUESTO ORDINE): ${wa.sectionsOrder.join(" → ")}.\n`;
       }
