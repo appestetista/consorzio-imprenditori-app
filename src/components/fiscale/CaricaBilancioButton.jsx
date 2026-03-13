@@ -194,6 +194,11 @@ Numeri positivi senza €, senza punti migliaia. Se un dato manca, omettilo.`,
       >
         <Upload className="w-3.5 h-3.5" />
         Carica bilancio
+        {files.length > 0 && (
+          <span className="ml-1 bg-[#d4af37] text-slate-900 text-[10px] font-bold rounded-full w-4 h-4 flex items-center justify-center">
+            {files.length}
+          </span>
+        )}
       </button>
       <input
         ref={inputRef}
