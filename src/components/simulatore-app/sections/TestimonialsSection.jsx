@@ -14,10 +14,16 @@ export default function TestimonialsSection({ title, subtitle, items, primaryCol
         {items.map((t, i) => (
           <div key={i} className="rounded-2xl p-4 bg-white/[0.03] border border-white/[0.04] transition-all duration-300">
             <div className="flex items-center gap-3 mb-3">
-              {/* Avatar */}
-              <div className="w-9 h-9 rounded-full flex items-center justify-center text-base" style={{ background: primaryColor + "15" }}>
-                {t.avatar_emoji || "👤"}
-              </div>
+              {/* Avatar - image or emoji */}
+              {t.image_url ? (
+                <div className="w-9 h-9 rounded-full overflow-hidden shrink-0">
+                  <img src={t.image_url} alt={t.name} className="w-full h-full object-cover" onError={(e) => { e.target.parentNode.innerHTML = `<div class="w-full h-full flex items-center justify-center text-base" style="background:${primaryColor}15">👤</div>`; }} />
+                </div>
+              ) : (
+                <div className="w-9 h-9 rounded-full flex items-center justify-center text-base" style={{ background: primaryColor + "15" }}>
+                  {t.avatar_emoji || "👤"}
+                </div>
+              )}
               <div className="flex-1">
                 <p className="text-xs font-bold text-white">{t.name}</p>
                 {t.role && <p className="text-[10px] text-white/25">{t.role}</p>}
