@@ -560,7 +560,8 @@ ${!isFromScratch ? "- Ispirati alla struttura del prototipo scelto ma personaliz
         </div>
       )}
 
-      </div>{/* Fine contenuto scrollabile */}
+      </div>
+      {/* Fine contenuto scrollabile */}
 
       {/* Navigation — fisso in basso */}
       {!analyzingWebsite && (
