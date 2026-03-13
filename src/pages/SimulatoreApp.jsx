@@ -86,6 +86,10 @@ export default function SimulatoreApp() {
   const [showWizard, setShowWizard] = useState(true);
   const [isRecording, setIsRecording] = useState(false);
   const [uploadingImage, setUploadingImage] = useState(false);
+  const [isFirstGeneration, setIsFirstGeneration] = useState(false);
+  const [genProgress, setGenProgress] = useState(0);
+  const [genPhase, setGenPhase] = useState("");
+  const genProgressRef = useRef(null);
   const chatEndRef = useRef(null);
   const fileInputRef = useRef(null);
   const navigate = useNavigate();
