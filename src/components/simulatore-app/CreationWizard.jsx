@@ -563,9 +563,34 @@ ${!isFromScratch ? "- L'utente ha scelto un prototipo esistente: ISPIRATI alla s
             <button
               onClick={async () => {
                 if (!canProceed()) return;
-                // Se step 1, c'è URL e non ancora analizzato → analizza prima di avanzare
+                // Se step 1 con URL → analizza e poi salta direttamente alla generazione app
                 if (step === 1 && data.websiteUrl.trim() && !data.websiteAnalysis) {
-                  await analyzeWebsite();
+                  const analysisResult = await analyzeWebsite();
+                  if (analysisResult) {
+                    // Aggiorna data con risultati analisi
+                    const updatedData = {
+                      ...data,
+                      websiteAnalysis: analysisResult,
+                      businessName: data.businessName || analysisResult.name || "",
+                      description: data.description || analysisResult.description || "",
+                    };
+                    setData(updatedData);
+                    // Salta direttamente alla generazione: crea un template default e lancia onComplete
+                    const autoTemplate = {
+                      id: "from_scratch",
+                      name: "Basata sul sito web",
+                      primaryColor: analysisResult.primaryColor || "#6366F1",
+                      secondaryColor: analysisResult.secondaryColor || "#1a1a2e",
+                      accentColor: analysisResult.secondaryColor || "#818CF8",
+                      darkMode: true,
+                      fontStyle: "sans-serif",
+                    };
+                    const features = FEATURES_BY_CATEGORY[updatedData.businessType] || FEATURES_BY_CATEGORY._default;
+                    const autoFeatures = features.map(f => f.id);
+                    // Costruisci il prompt finale e lancia
+                    buildAndComplete(updatedData, autoTemplate, autoFeatures, [], analysisResult);
+                    return;
+                  }
                 }
                 setStep(step + 1);
               }}
