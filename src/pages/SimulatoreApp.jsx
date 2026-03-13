@@ -256,7 +256,7 @@ export default function SimulatoreApp() {
   };
 
   return (
-    <div className="min-h-screen bg-[#0a0f1a] text-white flex flex-col">
+    <div className="min-h-screen bg-[#0a0f1a] text-white flex flex-col" style={{ overscrollBehavior: "none" }}>
       {/* Header */}
       <div className="sticky top-0 z-30 bg-[#0a0f1a]/90 backdrop-blur-md border-b border-white/5 px-4 py-3">
         <div className="flex items-center justify-between max-w-lg mx-auto">
