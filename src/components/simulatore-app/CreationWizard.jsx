@@ -705,6 +705,9 @@ ${!isFromScratch ? "- Ispirati alla struttura del prototipo scelto ma personaliz
               </button>
             </div>
           )}
+          </div>
+
+          <p className="text-center text-[10px] text-gray-500">Questi passaggi sono opzionali — puoi saltarli</p>
         </div>
       )}
 
