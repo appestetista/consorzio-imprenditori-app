@@ -611,7 +611,7 @@ export default function SimulatoreInterattivo({ user }) {
           sub="È lo 'stipendio' che ti dai come amministratore. Viene tassato con IRPEF + contributi INPS, ma riduce le tasse della società." />
         <Slider label="Quanta % dell'utile distribuisci come dividendi?" value={pDiv}
           onChange={setPDiv} min={0} max={100} step={5} suffix="%"
-          sub="I dividendi sono la quota di utili che prelevi. Paghi il 26% secco. Il resto può restare in azienda senza pagare questa tassa." />
+          sub={`I dividendi sono la quota di utili che prelevi. Paghi il 26% secco. Il resto può restare in azienda senza pagare questa tassa.\n→ Dividendi netti in tasca: ${fmt(A.dividendiNetti)} · Lordi: ${fmt(A.dividendiLordi)}`} />
         {confronto && (
           <>
             <div className="border-t border-gray-800 my-4" />
