@@ -713,18 +713,8 @@ export default function SimulatoreInterattivo({ user }) {
         <Slider label="Quanta % dell'utile distribuisci come dividendi?" value={pDiv}
           onChange={setPDiv} min={0} max={100} step={5} suffix="%"
           sub={`I dividendi sono la quota di utili che prelevi. Paghi il 26% secco. Il resto può restare in azienda senza pagare questa tassa.\n→ Dividendi netti in tasca: ${fmt(A.dividendiNetti)} · Lordi: ${fmt(A.dividendiLordi)}`} />
-        {confronto && (
-          <>
-            <div className="border-t border-gray-800 my-4" />
-            <h2 className="text-sm font-semibold text-amber-400 uppercase tracking-wider mb-4">
-              Scenario B
-            </h2>
-            <Slider label="Compenso Amm.re (lordo)" value={compB}
-              onChange={setCompB} min={0} max={120000} step={3000} />
-            <Slider label="% utile → dividendi" value={pDivB}
-              onChange={setPDivB} min={0} max={100} step={5} suffix="%" />
-          </>
-        )}
+
+
       </div>
 
       {/* ═══ RISULTATI ═══ */}
