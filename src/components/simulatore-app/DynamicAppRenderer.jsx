@@ -91,6 +91,9 @@ export default function DynamicAppRenderer({ data, editable, onDataChange }) {
                 primaryColor={primaryColor}
                 secondaryColor={secondaryColor || primaryColor}
                 accentColor={accentColor || primaryColor}
+                editable={editable}
+                onItemChange={(itemIndex, field, value) => handleItemChange(i, itemIndex, field, value)}
+                onSectionChange={(field, value) => handleSectionChange(i, field, value)}
               />
             </div>
           );
