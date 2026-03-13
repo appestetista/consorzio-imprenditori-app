@@ -91,6 +91,7 @@ export default function CreationWizard({ onComplete }) {
     if (!data.websiteUrl.trim()) return;
     setAnalyzingWebsite(true);
     try {
+      // Step 1: Analisi sito + ricerca PDF menu
       const result = await base44.integrations.Core.InvokeLLM({
         prompt: `Analizza in dettaglio questo sito web: ${data.websiteUrl}
 
@@ -103,9 +104,10 @@ Estrai TUTTE queste informazioni:
 6. Tipo di attività (ristorazione, beauty, fitness, ecommerce, servizi, ecc.)
 7. Le SEZIONI del sito nell'ORDINE ESATTO in cui appaiono (es: hero, menu, chi siamo, gallery, recensioni, contatti...)
 8. I CONTENUTI principali: nomi di piatti/servizi/prodotti, prezzi, categorie, descrizioni che trovi nel sito
-9. URL del logo se visibile
+9. URL del logo se visibile (URL COMPLETO, non relativo)
 10. Orari di apertura, indirizzo, telefono se presenti
-11. TUTTE le URL delle immagini presenti nel sito (hero, prodotti, gallery, banner, ecc.). Estrai gli URL completi delle immagini (jpg, png, webp). Per ogni immagine indica a cosa si riferisce (es: "hero banner", "pizza margherita", "interno ristorante", ecc.)`,
+11. TUTTE le URL delle immagini presenti nel sito (hero, prodotti, gallery, banner, ecc.). Estrai gli URL completi assoluti delle immagini (jpg, png, webp). Per ogni immagine indica a cosa si riferisce.
+12. CERCA link a file PDF nel sito (menu PDF, catalogo PDF, listino prezzi PDF). Se trovi un link a un PDF, riportalo nel campo pdfMenuUrl.`,
         add_context_from_internet: true,
         response_json_schema: {
           type: "object",
@@ -116,23 +118,85 @@ Estrai TUTTE queste informazioni:
             style: { type: "string", description: "Stile grafico" },
             description: { type: "string", description: "Descrizione attività" },
             businessType: { type: "string", description: "Tipo attività" },
-            sectionsOrder: { type: "array", items: { type: "string" }, description: "Ordine sezioni del sito (es: hero, menu, about, gallery, reviews, contact)" },
-            menuItems: { type: "array", items: { type: "object", properties: { name: { type: "string" }, description: { type: "string" }, price: { type: "string" }, category: { type: "string" }, image_url: { type: "string" } } }, description: "Piatti/servizi/prodotti trovati con prezzi e URL immagine dal sito se presente" },
-            categories: { type: "array", items: { type: "string" }, description: "Categorie di prodotti/servizi" },
-            siteImages: { type: "array", items: { type: "object", properties: { url: { type: "string", description: "URL completo dell'immagine" }, context: { type: "string", description: "A cosa si riferisce (hero, prodotto, gallery, ecc.)" } } }, description: "Tutte le immagini trovate nel sito con il loro contesto" },
+            sectionsOrder: { type: "array", items: { type: "string" }, description: "Ordine sezioni del sito" },
+            menuItems: { type: "array", items: { type: "object", properties: { name: { type: "string" }, description: { type: "string" }, price: { type: "string" }, category: { type: "string" }, image_url: { type: "string" } } }, description: "Piatti/servizi/prodotti trovati" },
+            categories: { type: "array", items: { type: "string" }, description: "Categorie" },
+            siteImages: { type: "array", items: { type: "object", properties: { url: { type: "string" }, context: { type: "string" } } }, description: "Immagini dal sito" },
             address: { type: "string" },
             phone: { type: "string" },
             hours: { type: "string" },
-            logoUrl: { type: "string" },
+            logoUrl: { type: "string", description: "URL completo assoluto del logo" },
+            pdfMenuUrl: { type: "string", description: "URL di un PDF menu/catalogo/listino trovato nel sito (vuoto se non trovato)" },
           },
         },
         model: "gemini_3_flash",
       });
+
+      let finalResult = { ...result };
+
+      // Step 2: Se c'è un PDF menu, analizzalo con ExtractDataFromUploadedFile
+      if (result.pdfMenuUrl && result.pdfMenuUrl.trim()) {
+        try {
+          console.log("[Wizard] PDF menu trovato:", result.pdfMenuUrl);
+          const pdfExtraction = await base44.integrations.Core.ExtractDataFromUploadedFile({
+            file_url: result.pdfMenuUrl,
+            json_schema: {
+              type: "object",
+              properties: {
+                items: {
+                  type: "array",
+                  items: {
+                    type: "object",
+                    properties: {
+                      name: { type: "string", description: "Nome piatto/servizio/prodotto" },
+                      description: { type: "string", description: "Descrizione" },
+                      price: { type: "string", description: "Prezzo (es. € 12.00)" },
+                      category: { type: "string", description: "Categoria (es. Antipasti, Primi, Secondi, Dolci, Bevande)" },
+                    },
+                  },
+                },
+              },
+            },
+          });
+          if (pdfExtraction?.status === "success" && pdfExtraction.output?.items?.length > 0) {
+            console.log("[Wizard] Estratti", pdfExtraction.output.items.length, "items dal PDF");
+            // Unisci: items dal PDF hanno priorità se il sito ne aveva pochi
+            const pdfItems = pdfExtraction.output.items.map(it => ({
+              name: it.name || "",
+              description: it.description || "",
+              price: it.price || "",
+              category: it.category || "",
+              image_url: "",
+            }));
+            if (!finalResult.menuItems || finalResult.menuItems.length < pdfItems.length) {
+              finalResult.menuItems = pdfItems;
+            } else {
+              // Aggiungi quelli dal PDF non già presenti
+              const existingNames = new Set((finalResult.menuItems || []).map(i => i.name?.toLowerCase()));
+              pdfItems.forEach(pi => {
+                if (!existingNames.has(pi.name?.toLowerCase())) {
+                  finalResult.menuItems.push(pi);
+                }
+              });
+            }
+            // Estrai categorie dal PDF
+            const pdfCategories = [...new Set(pdfItems.map(i => i.category).filter(Boolean))];
+            if (pdfCategories.length > 0) {
+              finalResult.categories = [...new Set([...(finalResult.categories || []), ...pdfCategories])];
+            }
+            finalResult.pdfAnalyzed = true;
+            finalResult.pdfItemsCount = pdfItems.length;
+          }
+        } catch (pdfErr) {
+          console.warn("[Wizard] Errore analisi PDF:", pdfErr);
+        }
+      }
+
       setData(prev => ({
         ...prev,
-        websiteAnalysis: result,
-        businessName: prev.businessName || result.name || "",
-        description: prev.description || result.description || "",
+        websiteAnalysis: finalResult,
+        businessName: prev.businessName || finalResult.name || "",
+        description: prev.description || finalResult.description || "",
       }));
     } catch (err) {
       console.error("Errore analisi sito:", err);
