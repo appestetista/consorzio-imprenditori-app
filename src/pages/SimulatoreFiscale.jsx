@@ -16,6 +16,7 @@ export default function SimulatoreFiscale() {
   const [effectiveUser, setEffectiveUser] = useState(null);
   const [showPreFlight, setShowPreFlight] = useState(false);
   const [showAliquote, setShowAliquote] = useState(false);
+  const [showQuickEdit, setShowQuickEdit] = useState(false);
   const { impersonation, appMode } = useImpersonation();
 
   // Mostra popup pre-flight solo se manca la forma giuridica (unico dato indispensabile)
