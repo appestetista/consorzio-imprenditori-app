@@ -341,9 +341,9 @@ ${!isFromScratch ? "- Ispirati alla struttura del prototipo scelto ma personaliz
   };
 
   return (
-    <div className="flex-1 px-4 max-w-lg mx-auto w-full py-6 overflow-y-auto">
+    <div ref={wizardRef} className="flex-1 flex flex-col px-4 max-w-lg mx-auto w-full overflow-hidden">
       {/* Progress bar */}
-      <div className="flex gap-1 mb-6">
+      <div className="flex gap-1 pt-4 pb-3 shrink-0">
         {Array.from({ length: totalSteps }).map((_, i) => (
           <div key={i} className={`h-1 rounded-full flex-1 transition-all ${i <= step ? "bg-purple-500" : "bg-white/10"}`} />
         ))}
