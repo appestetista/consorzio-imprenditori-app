@@ -636,8 +636,8 @@ ${!isFromScratch ? "- Ispirati alla struttura del prototipo scelto ma personaliz
         />
       )}
 
-      {/* Step 3: Funzionalità */}
-      {step === 3 && (
+      {/* Step 4: Funzionalità */}
+      {step === 4 && (
         <div className="space-y-4">
           <div className="text-center mb-4">
             <h2 className="text-lg font-black text-white">Cosa vuoi nell'app?</h2>
