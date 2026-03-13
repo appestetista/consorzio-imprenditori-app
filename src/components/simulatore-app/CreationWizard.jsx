@@ -124,38 +124,38 @@ export default function CreationWizard({ onComplete }) {
     setAnalyzingWebsite(true);
     startFakeProgress();
 
-    // Risolvi il dominio base per le URL relative
     let siteUrl = data.websiteUrl.trim();
     if (!siteUrl.startsWith("http")) siteUrl = "https://" + siteUrl;
     let baseUrl = "";
     try { baseUrl = new URL(siteUrl).origin; } catch { baseUrl = siteUrl; }
 
     try {
-      // Step 1: Analisi sito + ricerca PDF menu
+      // Passa il sito come file_urls così l'LLM lo legge realmente (non solo ricerca web)
       const result = await base44.integrations.Core.InvokeLLM({
-        prompt: `Analizza in dettaglio questo sito web: ${siteUrl}
-Il dominio base è: ${baseUrl}
+        prompt: `Stai analizzando il sito web: ${siteUrl} (dominio base: ${baseUrl}).
+Il contenuto della pagina ti viene fornito come allegato. Analizzalo in dettaglio.
 
-Estrai TUTTE queste informazioni:
-1. Nome dell'attività
-2. Colore primario (hex esatto dal sito)
-3. Colore secondario (hex esatto dal sito)
-4. Stile grafico generale (moderno, classico, minimalista, lusso, rustico, ecc.)
+ESTRAI CON PRECISIONE:
+1. Nome dell'attività (dal titolo, logo, header)
+2. Colore primario HEX (il colore dominante del brand, dal CSS/design)
+3. Colore secondario HEX
+4. Stile grafico (moderno, classico, minimalista, lusso, rustico, ecc.)
 5. Descrizione dell'attività (cosa fa, cosa offre)
-6. Tipo di attività (ristorazione, beauty, fitness, ecommerce, servizi, ecc.)
-7. Le SEZIONI del sito nell'ORDINE ESATTO in cui appaiono (es: hero, menu, chi siamo, gallery, recensioni, contatti...)
-8. I CONTENUTI principali: nomi di piatti/servizi/prodotti, prezzi, categorie, descrizioni che trovi nel sito
-9. URL del logo se visibile
-10. Orari di apertura, indirizzo, telefono se presenti
-11. TUTTE le URL delle immagini presenti nel sito (hero, prodotti, gallery, banner, ecc.). Per ogni immagine indica a cosa si riferisce.
-12. CERCA link a file PDF nel sito (menu PDF, catalogo PDF, listino prezzi PDF). Se trovi un link a un PDF, riportalo nel campo pdfMenuUrl.
+6. Tipo di attività (ristorazione, beauty, fitness, ecommerce, servizi, immobiliare, salute, turismo, educazione, altro)
+7. Ordine delle sezioni della pagina
+8. Prodotti/servizi/piatti con nome, descrizione, prezzo, categoria
+9. URL ASSOLUTO del logo (DEVE iniziare con http:// o https://)
+10. Indirizzo, telefono, orari se presenti
+11. TUTTE le URL ASSOLUTE delle immagini (hero, prodotti, gallery, team, banner). Se relative, anteponi ${baseUrl}
+12. Link a file PDF (menu, catalogo, listino). Se trovi un PDF, metti l'URL completo in pdfMenuUrl.
 
-REGOLE CRITICHE PER LE IMMAGINI:
-- Estrai OGNI immagine visibile nel sito (logo, hero, prodotti, gallery, team, banner, sfondo).
-- Se un URL immagine è RELATIVO (inizia con / o non ha http), CONVERTILO in URL ASSOLUTO aggiungendo "${baseUrl}" davanti. Esempio: /images/pizza.jpg → ${baseUrl}/images/pizza.jpg
-- Ogni URL deve iniziare con http:// o https://
-- Non inventare URL. Riporta SOLO immagini che trovi realmente nel sito.
-- Includi anche immagini da CDN esterni (cloudinary, imgix, shopify, ecc.) se presenti.`,
+REGOLE IMMAGINI — FONDAMENTALE:
+- Estrai OGNI tag <img src="...">, ogni background-image url(...), ogni <source srcset="...">
+- Converti TUTTE le URL relative in assolute con ${baseUrl}
+- Per il logo: cerca nell'header/nav un <img> con class/alt che contiene "logo"
+- NON inventare URL. Solo URL reali trovati nel codice HTML.
+- Includi URL da CDN esterni (cloudinary, imgix, shopify, wp-content, ecc.)`,
+        file_urls: [siteUrl],
         add_context_from_internet: true,
         response_json_schema: {
           type: "object",
@@ -167,27 +167,37 @@ REGOLE CRITICHE PER LE IMMAGINI:
             description: { type: "string", description: "Descrizione attività" },
             businessType: { type: "string", description: "Tipo attività" },
             sectionsOrder: { type: "array", items: { type: "string" }, description: "Ordine sezioni del sito" },
-            menuItems: { type: "array", items: { type: "object", properties: { name: { type: "string" }, description: { type: "string" }, price: { type: "string" }, category: { type: "string" }, image_url: { type: "string" } } }, description: "Piatti/servizi/prodotti trovati" },
+            menuItems: { type: "array", items: { type: "object", properties: { name: { type: "string" }, description: { type: "string" }, price: { type: "string" }, category: { type: "string" }, image_url: { type: "string" } } }, description: "Piatti/servizi/prodotti trovati con URL assolute per le immagini" },
             categories: { type: "array", items: { type: "string" }, description: "Categorie" },
-            siteImages: { type: "array", items: { type: "object", properties: { url: { type: "string" }, context: { type: "string" } } }, description: "Immagini dal sito" },
+            siteImages: { type: "array", items: { type: "object", properties: { url: { type: "string" }, context: { type: "string" } } }, description: "TUTTE le immagini trovate nel sito con URL assolute" },
             address: { type: "string" },
             phone: { type: "string" },
             hours: { type: "string" },
-            logoUrl: { type: "string", description: "URL completo assoluto del logo" },
-            pdfMenuUrl: { type: "string", description: "URL di un PDF menu/catalogo/listino trovato nel sito (vuoto se non trovato)" },
+            logoUrl: { type: "string", description: "URL assoluto del logo" },
+            pdfMenuUrl: { type: "string", description: "URL assoluto di un PDF menu/catalogo trovato (stringa vuota se non trovato)" },
           },
         },
         model: "gemini_3_flash",
       });
 
       let finalResult = { ...result };
+      console.log("[Wizard] Analisi sito completata:", { 
+        name: result.name, 
+        logoUrl: result.logoUrl, 
+        imagesCount: result.siteImages?.length, 
+        itemsCount: result.menuItems?.length,
+        pdfUrl: result.pdfMenuUrl 
+      });
 
-      // Step 2: Se c'è un PDF menu, analizzalo con ExtractDataFromUploadedFile
-      if (result.pdfMenuUrl && result.pdfMenuUrl.trim()) {
+      // Step 2: Se c'è un PDF menu, analizzalo
+      if (result.pdfMenuUrl && result.pdfMenuUrl.trim().length > 5) {
         try {
-          console.log("[Wizard] PDF menu trovato:", result.pdfMenuUrl);
+          let pdfUrl = result.pdfMenuUrl.trim();
+          if (!pdfUrl.startsWith("http")) pdfUrl = baseUrl + (pdfUrl.startsWith("/") ? "" : "/") + pdfUrl;
+          console.log("[Wizard] Analisi PDF menu:", pdfUrl);
+          
           const pdfExtraction = await base44.integrations.Core.ExtractDataFromUploadedFile({
-            file_url: result.pdfMenuUrl,
+            file_url: pdfUrl,
             json_schema: {
               type: "object",
               properties: {
@@ -208,26 +218,18 @@ REGOLE CRITICHE PER LE IMMAGINI:
           });
           if (pdfExtraction?.status === "success" && pdfExtraction.output?.items?.length > 0) {
             console.log("[Wizard] Estratti", pdfExtraction.output.items.length, "items dal PDF");
-            // Unisci: items dal PDF hanno priorità se il sito ne aveva pochi
             const pdfItems = pdfExtraction.output.items.map(it => ({
-              name: it.name || "",
-              description: it.description || "",
-              price: it.price || "",
-              category: it.category || "",
-              image_url: "",
+              name: it.name || "", description: it.description || "",
+              price: it.price || "", category: it.category || "", image_url: "",
             }));
             if (!finalResult.menuItems || finalResult.menuItems.length < pdfItems.length) {
               finalResult.menuItems = pdfItems;
             } else {
-              // Aggiungi quelli dal PDF non già presenti
               const existingNames = new Set((finalResult.menuItems || []).map(i => i.name?.toLowerCase()));
               pdfItems.forEach(pi => {
-                if (!existingNames.has(pi.name?.toLowerCase())) {
-                  finalResult.menuItems.push(pi);
-                }
+                if (!existingNames.has(pi.name?.toLowerCase())) finalResult.menuItems.push(pi);
               });
             }
-            // Estrai categorie dal PDF
             const pdfCategories = [...new Set(pdfItems.map(i => i.category).filter(Boolean))];
             if (pdfCategories.length > 0) {
               finalResult.categories = [...new Set([...(finalResult.categories || []), ...pdfCategories])];
@@ -240,14 +242,10 @@ REGOLE CRITICHE PER LE IMMAGINI:
         }
       }
 
-      setData(prev => ({
-        ...prev,
-        websiteAnalysis: finalResult,
-        businessName: prev.businessName || finalResult.name || "",
-        description: prev.description || finalResult.description || "",
-      }));
+      return finalResult;
     } catch (err) {
       console.error("Errore analisi sito:", err);
+      return null;
     } finally {
       await stopFakeProgress();
     }
