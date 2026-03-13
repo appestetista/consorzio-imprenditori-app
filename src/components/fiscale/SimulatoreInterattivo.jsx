@@ -507,15 +507,19 @@ export default function SimulatoreInterattivo({ user }) {
   return (
     <div className="space-y-4">
 
-      {/* HEADER CONFRONTO */}
-      <div className="flex justify-end">
-        <button onClick={() => setConfronto(!confronto)}
-          className={`px-4 py-2 rounded-lg text-xs font-medium transition-all ${
-            confronto ? "bg-blue-600 text-white" : "bg-gray-800 text-gray-300 hover:bg-gray-700"
-          }`}>
-          {confronto ? "✕ Chiudi confronto" : "⚖️ Confronta scenari"}
-        </button>
-      </div>
+      {/* HEADER — Carica bilancio per società */}
+      {isSocieta && (
+        <div className="flex items-center justify-between">
+          {bilancioApplicato && (
+            <span className="text-xs text-green-400 flex items-center gap-1">
+              ✓ Dati da bilancio applicati
+            </span>
+          )}
+          <div className="ml-auto">
+            <CaricaBilancioButton onDataExtracted={handleBilancioData} />
+          </div>
+        </div>
+      )}
 
       {/* ═══ PARAMETRI ═══ */}
       <div className="rounded-xl p-5"
