@@ -1,21 +1,10 @@
-import React, { useState } from "react";
-import { ArrowLeft, Loader2, ExternalLink } from "lucide-react";
+import React, { useState, useEffect, useRef } from "react";
+import { ArrowLeft, Send, Mic, MicOff, Loader2, Eye, History } from "lucide-react";
 import { Link, useNavigate } from "react-router-dom";
 import { base44 } from "@/api/base44Client";
-import CategorySelector from "../components/simulatore-app/CategorySelector";
 import PhoneFrame from "../components/simulatore-app/PhoneFrame";
 import DynamicAppRenderer from "../components/simulatore-app/DynamicAppRenderer";
-import CTASection from "../components/simulatore-app/CTASection";
-
-const CATEGORIES = [
-  { id: "ristorante", label: "Ristorante", icon: "🍕" },
-  { id: "ecommerce", label: "E-commerce", icon: "🛒" },
-  { id: "centro_estetico", label: "Centro estetico", icon: "💅" },
-  { id: "palestra", label: "Palestra", icon: "💪" },
-  { id: "gestionale", label: "Gestionale PMI", icon: "📊" },
-  { id: "portfolio", label: "Portfolio", icon: "🎨" },
-  { id: "altro", label: "Altro", icon: "✨" },
-];
+import ProjectHistory from "../components/simulatore-app/ProjectHistory";
 
 const SYSTEM_DESIGN_PROMPT = `Sei un designer-developer di livello mondiale. Crei applicazioni mobile con qualità visiva al livello delle app premiate da Apple Design Awards.
 
@@ -37,223 +26,333 @@ CONTENUTI:
 - Prezzi plausibili per il mercato italiano
 - Descrizioni brevi, specifiche, evocative
 - Nomi di attività che suonano autentici
-- Badge realistici: "Popolare", "Nuovo", "Consigliato", "Ultimi posti", "Sconto"`;
+- Badge realistici: "Popolare", "Nuovo", "Consigliato", "Ultimi posti", "Sconto"
 
-const PROMPT_TEMPLATE = SYSTEM_DESIGN_PROMPT + `
+FUNZIONALITÀ AVANZATE:
+Quando l'utente menziona pagamenti, API, notifiche, login, o simili, aggiungile al campo features_requested nella risposta.`;
 
-L'utente vuole un'app per il settore "{category}".
-Descrizione: "{description}"
-
-STRUTTURA JSON da generare:
-- appName: nome professionale dell'app (se premium/lifestyle, usa stile editoriale)
-- tagline: sottotitolo evocativo
-- primaryColor: colore HEX primario (scelto con cura per il settore)
-- secondaryColor: colore HEX secondario (complementare)
-- accentColor: colore HEX di accento per badge e evidenziazioni
-- headerStyle: "gradient" | "solid"
-- darkMode: true | false (scegli in base al settore)
-- fontStyle: "serif" | "sans" (serif per premium/lifestyle/food, sans per tech/fitness)
-- sections: array di 5-7 sezioni, ogni sezione ha:
-  - type: uno tra "hero_banner", "menu_list", "product_grid", "service_list", "stats_grid", "activity_feed", "gallery", "cta_banner", "booking", "contact", "pricing", "testimonials", "features"
-  - title: titolo sezione (breve, evocativo)
-  - subtitle: sottotitolo opzionale
-  - items: array di oggetti per tipo:
-    "hero_banner": {headline, subtitle, buttonText, badge}
-    "menu_list": {name, description, price, badge, emoji} — almeno 5 items con badge opzionale
-    "product_grid": {name, price, originalPrice, tag, emoji, badge} — almeno 6 items
-    "service_list": {name, duration, price, description, badge} — almeno 4 items
-    "stats_grid": {label, value, trend, trendDirection, icon} — 4 items
-    "activity_feed": {text, detail, time, valueText, valueColor}
-    "gallery": {title, tag, gradient} — almeno 4 items, gradient è array [colore1, colore2]
-    "cta_banner": {text, buttonText, badge}
-    "booking": {slots: [{time, available},...]} — almeno 8 slot
-    "contact": {email, phone, address, hours}
-    "pricing": {name, price, period, features, popular} — features array stringhe, popular boolean
-    "testimonials": {name, role, text, rating, avatar_emoji} — almeno 3 dettagliati
-    "features": {name, description, emoji} — almeno 4
-- bottomNav: array di {label, icon, active} (4-5 voci, icon è nome emoji)
-
-Genera un'app da "WOW". Rispondi SOLO con il JSON.`;
+const JSON_SCHEMA = {
+  type: "object",
+  properties: {
+    appName: { type: "string" },
+    tagline: { type: "string" },
+    primaryColor: { type: "string" },
+    secondaryColor: { type: "string" },
+    accentColor: { type: "string" },
+    headerStyle: { type: "string" },
+    darkMode: { type: "boolean" },
+    fontStyle: { type: "string" },
+    features_requested: { type: "array", items: { type: "string" } },
+    sections: {
+      type: "array",
+      items: {
+        type: "object",
+        properties: {
+          type: { type: "string" },
+          title: { type: "string" },
+          subtitle: { type: "string" },
+          items: { type: "array", items: { type: "object" } },
+        },
+      },
+    },
+    bottomNav: {
+      type: "array",
+      items: {
+        type: "object",
+        properties: {
+          label: { type: "string" },
+          icon: { type: "string" },
+          active: { type: "boolean" },
+        },
+      },
+    },
+  },
+};
 
 export default function SimulatoreApp() {
-  const [selected, setSelected] = useState(null);
-  const [description, setDescription] = useState("");
+  const [messages, setMessages] = useState([]);
+  const [input, setInput] = useState("");
   const [loading, setLoading] = useState(false);
   const [appData, setAppData] = useState(null);
-  const [error, setError] = useState(null);
+  const [projectId, setProjectId] = useState(null);
+  const [versions, setVersions] = useState([]);
+  const [user, setUser] = useState(null);
+  const [showHistory, setShowHistory] = useState(false);
+  const [isRecording, setIsRecording] = useState(false);
+  const chatEndRef = useRef(null);
   const navigate = useNavigate();
 
-  const cat = CATEGORIES.find(c => c.id === selected);
+  useEffect(() => {
+    base44.auth.me().then(setUser).catch(() => {});
+  }, []);
 
-  const handleBuild = async () => {
-    if (!selected || !description.trim()) return;
+  useEffect(() => {
+    chatEndRef.current?.scrollIntoView({ behavior: "smooth" });
+  }, [messages, loading]);
+
+  const addMessage = (role, content) => {
+    const msg = { role, content, timestamp: new Date().toISOString() };
+    setMessages(prev => [...prev, msg]);
+    return msg;
+  };
+
+  const saveProject = async (data, allMessages, allVersions, promptUsed) => {
+    const newVersion = {
+      version: allVersions.length + 1,
+      data: JSON.stringify(data),
+      prompt: promptUsed,
+      timestamp: new Date().toISOString(),
+      type: allVersions.length === 0 ? "creation" : "edit",
+    };
+    const updatedVersions = [...allVersions, newVersion];
+
+    const features = data.features_requested || [];
+    const projectData = {
+      user_email: user?.email || "",
+      app_name: data.appName || "App senza nome",
+      category: data.category || "",
+      description: allMessages[0]?.content || "",
+      current_version: updatedVersions.length,
+      current_data: JSON.stringify(data),
+      versions: updatedVersions,
+      messages: allMessages,
+      requires_payments: features.some(f => /pagament|stripe|carta|checkout/i.test(f)),
+      requires_api: features.some(f => /api|integrazion|webhook/i.test(f)),
+      features_requested: features,
+    };
+
+    if (projectId) {
+      await base44.entities.AppProject.update(projectId, projectData);
+    } else {
+      const created = await base44.entities.AppProject.create(projectData);
+      setProjectId(created.id);
+    }
+    setVersions(updatedVersions);
+    return updatedVersions;
+  };
+
+  const handleSend = async () => {
+    if (!input.trim() || loading) return;
+    const userText = input.trim();
+    setInput("");
+
+    const userMsg = addMessage("user", userText);
     setLoading(true);
-    setError(null);
-    setAppData(null);
 
-    const prompt = PROMPT_TEMPLATE
-      .replace("{category}", cat.label)
-      .replace("{description}", description.trim());
+    const isFirstMessage = !appData;
+
+    const prompt = isFirstMessage
+      ? `${SYSTEM_DESIGN_PROMPT}
+
+L'utente descrive così la sua app: "${userText}"
+
+Genera il JSON completo dell'app. Includi 5-7 sezioni. Se l'utente menziona funzionalità come pagamenti, API, notifiche push, login ecc., inseriscile nel campo features_requested come array di stringhe.
+Le sezioni disponibili: "hero_banner", "menu_list", "product_grid", "service_list", "stats_grid", "activity_feed", "gallery", "cta_banner", "booking", "contact", "pricing", "testimonials", "features".
+Rispondi SOLO con il JSON.`
+      : `${SYSTEM_DESIGN_PROMPT}
+
+Ecco il mockup JSON attuale dell'app:
+${JSON.stringify(appData, null, 2)}
+
+L'utente chiede: "${userText}"
+
+REGOLA IMPORTANTE: L'utente può modificare SOLO aspetti grafici/estetici (colori, testi, layout, sezioni, contenuti, immagini). Se la modifica riguarda struttura tecnica (pagamenti, API, database, autenticazione), NON applicarla al JSON ma aggiungila a features_requested.
+
+Applica le modifiche grafiche e restituisci il JSON completo aggiornato. Rispondi SOLO con il JSON.`;
 
     try {
       const result = await base44.integrations.Core.InvokeLLM({
         prompt,
-        response_json_schema: {
-          type: "object",
-          properties: {
-            appName: { type: "string" },
-            tagline: { type: "string" },
-            primaryColor: { type: "string" },
-            secondaryColor: { type: "string" },
-            accentColor: { type: "string" },
-            headerStyle: { type: "string" },
-            darkMode: { type: "boolean" },
-            fontStyle: { type: "string" },
-            sections: {
-              type: "array",
-              items: {
-                type: "object",
-                properties: {
-                  type: { type: "string" },
-                  title: { type: "string" },
-                  subtitle: { type: "string" },
-                  items: { type: "array", items: { type: "object" } },
-                },
-              },
-            },
-            bottomNav: {
-              type: "array",
-              items: {
-                type: "object",
-                properties: {
-                  label: { type: "string" },
-                  icon: { type: "string" },
-                  active: { type: "boolean" },
-                },
-              },
-            },
-          },
-        },
+        response_json_schema: JSON_SCHEMA,
       });
 
-      console.log("LLM result:", result);
-
-      if (!result || !result.sections) {
-        setError("L'AI non ha generato un risultato valido. Riprova.");
+      if (!result?.sections) {
+        addMessage("assistant", "Non sono riuscito a generare il risultato. Riprova con una descrizione diversa.");
       } else {
         setAppData(result);
+
+        const newFeatures = result.features_requested || [];
+        const featureMsg = newFeatures.length > 0
+          ? `\n\n📋 **Funzionalità richieste** (verranno configurate dall'admin): ${newFeatures.join(", ")}`
+          : "";
+
+        const assistantMsg = addMessage("assistant",
+          isFirstMessage
+            ? `Ho creato **${result.appName}**! ${result.tagline}\n\nPremi 👁️ per vedere l'anteprima completa, oppure scrivimi per modificare colori, testi, sezioni...${featureMsg}`
+            : `Modifica applicata! Controlla l'anteprima.${featureMsg}`
+        );
+
+        const allMsgs = [...messages, userMsg, assistantMsg];
+        await saveProject(result, allMsgs, versions, userText);
       }
     } catch (err) {
-      console.error("Errore generazione:", err);
-      setError("Si è verificato un errore. Riprova tra qualche secondo.");
+      console.error("Errore:", err);
+      addMessage("assistant", "Si è verificato un errore. Riprova tra qualche secondo.");
     } finally {
       setLoading(false);
     }
   };
 
-  const handleReset = () => {
-    setAppData(null);
-    setError(null);
+  const handleVoice = () => {
+    if (!('webkitSpeechRecognition' in window) && !('SpeechRecognition' in window)) {
+      addMessage("assistant", "Il tuo browser non supporta la dettatura vocale.");
+      return;
+    }
+    const SpeechRecognition = window.SpeechRecognition || window.webkitSpeechRecognition;
+    const recognition = new SpeechRecognition();
+    recognition.lang = "it-IT";
+    recognition.continuous = false;
+    recognition.interimResults = false;
+
+    recognition.onstart = () => setIsRecording(true);
+    recognition.onend = () => setIsRecording(false);
+    recognition.onresult = (e) => {
+      const text = e.results[0][0].transcript;
+      setInput(prev => prev + text);
+    };
+    recognition.onerror = () => setIsRecording(false);
+    recognition.start();
+  };
+
+  const openPreview = () => {
+    if (!appData) return;
+    sessionStorage.setItem("simulatore_app_data", JSON.stringify(appData));
+    sessionStorage.setItem("simulatore_project_id", projectId || "");
+    navigate("/AppPreview");
+  };
+
+  const loadProject = (project) => {
+    setProjectId(project.id);
+    setMessages(project.messages || []);
+    setVersions(project.versions || []);
+    setAppData(project.current_data ? JSON.parse(project.current_data) : null);
+    setShowHistory(false);
   };
 
   return (
-    <div className="min-h-screen bg-[#0a0f1a] text-white pb-32">
+    <div className="min-h-screen bg-[#0a0f1a] text-white flex flex-col">
       {/* Header */}
       <div className="sticky top-0 z-30 bg-[#0a0f1a]/90 backdrop-blur-md border-b border-white/5 px-4 py-3">
-        <div className="flex items-center gap-3 max-w-lg mx-auto">
-          <Link to="/Esplora" className="back-arrow-tap text-gray-400 hover:text-white">
-            <ArrowLeft className="w-5 h-5" />
-          </Link>
-          <h1 className="text-base font-bold">App & Siti — Simulatore</h1>
+        <div className="flex items-center justify-between max-w-lg mx-auto">
+          <div className="flex items-center gap-3">
+            <Link to="/Esplora" className="back-arrow-tap text-gray-400 hover:text-white">
+              <ArrowLeft className="w-5 h-5" />
+            </Link>
+            <h1 className="text-base font-bold">Crea la tua App</h1>
+          </div>
+          <div className="flex items-center gap-2">
+            {appData && (
+              <button onClick={openPreview} className="p-2 rounded-lg bg-purple-600/20 text-purple-400 hover:bg-purple-600/30 transition-colors">
+                <Eye className="w-4 h-4" />
+              </button>
+            )}
+            <button onClick={() => setShowHistory(!showHistory)} className="p-2 rounded-lg bg-white/5 text-gray-400 hover:text-white transition-colors">
+              <History className="w-4 h-4" />
+            </button>
+          </div>
         </div>
       </div>
 
-      <div className="max-w-lg mx-auto px-4 pt-8">
-        {error && (
-          <div className="mb-6 bg-red-500/10 border border-red-500/30 rounded-xl p-4 text-center">
-            <p className="text-sm text-red-400 mb-2">{error}</p>
-            <button onClick={() => { setError(null); }} className="text-xs text-red-300 underline">Chiudi</button>
+      {showHistory ? (
+        <ProjectHistory userEmail={user?.email} onSelectProject={loadProject} onClose={() => setShowHistory(false)} />
+      ) : (
+        <>
+          {/* Chat area */}
+          <div className="flex-1 overflow-y-auto px-4 max-w-lg mx-auto w-full">
+            {messages.length === 0 && !loading && (
+              <div className="text-center py-16">
+                <div className="w-16 h-16 rounded-2xl bg-purple-600/10 flex items-center justify-center mx-auto mb-4">
+                  <span className="text-3xl">✨</span>
+                </div>
+                <h2 className="text-xl font-black mb-2">Crea la tua app</h2>
+                <p className="text-sm text-gray-400 max-w-xs mx-auto">Descrivi l'app che vuoi creare. Puoi chiedere modifiche dopo averla generata.</p>
+                <div className="mt-6 flex flex-wrap gap-2 justify-center">
+                  {["Un ristorante con ordini al tavolo", "Un e-commerce di abbigliamento", "Un'app per centro estetico"].map(s => (
+                    <button key={s} onClick={() => setInput(s)} className="text-xs bg-white/5 border border-white/10 rounded-full px-3 py-1.5 text-gray-400 hover:text-white hover:border-purple-500/30 transition-colors">
+                      {s}
+                    </button>
+                  ))}
+                </div>
+              </div>
+            )}
+
+            {messages.map((msg, i) => (
+              <div key={i} className={`mb-4 ${msg.role === "user" ? "flex justify-end" : "flex justify-start"}`}>
+                <div className={`max-w-[85%] rounded-2xl px-4 py-3 ${
+                  msg.role === "user"
+                    ? "bg-purple-600 text-white"
+                    : "bg-white/[0.05] border border-white/[0.06] text-gray-300"
+                }`}>
+                  <p className="text-sm leading-relaxed whitespace-pre-wrap">{msg.content}</p>
+                </div>
+              </div>
+            ))}
+
+            {loading && (
+              <div className="flex justify-start mb-4">
+                <div className="bg-white/[0.05] border border-white/[0.06] rounded-2xl px-4 py-3 flex items-center gap-2">
+                  <Loader2 className="w-4 h-4 text-purple-400 animate-spin" />
+                  <span className="text-sm text-gray-400">Sto progettando...</span>
+                </div>
+              </div>
+            )}
+
+            {/* Anteprima inline piccola */}
+            {appData && !loading && messages.length > 0 && (
+              <div className="mb-4 flex justify-center">
+                <div className="w-[180px] transform scale-100">
+                  <div className="rounded-2xl border border-white/10 overflow-hidden shadow-xl cursor-pointer hover:border-purple-500/30 transition-colors" onClick={openPreview}>
+                    <div className="h-[280px] overflow-hidden">
+                      <div className="transform scale-[0.6] origin-top-left" style={{ width: "300px" }}>
+                        <DynamicAppRenderer data={appData} />
+                      </div>
+                    </div>
+                    <div className="bg-[#12121f] border-t border-white/5 py-2 text-center">
+                      <span className="text-[10px] text-purple-400 font-semibold">👁️ Tocca per anteprima completa</span>
+                    </div>
+                  </div>
+                </div>
+              </div>
+            )}
+
+            <div ref={chatEndRef} />
           </div>
-        )}
-        {!appData && !loading ? (
-          <>
-            {/* Titolo */}
-            <div className="text-center mb-8">
-              <h2 className="text-2xl font-black mb-2">Dimmi cosa vuoi. Te lo faccio vedere.</h2>
-              <p className="text-sm text-gray-400">Scrivi la tua idea e guarda il tuo prodotto prendere vita davanti ai tuoi occhi.</p>
-            </div>
 
-            {/* Input descrizione */}
-            <div className="mb-6">
-              <textarea
-                value={description}
-                onChange={e => setDescription(e.target.value)}
-                placeholder="Es: Un'app per il mio ristorante dove i clienti ordinano e pagano dal tavolo. Il ristorante si chiama 'Trattoria da Mario', cucina tradizionale romana..."
-                rows={3}
-                className="w-full bg-[#1a2035] border border-white/10 rounded-xl px-4 py-3.5 text-sm text-white placeholder-gray-500 focus:outline-none focus:border-purple-500/50 transition-colors resize-none"
-              />
-            </div>
-
-            {/* Selezione categoria */}
-            <CategorySelector
-              categories={CATEGORIES}
-              selected={selected}
-              onSelect={setSelected}
-            />
-
-            {/* Bottone costruisci */}
-            <button
-              onClick={handleBuild}
-              disabled={!selected || !description.trim()}
-              className={`w-full mt-6 py-3.5 rounded-xl font-bold text-sm transition-all ${
-                selected && description.trim()
-                  ? "bg-purple-600 hover:bg-purple-500 text-white"
-                  : "bg-gray-800 text-gray-500 cursor-not-allowed"
-              }`}
-            >
-              Costruisci il mio prodotto
-            </button>
-          </>
-        ) : loading ? (
-          <div className="text-center py-20">
-            <Loader2 className="w-10 h-10 text-purple-500 animate-spin mx-auto mb-4" />
-            <h3 className="text-lg font-bold text-white mb-1">Sto creando il tuo prodotto...</h3>
-            <p className="text-sm text-gray-400">L'intelligenza artificiale sta progettando la tua app</p>
-          </div>
-        ) : appData ? (
-          <>
-            {/* Anteprima */}
-            <div className="text-center mb-6">
-              <button onClick={handleReset} className="text-xs text-purple-400 hover:text-purple-300 mb-4 inline-flex items-center gap-1">
-                <ArrowLeft className="w-3 h-3" /> Cambia idea
-              </button>
-              <h2 className="text-xl font-black mb-1">Ecco {appData.appName}.</h2>
-              <p className="text-sm text-gray-400">Interagisci con i pulsanti — è un'anteprima di come potrebbe essere.</p>
-            </div>
-
-            <PhoneFrame>
-              <DynamicAppRenderer data={appData} />
-            </PhoneFrame>
-
-            {/* Link per aprire fullscreen */}
-            <div className="mt-6 text-center">
+          {/* Input bar — stile Base44 */}
+          <div className="sticky bottom-0 z-50 bg-[#0a0a14] border-t border-white/[0.06] px-3 py-3">
+            <div className="max-w-lg mx-auto flex items-end gap-2">
+              <div className="flex-1 relative">
+                <textarea
+                  value={input}
+                  onChange={e => setInput(e.target.value)}
+                  onKeyDown={e => { if (e.key === "Enter" && !e.shiftKey) { e.preventDefault(); handleSend(); } }}
+                  placeholder={appData ? "Modifica colori, testi, sezioni..." : "Descrivi la tua app..."}
+                  rows={1}
+                  className="w-full bg-[#1a1a2e] border border-white/10 rounded-2xl pl-4 pr-12 py-3 text-sm text-white placeholder-gray-500 focus:outline-none focus:border-purple-500/30 resize-none transition-colors"
+                  style={{ minHeight: 44, maxHeight: 120 }}
+                />
+                <button
+                  onClick={handleVoice}
+                  className={`absolute right-2 bottom-2 p-1.5 rounded-full transition-all ${
+                    isRecording ? "bg-red-500 text-white animate-pulse" : "text-gray-500 hover:text-gray-300"
+                  }`}
+                >
+                  {isRecording ? <MicOff className="w-4 h-4" /> : <Mic className="w-4 h-4" />}
+                </button>
+              </div>
               <button
-                onClick={() => {
-                  sessionStorage.setItem("simulatore_app_data", JSON.stringify(appData));
-                  navigate("/AppPreview");
-                }}
-                className="inline-flex items-center gap-2 px-6 py-3 rounded-xl bg-purple-600 hover:bg-purple-500 text-white font-bold text-sm transition-all"
+                onClick={handleSend}
+                disabled={loading || !input.trim()}
+                className={`p-3 rounded-2xl shrink-0 transition-all active:scale-95 ${
+                  loading || !input.trim() ? "bg-gray-700/50 text-gray-600" : "bg-purple-600 text-white hover:bg-purple-500"
+                }`}
               >
-                <ExternalLink className="w-4 h-4" />
-                Apri anteprima completa
+                <Send className="w-5 h-5" />
               </button>
-              <p className="text-xs text-gray-500 mt-2">Vedrai l'app a schermo intero e potrai modificarla</p>
             </div>
-
-            <CTASection onReset={handleReset} />
-          </>
-        ) : null}
-      </div>
+          </div>
+        </>
+      )}
     </div>
   );
 }
