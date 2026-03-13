@@ -40,6 +40,8 @@ export default function AppPreview() {
 
   const [saving, setSaving] = useState(false);
 
+  useDisablePullToRefresh();
+
   useEffect(() => {
     // Priorità: sessionStorage (navigazione interna) > localStorage (refresh)
     const stored = sessionStorage.getItem("simulatore_app_data") || localStorage.getItem("simulatore_app_data");
