@@ -221,16 +221,29 @@ export default function SimulatoreApp() {
 
         const assistantMsg = addMessage("assistant",
           isFirstMessage
-            ? `Ho creato ${result.appName}! ${result.tagline}\n\nPremi 👁️ per vedere l'anteprima completa, oppure scrivimi per modificare colori, testi, sezioni...${featureMsg}`
+            ? `Ho creato ${result.appName}! ${result.tagline}${featureMsg}`
             : `Modifica applicata! Controlla l'anteprima.${featureMsg}`
         );
 
-        // Per il salvataggio, includi il prompt come messaggio nascosto
         const hiddenUserMsg = { role: "user", content: "[Generazione automatica dal wizard]", timestamp: new Date().toISOString() };
         const allMsgs = isFromWizard && isFirstMessage
           ? [hiddenUserMsg, assistantMsg]
           : [...messages, { role: "user", content: promptText, timestamp: new Date().toISOString() }, assistantMsg];
         await saveProject(result, allMsgs, versions, promptText);
+
+        // Dopo la prima generazione, vai direttamente all'anteprima fullscreen
+        if (isFirstMessage) {
+          const dataStr = JSON.stringify(result);
+          sessionStorage.setItem("simulatore_app_data", dataStr);
+          localStorage.setItem("simulatore_app_data", dataStr);
+          sessionStorage.setItem("simulatore_project_id", projectId || "");
+          localStorage.setItem("simulatore_project_id", projectId || "");
+          const versStr = JSON.stringify(versions);
+          sessionStorage.setItem("simulatore_versions", versStr);
+          localStorage.setItem("simulatore_versions", versStr);
+          navigate("/AppPreview");
+          return;
+        }
       }
     } catch (err) {
       console.error("Errore:", err);
