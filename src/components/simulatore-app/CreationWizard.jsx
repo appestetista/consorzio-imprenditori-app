@@ -727,6 +727,12 @@ ${!isFromScratch ? "- Ispirati alla struttura del prototipo scelto ma personaliz
                 </div>
               </div>
             )}
+            {data.pdfMenuData && !data.pdfMenuData.error && (
+              <div className="flex items-center gap-2 pt-2 border-t border-white/5">
+                <FileText className="w-3.5 h-3.5 text-green-400" />
+                <span className="text-[10px] text-green-400">Menu PDF caricato — {data.pdfMenuData.itemsCount} prodotti estratti</span>
+              </div>
+            )}
             {data.websiteAnalysis && (
               <div className="flex items-center gap-2 pt-2 border-t border-white/5">
                 <Globe className="w-3.5 h-3.5 text-green-400" />
