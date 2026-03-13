@@ -23,12 +23,12 @@ export default function AppPreview() {
 
     try {
       const result = await base44.integrations.Core.InvokeLLM({
-        prompt: `Sei un designer UI/UX esperto. Hai generato questo mockup JSON di un'app:
+        prompt: `Sei un designer-developer di livello mondiale, Apple Design Awards level. Hai generato questo mockup JSON:
 ${JSON.stringify(appData, null, 2)}
 
 L'utente chiede questa modifica: "${editText.trim()}"
 
-Applica la modifica e restituisci il JSON completo aggiornato con la stessa struttura. Mantieni lo stesso livello di qualità e coerenza. Le sezioni disponibili sono: "hero", "menu_list", "product_grid", "service_list", "stats_grid", "activity_feed", "gallery", "cta_banner", "booking", "contact", "pricing", "testimonials", "features".`,
+Applica la modifica mantenendo la stessa qualità premium. Contenuti sempre realistici per il mercato italiano. Palette cromatica coerente. Le sezioni disponibili sono: "hero_banner", "menu_list", "product_grid", "service_list", "stats_grid", "activity_feed", "gallery", "cta_banner", "booking", "contact", "pricing", "testimonials", "features". Restituisci il JSON completo aggiornato.`,
         response_json_schema: {
           type: "object",
           properties: {
@@ -36,9 +36,12 @@ Applica la modifica e restituisci il JSON completo aggiornato con la stessa stru
             tagline: { type: "string" },
             primaryColor: { type: "string" },
             secondaryColor: { type: "string" },
+            accentColor: { type: "string" },
             headerStyle: { type: "string" },
-            sections: { type: "array", items: { type: "object", properties: { type: { type: "string" }, title: { type: "string" }, items: { type: "array", items: { type: "object" } } } } },
-            bottomNav: { type: "array", items: { type: "object", properties: { label: { type: "string" }, active: { type: "boolean" } } } },
+            darkMode: { type: "boolean" },
+            fontStyle: { type: "string" },
+            sections: { type: "array", items: { type: "object", properties: { type: { type: "string" }, title: { type: "string" }, subtitle: { type: "string" }, items: { type: "array", items: { type: "object" } } } } },
+            bottomNav: { type: "array", items: { type: "object", properties: { label: { type: "string" }, icon: { type: "string" }, active: { type: "boolean" } } } },
           },
         },
       });
