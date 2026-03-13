@@ -13,6 +13,21 @@ export default function CaricaBilancioButton({ onDataExtracted }) {
   const [showPanel, setShowPanel] = useState(false);
   const inputRef = useRef();
 
+  const EXTRACT_SCHEMA = {
+    type: "object",
+    properties: {
+      ricavi: { type: "number", description: "Valore della produzione / Ricavi (voce A CE art. 2425 c.c.). Numero positivo senza separatori." },
+      costi_produzione: { type: "number", description: "Totale costi della produzione (voce B CE). Numero positivo." },
+      costo_personale: { type: "number", description: "Costo del personale (voce B.9 CE). Numero positivo." },
+      ammortamenti: { type: "number", description: "Ammortamenti (voce B.10 CE). Numero positivo." },
+      oneri_finanziari: { type: "number", description: "Interessi e oneri finanziari (voce C.17 CE). Numero positivo." },
+      compensi_amministratori: { type: "number", description: "Compensi amministratori se rilevabile dalla Nota Integrativa." },
+      utile_perdita: { type: "number", description: "Risultato d'esercizio." },
+      ragione_sociale: { type: "string", description: "Ragione sociale se rilevabile." },
+      anno: { type: "string", description: "Anno di riferimento se rilevabile." },
+    }
+  };
+
   const handleFile = async (e) => {
     const file = e.target.files?.[0];
     if (!file) return;
@@ -22,52 +37,76 @@ export default function CaricaBilancioButton({ onDataExtracted }) {
     setErrorMsg('');
     setExtracted(null);
 
-    const { file_url } = await base44.integrations.Core.UploadFile({ file });
-    
-    setState('extracting');
+    try {
+      const { file_url } = await base44.integrations.Core.UploadFile({ file });
+      
+      setState('extracting');
 
-    const result = await base44.integrations.Core.InvokeLLM({
-      prompt: `Sei un commercialista esperto. Analizza questo documento di bilancio italiano ed estrai SOLO i seguenti dati numerici dal Conto Economico:
+      let result = null;
 
-1. RICAVI: il "Valore della produzione" o "Ricavi delle vendite e prestazioni" (voce A del CE art. 2425 c.c.)
-2. COSTI DELLA PRODUZIONE: il totale della sezione B del CE (voce B del CE)
-3. COSTO DEL PERSONALE: la voce B.9 del CE (salari+oneri+TFR+altri costi del personale)
-4. AMMORTAMENTI: la voce B.10 del CE (ammortamenti immobilizzazioni materiali e immateriali)
-5. ONERI FINANZIARI: la voce C.17 del CE (interessi e altri oneri finanziari)
-6. COMPENSI AMMINISTRATORI: se rilevabile dalla Nota Integrativa o dal CE
-7. UTILE/PERDITA: il risultato d'esercizio
-
-REGOLE:
-- Estrai SOLO valori esplicitamente presenti nel documento
-- I valori devono essere numeri positivi (senza segno negativo, senza €, senza punti migliaia)
-- Se un dato NON è presente, restituisci null
-- NON stimare, NON calcolare, NON inventare dati mancanti`,
-      file_urls: [file_url],
-      response_json_schema: {
-        type: "object",
-        properties: {
-          ricavi: { type: ["number", "null"], description: "Valore della produzione / Ricavi (voce A CE)" },
-          costi_produzione: { type: ["number", "null"], description: "Totale costi della produzione (voce B CE)" },
-          costo_personale: { type: ["number", "null"], description: "Costo del personale (voce B.9 CE)" },
-          ammortamenti: { type: ["number", "null"], description: "Ammortamenti (voce B.10 CE)" },
-          oneri_finanziari: { type: ["number", "null"], description: "Interessi e oneri finanziari (voce C.17 CE)" },
-          compensi_amministratori: { type: ["number", "null"], description: "Compensi amministratori se rilevabile" },
-          utile_perdita: { type: ["number", "null"], description: "Risultato d'esercizio" },
-          ragione_sociale: { type: ["string", "null"], description: "Ragione sociale se rilevabile" },
-          anno: { type: ["string", "null"], description: "Anno di riferimento se rilevabile" },
+      // Metodo 1: ExtractDataFromUploadedFile — ottimizzato per file grandi
+      try {
+        const extraction = await base44.integrations.Core.ExtractDataFromUploadedFile({
+          file_url,
+          json_schema: EXTRACT_SCHEMA,
+        });
+        if (extraction?.status === 'success' && extraction?.output) {
+          const out = Array.isArray(extraction.output) ? extraction.output[0] : extraction.output;
+          if (out && (out.ricavi || out.costi_produzione)) {
+            result = out;
+          }
         }
-      },
-      model: "gemini_3_pro"
-    });
+      } catch (e1) {
+        console.warn('[Bilancio] ExtractData fallito, provo con LLM:', e1?.message);
+      }
 
-    if (!result || (!result.ricavi && !result.costi_produzione)) {
+      // Metodo 2 (fallback): InvokeLLM con file_urls — modello leggero per velocità
+      if (!result) {
+        try {
+          result = await base44.integrations.Core.InvokeLLM({
+            prompt: `Sei un commercialista. Estrai dal bilancio italiano allegato SOLO questi dati numerici dal Conto Economico (art. 2425 c.c.):
+- ricavi: Valore della produzione (voce A)
+- costi_produzione: Totale costi produzione (voce B)  
+- costo_personale: Costo personale (B.9)
+- ammortamenti: Ammortamenti (B.10)
+- oneri_finanziari: Interessi passivi (C.17)
+- compensi_amministratori: se in Nota Integrativa
+- utile_perdita: Risultato d'esercizio
+- ragione_sociale e anno se visibili
+
+Numeri positivi senza €, senza punti migliaia. Se un dato manca, omettilo.`,
+            file_urls: [file_url],
+            response_json_schema: EXTRACT_SCHEMA,
+          });
+        } catch (e2) {
+          console.warn('[Bilancio] LLM fallito:', e2?.message);
+        }
+      }
+
+      if (!result || (!result.ricavi && !result.costi_produzione)) {
+        setState('error');
+        setErrorMsg('Non sono riuscito a estrarre i dati dal documento. Prova con un PDF del bilancio depositato (Conto Economico leggibile).');
+        return;
+      }
+
+      // Normalizza: converti stringhe in numeri se necessario
+      const numKeys = ['ricavi', 'costi_produzione', 'costo_personale', 'ammortamenti', 'oneri_finanziari', 'compensi_amministratori', 'utile_perdita'];
+      for (const k of numKeys) {
+        if (result[k] != null && typeof result[k] === 'string') {
+          const cleaned = result[k].replace(/[^\d,.]/g, '').replace(',', '.');
+          result[k] = parseFloat(cleaned) || null;
+        }
+        // Converti negativi in positivi (sono valori assoluti)
+        if (result[k] != null && result[k] < 0) result[k] = Math.abs(result[k]);
+      }
+
+      setExtracted(result);
+      setState('done');
+    } catch (err) {
+      console.error('[Bilancio] Errore generale:', err?.message);
       setState('error');
-      setErrorMsg('Non sono riuscito a estrarre i dati dal documento. Assicurati che sia un bilancio leggibile.');
-      return;
+      setErrorMsg('Errore durante l\'elaborazione. Riprova o usa un file più piccolo.');
     }
-
-    setExtracted(result);
-    setState('done');
   };
 
   const handleApply = () => {
