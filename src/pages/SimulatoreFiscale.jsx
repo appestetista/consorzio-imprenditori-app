@@ -10,6 +10,7 @@ import SimulatoreInterattivo from '../components/fiscale/SimulatoreInterattivo';
 import GestioneAliquoteIRAP from '../components/fiscale/GestioneAliquoteIRAP';
 import FiscalPreFlightPopup from '../components/fiscale/FiscalPreFlightPopup';
 import AtecoInfoPopup from '../components/fiscale/AtecoInfoPopup';
+import QuickEditFiscale from '../components/fiscale/QuickEditFiscale';
 
 export default function SimulatoreFiscale() {
   const [effectiveUser, setEffectiveUser] = useState(null);
