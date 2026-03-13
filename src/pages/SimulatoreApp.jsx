@@ -105,7 +105,10 @@ export default function SimulatoreApp() {
             tagline: { type: "string" },
             primaryColor: { type: "string" },
             secondaryColor: { type: "string" },
+            accentColor: { type: "string" },
             headerStyle: { type: "string" },
+            darkMode: { type: "boolean" },
+            fontStyle: { type: "string" },
             sections: {
               type: "array",
               items: {
@@ -113,6 +116,7 @@ export default function SimulatoreApp() {
                 properties: {
                   type: { type: "string" },
                   title: { type: "string" },
+                  subtitle: { type: "string" },
                   items: { type: "array", items: { type: "object" } },
                 },
               },
@@ -123,6 +127,7 @@ export default function SimulatoreApp() {
                 type: "object",
                 properties: {
                   label: { type: "string" },
+                  icon: { type: "string" },
                   active: { type: "boolean" },
                 },
               },
