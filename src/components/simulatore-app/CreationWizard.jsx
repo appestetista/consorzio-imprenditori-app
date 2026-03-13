@@ -116,7 +116,7 @@ export default function CreationWizard({ onComplete }) {
     clearInterval(progressInterval.current);
     setAnalysisProgress(100);
     setAnalysisPhase("Completato!");
-    setTimeout(() => setAnalyzingWebsite(false), 600);
+    return new Promise(resolve => setTimeout(() => { setAnalyzingWebsite(false); resolve(); }, 800));
   };
 
   const analyzeWebsite = async () => {
