@@ -535,37 +535,46 @@ ${!isFromScratch ? "- L'utente ha scelto un prototipo esistente: ISPIRATI alla s
       )}
 
       {/* Navigation */}
-      <div className="flex gap-3 mt-8 pb-4">
-        {step > 0 && (
-          <button
-            onClick={() => setStep(step - 1)}
-            className="flex-1 flex items-center justify-center gap-2 py-3 rounded-xl bg-white/5 border border-white/10 text-gray-400 hover:text-white transition-colors"
-          >
-            <ArrowLeft className="w-4 h-4" />
-            Indietro
-          </button>
-        )}
-        {step < totalSteps - 1 ? (
-          <button
-            onClick={() => canProceed() && setStep(step + 1)}
-            disabled={!canProceed()}
-            className={`flex-1 flex items-center justify-center gap-2 py-3 rounded-xl font-bold transition-all ${
-              canProceed() ? "bg-purple-600 text-white hover:bg-purple-500 active:scale-[0.97]" : "bg-gray-700/50 text-gray-600"
-            }`}
-          >
-            Avanti
-            <ArrowRight className="w-4 h-4" />
-          </button>
-        ) : (
-          <button
-            onClick={handleComplete}
-            className="flex-1 flex items-center justify-center gap-2 py-3 rounded-xl font-bold bg-purple-600 text-white hover:bg-purple-500 active:scale-[0.97] transition-all"
-          >
-            <Sparkles className="w-4 h-4" />
-            Genera la mia App
-          </button>
-        )}
-      </div>
+      {!analyzingWebsite && (
+        <div className="flex gap-3 mt-8 pb-4">
+          {step > 0 && (
+            <button
+              onClick={() => setStep(step - 1)}
+              className="flex-1 flex items-center justify-center gap-2 py-3 rounded-xl bg-white/5 border border-white/10 text-gray-400 hover:text-white transition-colors"
+            >
+              <ArrowLeft className="w-4 h-4" />
+              Indietro
+            </button>
+          )}
+          {step < totalSteps - 1 ? (
+            <button
+              onClick={async () => {
+                if (!canProceed()) return;
+                // Se step 1, c'è URL e non ancora analizzato → analizza prima di avanzare
+                if (step === 1 && data.websiteUrl.trim() && !data.websiteAnalysis) {
+                  await analyzeWebsite();
+                }
+                setStep(step + 1);
+              }}
+              disabled={!canProceed()}
+              className={`flex-1 flex items-center justify-center gap-2 py-3 rounded-xl font-bold transition-all ${
+                canProceed() ? "bg-purple-600 text-white hover:bg-purple-500 active:scale-[0.97]" : "bg-gray-700/50 text-gray-600"
+              }`}
+            >
+              Avanti
+              <ArrowRight className="w-4 h-4" />
+            </button>
+          ) : (
+            <button
+              onClick={handleComplete}
+              className="flex-1 flex items-center justify-center gap-2 py-3 rounded-xl font-bold bg-purple-600 text-white hover:bg-purple-500 active:scale-[0.97] transition-all"
+            >
+              <Sparkles className="w-4 h-4" />
+              Genera la mia App
+            </button>
+          )}
+        </div>
+      )}
     </div>
   );
 }
