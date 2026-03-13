@@ -333,7 +333,7 @@ ${!isFromScratch ? "- L'utente ha scelto un prototipo esistente: ISPIRATI alla s
   };
 
   return (
-    <div className="flex-1 px-4 max-w-lg mx-auto w-full py-6 overflow-y-auto" style={{ overscrollBehavior: "none" }}>
+    <div className="flex-1 px-4 max-w-lg mx-auto w-full py-6 overflow-y-auto">
       {/* Progress bar */}
       <div className="flex gap-1 mb-6">
         {Array.from({ length: totalSteps }).map((_, i) => (
