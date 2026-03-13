@@ -204,7 +204,7 @@ export default function AppPreview() {
   }
 
   return (
-    <div className="min-h-screen bg-[#0f0f1a] flex flex-col">
+    <div className="min-h-screen bg-[#0f0f1a] flex flex-col" style={{ overscrollBehavior: "none" }}>
       {/* Version compare overlay */}
       {showVersions && (
         <VersionCompare
