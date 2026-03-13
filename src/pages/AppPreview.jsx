@@ -6,6 +6,7 @@ import DynamicAppRenderer from "../components/simulatore-app/DynamicAppRenderer"
 import QuickEditor from "../components/simulatore-app/QuickEditor";
 import VersionCompare from "../components/simulatore-app/VersionCompare";
 import ColorPickerPanel from "../components/simulatore-app/ColorPickerPanel";
+import useDisablePullToRefresh from "../components/simulatore-app/useDisablePullToRefresh";
 
 const EDIT_SCHEMA = {
   type: "object",
