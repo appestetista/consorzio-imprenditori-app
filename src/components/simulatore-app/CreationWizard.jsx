@@ -1,5 +1,7 @@
 import React, { useState } from "react";
-import { ArrowRight, ArrowLeft, Sparkles } from "lucide-react";
+import { ArrowRight, ArrowLeft, Sparkles, Globe, Loader2, Check } from "lucide-react";
+import { base44 } from "@/api/base44Client";
+import StyleTemplates from "./StyleTemplates";
 
 const BUSINESS_TYPES = [
   { id: "ristorazione", label: "Ristorazione", emoji: "🍽️", desc: "Ristoranti, bar, pizzerie, pasticcerie" },
@@ -14,11 +16,59 @@ const BUSINESS_TYPES = [
   { id: "altro", label: "Altro", emoji: "✨", desc: "Qualsiasi altro tipo di attività" },
 ];
 
-const STYLE_PRESETS = [
-  { id: "dark_premium", label: "Dark Premium", desc: "Sfondo scuro, elegante e moderno", preview: "bg-gradient-to-br from-gray-900 to-gray-800" },
-  { id: "light_clean", label: "Light & Clean", desc: "Chiaro, pulito, minimalista", preview: "bg-gradient-to-br from-white to-gray-100" },
-  { id: "vibrant", label: "Colorato & Vivace", desc: "Colori forti, energia e dinamismo", preview: "bg-gradient-to-br from-purple-600 to-pink-500" },
-  { id: "editorial", label: "Editoriale", desc: "Stile magazine, tipografia forte", preview: "bg-gradient-to-br from-slate-800 to-slate-600" },
+const FEATURES_BY_CATEGORY = {
+  ristorazione: [
+    { id: "menu", label: "Menu digitale" },
+    { id: "prenotazioni", label: "Prenotazione tavolo" },
+    { id: "ordini", label: "Ordini al tavolo / Asporto" },
+    { id: "galleria", label: "Galleria piatti" },
+    { id: "recensioni", label: "Recensioni clienti" },
+    { id: "contatti", label: "Contatti & Mappa" },
+    { id: "offerte", label: "Offerte & Promozioni" },
+  ],
+  beauty: [
+    { id: "servizi", label: "Listino servizi" },
+    { id: "prenotazioni", label: "Prenotazione appuntamento" },
+    { id: "galleria", label: "Portfolio lavori" },
+    { id: "team", label: "Team & Professionisti" },
+    { id: "recensioni", label: "Recensioni clienti" },
+    { id: "contatti", label: "Contatti & Mappa" },
+    { id: "offerte", label: "Promozioni" },
+  ],
+  fitness: [
+    { id: "corsi", label: "Corsi & Orari" },
+    { id: "prenotazioni", label: "Prenota lezione" },
+    { id: "abbonamenti", label: "Piani abbonamento" },
+    { id: "team", label: "Trainer & Staff" },
+    { id: "galleria", label: "Galleria" },
+    { id: "contatti", label: "Contatti & Mappa" },
+    { id: "stats", label: "Statistiche & Risultati" },
+  ],
+  ecommerce: [
+    { id: "catalogo", label: "Catalogo prodotti" },
+    { id: "carrello", label: "Carrello & Checkout" },
+    { id: "offerte", label: "Offerte & Sconti" },
+    { id: "recensioni", label: "Recensioni" },
+    { id: "categorie", label: "Categorie" },
+    { id: "contatti", label: "Contatti & Assistenza" },
+    { id: "wishlist", label: "Wishlist / Preferiti" },
+  ],
+  _default: [
+    { id: "servizi", label: "Servizi / Prodotti" },
+    { id: "prenotazioni", label: "Prenotazioni" },
+    { id: "galleria", label: "Galleria" },
+    { id: "contatti", label: "Contatti & Mappa" },
+    { id: "recensioni", label: "Recensioni" },
+    { id: "team", label: "Team" },
+    { id: "offerte", label: "Promozioni" },
+  ],
+};
+
+const TECH_FEATURES = [
+  { id: "pagamenti", label: "Pagamenti online", icon: "💳" },
+  { id: "notifiche", label: "Notifiche push", icon: "🔔" },
+  { id: "login", label: "Login utenti", icon: "🔐" },
+  { id: "loyalty", label: "Fidelity / Punti", icon: "⭐" },
 ];
 
 export default function CreationWizard({ onComplete }) {
@@ -27,22 +77,57 @@ export default function CreationWizard({ onComplete }) {
     businessType: "",
     businessName: "",
     description: "",
-    style: "",
+    websiteUrl: "",
+    websiteAnalysis: null,
+    selectedTemplate: null,
     features: [],
+    techFeatures: [],
   });
+  const [analyzingWebsite, setAnalyzingWebsite] = useState(false);
 
-  const FEATURES = [
-    { id: "menu", label: "Menu / Listino prezzi" },
-    { id: "prenotazioni", label: "Prenotazioni online" },
-    { id: "galleria", label: "Galleria immagini" },
-    { id: "contatti", label: "Contatti & Mappa" },
-    { id: "recensioni", label: "Recensioni clienti" },
-    { id: "pagamenti", label: "Pagamenti online" },
-    { id: "notifiche", label: "Notifiche push" },
-    { id: "login", label: "Login utenti" },
-    { id: "catalogo", label: "Catalogo prodotti" },
-    { id: "loyalty", label: "Fidelity / Punti" },
-  ];
+  const totalSteps = 5; // categoria, info+sito, template, funzionalità, conferma
+
+  const analyzeWebsite = async () => {
+    if (!data.websiteUrl.trim()) return;
+    setAnalyzingWebsite(true);
+    try {
+      const result = await base44.integrations.Core.InvokeLLM({
+        prompt: `Analizza questo sito web di un'attività: ${data.websiteUrl}
+Estrai queste informazioni se disponibili:
+- Nome dell'attività
+- Colore primario (hex)
+- Colore secondario (hex)
+- Stile generale (moderno, classico, minimalista, lusso, ecc.)
+- Descrizione breve dell'attività
+- Tipo di attività`,
+        add_context_from_internet: true,
+        response_json_schema: {
+          type: "object",
+          properties: {
+            name: { type: "string" },
+            primaryColor: { type: "string" },
+            secondaryColor: { type: "string" },
+            style: { type: "string" },
+            description: { type: "string" },
+            businessType: { type: "string" },
+          },
+        },
+        model: "gemini_3_flash",
+      });
+      setData(prev => ({
+        ...prev,
+        websiteAnalysis: result,
+        businessName: prev.businessName || result.name || "",
+        description: prev.description || result.description || "",
+      }));
+    } catch (err) {
+      console.error("Errore analisi sito:", err);
+    } finally {
+      setAnalyzingWebsite(false);
+    }
+  };
+
+  const features = FEATURES_BY_CATEGORY[data.businessType] || FEATURES_BY_CATEGORY._default;
 
   const toggleFeature = (id) => {
     setData(prev => ({
@@ -51,145 +136,266 @@ export default function CreationWizard({ onComplete }) {
     }));
   };
 
+  const toggleTechFeature = (id) => {
+    setData(prev => ({
+      ...prev,
+      techFeatures: prev.techFeatures.includes(id) ? prev.techFeatures.filter(f => f !== id) : [...prev.techFeatures, id],
+    }));
+  };
+
   const canProceed = () => {
     if (step === 0) return !!data.businessType;
-    if (step === 1) return !!data.businessName;
-    if (step === 2) return !!data.style;
+    if (step === 1) return !!data.businessName.trim();
+    if (step === 2) return !!data.selectedTemplate;
     return true;
   };
 
   const handleComplete = () => {
-    const techFeatures = data.features.filter(f => ["pagamenti", "notifiche", "login", "loyalty"].includes(f));
-    const visualFeatures = data.features.filter(f => !techFeatures.includes(f));
+    const template = data.selectedTemplate;
+    const wa = data.websiteAnalysis;
 
-    const prompt = `Crea un'app per "${data.businessName}" — settore: ${data.businessType}. ${data.description ? `Dettagli: ${data.description}.` : ""} Stile visivo: ${data.style}. Sezioni richieste: ${visualFeatures.join(", ") || "scelta automatica in base al settore"}.${techFeatures.length > 0 ? ` Funzionalità tecniche richieste: ${techFeatures.join(", ")}.` : ""}`;
+    const colorInfo = wa
+      ? `Colori dal sito: primario ${wa.primaryColor}, secondario ${wa.secondaryColor}. Stile dal sito: ${wa.style}.`
+      : "";
+
+    const prompt = `Crea un'app per "${data.businessName}" — settore: ${data.businessType}.
+${data.description ? `Descrizione: ${data.description}.` : ""}
+${colorInfo}
+Stile template scelto: "${template.name}" — ${template.description}. Colore primario: ${template.primaryColor}, secondario: ${template.secondaryColor}, accento: ${template.accentColor}. Dark mode: ${template.darkMode}. Font style: ${template.fontStyle}.
+Sezioni richieste: ${data.features.join(", ") || "automatiche per il settore"}.
+${data.techFeatures.length > 0 ? `Funzionalità tecniche (features_requested): ${data.techFeatures.join(", ")}.` : ""}
+Usa ESATTAMENTE i colori e lo stile del template scelto.`;
 
     onComplete(prompt, data);
   };
 
-  const steps = [
-    // Step 0: Tipo attività
-    <div key="type" className="space-y-4">
-      <div className="text-center mb-6">
-        <h2 className="text-lg font-black text-white">Che tipo di attività hai?</h2>
-        <p className="text-xs text-gray-400 mt-1">Seleziona la categoria più vicina</p>
-      </div>
-      <div className="grid grid-cols-2 gap-2">
-        {BUSINESS_TYPES.map(t => (
-          <button
-            key={t.id}
-            onClick={() => setData({ ...data, businessType: t.id })}
-            className={`text-left p-3 rounded-xl border transition-all active:scale-[0.97] ${
-              data.businessType === t.id
-                ? "bg-purple-600/20 border-purple-500/50"
-                : "bg-white/[0.03] border-white/[0.06] hover:border-white/10"
-            }`}
-          >
-            <span className="text-xl">{t.emoji}</span>
-            <p className="text-xs font-bold text-white mt-1">{t.label}</p>
-            <p className="text-[10px] text-gray-500 leading-tight">{t.desc}</p>
-          </button>
-        ))}
-      </div>
-    </div>,
-
-    // Step 1: Nome e descrizione
-    <div key="name" className="space-y-4">
-      <div className="text-center mb-6">
-        <h2 className="text-lg font-black text-white">Come si chiama la tua attività?</h2>
-        <p className="text-xs text-gray-400 mt-1">Inserisci il nome e una breve descrizione</p>
-      </div>
-      <div>
-        <label className="text-xs text-gray-400 mb-1 block">Nome dell'attività *</label>
-        <input
-          value={data.businessName}
-          onChange={e => setData({ ...data, businessName: e.target.value })}
-          placeholder="Es. Ristorante Da Mario"
-          className="w-full bg-[#1a1a2e] border border-white/10 rounded-xl px-4 py-3 text-sm text-white placeholder-gray-500 focus:outline-none focus:border-purple-500/30"
-        />
-      </div>
-      <div>
-        <label className="text-xs text-gray-400 mb-1 block">Descrizione (opzionale)</label>
-        <textarea
-          value={data.description}
-          onChange={e => setData({ ...data, description: e.target.value })}
-          placeholder="Racconta in poche parole cosa fai, cosa vuoi mostrare nell'app..."
-          rows={3}
-          className="w-full bg-[#1a1a2e] border border-white/10 rounded-xl px-4 py-3 text-sm text-white placeholder-gray-500 focus:outline-none focus:border-purple-500/30 resize-none"
-        />
-      </div>
-    </div>,
-
-    // Step 2: Stile visivo
-    <div key="style" className="space-y-4">
-      <div className="text-center mb-6">
-        <h2 className="text-lg font-black text-white">Che stile preferisci?</h2>
-        <p className="text-xs text-gray-400 mt-1">Potrai cambiarlo dopo</p>
-      </div>
-      <div className="space-y-2">
-        {STYLE_PRESETS.map(s => (
-          <button
-            key={s.id}
-            onClick={() => setData({ ...data, style: s.id })}
-            className={`w-full flex items-center gap-3 p-3 rounded-xl border transition-all active:scale-[0.98] ${
-              data.style === s.id
-                ? "bg-purple-600/20 border-purple-500/50"
-                : "bg-white/[0.03] border-white/[0.06] hover:border-white/10"
-            }`}
-          >
-            <div className={`w-10 h-10 rounded-lg ${s.preview} shrink-0`} />
-            <div className="text-left">
-              <p className="text-sm font-bold text-white">{s.label}</p>
-              <p className="text-[10px] text-gray-500">{s.desc}</p>
-            </div>
-          </button>
-        ))}
-      </div>
-    </div>,
-
-    // Step 3: Funzionalità
-    <div key="features" className="space-y-4">
-      <div className="text-center mb-6">
-        <h2 className="text-lg font-black text-white">Cosa vuoi nell'app?</h2>
-        <p className="text-xs text-gray-400 mt-1">Seleziona le funzionalità — le tecniche verranno gestite dall'admin</p>
-      </div>
-      <div className="grid grid-cols-2 gap-2">
-        {FEATURES.map(f => {
-          const isTech = ["pagamenti", "notifiche", "login", "loyalty"].includes(f.id);
-          return (
-            <button
-              key={f.id}
-              onClick={() => toggleFeature(f.id)}
-              className={`text-left p-3 rounded-xl border transition-all active:scale-[0.97] ${
-                data.features.includes(f.id)
-                  ? isTech ? "bg-amber-600/20 border-amber-500/50" : "bg-purple-600/20 border-purple-500/50"
-                  : "bg-white/[0.03] border-white/[0.06] hover:border-white/10"
-              }`}
-            >
-              <p className="text-xs font-bold text-white">{f.label}</p>
-              {isTech && <p className="text-[9px] text-amber-400 mt-0.5">⚙️ Richiede admin</p>}
-            </button>
-          );
-        })}
-      </div>
-    </div>,
-  ];
-
   return (
-    <div className="flex-1 px-4 max-w-lg mx-auto w-full py-6">
+    <div className="flex-1 px-4 max-w-lg mx-auto w-full py-6 overflow-y-auto">
       {/* Progress bar */}
       <div className="flex gap-1 mb-6">
-        {[0, 1, 2, 3].map(i => (
-          <div key={i} className={`h-1 rounded-full flex-1 transition-all ${
-            i <= step ? "bg-purple-500" : "bg-white/10"
-          }`} />
+        {Array.from({ length: totalSteps }).map((_, i) => (
+          <div key={i} className={`h-1 rounded-full flex-1 transition-all ${i <= step ? "bg-purple-500" : "bg-white/10"}`} />
         ))}
       </div>
 
-      {steps[step]}
+      {/* Step 0: Categoria */}
+      {step === 0 && (
+        <div className="space-y-4">
+          <div className="text-center mb-4">
+            <h2 className="text-lg font-black text-white">Che tipo di attività hai?</h2>
+            <p className="text-xs text-gray-400 mt-1">Seleziona la categoria</p>
+          </div>
+          <div className="grid grid-cols-2 gap-2">
+            {BUSINESS_TYPES.map(t => (
+              <button
+                key={t.id}
+                onClick={() => setData(prev => ({ ...prev, businessType: t.id }))}
+                className={`text-left p-3 rounded-xl border transition-all active:scale-[0.97] ${
+                  data.businessType === t.id
+                    ? "bg-purple-600/20 border-purple-500/50 ring-1 ring-purple-500/30"
+                    : "bg-white/[0.03] border-white/[0.06] hover:border-white/10"
+                }`}
+              >
+                <span className="text-xl">{t.emoji}</span>
+                <p className="text-xs font-bold text-white mt-1">{t.label}</p>
+                <p className="text-[10px] text-gray-500 leading-tight">{t.desc}</p>
+              </button>
+            ))}
+          </div>
+        </div>
+      )}
+
+      {/* Step 1: Nome + Sito Web */}
+      {step === 1 && (
+        <div className="space-y-4">
+          <div className="text-center mb-4">
+            <h2 className="text-lg font-black text-white">Parlaci della tua attività</h2>
+            <p className="text-xs text-gray-400 mt-1">Se hai un sito web, lo analizziamo per te</p>
+          </div>
+
+          {/* Sito web */}
+          <div>
+            <label className="text-xs text-gray-400 mb-1 block">Sito web (opzionale)</label>
+            <div className="flex gap-2">
+              <div className="flex-1 relative">
+                <Globe className="absolute left-3 top-1/2 -translate-y-1/2 w-4 h-4 text-gray-500" />
+                <input
+                  value={data.websiteUrl}
+                  onChange={e => setData(prev => ({ ...prev, websiteUrl: e.target.value }))}
+                  placeholder="www.miosito.it"
+                  className="w-full bg-[#1a1a2e] border border-white/10 rounded-xl pl-10 pr-4 py-3 text-sm text-white placeholder-gray-500 focus:outline-none focus:border-purple-500/30"
+                />
+              </div>
+              <button
+                onClick={analyzeWebsite}
+                disabled={!data.websiteUrl.trim() || analyzingWebsite}
+                className={`px-4 rounded-xl font-bold text-xs transition-all shrink-0 ${
+                  !data.websiteUrl.trim() || analyzingWebsite
+                    ? "bg-gray-700/50 text-gray-600"
+                    : "bg-purple-600 text-white hover:bg-purple-500 active:scale-95"
+                }`}
+              >
+                {analyzingWebsite ? <Loader2 className="w-4 h-4 animate-spin" /> : "Analizza"}
+              </button>
+            </div>
+            {data.websiteAnalysis && (
+              <div className="mt-2 p-3 rounded-xl bg-green-500/10 border border-green-500/20">
+                <div className="flex items-center gap-2 mb-1">
+                  <Check className="w-3.5 h-3.5 text-green-400" />
+                  <span className="text-xs font-bold text-green-400">Sito analizzato!</span>
+                </div>
+                <div className="flex items-center gap-2 mt-2">
+                  <span className="text-[10px] text-gray-400">Colori trovati:</span>
+                  {data.websiteAnalysis.primaryColor && (
+                    <div className="w-5 h-5 rounded-full border border-white/20" style={{ background: data.websiteAnalysis.primaryColor }} />
+                  )}
+                  {data.websiteAnalysis.secondaryColor && (
+                    <div className="w-5 h-5 rounded-full border border-white/20" style={{ background: data.websiteAnalysis.secondaryColor }} />
+                  )}
+                  <span className="text-[10px] text-gray-500">{data.websiteAnalysis.style}</span>
+                </div>
+              </div>
+            )}
+          </div>
+
+          {/* Nome */}
+          <div>
+            <label className="text-xs text-gray-400 mb-1 block">Nome dell'attività *</label>
+            <input
+              value={data.businessName}
+              onChange={e => setData(prev => ({ ...prev, businessName: e.target.value }))}
+              placeholder="Es. Ristorante Da Mario"
+              className="w-full bg-[#1a1a2e] border border-white/10 rounded-xl px-4 py-3 text-sm text-white placeholder-gray-500 focus:outline-none focus:border-purple-500/30"
+            />
+          </div>
+
+          {/* Descrizione */}
+          <div>
+            <label className="text-xs text-gray-400 mb-1 block">Breve descrizione (opzionale)</label>
+            <textarea
+              value={data.description}
+              onChange={e => setData(prev => ({ ...prev, description: e.target.value }))}
+              placeholder="Cosa offri, cosa rende speciale la tua attività..."
+              rows={2}
+              className="w-full bg-[#1a1a2e] border border-white/10 rounded-xl px-4 py-3 text-sm text-white placeholder-gray-500 focus:outline-none focus:border-purple-500/30 resize-none"
+            />
+          </div>
+        </div>
+      )}
+
+      {/* Step 2: Template con anteprima */}
+      {step === 2 && (
+        <StyleTemplates
+          businessType={data.businessType}
+          websiteAnalysis={data.websiteAnalysis}
+          selected={data.selectedTemplate}
+          onSelect={(template) => setData(prev => ({ ...prev, selectedTemplate: template }))}
+        />
+      )}
+
+      {/* Step 3: Funzionalità */}
+      {step === 3 && (
+        <div className="space-y-4">
+          <div className="text-center mb-4">
+            <h2 className="text-lg font-black text-white">Cosa vuoi nell'app?</h2>
+            <p className="text-xs text-gray-400 mt-1">Seleziona le sezioni che vuoi mostrare</p>
+          </div>
+          <div className="grid grid-cols-2 gap-2">
+            {features.map(f => (
+              <button
+                key={f.id}
+                onClick={() => toggleFeature(f.id)}
+                className={`text-left p-3 rounded-xl border transition-all active:scale-[0.97] ${
+                  data.features.includes(f.id)
+                    ? "bg-purple-600/20 border-purple-500/50"
+                    : "bg-white/[0.03] border-white/[0.06] hover:border-white/10"
+                }`}
+              >
+                <p className="text-xs font-bold text-white">{f.label}</p>
+              </button>
+            ))}
+          </div>
+
+          {/* Funzionalità tecniche */}
+          <div className="mt-4 pt-4 border-t border-white/5">
+            <p className="text-xs text-amber-400 font-bold mb-2">⚙️ Funzionalità avanzate (gestite dall'admin)</p>
+            <div className="grid grid-cols-2 gap-2">
+              {TECH_FEATURES.map(f => (
+                <button
+                  key={f.id}
+                  onClick={() => toggleTechFeature(f.id)}
+                  className={`text-left p-3 rounded-xl border transition-all active:scale-[0.97] ${
+                    data.techFeatures.includes(f.id)
+                      ? "bg-amber-600/20 border-amber-500/50"
+                      : "bg-white/[0.03] border-white/[0.06] hover:border-white/10"
+                  }`}
+                >
+                  <span>{f.icon}</span>
+                  <p className="text-xs font-bold text-white mt-0.5">{f.label}</p>
+                </button>
+              ))}
+            </div>
+          </div>
+        </div>
+      )}
+
+      {/* Step 4: Riepilogo e conferma */}
+      {step === 4 && (
+        <div className="space-y-4">
+          <div className="text-center mb-4">
+            <h2 className="text-lg font-black text-white">Tutto pronto!</h2>
+            <p className="text-xs text-gray-400 mt-1">Controlla il riepilogo e genera la tua app</p>
+          </div>
+          <div className="rounded-2xl bg-white/[0.03] border border-white/[0.06] p-4 space-y-3">
+            <div className="flex items-center justify-between">
+              <span className="text-xs text-gray-400">Attività</span>
+              <span className="text-sm font-bold text-white">{data.businessName}</span>
+            </div>
+            <div className="flex items-center justify-between">
+              <span className="text-xs text-gray-400">Categoria</span>
+              <span className="text-sm text-white">{BUSINESS_TYPES.find(t => t.id === data.businessType)?.label}</span>
+            </div>
+            {data.selectedTemplate && (
+              <div className="flex items-center justify-between">
+                <span className="text-xs text-gray-400">Stile</span>
+                <div className="flex items-center gap-2">
+                  <div className="w-4 h-4 rounded-full" style={{ background: data.selectedTemplate.primaryColor }} />
+                  <span className="text-sm text-white">{data.selectedTemplate.name}</span>
+                </div>
+              </div>
+            )}
+            {data.features.length > 0 && (
+              <div>
+                <span className="text-xs text-gray-400 block mb-1">Sezioni</span>
+                <div className="flex flex-wrap gap-1">
+                  {data.features.map(f => (
+                    <span key={f} className="text-[10px] bg-purple-600/20 text-purple-300 rounded-full px-2 py-0.5">{f}</span>
+                  ))}
+                </div>
+              </div>
+            )}
+            {data.techFeatures.length > 0 && (
+              <div>
+                <span className="text-xs text-amber-400 block mb-1">Funzionalità tecniche</span>
+                <div className="flex flex-wrap gap-1">
+                  {data.techFeatures.map(f => (
+                    <span key={f} className="text-[10px] bg-amber-600/20 text-amber-300 rounded-full px-2 py-0.5">{f}</span>
+                  ))}
+                </div>
+              </div>
+            )}
+            {data.websiteAnalysis && (
+              <div className="flex items-center gap-2 pt-2 border-t border-white/5">
+                <Globe className="w-3.5 h-3.5 text-green-400" />
+                <span className="text-[10px] text-green-400">Sito web analizzato — colori e stile integrati</span>
+              </div>
+            )}
+          </div>
+        </div>
+      )}
 
       {/* Navigation */}
-      <div className="flex gap-3 mt-8">
+      <div className="flex gap-3 mt-8 pb-4">
         {step > 0 && (
           <button
             onClick={() => setStep(step - 1)}
@@ -199,7 +405,7 @@ export default function CreationWizard({ onComplete }) {
             Indietro
           </button>
         )}
-        {step < 3 ? (
+        {step < totalSteps - 1 ? (
           <button
             onClick={() => canProceed() && setStep(step + 1)}
             disabled={!canProceed()}
