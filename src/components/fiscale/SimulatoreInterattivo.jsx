@@ -928,9 +928,12 @@ export default function SimulatoreInterattivo({ user }) {
         IRPEF 2026: 23%/33%/43% (L. Bilancio 2026).
         INPS GS co.co.co.: 35,03% su max €122.295 (Circ. INPS 8/2026), 2/3 azienda + 1/3 amm.re.
         Contributi INPS amm.re integralmente deducibili (art. 10 TUIR).
-        IRES 24% (art. 77 TUIR). IRAP 3,9% base (D.Lgs. 446/97).
+        IRES 24% (art. 77 TUIR).
+        IRAP 3,9% base (D.Lgs. 446/97 art. 5 e 16) — base = valore produzione netta, esclusi costi personale, compensi amm.re e interessi passivi.
+        IRAP dedotta dall'utile distribuibile (voce B.14 art. 2425 c.c.).
         Dividendi: ritenuta 26% a titolo d'imposta (art. 27 DPR 600/73).
         Addizionali IRPEF: medie nazionali (~1,7% reg. + ~0,8% com.) — verificare localmente.
+        Deduzioni IRAP cuneo fiscale (art. 11 D.Lgs. 446/97) non applicate per semplicità.
       </div>
     </div>
   );
