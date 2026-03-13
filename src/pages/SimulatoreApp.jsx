@@ -2,7 +2,6 @@ import React, { useState, useEffect, useRef } from "react";
 import { ArrowLeft, Send, Mic, MicOff, Loader2, Eye, History } from "lucide-react";
 import { Link, useNavigate } from "react-router-dom";
 import { base44 } from "@/api/base44Client";
-import PhoneFrame from "../components/simulatore-app/PhoneFrame";
 import DynamicAppRenderer from "../components/simulatore-app/DynamicAppRenderer";
 import ProjectHistory from "../components/simulatore-app/ProjectHistory";
 
