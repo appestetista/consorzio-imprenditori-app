@@ -397,6 +397,11 @@ REGOLE IMMAGINI — FONDAMENTALE:
       siteInfo += `--- FINE DATI PDF ---\n`;
     }
 
+    // Logo caricato senza sito web
+    if (wizardData.logoUrl && !wa) {
+      siteInfo += `\nLOGO URL CARICATO DALL'UTENTE (usa questo nell'header dell'app): ${wizardData.logoUrl}\n`;
+    }
+
     if (wa) {
       siteInfo = `\n--- DATI ESTRATTI DAL SITO WEB ---\n`;
       siteInfo += `Colori dal sito: primario ${wa.primaryColor}, secondario ${wa.secondaryColor}. Stile: ${wa.style}.\n`;
