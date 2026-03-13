@@ -91,6 +91,12 @@ export default function CreationWizard({ onComplete }) {
 
   const totalSteps = 5; // categoria, info+sito, template, funzionalità, conferma
 
+  // Scroll to top ad ogni cambio step
+  useEffect(() => {
+    wizardRef.current?.scrollTo(0, 0);
+    window.scrollTo(0, 0);
+  }, [step]);
+
   // Barra finta di progresso
   const startFakeProgress = () => {
     setAnalysisProgress(0);
