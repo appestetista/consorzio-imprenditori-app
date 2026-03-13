@@ -793,11 +793,9 @@ ${!isFromScratch ? "- Ispirati alla struttura del prototipo scelto ma personaliz
             <button
               onClick={async () => {
                 if (!canProceed()) return;
-                // Se step 1 con URL → analizza e poi salta direttamente alla generazione app
                 if (step === 1 && data.websiteUrl.trim() && !data.websiteAnalysis) {
                   const analysisResult = await analyzeWebsite();
                   if (analysisResult) {
-                    // Aggiorna data con risultati analisi
                     const updatedData = {
                       ...data,
                       websiteAnalysis: analysisResult,
@@ -805,7 +803,6 @@ ${!isFromScratch ? "- Ispirati alla struttura del prototipo scelto ma personaliz
                       description: data.description || analysisResult.description || "",
                     };
                     setData(updatedData);
-                    // Salta direttamente alla generazione: crea un template default e lancia onComplete
                     const autoTemplate = {
                       id: "from_scratch",
                       name: "Basata sul sito web",
@@ -817,7 +814,6 @@ ${!isFromScratch ? "- Ispirati alla struttura del prototipo scelto ma personaliz
                     };
                     const features = FEATURES_BY_CATEGORY[updatedData.businessType] || FEATURES_BY_CATEGORY._default;
                     const autoFeatures = features.map(f => f.id);
-                    // Costruisci il prompt finale e lancia
                     buildAndComplete(updatedData, autoTemplate, autoFeatures, [], analysisResult);
                     return;
                   }
