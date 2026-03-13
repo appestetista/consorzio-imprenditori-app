@@ -772,72 +772,7 @@ ${!isFromScratch ? "- Ispirati alla struttura del prototipo scelto ma personaliz
         </div>
       )}
 
-      {/* Step 5: Riepilogo e conferma */}
-      {step === 5 && (
-        <div className="space-y-4">
-          <div className="text-center mb-4">
-            <h2 className="text-lg font-black text-white">Tutto pronto!</h2>
-            <p className="text-xs text-gray-400 mt-1">Controlla il riepilogo e genera la tua app</p>
-          </div>
-          <div className="rounded-2xl bg-white/[0.03] border border-white/[0.06] p-4 space-y-3">
-            <div className="flex items-center justify-between">
-              <span className="text-xs text-gray-400">Attività</span>
-              <span className="text-sm font-bold text-white">{data.businessName}</span>
-            </div>
-            <div className="flex items-center justify-between">
-              <span className="text-xs text-gray-400">Categoria</span>
-              <span className="text-sm text-white">{BUSINESS_TYPES.find(t => t.id === data.businessType)?.label}</span>
-            </div>
-            {data.selectedTemplate && (
-              <div className="flex items-center justify-between">
-                <span className="text-xs text-gray-400">Stile</span>
-                <div className="flex items-center gap-2">
-                  <div className="w-4 h-4 rounded-full" style={{ background: data.selectedTemplate.primaryColor }} />
-                  <span className="text-sm text-white">{data.selectedTemplate.name}</span>
-                </div>
-              </div>
-            )}
-            {data.features.length > 0 && (
-              <div>
-                <span className="text-xs text-gray-400 block mb-1">Sezioni</span>
-                <div className="flex flex-wrap gap-1">
-                  {data.features.map(f => (
-                    <span key={f} className="text-[10px] bg-purple-600/20 text-purple-300 rounded-full px-2 py-0.5">{f}</span>
-                  ))}
-                </div>
-              </div>
-            )}
-            {data.techFeatures.length > 0 && (
-              <div>
-                <span className="text-xs text-amber-400 block mb-1">Funzionalità tecniche</span>
-                <div className="flex flex-wrap gap-1">
-                  {data.techFeatures.map(f => (
-                    <span key={f} className="text-[10px] bg-amber-600/20 text-amber-300 rounded-full px-2 py-0.5">{f}</span>
-                  ))}
-                </div>
-              </div>
-            )}
-            {data.logoUrl && (
-              <div className="flex items-center gap-2 pt-2 border-t border-white/5">
-                <img src={data.logoUrl} alt="Logo" className="w-6 h-6 rounded object-contain bg-white/10" />
-                <span className="text-[10px] text-green-400">Logo caricato</span>
-              </div>
-            )}
-            {data.pdfMenuData && !data.pdfMenuData.error && (
-              <div className="flex items-center gap-2 pt-2 border-t border-white/5">
-                <FileText className="w-3.5 h-3.5 text-green-400" />
-                <span className="text-[10px] text-green-400">Menu PDF caricato - {data.pdfMenuData.itemsCount} prodotti estratti</span>
-              </div>
-            )}
-            {data.websiteAnalysis && (
-              <div className="flex items-center gap-2 pt-2 border-t border-white/5">
-                <Globe className="w-3.5 h-3.5 text-green-400" />
-                <span className="text-[10px] text-green-400">Sito web analizzato — colori e stile integrati</span>
-              </div>
-            )}
-          </div>
-        </div>
-      )}
+      {/* Step 5 rimosso — riepilogo eliminato */}
 
       </div>
       {/* Fine contenuto scrollabile */}
