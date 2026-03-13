@@ -5,6 +5,7 @@ import { base44 } from "@/api/base44Client";
 import DynamicAppRenderer from "../components/simulatore-app/DynamicAppRenderer";
 import ProjectHistory from "../components/simulatore-app/ProjectHistory";
 import CreationWizard from "../components/simulatore-app/CreationWizard";
+import useDisablePullToRefresh from "../components/simulatore-app/useDisablePullToRefresh";
 
 const SYSTEM_DESIGN_PROMPT = `Sei un designer-developer di livello mondiale. Crei applicazioni mobile con qualità visiva al livello delle app premiate da Apple Design Awards.
 
