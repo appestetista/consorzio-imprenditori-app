@@ -83,13 +83,20 @@ export default function CreationWizard({ onComplete }) {
     selectedTemplate: null,
     features: [],
     techFeatures: [],
+    pdfMenuData: null,
   });
   const [analyzingWebsite, setAnalyzingWebsite] = useState(false);
   const [analysisProgress, setAnalysisProgress] = useState(0);
   const [analysisPhase, setAnalysisPhase] = useState("");
+  const [analyzingPdf, setAnalyzingPdf] = useState(false);
+  const [pdfProgress, setPdfProgress] = useState(0);
+  const [pdfPhase, setPdfPhase] = useState("");
+  const [pdfFileName, setPdfFileName] = useState("");
   const progressInterval = useRef(null);
+  const pdfProgressInterval = useRef(null);
+  const pdfInputRef = useRef(null);
 
-  const totalSteps = 5; // categoria, info+sito, template, funzionalità, conferma
+  const totalSteps = 6; // categoria, info+sito, PDF menu, template, funzionalità, conferma
 
   // Scroll to top ad ogni cambio step
   useEffect(() => {
