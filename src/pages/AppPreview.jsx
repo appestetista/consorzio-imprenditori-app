@@ -229,7 +229,7 @@ export default function AppPreview() {
 
       {/* App rendering */}
       <div className="flex-1 overflow-y-auto">
-        <DynamicAppRenderer data={appData} />
+        <DynamicAppRenderer data={appData} editable onDataChange={handleInlineEdit} />
       </div>
 
       {/* Bottom bar */}
