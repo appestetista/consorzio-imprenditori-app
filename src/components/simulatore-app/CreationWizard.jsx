@@ -104,7 +104,8 @@ Estrai TUTTE queste informazioni:
 7. Le SEZIONI del sito nell'ORDINE ESATTO in cui appaiono (es: hero, menu, chi siamo, gallery, recensioni, contatti...)
 8. I CONTENUTI principali: nomi di piatti/servizi/prodotti, prezzi, categorie, descrizioni che trovi nel sito
 9. URL del logo se visibile
-10. Orari di apertura, indirizzo, telefono se presenti`,
+10. Orari di apertura, indirizzo, telefono se presenti
+11. TUTTE le URL delle immagini presenti nel sito (hero, prodotti, gallery, banner, ecc.). Estrai gli URL completi delle immagini (jpg, png, webp). Per ogni immagine indica a cosa si riferisce (es: "hero banner", "pizza margherita", "interno ristorante", ecc.)`,
         add_context_from_internet: true,
         response_json_schema: {
           type: "object",
@@ -116,8 +117,9 @@ Estrai TUTTE queste informazioni:
             description: { type: "string", description: "Descrizione attività" },
             businessType: { type: "string", description: "Tipo attività" },
             sectionsOrder: { type: "array", items: { type: "string" }, description: "Ordine sezioni del sito (es: hero, menu, about, gallery, reviews, contact)" },
-            menuItems: { type: "array", items: { type: "object", properties: { name: { type: "string" }, description: { type: "string" }, price: { type: "string" }, category: { type: "string" } } }, description: "Piatti/servizi/prodotti trovati con prezzi" },
+            menuItems: { type: "array", items: { type: "object", properties: { name: { type: "string" }, description: { type: "string" }, price: { type: "string" }, category: { type: "string" }, image_url: { type: "string" } } }, description: "Piatti/servizi/prodotti trovati con prezzi e URL immagine dal sito se presente" },
             categories: { type: "array", items: { type: "string" }, description: "Categorie di prodotti/servizi" },
+            siteImages: { type: "array", items: { type: "object", properties: { url: { type: "string", description: "URL completo dell'immagine" }, context: { type: "string", description: "A cosa si riferisce (hero, prodotto, gallery, ecc.)" } } }, description: "Tutte le immagini trovate nel sito con il loro contesto" },
             address: { type: "string" },
             phone: { type: "string" },
             hours: { type: "string" },
@@ -174,9 +176,15 @@ Estrai TUTTE queste informazioni:
         siteInfo += `ORDINE SEZIONI DAL SITO (RISPETTA QUESTO ORDINE): ${wa.sectionsOrder.join(" → ")}.\n`;
       }
       if (wa.menuItems?.length > 0) {
-        siteInfo += `PRODOTTI/SERVIZI REALI DAL SITO (usa QUESTI nomi, prezzi, descrizioni):\n`;
+        siteInfo += `PRODOTTI/SERVIZI REALI DAL SITO (usa QUESTI nomi, prezzi, descrizioni e image_url):\n`;
         wa.menuItems.forEach(item => {
-          siteInfo += `- ${item.name}${item.price ? ` — ${item.price}` : ""}${item.description ? ` — ${item.description}` : ""}${item.category ? ` [${item.category}]` : ""}\n`;
+          siteInfo += `- ${item.name}${item.price ? ` — ${item.price}` : ""}${item.description ? ` — ${item.description}` : ""}${item.category ? ` [${item.category}]` : ""}${item.image_url ? ` | image_url: ${item.image_url}` : ""}\n`;
+        });
+      }
+      if (wa.siteImages?.length > 0) {
+        siteInfo += `\nIMMAGINI ORIGINALI DAL SITO (PRIORITÀ MASSIMA — usa queste invece di Unsplash quando pertinenti):\n`;
+        wa.siteImages.forEach(img => {
+          siteInfo += `- ${img.context}: ${img.url}\n`;
         });
       }
       if (wa.categories?.length > 0) {
@@ -198,8 +206,9 @@ ${data.techFeatures.length > 0 ? `Funzionalità tecniche (features_requested): $
 REGOLE IMPORTANTI:
 - Usa ESATTAMENTE i colori del template scelto.
 - Se ci sono dati dal sito web, USA I CONTENUTI REALI (nomi, prezzi, descrizioni) e RISPETTA L'ORDINE DELLE SEZIONI del sito.
-- Per ogni item, aggiungi un campo "image_url" con un URL Unsplash pertinente. Formato: https://images.unsplash.com/photo-XXXX?w=400&h=300&fit=crop
-- Non inventare prodotti/piatti se ci sono quelli reali dal sito.`;
+- Per ogni item, aggiungi un campo "image_url". PRIORITÀ: 1) usa le immagini ORIGINALI dal sito dell'utente quando disponibili e pertinenti 2) solo se non ci sono immagini dal sito, usa Unsplash (formato: https://images.unsplash.com/photo-XXXX?w=400&h=300&fit=crop).
+- Non inventare prodotti/piatti se ci sono quelli reali dal sito.
+- Le immagini del sito dell'utente sono di sua proprietà, quindi puoi riutilizzarle liberamente.`;
 
     onComplete(prompt, data);
   };
@@ -299,6 +308,9 @@ REGOLE IMPORTANTI:
                 )}
                 {data.websiteAnalysis.menuItems?.length > 0 && (
                   <p className="text-[10px] text-green-400/70 mt-1">📋 {data.websiteAnalysis.menuItems.length} prodotti/servizi trovati</p>
+                )}
+                {data.websiteAnalysis.siteImages?.length > 0 && (
+                  <p className="text-[10px] text-green-400/70 mt-0.5">🖼️ {data.websiteAnalysis.siteImages.length} immagini estratte dal sito</p>
                 )}
               </div>
             )}
