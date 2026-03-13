@@ -415,6 +415,58 @@ export default function SimulatoreInterattivo({ user }) {
   const [pDivB, setPDivB] = useState(50);
   const [showAteco, setShowAteco] = useState(false);
   const [showPianificatore, setShowPianificatore] = useState(false);
+  const [bilancioApplicato, setBilancioApplicato] = useState(false);
+
+  const CAPITALI = ['SRL', 'SRLU', 'SPA', 'SAPA', 'SE', 'COOP'];
+  const isSocieta = CAPITALI.includes(user?.forma_giuridica);
+
+  /* Callback dal componente CaricaBilancioButton — mappa i dati estratti sugli slider */
+  const handleBilancioData = useCallback((data) => {
+    if (data.ricavi) setFatt(Math.round(data.ricavi));
+
+    if (data.costi_produzione) {
+      // Distribuisci costi proporzionalmente ai default
+      const totalDefault = Object.values(cv).reduce((a, b) => a + b, 0);
+      const target = Math.round(data.costi_produzione);
+      const ratio = target / Math.max(1, totalDefault);
+      const nuovi = {};
+      Object.entries(cv).forEach(([k, val]) => { nuovi[k] = Math.round(val * ratio); });
+
+      // Se ci sono dati specifici, sovrascrivili
+      if (data.costo_personale) {
+        const persKeys = ["salari","oneri_sociali","tfr","interinali","formazione","buoni_pasto","straordinari","trasferte_dip","welfare_aziendale"];
+        const persTotal = persKeys.reduce((s, k) => s + (nuovi[k] || 0), 0);
+        if (persTotal > 0) {
+          const persRatio = data.costo_personale / persTotal;
+          persKeys.forEach(k => { nuovi[k] = Math.round((nuovi[k] || 0) * persRatio); });
+        }
+      }
+      if (data.ammortamenti) {
+        const ammKeys = ["amm_macchinari","amm_immobili","amm_automezzi","amm_software"];
+        const ammTotal = ammKeys.reduce((s, k) => s + (nuovi[k] || 0), 0);
+        if (ammTotal > 0) {
+          const ammRatio = data.ammortamenti / ammTotal;
+          ammKeys.forEach(k => { nuovi[k] = Math.round((nuovi[k] || 0) * ammRatio); });
+        }
+      }
+      if (data.oneri_finanziari) {
+        const finKeys = ["interessi","interessi_fido","commissioni_bancarie"];
+        const finTotal = finKeys.reduce((s, k) => s + (nuovi[k] || 0), 0);
+        if (finTotal > 0) {
+          const finRatio = data.oneri_finanziari / finTotal;
+          finKeys.forEach(k => { nuovi[k] = Math.round((nuovi[k] || 0) * finRatio); });
+        }
+      }
+
+      setCv(nuovi);
+    }
+
+    if (data.compensi_amministratori) {
+      setComp(Math.round(data.compensi_amministratori));
+    }
+
+    setBilancioApplicato(true);
+  }, [cv]);
 
   const costi = useMemo(() => Object.values(cv).reduce((a, b) => a + b, 0), [cv]);
 
