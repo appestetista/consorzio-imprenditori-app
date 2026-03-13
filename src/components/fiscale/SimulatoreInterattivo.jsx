@@ -760,21 +760,8 @@ export default function SimulatoreInterattivo({ user }) {
             <div className="text-[10px] text-gray-600">dopo ritenuta 26%</div>
           </div>
         </div>
-        {confronto && (
-          <div className="mt-4 pt-4 border-t border-gray-700">
-            <div className="text-xs text-gray-500 mb-1">Scenario B</div>
-            <div className="text-3xl font-bold text-amber-400">{fmt(B.totaleTasca)}</div>
-            <div className={`text-sm mt-1 font-semibold ${
-              B.totaleTasca > A.totaleTasca ? "text-green-400" : "text-red-400"
-            }`}>
-              {B.totaleTasca > A.totaleTasca ? "▲" : "▼"}{" "}
-              {fmt(Math.abs(B.totaleTasca - A.totaleTasca))}/anno
-              <span className="text-gray-500 font-normal ml-1">
-                ({fmt(Math.abs(B.totaleTasca - A.totaleTasca) / 12)}/mese)
-              </span>
-            </div>
-          </div>
-        )}
+
+
       </div>
 
       {/* RIEPILOGO TASSE — spiegato semplice */}
