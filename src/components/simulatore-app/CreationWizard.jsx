@@ -123,10 +123,18 @@ export default function CreationWizard({ onComplete }) {
     if (!data.websiteUrl.trim()) return;
     setAnalyzingWebsite(true);
     startFakeProgress();
+
+    // Risolvi il dominio base per le URL relative
+    let siteUrl = data.websiteUrl.trim();
+    if (!siteUrl.startsWith("http")) siteUrl = "https://" + siteUrl;
+    let baseUrl = "";
+    try { baseUrl = new URL(siteUrl).origin; } catch { baseUrl = siteUrl; }
+
     try {
       // Step 1: Analisi sito + ricerca PDF menu
       const result = await base44.integrations.Core.InvokeLLM({
-        prompt: `Analizza in dettaglio questo sito web: ${data.websiteUrl}
+        prompt: `Analizza in dettaglio questo sito web: ${siteUrl}
+Il dominio base è: ${baseUrl}
 
 Estrai TUTTE queste informazioni:
 1. Nome dell'attività
@@ -137,10 +145,17 @@ Estrai TUTTE queste informazioni:
 6. Tipo di attività (ristorazione, beauty, fitness, ecommerce, servizi, ecc.)
 7. Le SEZIONI del sito nell'ORDINE ESATTO in cui appaiono (es: hero, menu, chi siamo, gallery, recensioni, contatti...)
 8. I CONTENUTI principali: nomi di piatti/servizi/prodotti, prezzi, categorie, descrizioni che trovi nel sito
-9. URL del logo se visibile (URL COMPLETO, non relativo)
+9. URL del logo se visibile
 10. Orari di apertura, indirizzo, telefono se presenti
-11. TUTTE le URL delle immagini presenti nel sito (hero, prodotti, gallery, banner, ecc.). Estrai gli URL completi assoluti delle immagini (jpg, png, webp). Per ogni immagine indica a cosa si riferisce.
-12. CERCA link a file PDF nel sito (menu PDF, catalogo PDF, listino prezzi PDF). Se trovi un link a un PDF, riportalo nel campo pdfMenuUrl.`,
+11. TUTTE le URL delle immagini presenti nel sito (hero, prodotti, gallery, banner, ecc.). Per ogni immagine indica a cosa si riferisce.
+12. CERCA link a file PDF nel sito (menu PDF, catalogo PDF, listino prezzi PDF). Se trovi un link a un PDF, riportalo nel campo pdfMenuUrl.
+
+REGOLE CRITICHE PER LE IMMAGINI:
+- Estrai OGNI immagine visibile nel sito (logo, hero, prodotti, gallery, team, banner, sfondo).
+- Se un URL immagine è RELATIVO (inizia con / o non ha http), CONVERTILO in URL ASSOLUTO aggiungendo "${baseUrl}" davanti. Esempio: /images/pizza.jpg → ${baseUrl}/images/pizza.jpg
+- Ogni URL deve iniziare con http:// o https://
+- Non inventare URL. Riporta SOLO immagini che trovi realmente nel sito.
+- Includi anche immagini da CDN esterni (cloudinary, imgix, shopify, ecc.) se presenti.`,
         add_context_from_internet: true,
         response_json_schema: {
           type: "object",
