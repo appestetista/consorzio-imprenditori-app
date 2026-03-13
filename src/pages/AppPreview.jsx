@@ -6,6 +6,7 @@ import DynamicAppRenderer from "../components/simulatore-app/DynamicAppRenderer"
 import QuickEditor from "../components/simulatore-app/QuickEditor";
 import VersionCompare from "../components/simulatore-app/VersionCompare";
 import ColorPickerPanel from "../components/simulatore-app/ColorPickerPanel";
+import SubmitProjectForm from "../components/simulatore-app/SubmitProjectForm";
 import useDisablePullToRefresh from "../components/simulatore-app/useDisablePullToRefresh";
 
 const EDIT_SCHEMA = {
@@ -36,6 +37,7 @@ export default function AppPreview() {
   const [showQuickEditor, setShowQuickEditor] = useState(false);
   const [versions, setVersions] = useState([]);
   const [uploadingImage, setUploadingImage] = useState(false);
+  const [showSubmitForm, setShowSubmitForm] = useState(false);
   const fileInputRef = useRef(null);
 
   const [saving, setSaving] = useState(false);
@@ -149,11 +151,18 @@ export default function AppPreview() {
     }, 2000);
   };
 
-  const handleSubmit = async () => {
+  const handleSubmit = async ({ dominio, features, note }) => {
     if (!projectId || !appData) return;
-    await base44.entities.AppProject.update(projectId, { status: "submitted" });
+    await base44.entities.AppProject.update(projectId, {
+      status: "submitted",
+      features_requested: features,
+      dominio_richiesto: dominio || "",
+      note_cliente: note || "",
+      requires_payments: features.some(f => /pagament|stripe|carta|checkout/i.test(f)),
+      requires_api: features.some(f => /api|integrazion|webhook/i.test(f)),
+    });
     setSubmitted(true);
-    // Notifica admin via email
+    setShowSubmitForm(false);
     try {
       const user = await base44.auth.me();
       await base44.integrations.Core.SendEmail({
@@ -162,7 +171,9 @@ export default function AppPreview() {
         body: `<h2>Nuovo progetto app pronto per la revisione</h2>
 <p><strong>App:</strong> ${appData.appName || "N/D"}</p>
 <p><strong>Utente:</strong> ${user?.full_name || user?.email || "N/D"}</p>
-<p><strong>Funzionalità richieste:</strong> ${(appData.features_requested || []).join(", ") || "Nessuna"}</p>
+<p><strong>Dominio richiesto:</strong> ${dominio || "Non specificato"}</p>
+<p><strong>Funzionalità richieste:</strong> ${features.join(", ") || "Nessuna"}</p>
+${note ? `<p><strong>Note:</strong> ${note}</p>` : ""}
 <p>Vai al pannello admin per gestire il progetto.</p>`,
       });
     } catch {}
@@ -230,6 +241,15 @@ export default function AppPreview() {
         />
       )}
 
+      {/* Submit form overlay */}
+      {showSubmitForm && (
+        <SubmitProjectForm
+          appData={appData}
+          onSubmit={handleSubmit}
+          onClose={() => setShowSubmitForm(false)}
+        />
+      )}
+
       {/* Quick editor overlay */}
       {showQuickEditor && (
         <QuickEditor
@@ -274,7 +294,7 @@ export default function AppPreview() {
               Salva
             </button>
             {!submitted ? (
-              <button onClick={handleSubmit} className="flex items-center gap-1.5 text-xs font-bold text-green-400 bg-green-400/10 rounded-full px-3 py-1.5 hover:bg-green-400/20 transition-colors">
+              <button onClick={() => setShowSubmitForm(true)} className="flex items-center gap-1.5 text-xs font-bold text-green-400 bg-green-400/10 rounded-full px-3 py-1.5 hover:bg-green-400/20 transition-colors">
                 <Rocket className="w-3.5 h-3.5" />
                 Invia al nostro team
               </button>
