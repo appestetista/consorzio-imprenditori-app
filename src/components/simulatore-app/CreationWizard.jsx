@@ -377,8 +377,17 @@ ${!isFromScratch ? "- L'utente ha scelto un prototipo esistente: ISPIRATI alla s
                     ))}
                   </div>
                 )}
+                {data.websiteAnalysis.logoUrl && (
+                  <div className="flex items-center gap-2 mt-2">
+                    <img src={data.websiteAnalysis.logoUrl} className="h-6 rounded" alt="Logo" onError={e => e.target.style.display = 'none'} />
+                    <span className="text-[10px] text-green-400/70">Logo trovato</span>
+                  </div>
+                )}
                 {data.websiteAnalysis.menuItems?.length > 0 && (
                   <p className="text-[10px] text-green-400/70 mt-1">📋 {data.websiteAnalysis.menuItems.length} prodotti/servizi trovati</p>
+                )}
+                {data.websiteAnalysis.pdfAnalyzed && (
+                  <p className="text-[10px] text-green-400/70 mt-0.5">📄 Menu PDF analizzato — {data.websiteAnalysis.pdfItemsCount} voci estratte</p>
                 )}
                 {data.websiteAnalysis.siteImages?.length > 0 && (
                   <p className="text-[10px] text-green-400/70 mt-0.5">🖼️ {data.websiteAnalysis.siteImages.length} immagini estratte dal sito</p>
