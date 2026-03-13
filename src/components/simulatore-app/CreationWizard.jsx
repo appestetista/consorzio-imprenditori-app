@@ -99,7 +99,7 @@ export default function CreationWizard({ onComplete }) {
   const pdfProgressInterval = useRef(null);
   const pdfInputRef = useRef(null);
 
-  const totalSteps = 6; // categoria, info+sito, PDF menu, template, funzionalità, conferma
+  const totalSteps = 5; // categoria, info+sito, PDF menu, template, funzionalità
 
   // Scroll to top ad ogni cambio step
   useEffect(() => {
