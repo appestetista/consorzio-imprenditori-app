@@ -68,6 +68,18 @@ export default function SimulatoreFiscale() {
           <FiscalPreFlightPopup user={effectiveUser} onComplete={handlePreFlightComplete} />
         )}
 
+        {/* Popup modifica rapida dati fiscali (pennetta) */}
+        {showQuickEdit && effectiveUser && (
+          <QuickEditFiscale
+            user={effectiveUser}
+            onSave={(updated) => {
+              setEffectiveUser(prev => ({ ...prev, ...updated }));
+              setShowQuickEdit(false);
+            }}
+            onClose={() => setShowQuickEdit(false)}
+          />
+        )}
+
         {/* Riepilogo dati fiscali dal profilo */}
         {effectiveUser?.forma_giuridica && (
           <div className="mb-3 flex flex-wrap items-center gap-1.5">
