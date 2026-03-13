@@ -92,6 +92,11 @@ export default function SimulatoreApp() {
 
   useDisablePullToRefresh();
 
+  // Scroll to top all'apertura della pagina
+  useEffect(() => {
+    window.scrollTo(0, 0);
+  }, []);
+
   useEffect(() => {
     base44.auth.me().then(setUser).catch(() => {});
   }, []);
