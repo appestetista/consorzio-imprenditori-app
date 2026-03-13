@@ -496,10 +496,8 @@ export default function SimulatoreInterattivo({ user }) {
     costiIndeducibiliIrap,
   }), [fatt, costi, comp, pDiv, costiIndeducibiliIrap]);
 
-  const B = useMemo(() => calcolaScenario({
-    fatturato: fatt, costiTotali: costi, compensoLordo: compB, percDividendi: pDivB,
-    costiIndeducibiliIrap,
-  }), [fatt, costi, compB, pDivB, costiIndeducibiliIrap]);
+
+
 
   return (
     <div className="space-y-4">
