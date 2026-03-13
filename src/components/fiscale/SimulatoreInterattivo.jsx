@@ -504,15 +504,16 @@ export default function SimulatoreInterattivo({ user }) {
 
       {/* HEADER — Carica bilancio per società */}
       {isSocieta && (
-        <div className="flex items-center justify-between">
-          {bilancioApplicato && (
-            <span className="text-xs text-green-400 flex items-center gap-1">
-              ✓ Dati da bilancio applicati
-            </span>
-          )}
-          <div className="ml-auto">
-            <CaricaBilancioButton onDataExtracted={handleBilancioData} />
+        <div className="space-y-2">
+          <div className="flex items-center justify-between">
+            {bilancioApplicato && (
+              <span className="text-xs text-green-400 flex items-center gap-1">
+                ✓ Dati da bilancio applicati
+              </span>
+            )}
+            <div className="ml-auto" />
           </div>
+          <CaricaBilancioButton onDataExtracted={handleBilancioData} />
         </div>
       )}
 
