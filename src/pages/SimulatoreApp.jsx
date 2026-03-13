@@ -135,6 +135,12 @@ export default function SimulatoreApp() {
       </div>
 
       <div className="max-w-lg mx-auto px-4 pt-8">
+        {error && (
+          <div className="mb-6 bg-red-500/10 border border-red-500/30 rounded-xl p-4 text-center">
+            <p className="text-sm text-red-400 mb-2">{error}</p>
+            <button onClick={() => { setError(null); }} className="text-xs text-red-300 underline">Chiudi</button>
+          </div>
+        )}
         {!appData && !loading ? (
           <>
             {/* Titolo */}
