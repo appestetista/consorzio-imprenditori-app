@@ -87,7 +87,7 @@ export default function DynamicAppRenderer({ data, editable, onDataChange }) {
           if (!Component) return null;
           return (
             <div key={i}>
-              {i > 0 && <div className="mx-6 h-px bg-white/[0.03]" />}
+              {i > 0 && <div className="mx-6 h-px" style={{ background: darkMode === false ? "rgba(0,0,0,0.06)" : "rgba(255,255,255,0.03)" }} />}
               <Component
                 title={section.title}
                 subtitle={section.subtitle}

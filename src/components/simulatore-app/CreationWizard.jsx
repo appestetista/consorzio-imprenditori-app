@@ -437,21 +437,26 @@ REGOLE IMMAGINI — FONDAMENTALE:
       ? `\nPROTOTIPO BASE SCELTO: "${template.name}" (${template.category}). Personalizza per "${wizardData.businessName}". Items prototipo: ${template.previewItems.join(", ")}. Hero: ${template.heroImage || ""}.`
       : "";
 
+    const logoLine = wizardData.logoUrl ? `\nLOGO URL (OBBLIGATORIO — inserisci come "logoUrl" nel JSON radice): ${wizardData.logoUrl}` : (wa?.logoUrl ? `\nLOGO URL DAL SITO (OBBLIGATORIO — inserisci come "logoUrl" nel JSON radice): ${wa.logoUrl}` : "");
+
     const prompt = `Crea un'app per "${wizardData.businessName}" — settore: ${wizardData.businessType}.
 ${wizardData.description ? `Descrizione: ${wizardData.description}.` : ""}
 ${protoInfo}
 ${siteInfo}
+${logoLine}
 Colore primario: ${template.primaryColor}, secondario: ${template.secondaryColor}, accento: ${template.accentColor || template.secondaryColor}. Dark mode: ${template.darkMode}. Font style: ${template.fontStyle}.
 Sezioni richieste: ${featuresList.join(", ") || "automatiche per il settore"}.
 ${techFeaturesList.length > 0 ? `Funzionalità tecniche (features_requested): ${techFeaturesList.join(", ")}.` : ""}
 
 REGOLE IMPORTANTI:
-- Usa ESATTAMENTE i colori indicati.
+- Usa ESATTAMENTE i colori indicati per primaryColor, secondaryColor e accentColor.
+- Il campo "logoUrl" nel JSON radice è OBBLIGATORIO se fornito sopra.
 ${!isFromScratch ? "- Ispirati alla struttura del prototipo scelto ma personalizzala." : "- Genera una struttura originale e unica."}
-- Se ci sono dati dal sito web, USA I CONTENUTI REALI (nomi, prezzi, descrizioni) e RISPETTA L'ORDINE DELLE SEZIONI.
-- Per ogni item, aggiungi un campo "image_url". PRIORITÀ: 1) immagini ORIGINALI dal sito dell'utente 2) solo se non ci sono, usa Unsplash (formato: https://images.unsplash.com/photo-XXXX?w=400&h=300&fit=crop).
-- Non inventare prodotti/piatti se ci sono quelli reali dal sito.
-- Se c'è un logoUrl, usalo nell'header dell'app.`;
+- Se ci sono dati dal sito web o da un PDF menu, INSERISCI TUTTI I PIATTI REALI, organizzati per categoria.
+- Ogni categoria di piatti deve essere una sezione "menu_list" separata (es: title "Pizze Classiche", title "Primi di Pesce", ecc.)
+- Per ogni piatto: nome ESATTO, prezzo ESATTO, descrizione ESATTA dal menu originale. NON omettere piatti.
+- Per ogni item, aggiungi un campo "image_url". PRIORITÀ: 1) immagini ORIGINALI dal sito dell'utente 2) solo se non ci sono, usa Unsplash.
+- Non inventare prodotti/piatti se ci sono quelli reali dal sito o PDF.`;
 
     onComplete(prompt, { ...wizardData, selectedTemplate: template, features: featuresList, techFeatures: techFeaturesList });
   };
