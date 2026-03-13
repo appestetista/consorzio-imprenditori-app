@@ -13,14 +13,18 @@ export default function MenuListSection({ title, subtitle, items, primaryColor }
           <h3 className="text-lg font-bold text-white" style={{ fontFamily: "Georgia, serif" }}>{title}</h3>
         </div>
       )}
-      {/* Thin separator */}
       <div className="h-px bg-white/5 mb-4" />
       <div className="space-y-3">
         {items.map((item, i) => (
           <div key={i} className="group flex items-start gap-3 p-3 rounded-2xl bg-white/[0.03] border border-white/[0.04] hover:bg-white/[0.06] transition-all duration-300">
-            {item.emoji && (
-              <div className="w-10 h-10 rounded-xl flex items-center justify-center text-lg shrink-0" style={{ background: primaryColor + "15" }}>
-                {item.emoji}
+            {/* Image or emoji */}
+            {item.image_url ? (
+              <div className="w-16 h-16 rounded-xl overflow-hidden shrink-0">
+                <img src={item.image_url} alt={item.name} className="w-full h-full object-cover" onError={(e) => { e.target.parentNode.innerHTML = `<div class="w-full h-full flex items-center justify-center text-lg" style="background:${primaryColor}15">${item.emoji || "🍽️"}</div>`; }} />
+              </div>
+            ) : (
+              <div className="w-12 h-12 rounded-xl flex items-center justify-center text-lg shrink-0" style={{ background: primaryColor + "15" }}>
+                {item.emoji || "🍽️"}
               </div>
             )}
             <div className="flex-1 min-w-0">
@@ -32,7 +36,7 @@ export default function MenuListSection({ title, subtitle, items, primaryColor }
                   </span>
                 )}
               </div>
-              {item.description && <p className="text-[11px] text-white/35 mt-0.5 leading-relaxed">{item.description}</p>}
+              {item.description && <p className="text-[11px] text-white/35 mt-0.5 leading-relaxed line-clamp-2">{item.description}</p>}
             </div>
             <div className="flex items-center gap-2 shrink-0">
               {item.price != null && (
@@ -53,7 +57,7 @@ export default function MenuListSection({ title, subtitle, items, primaryColor }
       </div>
       {cart.length > 0 && (
         <div className="mt-4 p-3 rounded-2xl flex items-center justify-between" style={{ background: primaryColor + "10", border: `1px solid ${primaryColor}20` }}>
-          <span className="text-xs text-white/50">{cart.length} element{cart.length > 1 ? "i" : "o"} selezionat{cart.length > 1 ? "i" : "o"}</span>
+          <span className="text-xs text-white/50">{cart.length} element{cart.length > 1 ? "i" : "o"}</span>
           <span className="text-lg font-black text-white">€{totale.toFixed(2)}</span>
         </div>
       )}

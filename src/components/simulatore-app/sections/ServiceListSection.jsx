@@ -20,8 +20,14 @@ export default function ServiceListSection({ title, subtitle, items, primaryColo
             className="w-full text-left rounded-2xl p-4 transition-all duration-300 border bg-white/[0.03] active:scale-[0.98]"
             style={{ borderColor: selected === i ? primaryColor + "40" : "rgba(255,255,255,0.04)" }}
           >
-            <div className="flex items-start justify-between gap-3">
-              <div className="flex-1">
+            <div className="flex items-start gap-3">
+              {/* Image */}
+              {s.image_url && (
+                <div className="w-14 h-14 rounded-xl overflow-hidden shrink-0">
+                  <img src={s.image_url} alt={s.name} className="w-full h-full object-cover" onError={(e) => { e.target.parentNode.style.display = "none"; }} />
+                </div>
+              )}
+              <div className="flex-1 min-w-0">
                 <div className="flex items-center gap-2">
                   <p className="text-sm font-bold text-white">{s.name}</p>
                   {s.badge && (
@@ -36,7 +42,7 @@ export default function ServiceListSection({ title, subtitle, items, primaryColo
                       <Clock className="w-3 h-3" /> {s.duration}
                     </span>
                   )}
-                  {s.description && <span className="text-[10px] text-white/25">{s.description}</span>}
+                  {s.description && <span className="text-[10px] text-white/25 line-clamp-1">{s.description}</span>}
                 </div>
               </div>
               {s.price != null && (

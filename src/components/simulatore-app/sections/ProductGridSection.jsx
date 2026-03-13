@@ -16,20 +16,28 @@ export default function ProductGridSection({ title, subtitle, items, primaryColo
       <div className="grid grid-cols-2 gap-3">
         {items.map((p, i) => (
           <div key={i} className="group rounded-2xl overflow-hidden bg-white/[0.03] border border-white/[0.04] transition-all duration-300 hover:border-white/10 active:scale-[0.97]">
-            {/* Image area with gradient */}
-            <div className="relative h-28 flex items-center justify-center overflow-hidden" style={{
-              background: `linear-gradient(135deg, ${primaryColor}20 0%, ${primaryColor}08 100%)`
+            {/* Image area */}
+            <div className="relative h-32 overflow-hidden" style={{
+              background: p.image_url ? "#111" : `linear-gradient(135deg, ${primaryColor}20 0%, ${primaryColor}08 100%)`
             }}>
-              {/* Simulated light reflection */}
-              <div className="absolute top-0 left-0 w-full h-1/2 bg-gradient-to-b from-white/5 to-transparent" />
-              <span className="text-4xl relative z-10">{p.emoji || "📦"}</span>
+              {p.image_url ? (
+                <img src={p.image_url} alt={p.name} className="w-full h-full object-cover"
+                  onError={(e) => { e.target.style.display = "none"; }} />
+              ) : (
+                <>
+                  <div className="absolute top-0 left-0 w-full h-1/2 bg-gradient-to-b from-white/5 to-transparent" />
+                  <div className="flex items-center justify-center h-full">
+                    <span className="text-4xl relative z-10">{p.emoji || "📦"}</span>
+                  </div>
+                </>
+              )}
               {p.tag && (
                 <span className="absolute top-2 left-2 px-2 py-0.5 rounded-full text-[8px] font-bold uppercase tracking-wider text-white" style={{ background: primaryColor }}>
                   {p.tag}
                 </span>
               )}
               {p.badge && (
-                <span className="absolute bottom-2 left-2 px-2 py-0.5 rounded-full text-[8px] font-bold uppercase tracking-wider" style={{ background: primaryColor + "20", color: primaryColor }}>
+                <span className="absolute bottom-2 left-2 px-2 py-0.5 rounded-full text-[8px] font-bold uppercase tracking-wider backdrop-blur-sm" style={{ background: "rgba(0,0,0,0.5)", color: primaryColor }}>
                   {p.badge}
                 </span>
               )}
@@ -39,6 +47,7 @@ export default function ProductGridSection({ title, subtitle, items, primaryColo
             </div>
             <div className="p-3">
               <p className="text-xs font-bold text-white truncate">{p.name}</p>
+              {p.description && <p className="text-[10px] text-white/30 mt-0.5 truncate">{p.description}</p>}
               <div className="flex items-center gap-1.5 mt-1">
                 <span className="text-sm font-black tabular-nums" style={{ color: primaryColor }}>
                   €{typeof p.price === "number" ? p.price : p.price}
