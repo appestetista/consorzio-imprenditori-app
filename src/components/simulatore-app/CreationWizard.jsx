@@ -137,20 +137,22 @@ export default function CreationWizard({ onComplete }) {
     setPdfProgress(0);
     setPdfPhase("Caricamento file...");
     const phases = [
-      { at: 15, text: "Lettura del documento..." },
+      { at: 8, text: "Lettura del documento..." },
+      { at: 20, text: "Scansione pagine..." },
       { at: 35, text: "Estrazione prodotti e prezzi..." },
-      { at: 55, text: "Organizzazione categorie..." },
-      { at: 75, text: "Validazione dati estratti..." },
-      { at: 90, text: "Finalizzazione..." },
+      { at: 50, text: "Organizzazione categorie..." },
+      { at: 65, text: "Validazione dati estratti..." },
+      { at: 80, text: "Finalizzazione..." },
     ];
     let current = 0;
     pdfProgressInterval.current = setInterval(() => {
-      current += Math.random() * 3 + 0.5;
-      if (current > 92) current = 92;
+      const remaining = 92 - current;
+      const increment = Math.max(0.15, remaining * 0.02 + Math.random() * 0.4);
+      current = Math.min(current + increment, 92);
       setPdfProgress(current);
       const phase = [...phases].reverse().find(p => current >= p.at);
       if (phase) setPdfPhase(phase.text);
-    }, 300);
+    }, 500);
   };
 
   const stopPdfProgress = () => {
