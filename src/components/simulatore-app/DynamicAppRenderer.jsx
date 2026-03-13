@@ -74,6 +74,9 @@ export default function DynamicAppRenderer({ data, editable, onDataChange }) {
         style={headerStyle}
         fontStyle={fontStyle}
         darkMode={darkMode}
+        editable={editable}
+        onAppNameChange={editable && onDataChange ? (v) => onDataChange({ ...data, appName: v }) : null}
+        onTaglineChange={editable && onDataChange ? (v) => onDataChange({ ...data, tagline: v }) : null}
       />
 
       <div className="flex-1 pb-16 relative z-10">
