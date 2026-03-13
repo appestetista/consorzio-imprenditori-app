@@ -682,8 +682,8 @@ ${!isFromScratch ? "- Ispirati alla struttura del prototipo scelto ma personaliz
         </div>
       )}
 
-      {/* Step 4: Riepilogo e conferma */}
-      {step === 4 && (
+      {/* Step 5: Riepilogo e conferma */}
+      {step === 5 && (
         <div className="space-y-4">
           <div className="text-center mb-4">
             <h2 className="text-lg font-black text-white">Tutto pronto!</h2>
