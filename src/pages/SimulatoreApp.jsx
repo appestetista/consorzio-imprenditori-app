@@ -109,6 +109,34 @@ export default function SimulatoreApp() {
     chatEndRef.current?.scrollIntoView({ behavior: "smooth" });
   }, [messages, loading]);
 
+  const startGenProgress = () => {
+    setGenProgress(0);
+    setGenPhase("Preparazione del progetto...");
+    const phases = [
+      { at: 10, text: "Analisi dei requisiti..." },
+      { at: 25, text: "Creazione struttura app..." },
+      { at: 40, text: "Generazione sezioni e contenuti..." },
+      { at: 55, text: "Inserimento prodotti e prezzi..." },
+      { at: 70, text: "Applicazione stile grafico..." },
+      { at: 85, text: "Rifinitura finale..." },
+    ];
+    let current = 0;
+    genProgressRef.current = setInterval(() => {
+      current += Math.random() * 2.5 + 0.3;
+      if (current > 92) current = 92;
+      setGenProgress(current);
+      const phase = [...phases].reverse().find(p => current >= p.at);
+      if (phase) setGenPhase(phase.text);
+    }, 400);
+  };
+
+  const stopGenProgress = () => {
+    clearInterval(genProgressRef.current);
+    setGenProgress(100);
+    setGenPhase("App pronta!");
+    return new Promise(resolve => setTimeout(() => { setIsFirstGeneration(false); resolve(); }, 800));
+  };
+
   const addMessage = (role, content) => {
     const msg = { role, content, timestamp: new Date().toISOString() };
     setMessages(prev => [...prev, msg]);
