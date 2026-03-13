@@ -88,7 +88,7 @@ export default function CreationWizard({ onComplete }) {
   const [analysisPhase, setAnalysisPhase] = useState("");
   const progressInterval = useRef(null);
 
-  const totalSteps = 4; // categoria, info+sito, template, funzionalità+conferma
+  const totalSteps = 5; // categoria, info+sito, template, funzionalità, conferma
 
   // Barra finta di progresso
   const startFakeProgress = () => {
