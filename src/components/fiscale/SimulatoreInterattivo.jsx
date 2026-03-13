@@ -151,47 +151,77 @@ const ATECO = {
   "10": {
     n: "Alimentare",
     v: { materie_prime:30, semilavorati:8, imballaggi:5, consumabili:2, rifiuti:1,
+         lav_esterne:2, magazzino:1.5, controllo_qualita:1,
          salari:12, oneri_sociali:5, tfr:1.5, interinali:2, formazione:0.5,
+         buoni_pasto:0.8, straordinari:1, trasferte_dip:0.3, welfare_aziendale:0.3,
          affitto:4, elettricita:3, gas:1.5, acqua:0.5, manutenzione:2, pulizie:0.5,
+         condominio:0.3, sicurezza_sede:0.2, smaltimento_rifiuti_sede:0.2,
          trasporti:4, commercialista:1, legali:0.3, telefonia:0.3, software:0.5, marketing:1.5,
+         consulenze_tecniche:0.3, postali_corrieri:0.2, certificazioni:0.5, outsourcing:0.2,
          amm_macchinari:4, amm_immobili:1.5, leasing:1, interessi:0.8,
-         assicurazioni:1.2, imu_tari:0.8, viaggi:0.5, rappresentanza:0.5, varie:1 }
+         amm_automezzi:0.5, amm_software:0.3, commissioni_bancarie:0.3, interessi_fido:0.4,
+         assicurazioni:1.2, imu_tari:0.8, viaggi:0.5, rappresentanza:0.5, varie:1,
+         bolli_vidimazioni:0.1, abbonamenti_riviste:0.1, contributi_associativi:0.2, auto_aziendali:0.5 }
   },
   "16": {
     n: "Legno",
     v: { materie_prime:25, semilavorati:6, imballaggi:3, consumabili:3, rifiuti:1.5,
+         lav_esterne:2, magazzino:1, controllo_qualita:0.5,
          salari:14, oneri_sociali:5.5, tfr:1.5, interinali:2, formazione:0.5,
+         buoni_pasto:0.7, straordinari:1.2, trasferte_dip:0.3, welfare_aziendale:0.2,
          affitto:4, elettricita:3.5, gas:2, acqua:0.3, manutenzione:3, pulizie:0.5,
+         condominio:0.3, sicurezza_sede:0.2, smaltimento_rifiuti_sede:0.3,
          trasporti:3, commercialista:1, legali:0.3, telefonia:0.3, software:0.5, marketing:1,
+         consulenze_tecniche:0.3, postali_corrieri:0.1, certificazioni:0.3, outsourcing:0.2,
          amm_macchinari:5, amm_immobili:2, leasing:1.5, interessi:1,
-         assicurazioni:1.2, imu_tari:1, viaggi:0.5, rappresentanza:0.3, varie:1 }
+         amm_automezzi:0.6, amm_software:0.2, commissioni_bancarie:0.3, interessi_fido:0.5,
+         assicurazioni:1.2, imu_tari:1, viaggi:0.5, rappresentanza:0.3, varie:1,
+         bolli_vidimazioni:0.1, abbonamenti_riviste:0.1, contributi_associativi:0.2, auto_aziendali:0.6 }
   },
   "25": {
     n: "Prodotti in metallo",
     v: { materie_prime:22, semilavorati:8, imballaggi:2, consumabili:3, rifiuti:1,
+         lav_esterne:3, magazzino:1, controllo_qualita:0.5,
          salari:16, oneri_sociali:6.5, tfr:2, interinali:3, formazione:0.5,
+         buoni_pasto:0.8, straordinari:1.5, trasferte_dip:0.3, welfare_aziendale:0.3,
          affitto:3.5, elettricita:3, gas:1.5, acqua:0.3, manutenzione:3, pulizie:0.5,
+         condominio:0.2, sicurezza_sede:0.2, smaltimento_rifiuti_sede:0.2,
          trasporti:3, commercialista:1, legali:0.3, telefonia:0.3, software:0.5, marketing:0.8,
+         consulenze_tecniche:0.5, postali_corrieri:0.1, certificazioni:0.4, outsourcing:0.2,
          amm_macchinari:5, amm_immobili:1.5, leasing:2, interessi:1,
-         assicurazioni:1, imu_tari:0.8, viaggi:0.5, rappresentanza:0.3, varie:1 }
+         amm_automezzi:0.5, amm_software:0.2, commissioni_bancarie:0.3, interessi_fido:0.5,
+         assicurazioni:1, imu_tari:0.8, viaggi:0.5, rappresentanza:0.3, varie:1,
+         bolli_vidimazioni:0.1, abbonamenti_riviste:0.1, contributi_associativi:0.2, auto_aziendali:0.5 }
   },
   "28": {
     n: "Macchinari",
     v: { materie_prime:20, semilavorati:10, imballaggi:2, consumabili:2, rifiuti:0.5,
+         lav_esterne:3, magazzino:1, controllo_qualita:1,
          salari:15, oneri_sociali:6, tfr:2, interinali:2, formazione:1,
+         buoni_pasto:0.8, straordinari:1.2, trasferte_dip:0.5, welfare_aziendale:0.3,
          affitto:3, elettricita:2.5, gas:1, acqua:0.2, manutenzione:2.5, pulizie:0.5,
+         condominio:0.2, sicurezza_sede:0.2, smaltimento_rifiuti_sede:0.1,
          trasporti:4, commercialista:1.5, legali:0.5, telefonia:0.4, software:1, marketing:2,
+         consulenze_tecniche:0.8, postali_corrieri:0.2, certificazioni:0.5, outsourcing:0.3,
          amm_macchinari:5, amm_immobili:1.5, leasing:2, interessi:1,
-         assicurazioni:1, imu_tari:0.8, viaggi:1.5, rappresentanza:0.5, varie:1 }
+         amm_automezzi:0.6, amm_software:0.4, commissioni_bancarie:0.3, interessi_fido:0.5,
+         assicurazioni:1, imu_tari:0.8, viaggi:1.5, rappresentanza:0.5, varie:1,
+         bolli_vidimazioni:0.1, abbonamenti_riviste:0.1, contributi_associativi:0.3, auto_aziendali:0.7 }
   },
   "31": {
     n: "Mobili",
     v: { materie_prime:22, semilavorati:8, imballaggi:4, consumabili:2, rifiuti:1,
+         lav_esterne:2, magazzino:1.5, controllo_qualita:0.5,
          salari:15, oneri_sociali:5.5, tfr:1.5, interinali:2, formazione:0.5,
+         buoni_pasto:0.7, straordinari:1, trasferte_dip:0.3, welfare_aziendale:0.2,
          affitto:4, elettricita:2.5, gas:1, acqua:0.3, manutenzione:2, pulizie:0.5,
+         condominio:0.3, sicurezza_sede:0.2, smaltimento_rifiuti_sede:0.1,
          trasporti:4, commercialista:1, legali:0.3, telefonia:0.3, software:0.5, marketing:3,
+         consulenze_tecniche:0.3, postali_corrieri:0.2, certificazioni:0.3, outsourcing:0.2,
          amm_macchinari:5, amm_immobili:2, leasing:1.5, interessi:1,
-         assicurazioni:1, imu_tari:0.8, viaggi:0.8, rappresentanza:0.5, varie:1 }
+         amm_automezzi:0.5, amm_software:0.3, commissioni_bancarie:0.3, interessi_fido:0.4,
+         assicurazioni:1, imu_tari:0.8, viaggi:0.8, rappresentanza:0.5, varie:1,
+         bolli_vidimazioni:0.1, abbonamenti_riviste:0.1, contributi_associativi:0.2, auto_aziendali:0.6 }
   },
 };
 
