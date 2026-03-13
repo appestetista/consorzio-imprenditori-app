@@ -1,5 +1,5 @@
 import React, { useState, useEffect, useRef } from "react";
-import { ArrowLeft, Send, Mic, MicOff, Clock, Check, Loader2, Sliders, Layers, ImagePlus } from "lucide-react";
+import { ArrowLeft, Send, Mic, MicOff, Clock, Check, Loader2, Sliders, Layers, ImagePlus, Save, Rocket } from "lucide-react";
 import { Link } from "react-router-dom";
 import { base44 } from "@/api/base44Client";
 import DynamicAppRenderer from "../components/simulatore-app/DynamicAppRenderer";
@@ -37,25 +37,49 @@ export default function AppPreview() {
   const [uploadingImage, setUploadingImage] = useState(false);
   const fileInputRef = useRef(null);
 
+  const [saving, setSaving] = useState(false);
+
   useEffect(() => {
-    const stored = sessionStorage.getItem("simulatore_app_data");
-    const pid = sessionStorage.getItem("simulatore_project_id");
-    const storedVersions = sessionStorage.getItem("simulatore_versions");
+    // Priorità: sessionStorage (navigazione interna) > localStorage (refresh)
+    const stored = sessionStorage.getItem("simulatore_app_data") || localStorage.getItem("simulatore_app_data");
+    const pid = sessionStorage.getItem("simulatore_project_id") || localStorage.getItem("simulatore_project_id");
+    const storedVersions = sessionStorage.getItem("simulatore_versions") || localStorage.getItem("simulatore_versions");
     if (stored) setAppData(JSON.parse(stored));
     if (storedVersions) setVersions(JSON.parse(storedVersions));
     if (pid) {
       setProjectId(pid);
       base44.entities.AppProject.filter({ id: pid }).then(res => {
         if (res?.[0]) {
-          setVersions(res[0].versions || []);
+          const dbVersions = res[0].versions || [];
+          setVersions(dbVersions);
+          // Sincronizza localStorage con i dati dal DB
+          if (res[0].current_data) {
+            const dbData = JSON.parse(res[0].current_data);
+            setAppData(dbData);
+            persist(dbData, dbVersions, pid);
+          }
           setSubmitted(res[0].status === "submitted" || res[0].status === "in_progress");
         }
       }).catch(() => {});
     }
   }, []);
 
+  // Salva su entrambi i storage
+  const persist = (data, vers, pid) => {
+    const dataStr = JSON.stringify(data);
+    const versStr = JSON.stringify(vers);
+    sessionStorage.setItem("simulatore_app_data", dataStr);
+    localStorage.setItem("simulatore_app_data", dataStr);
+    if (pid) {
+      sessionStorage.setItem("simulatore_project_id", pid);
+      localStorage.setItem("simulatore_project_id", pid);
+    }
+    sessionStorage.setItem("simulatore_versions", versStr);
+    localStorage.setItem("simulatore_versions", versStr);
+  };
+
   const saveVersion = async (data, prompt) => {
-    sessionStorage.setItem("simulatore_app_data", JSON.stringify(data));
+    persist(data, versions, projectId);
     if (!projectId) return;
     const newVersion = {
       version: versions.length + 1,
@@ -66,12 +90,20 @@ export default function AppPreview() {
     };
     const updatedVersions = [...versions, newVersion];
     setVersions(updatedVersions);
-    sessionStorage.setItem("simulatore_versions", JSON.stringify(updatedVersions));
+    persist(data, updatedVersions, projectId);
     await base44.entities.AppProject.update(projectId, {
       current_data: JSON.stringify(data),
       current_version: updatedVersions.length,
       versions: updatedVersions,
     });
+  };
+
+  // Salvataggio esplicito versione (pulsante)
+  const handleManualSave = async () => {
+    if (!appData || saving) return;
+    setSaving(true);
+    await saveVersion(appData, "Salvataggio manuale");
+    setSaving(false);
   };
 
   const handleEdit = async () => {
@@ -124,7 +156,7 @@ export default function AppPreview() {
   const restoreVersion = async (v) => {
     const data = JSON.parse(v.data);
     setAppData(data);
-    sessionStorage.setItem("simulatore_app_data", JSON.stringify(data));
+    persist(data, versions, projectId);
     setShowVersions(false);
     if (projectId) {
       await base44.entities.AppProject.update(projectId, { current_data: v.data });
@@ -217,17 +249,27 @@ export default function AppPreview() {
             </button>
             <ColorPickerPanel appData={appData} onUpdate={handleQuickUpdate} />
           </div>
-          {!submitted ? (
-            <button onClick={handleSubmit} className="flex items-center gap-1.5 text-xs font-bold text-green-400 bg-green-400/10 rounded-full px-3 py-1.5 hover:bg-green-400/20 transition-colors">
-              <Check className="w-3.5 h-3.5" />
-              Invia all'admin
+          <div className="flex items-center gap-2">
+            <button
+              onClick={handleManualSave}
+              disabled={saving}
+              className="flex items-center gap-1.5 text-xs font-medium text-blue-400 bg-blue-400/10 rounded-full px-3 py-1.5 hover:bg-blue-400/20 transition-colors"
+            >
+              {saving ? <Loader2 className="w-3.5 h-3.5 animate-spin" /> : <Save className="w-3.5 h-3.5" />}
+              Salva
             </button>
-          ) : (
-            <span className="flex items-center gap-1.5 text-xs font-bold text-green-400 bg-green-400/10 rounded-full px-3 py-1.5">
-              <Check className="w-3.5 h-3.5" />
-              Inviato!
-            </span>
-          )}
+            {!submitted ? (
+              <button onClick={handleSubmit} className="flex items-center gap-1.5 text-xs font-bold text-green-400 bg-green-400/10 rounded-full px-3 py-1.5 hover:bg-green-400/20 transition-colors">
+                <Rocket className="w-3.5 h-3.5" />
+                Invia al nostro team
+              </button>
+            ) : (
+              <span className="flex items-center gap-1.5 text-xs font-bold text-green-400 bg-green-400/10 rounded-full px-3 py-1.5">
+                <Check className="w-3.5 h-3.5" />
+                Inviato!
+              </span>
+            )}
+          </div>
         </div>
         {/* Edit input */}
         <div className="px-3 py-2.5 flex items-end gap-2">

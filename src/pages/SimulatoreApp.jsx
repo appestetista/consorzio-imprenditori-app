@@ -234,9 +234,15 @@ export default function SimulatoreApp() {
 
   const openPreview = () => {
     if (!appData) return;
-    sessionStorage.setItem("simulatore_app_data", JSON.stringify(appData));
+    const dataStr = JSON.stringify(appData);
+    const versStr = JSON.stringify(versions);
+    // Salva su entrambi gli storage per sopravvivere al refresh
+    sessionStorage.setItem("simulatore_app_data", dataStr);
+    localStorage.setItem("simulatore_app_data", dataStr);
     sessionStorage.setItem("simulatore_project_id", projectId || "");
-    sessionStorage.setItem("simulatore_versions", JSON.stringify(versions));
+    localStorage.setItem("simulatore_project_id", projectId || "");
+    sessionStorage.setItem("simulatore_versions", versStr);
+    localStorage.setItem("simulatore_versions", versStr);
     navigate("/AppPreview");
   };
 
