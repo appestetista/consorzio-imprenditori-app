@@ -1,5 +1,5 @@
 import React, { useState, useEffect, useRef } from "react";
-import { ArrowLeft, Send, Mic, MicOff, Loader2, Eye, History, Upload, ImagePlus } from "lucide-react";
+import { ArrowLeft, Send, Mic, MicOff, Loader2, Eye, History, Upload, ImagePlus, Sparkles } from "lucide-react";
 import { Link, useNavigate } from "react-router-dom";
 import { base44 } from "@/api/base44Client";
 import DynamicAppRenderer from "../components/simulatore-app/DynamicAppRenderer";
