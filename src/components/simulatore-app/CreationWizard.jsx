@@ -3,6 +3,7 @@ import { ArrowRight, ArrowLeft, Sparkles, Globe, Loader2, Check, Upload, FileTex
 import { base44 } from "@/api/base44Client";
 import StyleTemplates from "./StyleTemplates";
 import ExtractedMenuPreview from "./ExtractedMenuPreview";
+import ContentDescriptionStep from "./ContentDescriptionStep";
 
 // Categorie per cui ha senso caricare un PDF menu/listino
 const PDF_CATEGORIES = ["ristorazione", "beauty", "ecommerce", "fitness"];
