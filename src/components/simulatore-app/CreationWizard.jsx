@@ -766,6 +766,7 @@ REGOLE IMPORTANTI:
                 <div className="flex-1 min-w-0">
                   <p className="text-sm font-bold text-green-400">Menu caricato!</p>
                   <p className="text-[10px] text-gray-400 truncate">{data.pdfMenuData.fileName}</p>
+                  <p className="text-[10px] text-green-400/70">{data.pdfMenuData.itemsCount} voci in {data.pdfMenuData.categories?.length || 0} sezioni</p>
                 </div>
                 <button onClick={() => setData(prev => ({ ...prev, pdfMenuData: null }))} className="p-1.5 rounded-lg hover:bg-white/5 text-gray-400 hover:text-white"><X className="w-4 h-4" /></button>
               </div>
