@@ -566,6 +566,14 @@ MODALITÀ AI — DESIGN LIBERO:
 - Genera una struttura originale e unica, ispirata ai colori e allo stile del sito web dell'utente.`;
     }
 
+    // Contenuti descritti dall'utente (per categorie senza PDF)
+    if (wizardData.contentDescription && wizardData.contentDescription.trim()) {
+      siteInfo += `\n--- CONTENUTI DESCRITTI DALL'UTENTE ---\n`;
+      siteInfo += wizardData.contentDescription.trim();
+      siteInfo += `\n--- FINE CONTENUTI UTENTE ---\n`;
+      siteInfo += `REGOLA: Usa queste indicazioni dell'utente per generare i contenuti delle sezioni dell'app. Crea testi, servizi e sezioni coerenti con quanto descritto.\n`;
+    }
+
     const prompt = `Crea un'app per "${wizardData.businessName}" — settore: ${wizardData.businessType}.
 ${wizardData.description ? `Descrizione: ${wizardData.description}.` : ""}
 ${siteInfo}
