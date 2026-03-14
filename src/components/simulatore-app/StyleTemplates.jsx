@@ -109,7 +109,7 @@ export default function StyleTemplates({ businessType, websiteAnalysis, selected
               return (
                 <div key={t.id} className="relative">
                   <button
-                    onClick={() => setPreviewTemplate(t)}
+                    onClick={() => setPreviewTemplate({ ...t, _pdfMenuData: pdfMenuData })}
                     className={`relative rounded-2xl border-2 overflow-hidden transition-all active:scale-[0.97] w-full text-left ${
                       isSelected
                         ? "border-amber-400 ring-2 ring-amber-400/30"
