@@ -250,15 +250,40 @@ export function buildTemplateSections(template, pdfMenuData) {
   // BottomNav standard
   var bottomNav;
   if (cat === "ristorazione") {
-    bottomNav = [{ label: "Home", icon: "home", active: true }, { label: "Menu", icon: "menu" }, { label: "Prenota", icon: "calendar" }, { label: "Info", icon: "info" }];
+    bottomNav = [
+      { label: "Home", icon: "\uD83C\uDFE0", active: true },
+      { label: "Menu", icon: "\uD83D\uDCCB" },
+      { label: "Prenota", icon: "\uD83D\uDCC5" },
+      { label: "Info", icon: "\uD83D\uDCCD" },
+    ];
   } else if (cat === "beauty") {
-    bottomNav = [{ label: "Home", icon: "home", active: true }, { label: "Servizi", icon: "sparkles" }, { label: "Prenota", icon: "edit" }, { label: "Profilo", icon: "user" }];
+    bottomNav = [
+      { label: "Home", icon: "\uD83C\uDFE0", active: true },
+      { label: "Servizi", icon: "\u2728" },
+      { label: "Prenota", icon: "\uD83D\uDCDD" },
+      { label: "Profilo", icon: "\uD83D\uDC64" },
+    ];
   } else if (cat === "fitness") {
-    bottomNav = [{ label: "Home", icon: "home", active: true }, { label: "Corsi", icon: "list" }, { label: "Profilo", icon: "user" }, { label: "Info", icon: "info" }];
+    bottomNav = [
+      { label: "Home", icon: "\uD83C\uDFE0", active: true },
+      { label: "Corsi", icon: "\uD83D\uDCCB" },
+      { label: "Profilo", icon: "\uD83D\uDC64" },
+      { label: "Info", icon: "\uD83D\uDCCD" },
+    ];
   } else if (cat === "ecommerce") {
-    bottomNav = [{ label: "Home", icon: "home", active: true }, { label: "Shop", icon: "shopping-bag" }, { label: "Carrello", icon: "shopping-cart" }, { label: "Profilo", icon: "user" }];
+    bottomNav = [
+      { label: "Home", icon: "\uD83C\uDFE0", active: true },
+      { label: "Shop", icon: "\uD83D\uDECD\uFE0F" },
+      { label: "Carrello", icon: "\uD83D\uDED2" },
+      { label: "Profilo", icon: "\uD83D\uDC64" },
+    ];
   } else {
-    bottomNav = [{ label: "Home", icon: "home", active: true }, { label: "Servizi", icon: "list" }, { label: "Contatti", icon: "map-pin" }, { label: "Profilo", icon: "user" }];
+    bottomNav = [
+      { label: "Home", icon: "\uD83C\uDFE0", active: true },
+      { label: "Servizi", icon: "\uD83D\uDCCB" },
+      { label: "Contatti", icon: "\uD83D\uDCCD" },
+      { label: "Profilo", icon: "\uD83D\uDC64" },
+    ];
   }
 
   return {
