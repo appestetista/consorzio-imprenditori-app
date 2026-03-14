@@ -5,7 +5,7 @@ const THEMES = [
   { id: "gourmet_dark", tag: "GOURMET", label: "Scuro Elegante", primary: "#C4964A", secondary: "#0a0a0a", accent: "#D4A95A", dark: true, font: "serif", bg: "#0a0a0a", card: "#141414", text: "#fff", muted: "#666", border: "#222" },
   { id: "classic_cream", tag: "CLASSICO", label: "Crema Raffinato", primary: "#8B6914", secondary: "#F5EDE0", accent: "#A0845C", dark: false, font: "serif", bg: "#F5EDE0", card: "#FFFFFF", text: "#2a2014", muted: "#8a7a6a", border: "#E0D5C5" },
   { id: "green_fresh", tag: "FRESH", label: "Verde Naturale", primary: "#2D5A3D", secondary: "#F5F0E6", accent: "#3A7D53", dark: false, font: "sans-serif", bg: "#F5F0E6", card: "#FFFFFF", text: "#1a1a1a", muted: "#7a7a6a", border: "#E8E0D0" },
-  { id: "hero_full", tag: "HERO", label: "Hero Immersivo", primary: "#D4A574", secondary: "#111", accent: "#E8C9A0", dark: true, font: "serif", bg: "#111", card: "#1a1a1a", text: "#fff", muted: "#777", border: "#222" },
+  { id: "portal_immersive", tag: "PORTAL", label: "Fullscreen Immersivo", primary: "#C8B89A", secondary: "#1a1a2e", accent: "#D4C4A8", dark: true, font: "serif", bg: "#1a1a2e", card: "#1a1a1a", text: "#fff", muted: "#999", border: "#333" },
   { id: "luxury_minimal", tag: "LUSSO", label: "Lusso Minimale", primary: "#B8860B", secondary: "#0E0E0E", accent: "#DAA520", dark: true, font: "serif", bg: "#0E0E0E", card: "#161616", text: "#F5F0E8", muted: "#666", border: "#252525" },
 ];
 
@@ -264,50 +264,65 @@ function LayoutGreenFresh({ t, c }) {
   );
 }
 
-// ─── Layout 4: HERO FULL — Hero a tutta altezza, overlay ──
-function LayoutHeroFull({ t, c }) {
+// ─── Layout 4: PORTAL IMMERSIVE — Hero fullscreen, logo circolare, testo centrato, "DISCOVER" verticale ──
+function LayoutPortalImmersive({ t, c }) {
   return (
-    <div style={{ background: t.bg, height: "100%", fontFamily: "Georgia, serif", position: "relative" }}>
-      {/* Full hero */}
-      <div style={{ position: "relative", height: 130 }}>
-        <img src={c.hero} style={{ width: "100%", height: "100%", objectFit: "cover" }} alt="" />
-        <div style={{ position: "absolute", inset: 0, background: "linear-gradient(to bottom, rgba(0,0,0,0.2) 0%, rgba(0,0,0,0.8) 100%)" }} />
-        {/* Logo/name overlay */}
-        <div style={{ position: "absolute", top: 8, left: 8, right: 8, display: "flex", justifyContent: "space-between", alignItems: "flex-start" }}>
-          {c.logo ? <img src={c.logo} style={{ height: 18, borderRadius: 3 }} alt="" onError={e => e.target.style.display='none'} /> :
-            <span style={{ color: "#fff", fontSize: 8, fontWeight: 700 }}>{c.name}</span>}
-          <div style={{ width: 16, height: 16, borderRadius: 8, background: "rgba(255,255,255,0.15)", backdropFilter: "blur(4px)", display: "flex", alignItems: "center", justifyContent: "center" }}>
-            <span style={{ fontSize: 6, color: "#fff" }}>☰</span>
+    <div style={{ background: "#000", height: "100%", fontFamily: "Georgia, 'Times New Roman', serif", position: "relative", overflow: "hidden" }}>
+      {/* Immagine fullscreen di sfondo */}
+      <img src={c.hero} style={{ position: "absolute", inset: 0, width: "100%", height: "100%", objectFit: "cover" }} alt="" />
+      {/* Gradient overlay — leggero in alto (rosa/violetto), scuro in basso */}
+      <div style={{ position: "absolute", inset: 0, background: "linear-gradient(180deg, rgba(180,130,170,0.15) 0%, rgba(0,0,0,0.1) 30%, rgba(0,0,0,0.45) 70%, rgba(0,0,0,0.6) 100%)" }} />
+
+      {/* Header: logo circolare + nome a sinistra, hamburger a destra */}
+      <div style={{ position: "absolute", top: 8, left: 8, right: 8, display: "flex", justifyContent: "space-between", alignItems: "center", zIndex: 10 }}>
+        <div style={{ display: "flex", alignItems: "center", gap: 5 }}>
+          {/* Logo circolare con anello — come Portal */}
+          {c.logo ? (
+            <img src={c.logo} style={{ width: 22, height: 22, borderRadius: 11, border: "1.5px solid rgba(255,255,255,0.6)", objectFit: "cover" }} alt="" onError={e => e.target.style.display='none'} />
+          ) : (
+            <div style={{ width: 22, height: 22, borderRadius: 11, border: "1.5px solid rgba(255,255,255,0.6)", display: "flex", alignItems: "center", justifyContent: "center", background: "rgba(255,255,255,0.08)" }}>
+              <div style={{ width: 10, height: 10, borderRadius: 5, border: "1px solid rgba(255,255,255,0.7)", background: "transparent" }} />
+            </div>
+          )}
+          <span style={{ color: "#fff", fontSize: 7, fontWeight: 500, letterSpacing: 3, textTransform: "uppercase" }}>{c.name.split(' ')[0]}</span>
+        </div>
+        {/* Hamburger 3 linee */}
+        <Tap>
+          <div style={{ display: "flex", flexDirection: "column", gap: 2, padding: 3 }}>
+            <div style={{ width: 14, height: 1.2, background: "rgba(255,255,255,0.8)", borderRadius: 1 }} />
+            <div style={{ width: 14, height: 1.2, background: "rgba(255,255,255,0.8)", borderRadius: 1 }} />
+            <div style={{ width: 14, height: 1.2, background: "rgba(255,255,255,0.8)", borderRadius: 1 }} />
           </div>
+        </Tap>
+      </div>
+
+      {/* Contenuto centrale — titolo grande serif */}
+      <div style={{ position: "absolute", inset: 0, display: "flex", flexDirection: "column", alignItems: "center", justifyContent: "center", zIndex: 5, textAlign: "center", padding: "0 12px" }}>
+        {/* Sottotitolo spaziato sopra il titolo */}
+        <div style={{ color: "rgba(255,255,255,0.5)", fontSize: 4, letterSpacing: 4, textTransform: "uppercase", marginBottom: 4 }}>{c.name.split(' ')[0]}</div>
+        {/* Titolo grande serif — 2 righe come "Nature Powered" */}
+        <div style={{ color: "#fff", fontSize: 16, fontWeight: 400, lineHeight: 1.1, fontStyle: "italic" }}>
+          {c.items[0]?.n || "Nature"}
         </div>
-        {/* Info overlay */}
-        <div style={{ position: "absolute", bottom: 8, left: 8, right: 8 }}>
-          <div style={{ color: "#fff", fontSize: 10, fontWeight: 800, lineHeight: 1.2 }}>{c.name}</div>
-          <div style={{ color: t.primary, fontSize: 5, fontWeight: 600, marginTop: 2 }}>⭐ 4.7 • Ristorante • Pizzeria</div>
-          <Tap>
-            <div style={{ marginTop: 4, display: "inline-block", background: t.primary, borderRadius: 6, padding: "3px 10px" }}>
-              <span style={{ color: t.bg, fontSize: 5.5, fontWeight: 700 }}>{c.cta} ora</span>
-            </div>
-          </Tap>
+        <div style={{ color: "#fff", fontSize: 16, fontWeight: 400, lineHeight: 1.1, fontStyle: "italic", marginTop: 1 }}>
+          {c.items[1]?.n || "Powered"}
+        </div>
+        {/* Sottotitolo elegante */}
+        <div style={{ color: "rgba(255,255,255,0.55)", fontSize: 5.5, fontWeight: 300, marginTop: 6, letterSpacing: 0.5 }}>
+          {c.items[0]?.desc || "Health and Productivity."}
         </div>
       </div>
-      {/* Menu items */}
-      <div style={{ padding: "5px 8px" }}>
-        <div style={{ color: t.muted, fontSize: 4.5, textTransform: "uppercase", letterSpacing: 2, marginBottom: 3, fontWeight: 700 }}>Menu del giorno</div>
-        {c.items.map((it, i) => (
-          <Tap key={i}>
-            <div style={{ display: "flex", alignItems: "center", gap: 4, padding: "4px 0", borderBottom: `1px solid ${t.border}` }}>
-              <img src={it.img} style={{ width: 20, height: 20, borderRadius: 5, objectFit: "cover" }} alt="" onError={e => e.target.style.display='none'} />
-              <div style={{ flex: 1 }}>
-                <div style={{ fontSize: 6, fontWeight: 700, color: t.text }}>{it.n}</div>
-                {it.desc && <div style={{ fontSize: 4, color: t.muted }}>{it.desc}</div>}
-              </div>
-              <span style={{ fontSize: 6, fontWeight: 800, color: t.primary }}>{it.p}</span>
-            </div>
-          </Tap>
-        ))}
+
+      {/* "DISCOVER" verticale in basso a sinistra con linea */}
+      <div style={{ position: "absolute", bottom: 12, left: 8, zIndex: 10, display: "flex", flexDirection: "column", alignItems: "center", gap: 4 }}>
+        <span style={{ color: "rgba(255,255,255,0.35)", fontSize: 4, letterSpacing: 3, textTransform: "uppercase", writingMode: "vertical-rl", transform: "rotate(180deg)" }}>Discover</span>
+        <div style={{ width: 1, height: 16, background: "rgba(255,255,255,0.25)" }} />
       </div>
-      <BottomBar t={t} />
+
+      {/* Caption in basso a destra — come "Dawn at Skogafoss" */}
+      <div style={{ position: "absolute", bottom: 8, right: 8, zIndex: 10 }}>
+        <span style={{ color: "rgba(255,255,255,0.4)", fontSize: 4, fontStyle: "italic" }}>{c.items[2]?.n || c.name}</span>
+      </div>
     </div>
   );
 }
@@ -369,7 +384,7 @@ function BottomBar({ t }) {
   );
 }
 
-const LAYOUTS = [LayoutGourmetDark, LayoutClassicCream, LayoutGreenFresh, LayoutHeroFull, LayoutLuxuryMinimal];
+const LAYOUTS = [LayoutGourmetDark, LayoutClassicCream, LayoutGreenFresh, LayoutPortalImmersive, LayoutLuxuryMinimal];
 
 // ─── Phone Frame ──────────────────────────────────────────
 function PhoneFrame({ theme, content, LayoutComp, isCenter, isSelected, onClick }) {
