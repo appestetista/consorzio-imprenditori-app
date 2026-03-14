@@ -712,6 +712,14 @@ export default function Home() {
             <p className="text-slate-400 text-sm text-center max-w-xs leading-relaxed">
               Come posso aiutarti oggi?
             </p>
+
+            <button
+              onClick={() => navigate('/SimulatoreApp')}
+              className="mt-6 flex items-center gap-2.5 px-5 py-3 rounded-2xl bg-gradient-to-r from-purple-600/20 to-indigo-600/20 border border-purple-500/30 text-purple-300 hover:from-purple-600/30 hover:to-indigo-600/30 active:scale-[0.97] transition-all"
+            >
+              <Sparkles className="w-4 h-4 text-purple-400" />
+              <span className="text-sm font-semibold">Crea la tua App</span>
+            </button>
           </div>
         ) : (
           // Conversazione attiva
