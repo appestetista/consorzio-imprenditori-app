@@ -174,9 +174,9 @@ export function buildTemplateSections(template, pdfMenuData) {
 
   function buildBeauty() {
     var defaultServices = [
-      { name: t.previewItems[0], description: "Trattamento professionale completo", price: "E65", duration: "60 min", image_url: t.heroImage, badge: "Top" },
-      { name: t.previewItems[1], description: "Per una pelle radiosa", price: "E45", duration: "45 min", image_url: t.heroImage },
-      { name: t.previewItems[2], description: "Rilassamento profondo", price: "E80", duration: "90 min", image_url: t.heroImage },
+      { name: t.previewItems[0], description: "Trattamento professionale completo", price: "€65", duration: "60 min", image_url: "https://images.unsplash.com/photo-1570172619644-dfd03ed5d881?w=300", badge: "Top" },
+      { name: t.previewItems[1], description: "Per una pelle radiosa", price: "€45", duration: "45 min", image_url: "https://images.unsplash.com/photo-1616394584738-fc6e612e71b9?w=300" },
+      { name: t.previewItems[2], description: "Rilassamento profondo", price: "€80", duration: "90 min", image_url: "https://images.unsplash.com/photo-1540555700478-4be289fbec6d?w=300" },
     ];
     var result = [hero];
     if (realMenu) {
