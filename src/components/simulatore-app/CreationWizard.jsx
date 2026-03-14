@@ -323,28 +323,41 @@ REGOLE IMMAGINI — FONDAMENTALE:
             json_schema: {
               type: "object",
               properties: {
-                items: {
+                sections: {
                   type: "array",
-                  description: "ESTRAI OGNI SINGOLA VOCE del menu/listino. NON omettere nulla. Ogni riga con un nome e/o prezzo è un item separato. Includi bevande, contorni, dolci, caffè, amari, vini, birre, acqua, coperto.",
+                  description: "Il documento è diviso in SEZIONI con titoli. ESTRAI TUTTE le sezioni nell'ordine del documento. NON omettere nessuna sezione e nessuna voce.",
                   items: {
                     type: "object",
                     properties: {
-                      name: { type: "string", description: "Nome ESATTO come scritto nel documento" },
-                      description: { type: "string", description: "Descrizione/ingredienti come scritti" },
-                      price: { type: "string", description: "Prezzo esatto (es. € 12.00)" },
-                      category: { type: "string", description: "Categoria/sezione del menu (es. Antipasti, Primi, Pizze, Bevande, Dolci, Vini)" },
+                      section_title: { type: "string", description: "Titolo ESATTO della sezione" },
+                      items: {
+                        type: "array",
+                        description: "TUTTE le voci di questa sezione",
+                        items: {
+                          type: "object",
+                          properties: {
+                            name: { type: "string", description: "Nome ESATTO" },
+                            description: { type: "string", description: "Descrizione/ingredienti" },
+                            price: { type: "string", description: "Prezzo esatto" },
+                          },
+                        },
+                      },
                     },
                   },
                 },
               },
             },
           });
-          if (pdfExtraction?.status === "success" && pdfExtraction.output?.items?.length > 0) {
-            console.log("[Wizard] Estratti", pdfExtraction.output.items.length, "items dal PDF");
-            const pdfItems = pdfExtraction.output.items.map(it => ({
-              name: it.name || "", description: it.description || "",
-              price: it.price || "", category: it.category || "", image_url: "",
-            }));
+          if (pdfExtraction?.status === "success" && pdfExtraction.output?.sections?.length > 0) {
+            const pdfSections = pdfExtraction.output.sections;
+            console.log("[Wizard] Estratte", pdfSections.length, "sezioni dal PDF");
+            const pdfItems = [];
+            pdfSections.forEach(sec => {
+              (sec.items || []).forEach(it => {
+                pdfItems.push({ name: it.name || "", description: it.description || "", price: it.price || "", category: sec.section_title || "", image_url: "" });
+              });
+            });
+            console.log("[Wizard] Totale", pdfItems.length, "items dal PDF");
             if (!finalResult.menuItems || finalResult.menuItems.length < pdfItems.length) {
               finalResult.menuItems = pdfItems;
             } else {
@@ -353,12 +366,13 @@ REGOLE IMMAGINI — FONDAMENTALE:
                 if (!existingNames.has(pi.name?.toLowerCase())) finalResult.menuItems.push(pi);
               });
             }
-            const pdfCategories = [...new Set(pdfItems.map(i => i.category).filter(Boolean))];
+            const pdfCategories = pdfSections.map(s => s.section_title).filter(Boolean);
             if (pdfCategories.length > 0) {
               finalResult.categories = [...new Set([...(finalResult.categories || []), ...pdfCategories])];
             }
             finalResult.pdfAnalyzed = true;
             finalResult.pdfItemsCount = pdfItems.length;
+            finalResult.pdfSections = pdfSections;
           }
         } catch (pdfErr) {
           console.warn("[Wizard] Errore analisi PDF:", pdfErr);
