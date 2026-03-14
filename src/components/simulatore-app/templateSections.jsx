@@ -82,13 +82,21 @@ export function buildTemplateSections(template, pdfMenuData) {
         address: "Via Roma 1, Milano", hours: "12:00 - 23:00",
       }]},
     ],
-    beauty: () => [
+    beauty: () => {
+      const serviceItems = realMenu
+        ? realMenu.filter(s => s.type === "menu_list").flatMap(s => s.items).map((item, idx) => ({
+            name: item.name, description: item.description || "", price: item.price || "Su richiesta",
+            duration: "", image_url: item.image_url || t.heroImage, badge: idx === 0 ? "Top" : undefined,
+          }))
+        : [
+            { name: t.previewItems[0], description: "Trattamento professionale completo", price: "€65", duration: "60 min", image_url: t.heroImage, badge: "Top" },
+            { name: t.previewItems[1], description: "Per una pelle radiosa", price: "€45", duration: "45 min", image_url: t.heroImage },
+            { name: t.previewItems[2], description: "Rilassamento profondo", price: "€80", duration: "90 min", image_url: t.heroImage },
+          ];
+      return [
       hero,
-      { type: "service_list", title: "I Nostri Trattamenti", subtitle: "SERVIZI", items: [
-        { name: t.previewItems[0], description: "Trattamento professionale completo", price: "€65", duration: "60 min", image_url: t.heroImage, badge: "Top" },
-        { name: t.previewItems[1], description: "Per una pelle radiosa", price: "€45", duration: "45 min", image_url: t.heroImage },
-        { name: t.previewItems[2], description: "Rilassamento profondo", price: "€80", duration: "90 min", image_url: t.heroImage },
-      ]},
+      ...(realMenu || []),
+      { type: "service_list", title: "I Nostri Trattamenti", subtitle: "SERVIZI", items: serviceItems },
       { type: "gallery", title: "Il Nostro Studio", subtitle: "GALLERIA", items: [
         { title: "Reception", image_url: t.heroImage },
         { title: "Sala Trattamenti", image_url: t.heroImage },
