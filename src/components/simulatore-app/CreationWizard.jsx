@@ -795,6 +795,10 @@ REGOLE IMPORTANTI:
                 <button onClick={() => setData(prev => ({ ...prev, pdfMenuData: null }))} className="p-1.5 rounded-lg hover:bg-white/5 text-gray-400 hover:text-white"><X className="w-4 h-4" /></button>
               </div>
             )}
+            {/* Anteprima navigabile delle sezioni estratte */}
+            {data.pdfMenuData && !data.pdfMenuData.error && data.pdfMenuData.sections?.length > 0 && (
+              <ExtractedMenuPreview pdfMenuData={data.pdfMenuData} />
+            )}
           </div>
 
           <p className="text-center text-[10px] text-gray-500">Questi passaggi sono opzionali — puoi saltarli</p>
