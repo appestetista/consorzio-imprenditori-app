@@ -205,6 +205,38 @@ function TemplatePhonePreview({ template }) {
   const headerIsDark = p.headerBg && p.headerBg !== p.bodyBg && p.headerText === "#ffffff";
   const isFullscreenHero = p.fullscreenHero;
 
+  if (p.layoutStyle === "offers") {
+    return (
+      <div className="w-full h-full flex flex-col" style={{ background: p.bodyBg, fontFamily: "system-ui, sans-serif" }}>
+        <div className="px-4 pt-8 pb-2" style={{ background: p.headerBg }}>
+          <p className="text-[7px] text-gray-400">‹ Scopri</p>
+          <p className="text-[13px] font-black mt-1" style={{ color: p.headerText }}>Offerte nei paraggi</p>
+        </div>
+        <div className="px-3 mt-2 space-y-2 flex-1 overflow-hidden">
+          {template.previewItems.map((item, i) => (
+            <div key={i} className="flex items-center gap-2 p-2 rounded-xl" style={{ background: p.cardBg, boxShadow: "0 1px 4px rgba(0,0,0,0.08)" }}>
+              <div className="w-11 h-11 rounded-lg flex-shrink-0 overflow-hidden">
+                <img src={template.heroImage} alt="" className="w-full h-full object-cover" style={{ objectPosition: `${i * 30}% center` }} />
+              </div>
+              <div className="flex-1 min-w-0">
+                <p className="text-[9px] font-bold truncate" style={{ color: p.headerText }}>{item}</p>
+                <p className="text-[6px] text-gray-400">Ristorante Example</p>
+                <div className="mt-1 px-2 py-0.5 rounded-full border text-[6px] font-semibold inline-block" style={{ borderColor: p.accent, color: p.accent }}>
+                  Cosa è incluso
+                </div>
+              </div>
+            </div>
+          ))}
+        </div>
+        <div className="flex justify-around py-2 mt-auto border-t border-gray-100" style={{ background: "#ffffff" }}>
+          {["🏠", "📋", "📍", "👤"].map((icon, i) => (
+            <div key={i} className="text-[12px] opacity-60">{icon}</div>
+          ))}
+        </div>
+      </div>
+    );
+  }
+
   if (isFullscreenHero) {
     return (
       <div className="w-full h-full relative" style={{ fontFamily: template.fontStyle === "serif" ? "Georgia, serif" : "system-ui, sans-serif" }}>
