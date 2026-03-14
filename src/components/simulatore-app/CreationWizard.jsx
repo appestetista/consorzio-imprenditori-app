@@ -178,26 +178,42 @@ export default function CreationWizard({ onComplete }) {
         json_schema: {
           type: "object",
           properties: {
-            items: {
+            sections: {
               type: "array",
-              description: "ESTRAI OGNI SINGOLA VOCE del menu/listino. NON omettere nulla, NON riassumere, NON raggruppare. Ogni riga con un nome e/o un prezzo è un item separato. Includi anche bevande, contorni, dolci, caffè, amari, vini, birre, acqua, coperto. Se ci sono 100 voci, restituisci 100 items. Se ci sono 200 voci, restituisci 200 items.",
+              description: "Il documento è diviso in SEZIONI (es. titoli come 'Antipasti', 'Primi Piatti', 'Pizze', 'Dolci', 'Bevande', 'Vini'). Ogni sezione ha un titolo e contiene delle voci. ESTRAI TUTTE le sezioni nell'ordine in cui appaiono nel documento. Se una voce non ha una sezione chiara, mettila in 'Altro'. NON omettere nessuna sezione e nessuna voce.",
               items: {
                 type: "object",
                 properties: {
-                  name: { type: "string", description: "Nome ESATTO del piatto/prodotto/servizio come scritto nel documento" },
-                  description: { type: "string", description: "Descrizione, ingredienti o note come scritti nel documento" },
-                  price: { type: "string", description: "Prezzo esatto come scritto (es. € 12.00, 12,00, 12€)" },
-                  category: { type: "string", description: "Categoria/sezione del menu in cui si trova (es. Antipasti, Primi, Pizze, Bevande, Dolci, Vini)" },
+                  section_title: { type: "string", description: "Titolo ESATTO della sezione come scritto nel documento (es. 'Antipasti di Mare', 'Pizze Classiche', 'Birre Artigianali')" },
+                  items: {
+                    type: "array",
+                    description: "TUTTE le voci di questa sezione. NON omettere nulla.",
+                    items: {
+                      type: "object",
+                      properties: {
+                        name: { type: "string", description: "Nome ESATTO del piatto/prodotto come scritto nel documento" },
+                        description: { type: "string", description: "Descrizione, ingredienti o note come scritti nel documento" },
+                        price: { type: "string", description: "Prezzo esatto come scritto (es. € 12.00, 12,00, 12€)" },
+                      },
+                    },
+                  },
                 },
               },
             },
           },
         },
       });
-      if (extraction?.status === "success" && extraction.output?.items?.length > 0) {
-        const items = extraction.output.items;
-        const categories = [...new Set(items.map(i => i.category).filter(Boolean))];
-        setData(prev => ({ ...prev, pdfMenuData: { items, categories, fileName: file.name, itemsCount: items.length } }));
+      if (extraction?.status === "success" && extraction.output?.sections?.length > 0) {
+        const sections = extraction.output.sections;
+        const categories = sections.map(s => s.section_title).filter(Boolean);
+        // Flatten per compatibilità con il formato items + category
+        const items = [];
+        sections.forEach(sec => {
+          (sec.items || []).forEach(it => {
+            items.push({ ...it, category: sec.section_title || "Altro" });
+          });
+        });
+        setData(prev => ({ ...prev, pdfMenuData: { items, sections, categories, fileName: file.name, itemsCount: items.length } }));
       } else {
         setData(prev => ({ ...prev, pdfMenuData: { items: [], categories: [], fileName: file.name, itemsCount: 0, error: true } }));
       }
@@ -385,15 +401,25 @@ REGOLE IMMAGINI — FONDAMENTALE:
   const buildAndComplete = (wizardData, template, featuresList, techFeaturesList, wa) => {
     let siteInfo = "";
 
-    // Aggiungi dati dal PDF se presenti
-    if (wizardData.pdfMenuData?.items?.length > 0) {
+    // Aggiungi dati dal PDF se presenti — formato per sezioni
+    if (wizardData.pdfMenuData?.sections?.length > 0) {
       siteInfo += `\n--- DATI ESTRATTI DAL PDF MENU/LISTINO ---\n`;
-      siteInfo += `File: ${wizardData.pdfMenuData.fileName}. ${wizardData.pdfMenuData.itemsCount} prodotti estratti.\n`;
-      if (wizardData.pdfMenuData.categories?.length > 0) {
-        siteInfo += `Categorie trovate: ${wizardData.pdfMenuData.categories.join(", ")}.\n`;
-      }
-      siteInfo += `PRODOTTI/PIATTI REALI DAL PDF — TOTALE: ${wizardData.pdfMenuData.itemsCount} VOCI.\n`;
-      siteInfo += `REGOLA ASSOLUTA: DEVI inserire TUTTE le ${wizardData.pdfMenuData.itemsCount} voci nel JSON, ognuna come item in una sezione menu_list della sua categoria. NON omettere NESSUNA voce.\n`;
+      siteInfo += `File: ${wizardData.pdfMenuData.fileName}. ${wizardData.pdfMenuData.itemsCount} voci totali in ${wizardData.pdfMenuData.sections.length} sezioni.\n`;
+      siteInfo += `SEZIONI TROVATE: ${wizardData.pdfMenuData.categories.join(", ")}.\n`;
+      siteInfo += `REGOLA ASSOLUTA: DEVI creare una sezione "menu_nav" con pulsanti per ogni sezione, seguita da una sezione "menu_list" per OGNUNA delle ${wizardData.pdfMenuData.sections.length} sezioni, con TUTTE le voci. NON omettere NESSUNA sezione e NESSUNA voce.\n\n`;
+      wizardData.pdfMenuData.sections.forEach(sec => {
+        siteInfo += `=== SEZIONE: "${sec.section_title}" (${(sec.items || []).length} voci) ===\n`;
+        (sec.items || []).forEach(item => {
+          siteInfo += `  - ${item.name}${item.price ? ` — ${item.price}` : ""}${item.description ? ` — ${item.description}` : ""}\n`;
+        });
+      });
+      siteInfo += `--- FINE DATI PDF ---\n`;
+    } else if (wizardData.pdfMenuData?.items?.length > 0) {
+      // Fallback per vecchio formato flat
+      siteInfo += `\n--- DATI ESTRATTI DAL PDF MENU/LISTINO ---\n`;
+      siteInfo += `File: ${wizardData.pdfMenuData.fileName}. ${wizardData.pdfMenuData.itemsCount} voci.\n`;
+      siteInfo += `Categorie: ${wizardData.pdfMenuData.categories.join(", ")}.\n`;
+      siteInfo += `REGOLA: Crea una sezione "menu_nav" con pulsanti per ogni categoria, poi una sezione "menu_list" per ogni categoria.\n`;
       wizardData.pdfMenuData.items.forEach(item => {
         siteInfo += `- ${item.name}${item.price ? ` — ${item.price}` : ""}${item.description ? ` — ${item.description}` : ""}${item.category ? ` [${item.category}]` : ""}\n`;
       });
