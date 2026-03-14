@@ -384,6 +384,7 @@ REGOLE IMMAGINI:
   const buildAndComplete = (wizardData, template, featuresList, techFeaturesList, wa) => {
     let siteInfo = "";
     const isTemplateMode = template._mode === "template";
+    const hasCustomizedApp = !!template._customizedAppData;
 
     if (wizardData.pdfMenuData?.sections?.length > 0) {
       siteInfo += `\n--- DATI ESTRATTI DAL PDF MENU/LISTINO ---\n`;
