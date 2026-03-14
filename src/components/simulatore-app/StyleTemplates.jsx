@@ -28,6 +28,20 @@ export default function StyleTemplates({ businessType, websiteAnalysis, selected
     });
   };
 
+  // Se c'è un template in anteprima fullscreen, mostralo
+  if (previewTemplate) {
+    return (
+      <TemplateFullPreview
+        template={previewTemplate}
+        onSelect={(customized) => {
+          onSelect(customized);
+          setPreviewTemplate(null);
+        }}
+        onBack={() => setPreviewTemplate(null)}
+      />
+    );
+  }
+
   return (
     <div className="space-y-4">
       <div className="text-center mb-2">
