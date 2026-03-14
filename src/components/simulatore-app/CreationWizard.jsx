@@ -2,6 +2,7 @@ import React, { useState, useEffect, useRef } from "react";
 import { ArrowRight, ArrowLeft, Sparkles, Globe, Loader2, Check, Upload, FileText, X, ImageIcon } from "lucide-react";
 import { base44 } from "@/api/base44Client";
 import StyleTemplates from "./StyleTemplates";
+import ExtractedMenuPreview from "./ExtractedMenuPreview.js";
 
 const BUSINESS_TYPES = [
   { id: "ristorazione", label: "Ristorazione", emoji: "🍽️", desc: "Ristoranti, bar, pizzerie, pasticcerie" },
