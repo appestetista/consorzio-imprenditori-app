@@ -160,7 +160,7 @@ export default function DynamicAppRenderer({ data, editable, onDataChange }) {
       />
 
       {bottomNav && bottomNav.length > 0 && cart.length === 0 && (
-        <DynamicBottomNav items={bottomNav} primaryColor={primaryColor} />
+        <DynamicBottomNav items={bottomNav} primaryColor={primaryColor} darkMode={darkMode} />
       )}
     </div>
   );
