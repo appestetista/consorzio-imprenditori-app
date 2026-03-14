@@ -75,10 +75,11 @@ const JSON_SCHEMA = {
     features_requested: { type: "array", items: { type: "string" } },
     sections: {
       type: "array",
+      description: "Array di sezioni. Per ristorazione: dopo hero_banner metti una sezione menu_nav con items=[{label:'Cat1'},{label:'Cat2'},...] poi una menu_list per ogni categoria.",
       items: {
         type: "object",
         properties: {
-          type: { type: "string" },
+          type: { type: "string", description: "Tipo sezione: hero_banner, menu_nav, menu_list, product_grid, service_list, stats_grid, activity_feed, gallery, cta_banner, booking, contact, pricing, testimonials, features" },
           title: { type: "string" },
           subtitle: { type: "string" },
           items: { type: "array", items: { type: "object" } },
