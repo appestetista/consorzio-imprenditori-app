@@ -1,7 +1,7 @@
 // Genera sections strutturate per DynamicAppRenderer partendo da un template della libreria
 // Ogni template diventa un'app completa con hero, menu/servizi, gallery, contatti, bottomNav
 
-export function buildTemplateSections(template) {
+export function buildTemplateSections(template, pdfMenuData) {
   const t = template;
   const cat = t.category;
 
@@ -23,9 +23,34 @@ export function buildTemplateSections(template) {
     }],
   };
 
+  // Helper: se ci sono dati reali dal PDF, genera menu_nav + menu_list reali
+  const buildRealMenuSections = () => {
+    if (!pdfMenuData?.sections?.length) return null;
+    const navItems = pdfMenuData.sections.map(sec => ({ label: sec.section_title || "Altro" }));
+    const menuNav = { type: "menu_nav", items: navItems };
+    const menuLists = pdfMenuData.sections.map(sec => ({
+      type: "menu_list",
+      title: sec.section_title || "Altro",
+      subtitle: "MENU",
+      items: (sec.items || []).map((item, idx) => ({
+        name: item.name || "Prodotto",
+        description: item.description || "",
+        price: item.price || "",
+        image_url: item.image_url || "",
+        badge: idx === 0 ? "Popolare" : undefined,
+      })),
+    }));
+    return [menuNav, ...menuLists];
+  };
+
+  const realMenu = buildRealMenuSections();
+
   // Sezioni specifiche per categoria
   const sectionsByCategory = {
-    ristorazione: () => [
+    ristorazione: () => {
+      // Se ci sono dati reali dal PDF, usa quelli al posto dei placeholder
+      if (realMenu) return [hero, ...realMenu];
+      return [
       hero,
       { type: "menu_nav", items: [{ label: "Antipasti" }, { label: "Primi" }, { label: "Secondi" }, { label: "Dolci" }] },
       { type: "menu_list", title: "Antipasti", subtitle: "MENU", items: [
@@ -45,6 +70,7 @@ export function buildTemplateSections(template) {
         { name: t.previewItems[2], description: "Dolce della casa", price: "8.00", image_url: t.heroImage },
         { name: "Tiramisù", description: "Ricetta tradizionale", price: "7.00", image_url: t.heroImage },
       ]},
+    ]},
       { type: "gallery", title: "Il Locale", subtitle: "GALLERIA", items: [
         { title: "Sala Principale", image_url: t.heroImage },
         { title: "Terrazza", image_url: t.heroImage },
