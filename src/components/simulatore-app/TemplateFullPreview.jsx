@@ -5,7 +5,8 @@ import TemplateCustomizer from "./TemplateCustomizer";
 import { buildTemplateSections } from "./templateSections";
 
 export default function TemplateFullPreview({ template, onSelect, onBack }) {
-  const originalAppData = useMemo(() => buildTemplateSections(template), [template]);
+  const pdfMenuData = template._pdfMenuData || null;
+  const originalAppData = useMemo(() => buildTemplateSections(template, pdfMenuData), [template, pdfMenuData]);
   const [appData, setAppData] = useState(originalAppData);
   const [showCustomizer, setShowCustomizer] = useState(false);
 
