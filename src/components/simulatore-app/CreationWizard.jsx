@@ -715,17 +715,21 @@ REGOLE IMPORTANTI:
         </div>
       )}
 
-      {/* Step 2: Carica Logo + Menu PDF */}
+      {/* Step 2: Carica Logo + Contenuti (PDF o testo libero in base alla categoria) */}
       {step === 2 && (
         <div className="space-y-5">
           <div className="text-center mb-2">
             <h2 className="text-lg font-black text-white">Personalizza la tua app</h2>
-            <p className="text-xs text-gray-400 mt-1">Carica il logo e/o il menu PDF (opzionale)</p>
+            <p className="text-xs text-gray-400 mt-1">
+              {PDF_CATEGORIES.includes(data.businessType)
+                ? "Carica il logo e/o il menu PDF (opzionale)"
+                : "Carica il logo e descrivi i contenuti della tua app"}
+            </p>
           </div>
 
-          {/* Logo Upload */}
+          {/* Logo Upload — sempre presente */}
           <div>
-            <p className="text-xs text-gray-400 font-semibold mb-2 flex items-center gap-1.5"><ImageIcon className="w-3.5 h-3.5" /> Logo della tua attività</p>
+            <p className="text-xs text-gray-400 font-semibold mb-2 flex items-center gap-1.5"><ImageIcon className="w-3.5 h-3.5" /> Logo della tua attivita</p>
             {!data.logoUrl ? (
               <div>
                 <button
@@ -760,51 +764,74 @@ REGOLE IMPORTANTI:
 
           <div className="border-t border-white/5" />
 
-          {/* PDF Menu Upload */}
-          <div>
-            <p className="text-xs text-gray-400 font-semibold mb-2 flex items-center gap-1.5"><FileText className="w-3.5 h-3.5" /> Menu / Listino prezzi</p>
-            {!data.pdfMenuData ? (
+          {/* Contenuti: PDF per categorie menu, testo libero per le altre */}
+          {PDF_CATEGORIES.includes(data.businessType) ? (
+            <>
+              {/* PDF Menu Upload */}
               <div>
-                <button
-                  onClick={() => pdfInputRef.current?.click()}
-                  disabled={analyzingPdf}
-                  className="w-full flex items-center justify-center gap-3 py-5 rounded-2xl border-2 border-dashed border-white/10 bg-white/[0.02] hover:border-purple-500/30 hover:bg-purple-500/5 transition-all active:scale-[0.98]"
-                >
-                  <div className="w-10 h-10 rounded-full bg-purple-500/10 flex items-center justify-center">
-                    <Upload className="w-4 h-4 text-purple-400" />
+                <p className="text-xs text-gray-400 font-semibold mb-2 flex items-center gap-1.5"><FileText className="w-3.5 h-3.5" /> Menu / Listino prezzi</p>
+                {!data.pdfMenuData ? (
+                  <div>
+                    <button
+                      onClick={() => pdfInputRef.current?.click()}
+                      disabled={analyzingPdf}
+                      className="w-full flex items-center justify-center gap-3 py-5 rounded-2xl border-2 border-dashed border-white/10 bg-white/[0.02] hover:border-purple-500/30 hover:bg-purple-500/5 transition-all active:scale-[0.98]"
+                    >
+                      <div className="w-10 h-10 rounded-full bg-purple-500/10 flex items-center justify-center">
+                        <Upload className="w-4 h-4 text-purple-400" />
+                      </div>
+                      <div className="text-left">
+                        <p className="text-sm font-bold text-white">Carica Menu</p>
+                        <p className="text-[10px] text-gray-500">PDF, immagine del menu o listino</p>
+                      </div>
+                    </button>
+                    <input ref={pdfInputRef} type="file" accept=".pdf,.jpg,.jpeg,.png,.webp" onChange={handlePdfUpload} className="hidden" />
                   </div>
-                  <div className="text-left">
-                    <p className="text-sm font-bold text-white">Carica Menu</p>
-                    <p className="text-[10px] text-gray-500">PDF, immagine del menu o listino</p>
+                ) : data.pdfMenuData.error ? (
+                  <div className="space-y-2">
+                    <div className="rounded-2xl bg-red-500/10 border border-red-500/20 p-3 text-center">
+                      <p className="text-sm text-red-400 font-bold">Errore nell'estrazione</p>
+                    </div>
+                    <button onClick={() => setData(prev => ({ ...prev, pdfMenuData: null }))} className="w-full py-2.5 rounded-xl bg-white/5 border border-white/10 text-xs text-gray-400 hover:text-white">Riprova</button>
                   </div>
-                </button>
-                <input ref={pdfInputRef} type="file" accept=".pdf,.jpg,.jpeg,.png,.webp" onChange={handlePdfUpload} className="hidden" />
+                ) : (
+                  <div className="flex items-center gap-3 rounded-2xl bg-green-500/10 border border-green-500/20 p-3">
+                    <div className="w-10 h-10 rounded-full bg-green-500/20 flex items-center justify-center shrink-0">
+                      <Check className="w-5 h-5 text-green-400" />
+                    </div>
+                    <div className="flex-1 min-w-0">
+                      <p className="text-sm font-bold text-green-400">Menu caricato!</p>
+                      <p className="text-[10px] text-gray-400 truncate">{data.pdfMenuData.fileName}</p>
+                      <p className="text-[10px] text-green-400/70">{data.pdfMenuData.itemsCount} voci in {data.pdfMenuData.categories?.length || 0} sezioni</p>
+                    </div>
+                    <button onClick={() => setData(prev => ({ ...prev, pdfMenuData: null }))} className="p-1.5 rounded-lg hover:bg-white/5 text-gray-400 hover:text-white"><X className="w-4 h-4" /></button>
+                  </div>
+                )}
+                {data.pdfMenuData && !data.pdfMenuData.error && data.pdfMenuData.sections?.length > 0 && (
+                  <ExtractedMenuPreview pdfMenuData={data.pdfMenuData} />
+                )}
               </div>
-            ) : data.pdfMenuData.error ? (
-              <div className="space-y-2">
-                <div className="rounded-2xl bg-red-500/10 border border-red-500/20 p-3 text-center">
-                  <p className="text-sm text-red-400 font-bold">Errore nell'estrazione</p>
-                </div>
-                <button onClick={() => setData(prev => ({ ...prev, pdfMenuData: null }))} className="w-full py-2.5 rounded-xl bg-white/5 border border-white/10 text-xs text-gray-400 hover:text-white">Riprova</button>
-              </div>
-            ) : (
-              <div className="flex items-center gap-3 rounded-2xl bg-green-500/10 border border-green-500/20 p-3">
-                <div className="w-10 h-10 rounded-full bg-green-500/20 flex items-center justify-center shrink-0">
-                  <Check className="w-5 h-5 text-green-400" />
-                </div>
-                <div className="flex-1 min-w-0">
-                  <p className="text-sm font-bold text-green-400">Menu caricato!</p>
-                  <p className="text-[10px] text-gray-400 truncate">{data.pdfMenuData.fileName}</p>
-                  <p className="text-[10px] text-green-400/70">{data.pdfMenuData.itemsCount} voci in {data.pdfMenuData.categories?.length || 0} sezioni</p>
-                </div>
-                <button onClick={() => setData(prev => ({ ...prev, pdfMenuData: null }))} className="p-1.5 rounded-lg hover:bg-white/5 text-gray-400 hover:text-white"><X className="w-4 h-4" /></button>
-              </div>
-            )}
-            {/* Anteprima navigabile delle sezioni estratte */}
-            {data.pdfMenuData && !data.pdfMenuData.error && data.pdfMenuData.sections?.length > 0 && (
-              <ExtractedMenuPreview pdfMenuData={data.pdfMenuData} />
-            )}
-          </div>
+            </>
+          ) : (
+            <ContentDescriptionStep
+              businessType={data.businessType}
+              contentDescription={data.contentDescription}
+              onContentChange={(val) => setData(prev => ({ ...prev, contentDescription: val }))}
+              websiteUrl={data.websiteUrl}
+              onExtractFromSite={async () => {
+                // Lancia l'analisi del sito e salva i risultati
+                const result = await analyzeWebsite();
+                if (result) {
+                  setData(prev => ({
+                    ...prev,
+                    websiteAnalysis: result,
+                    businessName: prev.businessName || result.name || "",
+                    description: prev.description || result.description || "",
+                  }));
+                }
+              }}
+            />
+          )}
 
           <p className="text-center text-[10px] text-gray-500">Questi passaggi sono opzionali — puoi saltarli</p>
         </div>
