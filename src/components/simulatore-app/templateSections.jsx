@@ -104,10 +104,10 @@ export function buildTemplateSections(template, pdfMenuData) {
   }]};
 
   var galleryBeauty = { type: "gallery", title: "Il Nostro Studio", subtitle: "GALLERIA", items: [
-    { title: "Reception", image_url: t.heroImage },
-    { title: "Sala Trattamenti", image_url: t.heroImage },
-    { title: "Area Relax", image_url: t.heroImage },
-    { title: "Prodotti", image_url: t.heroImage },
+    { title: "Reception", image_url: "https://images.unsplash.com/photo-1600948836101-f9ffda59d250?w=400" },
+    { title: "Sala Trattamenti", image_url: "https://images.unsplash.com/photo-1570172619644-dfd03ed5d881?w=400" },
+    { title: "Area Relax", image_url: "https://images.unsplash.com/photo-1540555700478-4be289fbec6d?w=400" },
+    { title: "Prodotti", image_url: "https://images.unsplash.com/photo-1596755389378-c31d21fd1273?w=400" },
   ]};
   var testimonialsBeauty = { type: "testimonials", title: "Recensioni", subtitle: "CLIENTI", items: [
     { name: "Laura M.", text: "Esperienza fantastica, tornero sicuramente!", rating: 5 },
