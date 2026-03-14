@@ -189,7 +189,7 @@ function TemplatePhonePreview({ template }) {
     return (
       <div className="w-full h-full relative" style={{ fontFamily: template.fontStyle === "serif" ? "Georgia, serif" : "system-ui, sans-serif" }}>
         <img src={p.heroImage || template.heroImage} alt="" className="absolute inset-0 w-full h-full object-cover" />
-        <div className="absolute inset-0 bg-gradient-to-b from-black/30 via-transparent to-black/60" />
+        <div className="absolute inset-0" style={{ background: p.overlayStyle === "warm" ? "linear-gradient(to bottom, rgba(30,20,10,0.4), transparent 40%, rgba(20,15,10,0.7))" : "linear-gradient(to bottom, rgba(0,0,0,0.3), transparent 40%, rgba(0,0,0,0.6))" }} />
         <div className="absolute top-0 left-0 right-0 px-4 pt-8 pb-3 flex items-center justify-between z-10">
           <div className="w-5 h-5 rounded-full border-2 border-white/70" />
           <span className="text-[9px] font-bold tracking-[0.15em] text-white/90 uppercase">Portal</span>
