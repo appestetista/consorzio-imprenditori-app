@@ -190,9 +190,9 @@ export function buildTemplateSections(template, pdfMenuData) {
 
   function buildFitness() {
     var defaultServices = [
-      { name: t.previewItems[0], description: "Allenamento ad alta intensita", price: "E15/lezione", image_url: t.heroImage, badge: "Popolare" },
-      { name: t.previewItems[1], description: "Per tutti i livelli", price: "E12/lezione", image_url: t.heroImage },
-      { name: t.previewItems[2], description: "Cardio e resistenza", price: "E10/lezione", image_url: t.heroImage },
+      { name: t.previewItems[0], description: "Allenamento ad alta intensita", price: "€15/lezione", image_url: "https://images.unsplash.com/photo-1534438327276-14e5300c3a48?w=300", badge: "Popolare" },
+      { name: t.previewItems[1], description: "Per tutti i livelli", price: "€12/lezione", image_url: "https://images.unsplash.com/photo-1571019613454-1cb2f99b2d8b?w=300" },
+      { name: t.previewItems[2], description: "Cardio e resistenza", price: "€10/lezione", image_url: "https://images.unsplash.com/photo-1574680096145-d05b474e2155?w=300" },
     ];
     var result = [hero, statsFitness];
     if (realMenu) {
