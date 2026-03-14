@@ -597,7 +597,18 @@ REGOLE IMPORTANTI:
   };
 
   const handleComplete = () => {
-    buildAndComplete(data, data.selectedTemplate, data.features, data.techFeatures, data.websiteAnalysis);
+    // Se l'utente non ha selezionato un template, usa un fallback AI
+    const template = data.selectedTemplate || {
+      id: "from_scratch",
+      name: "Generata dall'AI",
+      primaryColor: data.websiteAnalysis?.primaryColor || "#6366F1",
+      secondaryColor: data.websiteAnalysis?.secondaryColor || "#1a1a2e",
+      accentColor: data.websiteAnalysis?.secondaryColor || "#818CF8",
+      darkMode: true,
+      fontStyle: "sans-serif",
+      _mode: "ai",
+    };
+    buildAndComplete(data, template, data.features, data.techFeatures, data.websiteAnalysis);
   };
 
   return (
