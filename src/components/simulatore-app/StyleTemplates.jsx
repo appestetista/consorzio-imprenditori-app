@@ -107,35 +107,43 @@ export default function StyleTemplates({ businessType, websiteAnalysis, selected
             {templates.map(t => {
               const isSelected = selected?.id === t.id;
               return (
-                <button
-                  key={t.id}
-                  onClick={() => onSelect({ ...t, _mode: "template" })}
-                  className={`relative rounded-2xl border-2 overflow-hidden transition-all active:scale-[0.97] ${
-                    isSelected
-                      ? "border-amber-400 ring-2 ring-amber-400/30"
-                      : "border-white/10 hover:border-white/20"
-                  }`}
-                >
-                  {isSelected && (
-                    <div className="absolute top-2 right-2 z-10 w-5 h-5 rounded-full bg-amber-500 flex items-center justify-center">
-                      <Check className="w-3 h-3 text-white" />
+                <div key={t.id} className="relative">
+                  <button
+                    onClick={() => setPreviewTemplate(t)}
+                    className={`relative rounded-2xl border-2 overflow-hidden transition-all active:scale-[0.97] w-full text-left ${
+                      isSelected
+                        ? "border-amber-400 ring-2 ring-amber-400/30"
+                        : "border-white/10 hover:border-white/20"
+                    }`}
+                  >
+                    {isSelected && (
+                      <div className="absolute top-2 right-2 z-10 w-5 h-5 rounded-full bg-amber-500 flex items-center justify-center">
+                        <Check className="w-3 h-3 text-white" />
+                      </div>
+                    )}
+                    <div className="w-full aspect-[9/16] relative bg-gray-900">
+                      <div className="absolute inset-1 rounded-xl overflow-hidden">
+                        <TemplatePhonePreview template={t} />
+                      </div>
+                      {/* Tap overlay */}
+                      <div className="absolute inset-0 flex items-center justify-center bg-black/0 hover:bg-black/30 transition-colors">
+                        <div className="opacity-0 hover:opacity-100 flex items-center gap-1.5 bg-white/20 backdrop-blur-sm px-3 py-1.5 rounded-full transition-opacity">
+                          <Eye className="w-3.5 h-3.5 text-white" />
+                          <span className="text-[10px] text-white font-semibold">Anteprima</span>
+                        </div>
+                      </div>
                     </div>
-                  )}
-                  <div className="w-full aspect-[9/16] relative bg-gray-900">
-                    <div className="absolute inset-1 rounded-xl overflow-hidden">
-                      <TemplatePhonePreview template={t} />
+                    <div className="p-2 bg-white/[0.03]">
+                      <p className="text-[11px] font-bold text-white">{t.name}</p>
+                      <p className="text-[8px] text-gray-500 mt-0.5 leading-tight line-clamp-1">{t.target}</p>
+                      <div className="flex items-center gap-1 mt-1">
+                        <div className="w-3 h-3 rounded-full border border-white/20" style={{ background: t.primaryColor }} />
+                        <div className="w-3 h-3 rounded-full border border-white/20" style={{ background: t.secondaryColor }} />
+                        <div className="w-3 h-3 rounded-full border border-white/20" style={{ background: t.accentColor }} />
+                      </div>
                     </div>
-                  </div>
-                  <div className="p-2 bg-white/[0.03]">
-                    <p className="text-[11px] font-bold text-white">{t.name}</p>
-                    <p className="text-[8px] text-gray-500 mt-0.5 leading-tight line-clamp-1">{t.target}</p>
-                    <div className="flex items-center gap-1 mt-1">
-                      <div className="w-3 h-3 rounded-full border border-white/20" style={{ background: t.primaryColor }} />
-                      <div className="w-3 h-3 rounded-full border border-white/20" style={{ background: t.secondaryColor }} />
-                      <div className="w-3 h-3 rounded-full border border-white/20" style={{ background: t.accentColor }} />
-                    </div>
-                  </div>
-                </button>
+                  </button>
+                </div>
               );
             })}
           </div>
