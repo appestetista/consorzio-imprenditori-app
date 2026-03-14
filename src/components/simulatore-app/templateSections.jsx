@@ -1,12 +1,11 @@
 // Genera sections strutturate per DynamicAppRenderer partendo da un template della libreria
 // Ogni template diventa un'app completa con hero, menu/servizi, gallery, contatti, bottomNav
-// Se pdfMenuData è presente, i dati reali sostituiscono i placeholder
+// Se pdfMenuData e' presente, i dati reali sostituiscono i placeholder
 
 export function buildTemplateSections(template, pdfMenuData) {
   const t = template;
   const cat = t.category;
 
-  // Hero banner — sempre presente
   const hero = {
     type: "hero_banner",
     title: t.name,
@@ -20,215 +19,247 @@ export function buildTemplateSections(template, pdfMenuData) {
                   cat === "ecommerce" ? "Acquista Ora" :
                   cat === "turismo" ? "Esplora" :
                   cat === "salute" ? "Prenota Visita" :
-                  "Scopri di più",
+                  "Scopri di piu",
     }],
   };
 
-  // ── Helper: genera sezioni menu_nav + menu_list dai dati reali PDF ──
-  const buildRealMenuSections = () => {
-    if (!pdfMenuData?.sections?.length) return null;
-    const navItems = pdfMenuData.sections.map(sec => ({ label: sec.section_title || "Altro" }));
-    const menuNav = { type: "menu_nav", items: navItems };
-    const menuLists = pdfMenuData.sections.map(sec => ({
-      type: "menu_list",
-      title: sec.section_title || "Altro",
-      subtitle: "MENU",
-      items: (sec.items || []).map((item, idx) => ({
-        name: item.name || "Prodotto",
-        description: item.description || "",
-        price: item.price || "",
-        image_url: item.image_url || "",
-        badge: idx === 0 ? "Popolare" : undefined,
-      })),
-    }));
-    return [menuNav, ...menuLists];
-  };
+  // Helper: genera sezioni menu_nav + menu_list dai dati reali PDF
+  function buildRealMenuSections() {
+    if (!pdfMenuData || !pdfMenuData.sections || pdfMenuData.sections.length === 0) return null;
+    var navItems = pdfMenuData.sections.map(function(sec) { return { label: sec.section_title || "Altro" }; });
+    var menuNav = { type: "menu_nav", items: navItems };
+    var menuLists = pdfMenuData.sections.map(function(sec) {
+      return {
+        type: "menu_list",
+        title: sec.section_title || "Altro",
+        subtitle: "MENU",
+        items: (sec.items || []).map(function(item, idx) {
+          return {
+            name: item.name || "Prodotto",
+            description: item.description || "",
+            price: item.price || "",
+            image_url: item.image_url || "",
+            badge: idx === 0 ? "Popolare" : undefined,
+          };
+        }),
+      };
+    });
+    return [menuNav].concat(menuLists);
+  }
 
   // Helper: converte i dati PDF in items per service_list / product_grid
-  const buildRealServiceItems = () => {
-    if (!pdfMenuData?.sections?.length) return null;
-    return pdfMenuData.sections.flatMap(sec =>
-      (sec.items || []).map((item, idx) => ({
-        name: item.name || "Servizio",
-        description: item.description || "",
-        price: item.price || "Su richiesta",
-        image_url: item.image_url || t.heroImage,
-        badge: idx === 0 ? "Top" : undefined,
-      }))
-    );
+  function buildRealServiceItems() {
+    if (!pdfMenuData || !pdfMenuData.sections || pdfMenuData.sections.length === 0) return null;
+    var result = [];
+    pdfMenuData.sections.forEach(function(sec) {
+      (sec.items || []).forEach(function(item, idx) {
+        result.push({
+          name: item.name || "Servizio",
+          description: item.description || "",
+          price: item.price || "Su richiesta",
+          image_url: item.image_url || t.heroImage,
+          badge: idx === 0 ? "Top" : undefined,
+        });
+      });
+    });
+    return result;
+  }
+
+  var realMenu = buildRealMenuSections();
+  var realServices = buildRealServiceItems();
+
+  // Placeholder per ristorazione
+  function defaultRistorazioneSections() {
+    return [
+      { type: "menu_nav", items: [{ label: "Antipasti" }, { label: "Primi" }, { label: "Secondi" }, { label: "Dolci" }] },
+      { type: "menu_list", title: "Antipasti", subtitle: "MENU", items: [
+        { name: t.previewItems[0], description: "Ingredienti freschi selezionati", price: "14.00", image_url: t.heroImage, badge: "Popolare" },
+        { name: "Bruschetta Classica", description: "Pomodorini, basilico, olio EVO", price: "8.00", image_url: t.heroImage },
+        { name: "Carpaccio di Manzo", description: "Con rucola e parmigiano", price: "16.00", image_url: t.heroImage },
+      ]},
+      { type: "menu_list", title: "Primi", subtitle: "MENU", items: [
+        { name: t.previewItems[1], description: "Preparazione tradizionale", price: "18.00", image_url: t.heroImage, badge: "Chef Pick" },
+        { name: "Spaghetti alle Vongole", description: "Vongole veraci, aglio, prezzemolo", price: "16.00", image_url: t.heroImage },
+      ]},
+      { type: "menu_list", title: "Secondi", subtitle: "MENU", items: [
+        { name: "Branzino al Forno", description: "Con patate e olive taggiasche", price: "22.00", image_url: t.heroImage },
+        { name: "Tagliata di Manzo", description: "Con rucola e grana", price: "24.00", image_url: t.heroImage },
+      ]},
+      { type: "menu_list", title: "Dolci", subtitle: "MENU", items: [
+        { name: t.previewItems[2], description: "Dolce della casa", price: "8.00", image_url: t.heroImage },
+        { name: "Tiramisu", description: "Ricetta tradizionale", price: "7.00", image_url: t.heroImage },
+      ]},
+    ];
+  }
+
+  var galleryRistorante = { type: "gallery", title: "Il Locale", subtitle: "GALLERIA", items: [
+    { title: "Sala Principale", image_url: t.heroImage },
+    { title: "Terrazza", image_url: t.heroImage },
+    { title: "Cucina a Vista", image_url: t.heroImage },
+    { title: "Cantina", image_url: t.heroImage },
+  ]};
+  var contactRistorante = { type: "contact", title: "Contattaci", subtitle: "INFO", items: [{
+    email: "info@ristorante.it", phone: "+39 02 1234567",
+    address: "Via Roma 1, Milano", hours: "12:00 - 23:00",
+  }]};
+
+  var galleryBeauty = { type: "gallery", title: "Il Nostro Studio", subtitle: "GALLERIA", items: [
+    { title: "Reception", image_url: t.heroImage },
+    { title: "Sala Trattamenti", image_url: t.heroImage },
+    { title: "Area Relax", image_url: t.heroImage },
+    { title: "Prodotti", image_url: t.heroImage },
+  ]};
+  var testimonialsBeauty = { type: "testimonials", title: "Recensioni", subtitle: "CLIENTI", items: [
+    { name: "Laura M.", text: "Esperienza fantastica, tornero sicuramente!", rating: 5 },
+    { name: "Marco R.", text: "Professionali e attenti ai dettagli.", rating: 5 },
+  ]};
+  var bookingBeauty = { type: "booking", title: "Prenota", subtitle: "APPUNTAMENTO", items: [{ buttonText: "Prenota Ora", description: "Scegli data e orario" }] };
+  var contactBeauty = { type: "contact", title: "Dove Siamo", subtitle: "CONTATTI", items: [{
+    email: "info@beautyspa.it", phone: "+39 02 9876543",
+    address: "Via Montenapoleone 10, Milano", hours: "9:00 - 20:00",
+  }]};
+
+  var statsFitness = { type: "stats_grid", title: "I Numeri", subtitle: "STATISTICHE", items: [
+    { label: "Iscritti", value: "500+" }, { label: "Corsi", value: "25" },
+    { label: "Trainer", value: "12" }, { label: "Anni", value: "8" },
+  ]};
+  var pricingFitness = { type: "pricing", title: "Abbonamenti", subtitle: "PIANI", items: [
+    { name: "Base", price: "E39/mese", features: ["Accesso palestra", "Spogliatoio"] },
+    { name: "Premium", price: "E69/mese", features: ["Accesso palestra", "Tutti i corsi", "Personal trainer"], badge: "Consigliato" },
+  ]};
+  var contactFitness = { type: "contact", title: "Vieni a Trovarci", subtitle: "CONTATTI", items: [{
+    email: "info@gymclub.it", phone: "+39 06 5551234",
+    address: "Via dello Sport 5, Roma", hours: "6:00 - 23:00",
+  }]};
+
+  var featuresEcommerce = { type: "features", title: "Perche Sceglierci", subtitle: "VANTAGGI", items: [
+    { name: "Spedizione Gratuita", description: "Su ordini sopra 50 euro" },
+    { name: "Reso Facile", description: "30 giorni per ripensarci" },
+    { name: "Pagamenti Sicuri", description: "SSL e 3D Secure" },
+  ]};
+  var testimonialsEcommerce = { type: "testimonials", title: "Recensioni", subtitle: "CLIENTI", items: [
+    { name: "Giulia B.", text: "Qualita eccellente, spedizione velocissima!", rating: 5 },
+    { name: "Andrea P.", text: "Prodotti come da foto, soddisfatto.", rating: 4 },
+  ]};
+  var contactEcommerce = { type: "contact", title: "Assistenza", subtitle: "CONTATTI", items: [{
+    email: "shop@store.it", phone: "+39 800 123456",
+    address: "Via del Commercio 20, Firenze", hours: "Lun-Ven 9:00-18:00",
+  }]};
+
+  var featuresDefault = { type: "features", title: "Perche Noi", subtitle: "VANTAGGI", items: [
+    { name: "Esperienza", description: "Anni di attivita nel settore" },
+    { name: "Qualita", description: "Standard elevati garantiti" },
+    { name: "Assistenza", description: "Sempre a disposizione" },
+  ]};
+  var galleryDefault = { type: "gallery", title: "Gallery", subtitle: "IMMAGINI", items: [
+    { title: "Il Nostro Team", image_url: t.heroImage },
+    { title: "I Nostri Spazi", image_url: t.heroImage },
+    { title: "Al Lavoro", image_url: t.heroImage },
+    { title: "Risultati", image_url: t.heroImage },
+  ]};
+  var contactDefault = { type: "contact", title: "Contattaci", subtitle: "INFO", items: [{
+    email: "info@azienda.it", phone: "+39 02 0001111",
+    address: "Via Esempio 1, Milano", hours: "Lun-Ven 9:00-18:00",
+  }]};
+
+  // Builder per categoria
+  function buildRistorazione() {
+    var menuSections = realMenu || defaultRistorazioneSections();
+    var result = [hero];
+    result = result.concat(menuSections);
+    result.push(galleryRistorante);
+    result.push(contactRistorante);
+    return result;
+  }
+
+  function buildBeauty() {
+    var defaultServices = [
+      { name: t.previewItems[0], description: "Trattamento professionale completo", price: "E65", duration: "60 min", image_url: t.heroImage, badge: "Top" },
+      { name: t.previewItems[1], description: "Per una pelle radiosa", price: "E45", duration: "45 min", image_url: t.heroImage },
+      { name: t.previewItems[2], description: "Rilassamento profondo", price: "E80", duration: "90 min", image_url: t.heroImage },
+    ];
+    var result = [hero];
+    if (realMenu) {
+      result = result.concat(realMenu);
+    } else {
+      result.push({ type: "service_list", title: "I Nostri Trattamenti", subtitle: "SERVIZI", items: realServices || defaultServices });
+    }
+    result.push(galleryBeauty, testimonialsBeauty, bookingBeauty, contactBeauty);
+    return result;
+  }
+
+  function buildFitness() {
+    var defaultServices = [
+      { name: t.previewItems[0], description: "Allenamento ad alta intensita", price: "E15/lezione", image_url: t.heroImage, badge: "Popolare" },
+      { name: t.previewItems[1], description: "Per tutti i livelli", price: "E12/lezione", image_url: t.heroImage },
+      { name: t.previewItems[2], description: "Cardio e resistenza", price: "E10/lezione", image_url: t.heroImage },
+    ];
+    var result = [hero, statsFitness];
+    if (realMenu) {
+      result = result.concat(realMenu);
+    } else {
+      result.push({ type: "service_list", title: "Corsi e Attivita", subtitle: "PROGRAMMA", items: realServices || defaultServices });
+    }
+    result.push(pricingFitness, contactFitness);
+    return result;
+  }
+
+  function buildEcommerce() {
+    var defaultProducts = [
+      { name: t.previewItems[0], price: "E49.00", image_url: t.heroImage, badge: "Nuovo" },
+      { name: t.previewItems[1], price: "E79.00", image_url: t.heroImage, badge: "Bestseller" },
+      { name: t.previewItems[2], price: "E129.00", image_url: t.heroImage },
+      { name: "Accessorio Premium", price: "E35.00", image_url: t.heroImage },
+    ];
+    var result = [hero];
+    if (realMenu) {
+      result = result.concat(realMenu);
+    } else {
+      result.push({ type: "product_grid", title: "Prodotti in Evidenza", subtitle: "SHOP", items: realServices || defaultProducts });
+    }
+    result.push(featuresEcommerce, testimonialsEcommerce, contactEcommerce);
+    return result;
+  }
+
+  function buildDefault() {
+    var defaultServices = [
+      { name: t.previewItems[0], description: "Servizio professionale", price: "Su richiesta", image_url: t.heroImage },
+      { name: t.previewItems[1], description: "Consulenza specializzata", price: "Su richiesta", image_url: t.heroImage },
+      { name: t.previewItems[2], description: "Supporto dedicato", price: "Su richiesta", image_url: t.heroImage },
+    ];
+    var result = [hero];
+    if (realMenu) {
+      result = result.concat(realMenu);
+    } else {
+      result.push({ type: "service_list", title: "I Nostri Servizi", subtitle: "SERVIZI", items: realServices || defaultServices });
+    }
+    result.push(featuresDefault, galleryDefault, contactDefault);
+    return result;
+  }
+
+  var builders = {
+    ristorazione: buildRistorazione,
+    beauty: buildBeauty,
+    fitness: buildFitness,
+    ecommerce: buildEcommerce,
   };
 
-  const realMenu = buildRealMenuSections();
-  const realServices = buildRealServiceItems();
-
-  // ── Sezioni specifiche per categoria ──
-  const sectionsByCategory = {
-    ristorazione: () => {
-      const menuSections = realMenu || [
-        { type: "menu_nav", items: [{ label: "Antipasti" }, { label: "Primi" }, { label: "Secondi" }, { label: "Dolci" }] },
-        { type: "menu_list", title: "Antipasti", subtitle: "MENU", items: [
-          { name: t.previewItems[0], description: "Ingredienti freschi selezionati", price: "14.00", image_url: t.heroImage, badge: "Popolare" },
-          { name: "Bruschetta Classica", description: "Pomodorini, basilico, olio EVO", price: "8.00", image_url: t.heroImage },
-          { name: "Carpaccio di Manzo", description: "Con rucola e parmigiano", price: "16.00", image_url: t.heroImage },
-        ]},
-        { type: "menu_list", title: "Primi", subtitle: "MENU", items: [
-          { name: t.previewItems[1], description: "Preparazione tradizionale", price: "18.00", image_url: t.heroImage, badge: "Chef's Pick" },
-          { name: "Spaghetti alle Vongole", description: "Vongole veraci, aglio, prezzemolo", price: "16.00", image_url: t.heroImage },
-        ]},
-        { type: "menu_list", title: "Secondi", subtitle: "MENU", items: [
-          { name: "Branzino al Forno", description: "Con patate e olive taggiasche", price: "22.00", image_url: t.heroImage },
-          { name: "Tagliata di Manzo", description: "Con rucola e grana", price: "24.00", image_url: t.heroImage },
-        ]},
-        { type: "menu_list", title: "Dolci", subtitle: "MENU", items: [
-          { name: t.previewItems[2], description: "Dolce della casa", price: "8.00", image_url: t.heroImage },
-          { name: "Tiramisù", description: "Ricetta tradizionale", price: "7.00", image_url: t.heroImage },
-        ]},
-      ];
-      return [
-        hero,
-        ...menuSections,
-        { type: "gallery", title: "Il Locale", subtitle: "GALLERIA", items: [
-          { title: "Sala Principale", image_url: t.heroImage },
-          { title: "Terrazza", image_url: t.heroImage },
-          { title: "Cucina a Vista", image_url: t.heroImage },
-          { title: "Cantina", image_url: t.heroImage },
-        ]},
-        { type: "contact", title: "Contattaci", subtitle: "INFO", items: [{
-          email: "info@ristorante.it", phone: "+39 02 1234567",
-          address: "Via Roma 1, Milano", hours: "12:00 - 23:00",
-        }]},
-      ];
-    },
-
-    beauty: () => {
-      const services = realServices || [
-        { name: t.previewItems[0], description: "Trattamento professionale completo", price: "€65", duration: "60 min", image_url: t.heroImage, badge: "Top" },
-        { name: t.previewItems[1], description: "Per una pelle radiosa", price: "€45", duration: "45 min", image_url: t.heroImage },
-        { name: t.previewItems[2], description: "Rilassamento profondo", price: "€80", duration: "90 min", image_url: t.heroImage },
-      ];
-      const sections = [hero];
-      // Se c'è un menu reale con sezioni, mostra navigazione + liste
-      if (realMenu) sections.push(...realMenu);
-      else sections.push({ type: "service_list", title: "I Nostri Trattamenti", subtitle: "SERVIZI", items: services });
-      sections.push(
-        { type: "gallery", title: "Il Nostro Studio", subtitle: "GALLERIA", items: [
-          { title: "Reception", image_url: t.heroImage },
-          { title: "Sala Trattamenti", image_url: t.heroImage },
-          { title: "Area Relax", image_url: t.heroImage },
-          { title: "Prodotti", image_url: t.heroImage },
-        ]},
-        { type: "testimonials", title: "Recensioni", subtitle: "CLIENTI", items: [
-          { name: "Laura M.", text: "Esperienza fantastica, tornerò sicuramente!", rating: 5 },
-          { name: "Marco R.", text: "Professionali e attenti ai dettagli.", rating: 5 },
-        ]},
-        { type: "booking", title: "Prenota", subtitle: "APPUNTAMENTO", items: [{ buttonText: "Prenota Ora", description: "Scegli data e orario" }] },
-        { type: "contact", title: "Dove Siamo", subtitle: "CONTATTI", items: [{
-          email: "info@beautyspa.it", phone: "+39 02 9876543",
-          address: "Via Montenapoleone 10, Milano", hours: "9:00 - 20:00",
-        }]},
-      );
-      return sections;
-    },
-
-    fitness: () => {
-      const services = realServices || [
-        { name: t.previewItems[0], description: "Allenamento ad alta intensità", price: "€15/lezione", image_url: t.heroImage, badge: "Popolare" },
-        { name: t.previewItems[1], description: "Per tutti i livelli", price: "€12/lezione", image_url: t.heroImage },
-        { name: t.previewItems[2], description: "Cardio e resistenza", price: "€10/lezione", image_url: t.heroImage },
-      ];
-      const sections = [
-        hero,
-        { type: "stats_grid", title: "I Numeri", subtitle: "STATISTICHE", items: [
-          { label: "Iscritti", value: "500+" }, { label: "Corsi", value: "25" },
-          { label: "Trainer", value: "12" }, { label: "Anni", value: "8" },
-        ]},
-      ];
-      if (realMenu) sections.push(...realMenu);
-      else sections.push({ type: "service_list", title: "Corsi & Attività", subtitle: "PROGRAMMA", items: services });
-      sections.push(
-        { type: "pricing", title: "Abbonamenti", subtitle: "PIANI", items: [
-          { name: "Base", price: "€39/mese", features: ["Accesso palestra", "Spogliatoio"] },
-          { name: "Premium", price: "€69/mese", features: ["Accesso palestra", "Tutti i corsi", "Personal trainer"], badge: "Consigliato" },
-        ]},
-        { type: "contact", title: "Vieni a Trovarci", subtitle: "CONTATTI", items: [{
-          email: "info@gymclub.it", phone: "+39 06 5551234",
-          address: "Via dello Sport 5, Roma", hours: "6:00 - 23:00",
-        }]},
-      );
-      return sections;
-    },
-
-    ecommerce: () => {
-      const products = realServices || [
-        { name: t.previewItems[0], price: "€49.00", image_url: t.heroImage, badge: "Nuovo" },
-        { name: t.previewItems[1], price: "€79.00", image_url: t.heroImage, badge: "Bestseller" },
-        { name: t.previewItems[2], price: "€129.00", image_url: t.heroImage },
-        { name: "Accessorio Premium", price: "€35.00", image_url: t.heroImage },
-      ];
-      const sections = [hero];
-      if (realMenu) sections.push(...realMenu);
-      else sections.push({ type: "product_grid", title: "Prodotti in Evidenza", subtitle: "SHOP", items: products });
-      sections.push(
-        { type: "features", title: "Perché Sceglierci", subtitle: "VANTAGGI", items: [
-          { name: "Spedizione Gratuita", description: "Su ordini sopra €50" },
-          { name: "Reso Facile", description: "30 giorni per ripensarci" },
-          { name: "Pagamenti Sicuri", description: "SSL e 3D Secure" },
-        ]},
-        { type: "testimonials", title: "Recensioni", subtitle: "CLIENTI", items: [
-          { name: "Giulia B.", text: "Qualità eccellente, spedizione velocissima!", rating: 5 },
-          { name: "Andrea P.", text: "Prodotti come da foto, soddisfatto.", rating: 4 },
-        ]},
-        { type: "contact", title: "Assistenza", subtitle: "CONTATTI", items: [{
-          email: "shop@store.it", phone: "+39 800 123456",
-          address: "Via del Commercio 20, Firenze", hours: "Lun-Ven 9:00-18:00",
-        }]},
-      );
-      return sections;
-    },
-
-    _default: () => {
-      const services = realServices || [
-        { name: t.previewItems[0], description: "Servizio professionale", price: "Su richiesta", image_url: t.heroImage },
-        { name: t.previewItems[1], description: "Consulenza specializzata", price: "Su richiesta", image_url: t.heroImage },
-        { name: t.previewItems[2], description: "Supporto dedicato", price: "Su richiesta", image_url: t.heroImage },
-      ];
-      const sections = [hero];
-      if (realMenu) sections.push(...realMenu);
-      else sections.push({ type: "service_list", title: "I Nostri Servizi", subtitle: "SERVIZI", items: services });
-      sections.push(
-        { type: "features", title: "Perché Noi", subtitle: "VANTAGGI", items: [
-          { name: "Esperienza", description: "Anni di attività nel settore" },
-          { name: "Qualità", description: "Standard elevati garantiti" },
-          { name: "Assistenza", description: "Sempre a disposizione" },
-        ]},
-        { type: "gallery", title: "Gallery", subtitle: "IMMAGINI", items: [
-          { title: "Il Nostro Team", image_url: t.heroImage },
-          { title: "I Nostri Spazi", image_url: t.heroImage },
-          { title: "Al Lavoro", image_url: t.heroImage },
-          { title: "Risultati", image_url: t.heroImage },
-        ]},
-        { type: "contact", title: "Contattaci", subtitle: "INFO", items: [{
-          email: "info@azienda.it", phone: "+39 02 0001111",
-          address: "Via Esempio 1, Milano", hours: "Lun-Ven 9:00-18:00",
-        }]},
-      );
-      return sections;
-    },
-  };
-
-  const builder = sectionsByCategory[cat] || sectionsByCategory._default;
-  const sections = builder();
+  var builder = builders[cat] || buildDefault;
+  var sections = builder();
 
   // BottomNav standard
-  const bottomNav = cat === "ristorazione"
-    ? [{ label: "Home", icon: "🏠", active: true }, { label: "Menu", icon: "📋" }, { label: "Prenota", icon: "📅" }, { label: "Info", icon: "📍" }]
-    : cat === "beauty"
-    ? [{ label: "Home", icon: "🏠", active: true }, { label: "Servizi", icon: "✨" }, { label: "Prenota", icon: "📝" }, { label: "Profilo", icon: "👤" }]
-    : cat === "fitness"
-    ? [{ label: "Home", icon: "🏠", active: true }, { label: "Corsi", icon: "📋" }, { label: "Profilo", icon: "👤" }, { label: "Info", icon: "📍" }]
-    : cat === "ecommerce"
-    ? [{ label: "Home", icon: "🏠", active: true }, { label: "Shop", icon: "🛍️" }, { label: "Carrello", icon: "🛒" }, { label: "Profilo", icon: "👤" }]
-    : [{ label: "Home", icon: "🏠", active: true }, { label: "Servizi", icon: "📋" }, { label: "Contatti", icon: "📍" }, { label: "Profilo", icon: "👤" }];
+  var bottomNav;
+  if (cat === "ristorazione") {
+    bottomNav = [{ label: "Home", icon: "home", active: true }, { label: "Menu", icon: "menu" }, { label: "Prenota", icon: "calendar" }, { label: "Info", icon: "info" }];
+  } else if (cat === "beauty") {
+    bottomNav = [{ label: "Home", icon: "home", active: true }, { label: "Servizi", icon: "sparkles" }, { label: "Prenota", icon: "edit" }, { label: "Profilo", icon: "user" }];
+  } else if (cat === "fitness") {
+    bottomNav = [{ label: "Home", icon: "home", active: true }, { label: "Corsi", icon: "list" }, { label: "Profilo", icon: "user" }, { label: "Info", icon: "info" }];
+  } else if (cat === "ecommerce") {
+    bottomNav = [{ label: "Home", icon: "home", active: true }, { label: "Shop", icon: "shopping-bag" }, { label: "Carrello", icon: "shopping-cart" }, { label: "Profilo", icon: "user" }];
+  } else {
+    bottomNav = [{ label: "Home", icon: "home", active: true }, { label: "Servizi", icon: "list" }, { label: "Contatti", icon: "map-pin" }, { label: "Profilo", icon: "user" }];
+  }
 
   return {
     appName: t.name,
@@ -239,7 +270,7 @@ export function buildTemplateSections(template, pdfMenuData) {
     darkMode: t.darkMode,
     fontStyle: t.fontStyle,
     headerStyle: "modern",
-    sections,
-    bottomNav,
+    sections: sections,
+    bottomNav: bottomNav,
   };
 }
