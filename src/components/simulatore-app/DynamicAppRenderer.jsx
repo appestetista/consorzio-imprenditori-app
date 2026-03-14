@@ -132,7 +132,7 @@ export default function DynamicAppRenderer({ data, editable, onDataChange }) {
             : undefined;
 
           return (
-            <div key={i} id={anchorId}>
+            <div key={i} id={anchorId} data-section-type={section.type}>
               {i > 0 && section.type !== "menu_nav" && <div className="mx-6 h-px" style={{ background: darkMode === false ? "rgba(0,0,0,0.06)" : "rgba(255,255,255,0.03)" }} />}
               <Component
                 title={section.title}
