@@ -1,4 +1,4 @@
-import React from "react";
+import React, { useState, useCallback } from "react";
 import DynamicHeader from "./sections/DynamicHeader";
 import HeroBannerSection from "./sections/HeroBannerSection";
 import MenuListSection from "./sections/MenuListSection";
@@ -14,6 +14,7 @@ import PricingSection from "./sections/PricingSection";
 import TestimonialsSection from "./sections/TestimonialsSection";
 import FeaturesSection from "./sections/FeaturesSection";
 import MenuNavSection from "./sections/MenuNavSection";
+import CartBar from "./sections/CartBar";
 import DynamicBottomNav from "./sections/DynamicBottomNav";
 
 const SECTION_MAP = {
@@ -37,6 +38,28 @@ export default function DynamicAppRenderer({ data, editable, onDataChange }) {
   if (!data) return null;
 
   const { appName, tagline, logoUrl, primaryColor, secondaryColor, accentColor, headerStyle, darkMode, fontStyle, sections, bottomNav } = data;
+
+  // Global cart state
+  const [cart, setCart] = useState([]);
+
+  const handleAddToCart = useCallback((item) => {
+    const price = parseFloat(String(item.price).replace(/[^0-9.,]/g, '').replace(',', '.')) || 0;
+    setCart(prev => {
+      const existing = prev.findIndex(c => c.name === item.name && c.price === price);
+      if (existing >= 0) {
+        return prev.map((c, i) => i === existing ? { ...c, qty: c.qty + 1 } : c);
+      }
+      return [...prev, { name: item.name, price, qty: 1 }];
+    });
+  }, []);
+
+  const handleRemoveFromCart = useCallback((index) => {
+    setCart(prev => prev.filter((_, i) => i !== index));
+  }, []);
+
+  const handleUpdateCartQty = useCallback((index, qty) => {
+    setCart(prev => prev.map((c, i) => i === index ? { ...c, qty } : c));
+  }, []);
 
   const handleItemChange = (sectionIndex, itemIndex, field, value) => {
     if (!onDataChange) return;
@@ -96,8 +119,12 @@ export default function DynamicAppRenderer({ data, editable, onDataChange }) {
           const Component = SECTION_MAP[section.type];
           if (!Component) return null;
 
-          // For menu_nav, pass category click handler
-          const extraProps = section.type === "menu_nav" ? { onCategoryClick: handleCategoryClick } : {};
+          // For menu_nav, pass category click handler; for menu_list, pass cart handler
+          const extraProps = section.type === "menu_nav"
+            ? { onCategoryClick: handleCategoryClick }
+            : section.type === "menu_list"
+              ? { onAddToCart: handleAddToCart }
+              : {};
 
           // Add anchor id for menu_list sections so menu_nav can scroll to them
           const anchorId = section.type === "menu_list" && section.title
@@ -124,7 +151,15 @@ export default function DynamicAppRenderer({ data, editable, onDataChange }) {
         })}
       </div>
 
-      {bottomNav && bottomNav.length > 0 && (
+      <CartBar
+        cart={cart}
+        primaryColor={primaryColor}
+        darkMode={darkMode}
+        onRemove={handleRemoveFromCart}
+        onUpdateQty={handleUpdateCartQty}
+      />
+
+      {bottomNav && bottomNav.length > 0 && cart.length === 0 && (
         <DynamicBottomNav items={bottomNav} primaryColor={primaryColor} />
       )}
     </div>
