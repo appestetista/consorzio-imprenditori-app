@@ -223,9 +223,9 @@ export function buildTemplateSections(template, pdfMenuData) {
 
   function buildDefault() {
     var defaultServices = [
-      { name: t.previewItems[0], description: "Servizio professionale", price: "Su richiesta", image_url: t.heroImage },
-      { name: t.previewItems[1], description: "Consulenza specializzata", price: "Su richiesta", image_url: t.heroImage },
-      { name: t.previewItems[2], description: "Supporto dedicato", price: "Su richiesta", image_url: t.heroImage },
+      { name: t.previewItems[0], description: "Servizio professionale", price: "Su richiesta", image_url: "https://images.unsplash.com/photo-1497366216548-37526070297c?w=300" },
+      { name: t.previewItems[1], description: "Consulenza specializzata", price: "Su richiesta", image_url: "https://images.unsplash.com/photo-1522071820081-009f0129c71c?w=300" },
+      { name: t.previewItems[2], description: "Supporto dedicato", price: "Su richiesta", image_url: "https://images.unsplash.com/photo-1552664730-d307ca884978?w=300" },
     ];
     var result = [hero];
     if (realMenu) {
