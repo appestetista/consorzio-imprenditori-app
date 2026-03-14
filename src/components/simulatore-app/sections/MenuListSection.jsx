@@ -2,15 +2,12 @@ import React, { useState } from "react";
 import EditableField from "../EditableField";
 import EditableImage from "../EditableImage";
 
-export default function MenuListSection({ title, subtitle, items, primaryColor, secondaryColor, editable, onItemChange, onSectionChange }) {
+export default function MenuListSection({ title, subtitle, items, primaryColor, secondaryColor, editable, onItemChange, onSectionChange, onAddToCart }) {
   const isDark = !secondaryColor || secondaryColor.startsWith("#0") || secondaryColor.startsWith("#1") || secondaryColor === "#000";
   const textColor = isDark ? "text-white" : "text-gray-900";
   const textMuted = isDark ? "text-white/35" : "text-gray-500";
   const subtitleColor = isDark ? "text-white/30" : "text-gray-400";
   const cardBg = isDark ? "bg-white/[0.03] border-white/[0.04] hover:bg-white/[0.06]" : "bg-white border-gray-100 hover:bg-gray-50 shadow-sm";
-  const [cart, setCart] = useState([]);
-  const add = (item) => setCart(prev => [...prev, item]);
-  const totale = cart.reduce((s, i) => s + (parseFloat(i.price) || 0), 0);
 
   const ec = editable ? true : false;
 
@@ -62,17 +59,11 @@ export default function MenuListSection({ title, subtitle, items, primaryColor, 
               {item.price != null && (
                 <EditableField value={typeof item.price === "number" ? `€${item.price.toFixed(2)}` : `€${item.price}`} onChange={ec ? v => onItemChange?.(i, "price", v.replace("€", "").trim()) : null} className="text-base font-black tabular-nums" style={{ color: primaryColor }} />
               )}
-              <button onClick={() => add(item)} className="w-7 h-7 rounded-full flex items-center justify-center text-xs font-bold transition-all active:scale-90" style={{ background: primaryColor + "20", color: primaryColor }}>+</button>
+              <button onClick={() => onAddToCart ? onAddToCart(item) : null} className="w-7 h-7 rounded-full flex items-center justify-center text-xs font-bold transition-all active:scale-90" style={{ background: primaryColor + "20", color: primaryColor }}>+</button>
             </div>
           </div>
         ))}
       </div>
-      {cart.length > 0 && (
-        <div className="mt-4 p-3 rounded-2xl flex items-center justify-between" style={{ background: primaryColor + "10", border: `1px solid ${primaryColor}20` }}>
-          <span className={`text-xs ${textMuted}`}>{cart.length} element{cart.length > 1 ? "i" : "o"}</span>
-          <span className={`text-lg font-black ${textColor}`}>€{totale.toFixed(2)}</span>
-        </div>
-      )}
     </div>
   );
 }
