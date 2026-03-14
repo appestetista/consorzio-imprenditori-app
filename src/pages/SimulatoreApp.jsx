@@ -37,12 +37,12 @@ IMMAGINI — REGOLA FONDAMENTALE:
   HERO/BANNER: photo-1517248135467-4c7edcad34c4 (ristorante), photo-1600891964599-f94d51f96eca (beauty), photo-1534438327276-14e5300c3a48 (fitness)
 - Per l'hero_banner: usa sempre un image_url nel primo item.
 
-MENU E PIATTI — REGOLA FONDAMENTALE:
-- Se ci sono dati dal sito web o da un PDF menu, DEVI inserire TUTTI i piatti reali, non solo alcuni.
-- Organizzali per CATEGORIA reale (es: "Pizze Classiche", "Pizze Lievito Madre", "Antipasti di Pesce", "Primi di Pesce", "Secondi di Carne", "Contorni", "Birre", "Vini", ecc.)
+MENU E PIATTI — REGOLA FONDAMENTALE (ZERO TOLLERANZA):
+- Se ci sono dati dal sito web o da un PDF menu, DEVI inserire il 100% delle voci. Se sono 80 piatti, il JSON ne ha 80. Se sono 150, ne ha 150. NESSUNA eccezione.
+- Organizzali per CATEGORIA reale (es: "Pizze Classiche", "Pizze Lievito Madre", "Antipasti di Pesce", "Primi di Pesce", "Secondi di Carne", "Contorni", "Birre", "Vini", "Dolci", "Bevande", ecc.)
 - Ogni categoria deve essere una sezione "menu_list" separata con title = nome della categoria.
 - Per ogni piatto: usa il nome ESATTO, il prezzo ESATTO, e la descrizione ESATTA dal menu originale.
-- NON inventare piatti, NON cambiare prezzi, NON omettere piatti. Includili TUTTI.
+- NON inventare piatti, NON cambiare prezzi, NON omettere piatti, NON troncare la lista. TUTTI i piatti, TUTTE le bevande, TUTTI i dolci.
 
 STRUTTURA APP PER RISTORAZIONE:
 1. hero_banner — con immagine del ristorante e nome

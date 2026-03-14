@@ -49,6 +49,7 @@
  */
 import AdminPanel from './pages/AdminPanel';
 import AnalisiContratti from './pages/AnalisiContratti';
+import AppPreview from './pages/AppPreview';
 import AsteImmobiliari from './pages/AsteImmobiliari';
 import AsteSalvate from './pages/AsteSalvate';
 import CalendarioIncontri from './pages/CalendarioIncontri';
@@ -89,6 +90,7 @@ import RichiestaWelfare from './pages/RichiestaWelfare';
 import RisparmioDettaglio from './pages/RisparmioDettaglio';
 import RisparmioEnergetico from './pages/RisparmioEnergetico';
 import ScannerQRVantaggi from './pages/ScannerQRVantaggi';
+import SimulatoreApp from './pages/SimulatoreApp';
 import SimulatoreCostoPersonale from './pages/SimulatoreCostoPersonale';
 import SimulatoreFiscale from './pages/SimulatoreFiscale';
 import VantaggiIscritti from './pages/VantaggiIscritti';
@@ -105,6 +107,7 @@ import __Layout from './Layout.jsx';
 export const PAGES = {
     "AdminPanel": AdminPanel,
     "AnalisiContratti": AnalisiContratti,
+    "AppPreview": AppPreview,
     "AsteImmobiliari": AsteImmobiliari,
     "AsteSalvate": AsteSalvate,
     "CalendarioIncontri": CalendarioIncontri,
@@ -145,6 +148,7 @@ export const PAGES = {
     "RisparmioDettaglio": RisparmioDettaglio,
     "RisparmioEnergetico": RisparmioEnergetico,
     "ScannerQRVantaggi": ScannerQRVantaggi,
+    "SimulatoreApp": SimulatoreApp,
     "SimulatoreCostoPersonale": SimulatoreCostoPersonale,
     "SimulatoreFiscale": SimulatoreFiscale,
     "VantaggiIscritti": VantaggiIscritti,
