@@ -213,17 +213,26 @@ export default function CreationWizard({ onComplete }) {
         console.warn("[Wizard] ExtractData fallito, provo con LLM:", extractErr);
       }
 
-      // Fallback: se ExtractData non ha funzionato, usa InvokeLLM con il file
+      // Fallback: se ExtractData non ha funzionato, usa InvokeLLM con modello potente
       if (sections.length === 0) {
         console.log("[Wizard] Fallback LLM per estrazione menu...");
         const llmResult = await base44.integrations.Core.InvokeLLM({
-          prompt: `Questo file è un menu/listino prezzi. Estrai TUTTE le sezioni e TUTTE le voci con nome, descrizione e prezzo. Non omettere nulla.`,
+          prompt: `Sei un sistema di estrazione dati da menu/listini. Analizza questo file e restituisci un JSON strutturato.
+
+REGOLE TASSATIVE:
+- Estrai il 100% delle voci presenti nel documento. NON troncare, NON riassumere, NON omettere NESSUNA voce.
+- Ogni sezione/categoria del menu va in un oggetto separato con section_title e items.
+- Per ogni voce estrai: name (nome esatto), description (ingredienti/descrizione se presente, altrimenti stringa vuota), price (prezzo esatto come appare, es. "12.00", "€8", "8,50").
+- Se non c'è un prezzo visibile, metti stringa vuota per price.
+- Mantieni l'ordine originale del documento.
+- Se il documento ha più pagine, processa TUTTE le pagine.`,
           file_urls: [file_url],
           response_json_schema: {
             type: "object",
             properties: {
               sections: {
                 type: "array",
+                description: "TUTTE le sezioni del menu, ognuna con TUTTE le voci",
                 items: {
                   type: "object",
                   properties: {
@@ -244,6 +253,7 @@ export default function CreationWizard({ onComplete }) {
               },
             },
           },
+          model: "gemini_3_pro",
         });
         console.log("[Wizard] Risultato LLM fallback:", JSON.stringify(llmResult).substring(0, 500));
         if (llmResult?.sections?.length > 0) {
