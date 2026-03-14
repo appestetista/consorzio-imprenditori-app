@@ -718,8 +718,8 @@ REGOLE IMPORTANTI:
               <div className="w-14 h-14 rounded-full bg-purple-500/15 border border-purple-500/20 flex items-center justify-center mx-auto mb-3">
                 <FileText className="w-7 h-7 text-purple-400 animate-pulse" />
               </div>
-              <h3 className="text-base font-bold text-white">Analizzo il tuo menu</h3>
-              <p className="text-xs text-gray-400 mt-1">Sto estraendo piatti, prezzi e categorie dal PDF</p>
+              <h3 className="text-base font-bold text-white">{data.businessType === "ristorazione" ? "Analizzo il tuo menu" : "Analizzo il tuo listino"}</h3>
+              <p className="text-xs text-gray-400 mt-1">{data.businessType === "ristorazione" ? "Sto estraendo piatti, prezzi e categorie dal PDF" : "Sto estraendo servizi, prezzi e categorie dal file"}</p>
             </div>
             <div className="space-y-3">
               <div className="w-full h-2 bg-white/5 rounded-full overflow-hidden">
