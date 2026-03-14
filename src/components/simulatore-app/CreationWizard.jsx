@@ -139,11 +139,12 @@ export default function CreationWizard({ onComplete }) {
     setPdfPhase("Caricamento file...");
     const phases = [
       { at: 8, text: "Lettura del documento..." },
-      { at: 20, text: "Scansione pagine..." },
-      { at: 35, text: "Estrazione prodotti e prezzi..." },
-      { at: 50, text: "Organizzazione categorie..." },
-      { at: 65, text: "Validazione dati estratti..." },
-      { at: 80, text: "Finalizzazione..." },
+      { at: 18, text: "Primo passaggio di estrazione..." },
+      { at: 32, text: "Scansione con AI avanzata..." },
+      { at: 48, text: "Estrazione completa in corso..." },
+      { at: 62, text: "Verifica voci mancanti..." },
+      { at: 75, text: "Unione e deduplicazione..." },
+      { at: 88, text: "Finalizzazione..." },
     ];
     let current = 0;
     pdfProgressInterval.current = setInterval(() => {
