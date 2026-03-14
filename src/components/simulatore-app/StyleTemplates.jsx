@@ -4,7 +4,7 @@ import { Sparkles } from "lucide-react";
 const THEMES = [
   { id: "gourmet_dark", tag: "GOURMET", label: "Scuro Elegante", primary: "#C4964A", secondary: "#0a0a0a", accent: "#D4A95A", dark: true, font: "serif", bg: "#0a0a0a", card: "#141414", text: "#fff", muted: "#666", border: "#222" },
   { id: "classic_cream", tag: "CLASSICO", label: "Crema Raffinato", primary: "#8B6914", secondary: "#F5EDE0", accent: "#A0845C", dark: false, font: "serif", bg: "#F5EDE0", card: "#FFFFFF", text: "#2a2014", muted: "#8a7a6a", border: "#E0D5C5" },
-  { id: "modern_white", tag: "MODERNO", label: "Bianco Premium", primary: "#1a1a1a", secondary: "#FFFFFF", accent: "#555", dark: false, font: "sans-serif", bg: "#FAFAFA", card: "#FFFFFF", text: "#111", muted: "#999", border: "#eee" },
+  { id: "green_fresh", tag: "FRESH", label: "Verde Naturale", primary: "#2D5A3D", secondary: "#F5F0E6", accent: "#3A7D53", dark: false, font: "sans-serif", bg: "#F5F0E6", card: "#FFFFFF", text: "#1a1a1a", muted: "#7a7a6a", border: "#E8E0D0" },
   { id: "hero_full", tag: "HERO", label: "Hero Immersivo", primary: "#D4A574", secondary: "#111", accent: "#E8C9A0", dark: true, font: "serif", bg: "#111", card: "#1a1a1a", text: "#fff", muted: "#777", border: "#222" },
   { id: "luxury_minimal", tag: "LUSSO", label: "Lusso Minimale", primary: "#B8860B", secondary: "#0E0E0E", accent: "#DAA520", dark: true, font: "serif", bg: "#0E0E0E", card: "#161616", text: "#F5F0E8", muted: "#666", border: "#252525" },
 ];
@@ -139,45 +139,67 @@ function LayoutClassicCream({ t, c }) {
   );
 }
 
-// ─── Layout 3: MODERN WHITE — Pulito, card elevate, tipografia forte ──
-function LayoutModernWhite({ t, c }) {
+// ─── Layout 3: GREEN FRESH — Sfondo beige, accenti verdi, griglia prodotti ──
+function LayoutGreenFresh({ t, c }) {
   return (
     <div style={{ background: t.bg, height: "100%", fontFamily: "Inter, -apple-system, sans-serif" }}>
-      <div style={{ padding: "10px 8px 4px", display: "flex", alignItems: "center", justifyContent: "space-between" }}>
+      {/* Header verde scuro */}
+      <div style={{ background: t.primary, padding: "8px 8px 6px", display: "flex", alignItems: "center", justifyContent: "space-between" }}>
         <div style={{ display: "flex", alignItems: "center", gap: 4 }}>
-          {c.logo ? <img src={c.logo} style={{ height: 16, borderRadius: 2 }} alt="" onError={e => e.target.style.display='none'} /> : null}
-          <span style={{ color: t.text, fontSize: 10, fontWeight: 900, letterSpacing: -0.5 }}>{c.name}</span>
+          <span style={{ color: "rgba(255,255,255,0.5)", fontSize: 7 }}>←</span>
+          {c.logo ? <img src={c.logo} style={{ height: 14, borderRadius: 2 }} alt="" onError={e => e.target.style.display='none'} /> : null}
+          <span style={{ color: "#fff", fontSize: 9, fontWeight: 800, letterSpacing: -0.3 }}>{c.name}</span>
         </div>
-        <div style={{ width: 14, height: 14, borderRadius: 7, background: "#f0f0f0", display: "flex", alignItems: "center", justifyContent: "center" }}><span style={{ fontSize: 5 }}>☰</span></div>
-      </div>
-      {/* Search bar */}
-      <div style={{ margin: "2px 8px 4px", borderRadius: 8, background: "#f0f0f0", padding: "4px 8px", display: "flex", alignItems: "center", gap: 3 }}>
-        <span style={{ fontSize: 5.5, color: "#999" }}>🔍</span>
-        <span style={{ fontSize: 5.5, color: "#999" }}>Cerca nel menu...</span>
-      </div>
-      {/* Hero image */}
-      <Tap>
-        <div style={{ margin: "0 8px", borderRadius: 12, overflow: "hidden", height: 52, position: "relative" }}>
-          <img src={c.hero} style={{ width: "100%", height: "100%", objectFit: "cover" }} alt="" />
+        <div style={{ display: "flex", gap: 3 }}>
+          <div style={{ width: 14, height: 14, borderRadius: 7, background: "rgba(255,255,255,0.15)", display: "flex", alignItems: "center", justifyContent: "center" }}>
+            <span style={{ fontSize: 5, color: "#fff" }}>☰</span>
+          </div>
         </div>
-      </Tap>
-      {/* Category pills */}
-      <div style={{ display: "flex", gap: 3, padding: "5px 8px", overflow: "hidden" }}>
-        {["Tutto", "Pizze", "Pesce", "Carne"].map((cat, i) => (
-          <div key={i} style={{ padding: "2px 6px", borderRadius: 6, background: i === 0 ? t.text : "#f0f0f0", whiteSpace: "nowrap" }}>
-            <span style={{ fontSize: 5, fontWeight: 700, color: i === 0 ? "#fff" : t.text }}>{cat}</span>
+      </div>
+      {/* Category pills su sfondo verde */}
+      <div style={{ background: t.primary, padding: "0 8px 8px", display: "flex", gap: 3, overflow: "hidden" }}>
+        {["Tutti", "Primi", "Secondi", "Dolci"].map((cat, i) => (
+          <div key={i} style={{
+            padding: "2.5px 7px", borderRadius: 12, whiteSpace: "nowrap",
+            background: i === 0 ? "#fff" : "rgba(255,255,255,0.15)",
+            border: i === 0 ? "none" : "1px solid rgba(255,255,255,0.2)",
+          }}>
+            <span style={{ fontSize: 5, fontWeight: 700, color: i === 0 ? t.primary : "rgba(255,255,255,0.85)" }}>{cat}</span>
           </div>
         ))}
       </div>
-      {/* Grid items */}
-      <div style={{ padding: "2px 8px", display: "grid", gridTemplateColumns: "1fr 1fr", gap: 4 }}>
+      {/* Hero image grande con bordi arrotondati */}
+      <Tap>
+        <div style={{ margin: "6px 8px 2px", borderRadius: 14, overflow: "hidden", height: 68, position: "relative", boxShadow: "0 2px 10px rgba(0,0,0,0.08)" }}>
+          <img src={c.hero} style={{ width: "100%", height: "100%", objectFit: "cover" }} alt="" />
+          <div style={{ position: "absolute", inset: 0, background: "linear-gradient(to top, rgba(0,0,0,0.4) 0%, transparent 50%)" }} />
+          <div style={{ position: "absolute", bottom: 5, left: 6 }}>
+            <div style={{ color: "#fff", fontSize: 6.5, fontWeight: 700, textShadow: "0 1px 3px rgba(0,0,0,0.5)" }}>I Nostri Piatti Migliori</div>
+            <div style={{ color: "rgba(255,255,255,0.7)", fontSize: 4.5, marginTop: 1 }}>Ingredienti freschi di stagione</div>
+          </div>
+        </div>
+      </Tap>
+      {/* Sezione titolo */}
+      <div style={{ padding: "5px 8px 2px", display: "flex", alignItems: "center", justifyContent: "space-between" }}>
+        <span style={{ fontSize: 6.5, fontWeight: 800, color: t.text }}>Sfoglia il Menu</span>
+        <span style={{ fontSize: 4.5, color: t.primary, fontWeight: 600 }}>€ prezzi</span>
+      </div>
+      {/* Griglia prodotti 2 colonne — card bianche con immagine grande */}
+      <div style={{ padding: "3px 8px 0", display: "grid", gridTemplateColumns: "1fr 1fr", gap: 5 }}>
         {c.items.map((it, i) => (
           <Tap key={i}>
-            <div style={{ background: t.card, borderRadius: 10, overflow: "hidden", border: `1px solid ${t.border}`, boxShadow: "0 1px 4px rgba(0,0,0,0.04)" }}>
-              <img src={it.img} style={{ width: "100%", height: 30, objectFit: "cover" }} alt="" onError={e => e.target.style.display='none'} />
-              <div style={{ padding: "3px 4px" }}>
-                <div style={{ fontSize: 5.5, fontWeight: 800, color: t.text }}>{it.n}</div>
-                <div style={{ fontSize: 5.5, fontWeight: 800, color: t.primary, marginTop: 1 }}>{it.p}</div>
+            <div style={{ background: t.card, borderRadius: 12, overflow: "hidden", border: `1px solid ${t.border}`, boxShadow: "0 1px 6px rgba(0,0,0,0.05)" }}>
+              <div style={{ position: "relative" }}>
+                <img src={it.img} style={{ width: "100%", height: 34, objectFit: "cover" }} alt="" onError={e => e.target.style.display='none'} />
+                {/* Pulsante + verde */}
+                <div style={{ position: "absolute", bottom: -5, right: 4, width: 12, height: 12, borderRadius: 6, background: t.primary, display: "flex", alignItems: "center", justifyContent: "center", boxShadow: "0 1px 4px rgba(0,0,0,0.2)" }}>
+                  <span style={{ color: "#fff", fontSize: 7, fontWeight: 700, lineHeight: 1 }}>+</span>
+                </div>
+              </div>
+              <div style={{ padding: "5px 5px 4px" }}>
+                <div style={{ fontSize: 5.5, fontWeight: 800, color: t.text, lineHeight: 1.2 }}>{it.n}</div>
+                {it.desc && <div style={{ fontSize: 4, color: t.muted, marginTop: 1, lineHeight: 1.2 }}>{it.desc.slice(0, 30)}</div>}
+                <div style={{ fontSize: 6, fontWeight: 900, color: t.primary, marginTop: 2 }}>{it.p}</div>
               </div>
             </div>
           </Tap>
@@ -293,7 +315,7 @@ function BottomBar({ t }) {
   );
 }
 
-const LAYOUTS = [LayoutGourmetDark, LayoutClassicCream, LayoutModernWhite, LayoutHeroFull, LayoutLuxuryMinimal];
+const LAYOUTS = [LayoutGourmetDark, LayoutClassicCream, LayoutGreenFresh, LayoutHeroFull, LayoutLuxuryMinimal];
 
 // ─── Phone Frame ──────────────────────────────────────────
 function PhoneFrame({ theme, content, LayoutComp, isCenter, isSelected, onClick }) {
