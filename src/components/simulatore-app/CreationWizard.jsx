@@ -1,8 +1,11 @@
 import React, { useState, useEffect, useRef } from "react";
-import { ArrowRight, ArrowLeft, Sparkles, Globe, Loader2, Check, Upload, FileText, X, ImageIcon } from "lucide-react";
+import { ArrowRight, ArrowLeft, Sparkles, Globe, Loader2, Check, Upload, FileText, X, ImageIcon, PenLine, Wand2 } from "lucide-react";
 import { base44 } from "@/api/base44Client";
 import StyleTemplates from "./StyleTemplates";
 import ExtractedMenuPreview from "./ExtractedMenuPreview";
+
+// Categorie per cui ha senso caricare un PDF menu/listino
+const PDF_CATEGORIES = ["ristorazione", "beauty", "ecommerce", "fitness"];
 
 const BUSINESS_TYPES = [
   { id: "ristorazione", label: "Ristorazione", emoji: "🍽️", desc: "Ristoranti, bar, pizzerie, pasticcerie" },
@@ -86,6 +89,7 @@ export default function CreationWizard({ onComplete }) {
     techFeatures: [],
     pdfMenuData: null,
     logoUrl: null,
+    contentDescription: "", // testo libero per categorie senza PDF
   });
   const [uploadingLogo, setUploadingLogo] = useState(false);
   const logoInputRef = useRef(null);
