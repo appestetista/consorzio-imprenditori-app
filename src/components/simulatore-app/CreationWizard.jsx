@@ -735,11 +735,11 @@ REGOLE IMPORTANTI:
                     <Upload className="w-4 h-4 text-purple-400" />
                   </div>
                   <div className="text-left">
-                    <p className="text-sm font-bold text-white">Carica PDF</p>
-                    <p className="text-[10px] text-gray-500">Menu, listino prezzi, catalogo</p>
+                    <p className="text-sm font-bold text-white">Carica Menu</p>
+                    <p className="text-[10px] text-gray-500">PDF, immagine del menu o listino</p>
                   </div>
                 </button>
-                <input ref={pdfInputRef} type="file" accept=".pdf" onChange={handlePdfUpload} className="hidden" />
+                <input ref={pdfInputRef} type="file" accept=".pdf,.jpg,.jpeg,.png,.webp" onChange={handlePdfUpload} className="hidden" />
               </div>
             ) : data.pdfMenuData.error ? (
               <div className="space-y-2">
