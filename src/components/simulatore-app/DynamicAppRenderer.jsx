@@ -13,9 +13,11 @@ import ContactSection from "./sections/ContactSection";
 import PricingSection from "./sections/PricingSection";
 import TestimonialsSection from "./sections/TestimonialsSection";
 import FeaturesSection from "./sections/FeaturesSection";
+import MenuNavSection from "./sections/MenuNavSection";
 import DynamicBottomNav from "./sections/DynamicBottomNav";
 
 const SECTION_MAP = {
+  menu_nav: MenuNavSection,
   hero_banner: HeroBannerSection,
   menu_list: MenuListSection,
   product_grid: ProductGridSection,
@@ -57,6 +59,12 @@ export default function DynamicAppRenderer({ data, editable, onDataChange }) {
     onDataChange(newData);
   };
 
+  // Scroll to category section
+  const handleCategoryClick = (label) => {
+    const el = document.getElementById(`menu-section-${label.replace(/\s+/g, '-').toLowerCase()}`);
+    if (el) el.scrollIntoView({ behavior: "smooth", block: "start" });
+  };
+
   return (
     <div className="min-h-full flex flex-col" style={{ background: darkMode === false ? (secondaryColor || "#fafafa") : "#0a0a0a" }}>
       {/* Decorative vertical text */}
@@ -87,9 +95,18 @@ export default function DynamicAppRenderer({ data, editable, onDataChange }) {
           if (section.type === "hero") return null;
           const Component = SECTION_MAP[section.type];
           if (!Component) return null;
+
+          // For menu_nav, pass category click handler
+          const extraProps = section.type === "menu_nav" ? { onCategoryClick: handleCategoryClick } : {};
+
+          // Add anchor id for menu_list sections so menu_nav can scroll to them
+          const anchorId = section.type === "menu_list" && section.title
+            ? `menu-section-${section.title.replace(/\s+/g, '-').toLowerCase()}`
+            : undefined;
+
           return (
-            <div key={i}>
-              {i > 0 && <div className="mx-6 h-px" style={{ background: darkMode === false ? "rgba(0,0,0,0.06)" : "rgba(255,255,255,0.03)" }} />}
+            <div key={i} id={anchorId}>
+              {i > 0 && section.type !== "menu_nav" && <div className="mx-6 h-px" style={{ background: darkMode === false ? "rgba(0,0,0,0.06)" : "rgba(255,255,255,0.03)" }} />}
               <Component
                 title={section.title}
                 subtitle={section.subtitle}
@@ -100,6 +117,7 @@ export default function DynamicAppRenderer({ data, editable, onDataChange }) {
                 editable={editable}
                 onItemChange={(itemIndex, field, value) => handleItemChange(i, itemIndex, field, value)}
                 onSectionChange={(field, value) => handleSectionChange(i, field, value)}
+                {...extraProps}
               />
             </div>
           );
