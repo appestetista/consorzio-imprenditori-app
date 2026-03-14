@@ -68,26 +68,26 @@ export function buildTemplateSections(template, pdfMenuData) {
   var realMenu = buildRealMenuSections();
   var realServices = buildRealServiceItems();
 
-  // Placeholder per ristorazione
+  // Placeholder per ristorazione con immagini diverse per piatto
   function defaultRistorazioneSections() {
     return [
       { type: "menu_nav", items: [{ label: "Antipasti" }, { label: "Primi" }, { label: "Secondi" }, { label: "Dolci" }] },
       { type: "menu_list", title: "Antipasti", subtitle: "MENU", items: [
-        { name: t.previewItems[0], description: "Ingredienti freschi selezionati", price: "14.00", image_url: t.heroImage, badge: "Popolare" },
-        { name: "Bruschetta Classica", description: "Pomodorini, basilico, olio EVO", price: "8.00", image_url: t.heroImage },
-        { name: "Carpaccio di Manzo", description: "Con rucola e parmigiano", price: "16.00", image_url: t.heroImage },
+        { name: t.previewItems[0], description: "Ingredienti freschi selezionati", price: "14.00", image_url: "https://images.unsplash.com/photo-1541014741259-de529411b96a?w=300", badge: "Popolare" },
+        { name: "Bruschetta Classica", description: "Pomodorini, basilico, olio EVO", price: "8.00", image_url: "https://images.unsplash.com/photo-1572695157366-5e585ab2b69f?w=300" },
+        { name: "Carpaccio di Manzo", description: "Con rucola e parmigiano", price: "16.00", image_url: "https://images.unsplash.com/photo-1608039829572-25e8610044db?w=300" },
       ]},
       { type: "menu_list", title: "Primi", subtitle: "MENU", items: [
-        { name: t.previewItems[1], description: "Preparazione tradizionale", price: "18.00", image_url: t.heroImage, badge: "Chef Pick" },
-        { name: "Spaghetti alle Vongole", description: "Vongole veraci, aglio, prezzemolo", price: "16.00", image_url: t.heroImage },
+        { name: t.previewItems[1], description: "Preparazione tradizionale", price: "18.00", image_url: "https://images.unsplash.com/photo-1621996346565-e3dbc646d9a9?w=300", badge: "Chef Pick" },
+        { name: "Spaghetti alle Vongole", description: "Vongole veraci, aglio, prezzemolo", price: "16.00", image_url: "https://images.unsplash.com/photo-1563379926898-05f4575a45d8?w=300" },
       ]},
       { type: "menu_list", title: "Secondi", subtitle: "MENU", items: [
-        { name: "Branzino al Forno", description: "Con patate e olive taggiasche", price: "22.00", image_url: t.heroImage },
-        { name: "Tagliata di Manzo", description: "Con rucola e grana", price: "24.00", image_url: t.heroImage },
+        { name: "Branzino al Forno", description: "Con patate e olive taggiasche", price: "22.00", image_url: "https://images.unsplash.com/photo-1519708227418-c8fd9a32b7a2?w=300" },
+        { name: "Tagliata di Manzo", description: "Con rucola e grana", price: "24.00", image_url: "https://images.unsplash.com/photo-1558030006-450675393462?w=300" },
       ]},
       { type: "menu_list", title: "Dolci", subtitle: "MENU", items: [
-        { name: t.previewItems[2], description: "Dolce della casa", price: "8.00", image_url: t.heroImage },
-        { name: "Tiramisu", description: "Ricetta tradizionale", price: "7.00", image_url: t.heroImage },
+        { name: t.previewItems[2], description: "Dolce della casa", price: "8.00", image_url: "https://images.unsplash.com/photo-1551024506-0bccd828d307?w=300" },
+        { name: "Tiramisu", description: "Ricetta tradizionale", price: "7.00", image_url: "https://images.unsplash.com/photo-1571877227200-a0d98ea607e9?w=300" },
       ]},
     ];
   }
