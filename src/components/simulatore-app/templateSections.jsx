@@ -152,10 +152,10 @@ export function buildTemplateSections(template, pdfMenuData) {
     { name: "Assistenza", description: "Sempre a disposizione" },
   ]};
   var galleryDefault = { type: "gallery", title: "Gallery", subtitle: "IMMAGINI", items: [
-    { title: "Il Nostro Team", image_url: t.heroImage },
-    { title: "I Nostri Spazi", image_url: t.heroImage },
-    { title: "Al Lavoro", image_url: t.heroImage },
-    { title: "Risultati", image_url: t.heroImage },
+    { title: "Il Nostro Team", image_url: "https://images.unsplash.com/photo-1522071820081-009f0129c71c?w=400" },
+    { title: "I Nostri Spazi", image_url: "https://images.unsplash.com/photo-1497366216548-37526070297c?w=400" },
+    { title: "Al Lavoro", image_url: "https://images.unsplash.com/photo-1531482615713-2afd69097998?w=400" },
+    { title: "Risultati", image_url: "https://images.unsplash.com/photo-1552664730-d307ca884978?w=400" },
   ]};
   var contactDefault = { type: "contact", title: "Contattaci", subtitle: "INFO", items: [{
     email: "info@azienda.it", phone: "+39 02 0001111",
