@@ -183,7 +183,7 @@ export default function CreationWizard({ onComplete }) {
             properties: {
               sections: {
                 type: "array",
-                description: "Estrai TUTTE le sezioni/categorie del documento con TUTTE le voci. Ogni sezione ha un titolo e una lista di items con nome, descrizione e prezzo.",
+                description: "ESTRAI IL 100% DELLE SEZIONI E IL 100% DELLE VOCI del documento, senza omettere nulla. Ogni sezione ha un section_title e un array items con TUTTE le voci di quella sezione.",
                 items: {
                   type: "object",
                   properties: {
