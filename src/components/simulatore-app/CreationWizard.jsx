@@ -446,7 +446,20 @@ REGOLE IMMAGINI:
       : (wa?.logoUrl ? `\nLOGO URL DAL SITO (OBBLIGATORIO — inserisci come "logoUrl" nel JSON radice): ${wa.logoUrl}` : "");
 
     let styleInstructions = "";
-    if (isTemplateMode) {
+    if (isTemplateMode && hasCustomizedApp) {
+      styleInstructions = `
+MODALITÀ TEMPLATE PERSONALIZZATO — L'utente ha personalizzato il template "${template.name}":
+- Colore primario: ${template.primaryColor}, secondario: ${template.secondaryColor}, accento: ${template.accentColor}.
+- Dark mode: ${template.darkMode}. Font: ${template.fontStyle}.
+- L'utente ha già personalizzato colori, testi e immagini nella preview interattiva.
+- USA ESATTAMENTE la struttura JSON fornita sotto come base, aggiungendo i dati reali dell'attività (piatti, prezzi, ecc.) se disponibili.
+- MANTIENI le personalizzazioni dell'utente (colori, testi modificati, immagini cambiate).
+
+STRUTTURA BASE PERSONALIZZATA DALL'UTENTE:
+${JSON.stringify(template._customizedAppData, null, 2)}
+
+REGOLA: Parti da questa struttura e ARRICCHISCILA con i dati reali. Non cambiarla radicalmente.`;
+    } else if (isTemplateMode) {
       styleInstructions = `
 MODALITÀ TEMPLATE — RISPETTA RIGOROSAMENTE IL TEMPLATE "${template.name}":
 - Colore primario: ${template.primaryColor}, secondario: ${template.secondaryColor}, accento: ${template.accentColor}.
