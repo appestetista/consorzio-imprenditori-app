@@ -481,8 +481,11 @@ REGOLE IMPORTANTI:
 - Usa ESATTAMENTE i colori indicati per primaryColor, secondaryColor e accentColor.
 - Il campo "logoUrl" nel JSON radice è OBBLIGATORIO se fornito sopra.
 ${!isFromScratch ? "- Ispirati alla struttura del prototipo scelto ma personalizzala." : "- Genera una struttura originale e unica."}
-- REGOLA CRITICA MENU: Se ci sono dati dal PDF o dal sito web, DEVI inserire il 100% delle voci nel JSON. Se il PDF contiene 80 piatti, il JSON DEVE contenere 80 items. Se ne contiene 150, il JSON ne deve avere 150. NON troncare, NON riassumere, NON omettere NESSUNA voce.
-- Ogni categoria di piatti deve essere una sezione "menu_list" separata (es: title "Pizze Classiche", title "Primi di Pesce", ecc.)
+- REGOLA CRITICA MENU: Se ci sono dati dal PDF o dal sito web, DEVI inserire il 100% delle voci nel JSON. NON troncare, NON omettere NESSUNA voce e NESSUNA sezione.
+- STRUTTURA MENU OBBLIGATORIA:
+  1. Subito dopo l'hero_banner, inserisci una sezione di tipo "menu_nav" con items = array di oggetti {label: "NomeSezione"} per OGNI sezione del menu. I label devono corrispondere ESATTAMENTE ai title delle sezioni menu_list successive.
+  2. Poi inserisci una sezione "menu_list" separata per OGNI sezione/categoria (es: title "Pizze Classiche", title "Primi di Pesce", ecc.), con TUTTE le voci di quella sezione.
+  L'utente toccherà i pulsanti della menu_nav per scorrere alla sezione corrispondente.
 - Per ogni piatto: nome ESATTO, prezzo ESATTO, descrizione ESATTA dal menu originale.
 - Per ogni item, aggiungi un campo "image_url". PRIORITÀ: 1) immagini ORIGINALI dal sito 2) solo se non ci sono, usa Unsplash.
 - Non inventare prodotti/piatti se ci sono quelli reali dal sito o PDF.`;

@@ -46,9 +46,10 @@ MENU E PIATTI — REGOLA FONDAMENTALE (ZERO TOLLERANZA):
 
 STRUTTURA APP PER RISTORAZIONE:
 1. hero_banner — con immagine del ristorante e nome
-2. Una sezione menu_list PER OGNI CATEGORIA di piatti
-3. contact — con info reali se disponibili
-4. gallery — con immagini del ristorante se disponibili
+2. menu_nav — una barra di pulsanti scrollabile con items=[{label:"Antipasti"},{label:"Primi"},{label:"Pizze"},...] per OGNI categoria del menu. I label DEVONO corrispondere ESATTAMENTE ai title delle sezioni menu_list successive.
+3. Una sezione menu_list PER OGNI CATEGORIA di piatti (il title della sezione deve corrispondere al label nel menu_nav)
+4. contact — con info reali se disponibili
+5. gallery — con immagini del ristorante se disponibili
 
 CONTENUTI GENERALI:
 - Per settori diversi dalla ristorazione: almeno 5-8 items per sezione
@@ -220,7 +221,8 @@ export default function SimulatoreApp() {
     }
 
     const prompt = isFirstMessage
-      ? `${SYSTEM_DESIGN_PROMPT}\n\nL'utente descrive così la sua app: "${promptText}"\n\nGenera il JSON completo dell'app. Includi 5-7 sezioni. Se l'utente menziona funzionalità come pagamenti, API, notifiche push, login ecc., inseriscile nel campo features_requested come array di stringhe.\nLe sezioni disponibili: "hero_banner", "menu_list", "product_grid", "service_list", "stats_grid", "activity_feed", "gallery", "cta_banner", "booking", "contact", "pricing", "testimonials", "features".\nRispondi SOLO con il JSON.`
+      ? `${SYSTEM_DESIGN_PROMPT}\n\nL'utente descrive così la sua app: "${promptText}"\n\nGenera il JSON completo dell'app. Includi 5-7 sezioni. Se l'utente menziona funzionalità come pagamenti, API, notifiche push, login ecc., inseriscile nel campo features_requested come array di stringhe.\nLe sezioni disponibili: "hero_banner", "menu_nav", "menu_list", "product_grid", "service_list", "stats_grid", "activity_feed", "gallery", "cta_banner", "booking", "contact", "pricing", "testimonials", "features".
+NOTA: "menu_nav" è una barra di pulsanti-categoria che permette di navigare tra le sezioni menu_list. items=[{label:"NomeCat1"},{label:"NomeCat2"},...]. I label DEVONO corrispondere ai title delle sezioni menu_list.\nRispondi SOLO con il JSON.`
       : `${SYSTEM_DESIGN_PROMPT}\n\nEcco il mockup JSON attuale dell'app:\n${JSON.stringify(appData, null, 2)}\n\nL'utente chiede: "${promptText}"\n\nREGOLA IMPORTANTE: L'utente può modificare SOLO aspetti grafici/estetici (colori, testi, layout, sezioni, contenuti, immagini). Se la modifica riguarda struttura tecnica (pagamenti, API, database, autenticazione), NON applicarla al JSON ma aggiungila a features_requested.\n\nApplica le modifiche grafiche e restituisci il JSON completo aggiornato. Rispondi SOLO con il JSON.`;
 
     try {
