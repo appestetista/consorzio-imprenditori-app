@@ -116,6 +116,27 @@ const TEMPLATES = [
       bodyBg: "#eef4f8",
     },
   },
+  {
+    id: "immersive_nature",
+    name: "Immersive Nature",
+    category: "ristorazione",
+    primaryColor: "#ffffff",
+    secondaryColor: "#0a0a0a",
+    accentColor: "#8eb8a0",
+    darkMode: true,
+    fontStyle: "serif",
+    heroImage: "https://images.unsplash.com/photo-1517248135467-4c7edcad34c4?w=600",
+    previewItems: ["Chef's Selection", "Tasting Menu", "Signature Cocktail"],
+    preview: {
+      headerBg: "transparent",
+      headerText: "#ffffff",
+      cardBg: "#1a1a1a",
+      accent: "#8eb8a0",
+      bodyBg: "#0a0a0a",
+      fullscreenHero: true,
+      heroImage: "https://images.unsplash.com/photo-1517248135467-4c7edcad34c4?w=600",
+    },
+  },
 ];
 
 function TemplatePhonePreview({ template }) {
