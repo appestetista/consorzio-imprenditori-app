@@ -1,19 +1,21 @@
 import React from "react";
 import Phone3DMockup from "./Phone3DMockup";
-import { ArrowRight, Star, Zap } from "lucide-react";
+import { ArrowRight, ExternalLink, Zap } from "lucide-react";
 
 export default function AppShowcaseCard({ app, onSelect }) {
   return (
     <div className="flex flex-col items-center">
-      {/* Telefono 3D con screenshot */}
-      <Phone3DMockup scale={0.85}>
-        <img
-          src={app.screenshot}
-          alt={app.name}
-          className="w-full h-full object-cover"
-          loading="lazy"
-        />
-      </Phone3DMockup>
+      {/* Telefono 3D con screenshot — tap apre il sito */}
+      <a href={app.url} target="_blank" rel="noopener noreferrer" className="block">
+        <Phone3DMockup scale={0.85}>
+          <img
+            src={app.screenshot}
+            alt={app.name}
+            className="w-full h-full object-cover"
+            loading="lazy"
+          />
+        </Phone3DMockup>
+      </a>
 
       {/* Info app */}
       <div className="mt-5 w-full max-w-[260px] text-center">
@@ -38,10 +40,23 @@ export default function AppShowcaseCard({ app, onSelect }) {
         </div>
       </div>
 
+      {/* Bottone visita app */}
+      {app.url && (
+        <a
+          href={app.url}
+          target="_blank"
+          rel="noopener noreferrer"
+          className="mt-3 w-full max-w-[260px] flex items-center justify-center gap-2 py-2.5 rounded-2xl font-semibold text-sm transition-all active:scale-[0.97] bg-white/[0.06] border border-white/10 text-gray-300 hover:bg-white/10 hover:text-white"
+        >
+          <ExternalLink className="w-3.5 h-3.5" />
+          Visita l'app
+        </a>
+      )}
+
       {/* CTA */}
       <button
         onClick={() => onSelect(app)}
-        className="mt-4 w-full max-w-[260px] flex items-center justify-center gap-2 py-3 rounded-2xl font-bold text-sm transition-all active:scale-[0.97] bg-gradient-to-r from-purple-600 to-indigo-600 text-white hover:from-purple-500 hover:to-indigo-500 shadow-lg shadow-purple-500/20"
+        className="mt-2 w-full max-w-[260px] flex items-center justify-center gap-2 py-3 rounded-2xl font-bold text-sm transition-all active:scale-[0.97] bg-gradient-to-r from-purple-600 to-indigo-600 text-white hover:from-purple-500 hover:to-indigo-500 shadow-lg shadow-purple-500/20"
       >
         <Zap className="w-4 h-4" />
         Voglio un'app così
