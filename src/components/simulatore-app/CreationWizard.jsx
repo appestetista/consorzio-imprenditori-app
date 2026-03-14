@@ -101,13 +101,11 @@ export default function CreationWizard({ onComplete }) {
 
   const totalSteps = 5; // categoria, info+sito, logo+pdf, template, funzionalità
 
-  // Scroll to top ad ogni cambio step
   useEffect(() => {
     wizardRef.current?.scrollTo(0, 0);
     window.scrollTo(0, 0);
   }, [step]);
 
-  // Barra finta di progresso
   const startFakeProgress = () => {
     setAnalysisProgress(0);
     setAnalysisPhase("Connessione al sito web...");
@@ -180,20 +178,19 @@ export default function CreationWizard({ onComplete }) {
           properties: {
             sections: {
               type: "array",
-              description: "Il documento è diviso in SEZIONI (es. titoli come 'Antipasti', 'Primi Piatti', 'Pizze', 'Dolci', 'Bevande', 'Vini'). Ogni sezione ha un titolo e contiene delle voci. ESTRAI TUTTE le sezioni nell'ordine in cui appaiono nel documento. Se una voce non ha una sezione chiara, mettila in 'Altro'. NON omettere nessuna sezione e nessuna voce.",
+              description: "Il documento è diviso in SEZIONI. ESTRAI TUTTE le sezioni nell'ordine in cui appaiono. NON omettere nessuna sezione e nessuna voce.",
               items: {
                 type: "object",
                 properties: {
-                  section_title: { type: "string", description: "Titolo ESATTO della sezione come scritto nel documento (es. 'Antipasti di Mare', 'Pizze Classiche', 'Birre Artigianali')" },
+                  section_title: { type: "string" },
                   items: {
                     type: "array",
-                    description: "TUTTE le voci di questa sezione. NON omettere nulla.",
                     items: {
                       type: "object",
                       properties: {
-                        name: { type: "string", description: "Nome ESATTO del piatto/prodotto come scritto nel documento" },
-                        description: { type: "string", description: "Descrizione, ingredienti o note come scritti nel documento" },
-                        price: { type: "string", description: "Prezzo esatto come scritto (es. € 12.00, 12,00, 12€)" },
+                        name: { type: "string" },
+                        description: { type: "string" },
+                        price: { type: "string" },
                       },
                     },
                   },
@@ -206,7 +203,6 @@ export default function CreationWizard({ onComplete }) {
       if (extraction?.status === "success" && extraction.output?.sections?.length > 0) {
         const sections = extraction.output.sections;
         const categories = sections.map(s => s.section_title).filter(Boolean);
-        // Flatten per compatibilità con il formato items + category
         const items = [];
         sections.forEach(sec => {
           (sec.items || []).forEach(it => {
@@ -252,72 +248,60 @@ export default function CreationWizard({ onComplete }) {
     try { baseUrl = new URL(siteUrl).origin; } catch { baseUrl = siteUrl; }
 
     try {
-      // Passa il sito come file_urls così l'LLM lo legge realmente (non solo ricerca web)
       const result = await base44.integrations.Core.InvokeLLM({
         prompt: `Stai analizzando il sito web: ${siteUrl} (dominio base: ${baseUrl}).
 Il contenuto della pagina ti viene fornito come allegato. Analizzalo in dettaglio.
 
 ESTRAI CON PRECISIONE:
-1. Nome dell'attività (dal titolo, logo, header)
-2. Colore primario HEX (il colore dominante del brand, dal CSS/design)
+1. Nome dell'attività
+2. Colore primario HEX
 3. Colore secondario HEX
-4. Stile grafico (moderno, classico, minimalista, lusso, rustico, ecc.)
-5. Descrizione dell'attività (cosa fa, cosa offre)
-6. Tipo di attività (ristorazione, beauty, fitness, ecommerce, servizi, immobiliare, salute, turismo, educazione, altro)
+4. Stile grafico
+5. Descrizione dell'attività
+6. Tipo di attività
 7. Ordine delle sezioni della pagina
 8. Prodotti/servizi/piatti con nome, descrizione, prezzo, categoria
-9. URL ASSOLUTO del logo (DEVE iniziare con http:// o https://)
+9. URL ASSOLUTO del logo
 10. Indirizzo, telefono, orari se presenti
-11. TUTTE le URL ASSOLUTE delle immagini (hero, prodotti, gallery, team, banner). Se relative, anteponi ${baseUrl}
-12. Link a file PDF (menu, catalogo, listino). Se trovi un PDF, metti l'URL completo in pdfMenuUrl.
+11. TUTTE le URL ASSOLUTE delle immagini
+12. Link a file PDF menu/catalogo
 
-REGOLE IMMAGINI — FONDAMENTALE:
+REGOLE IMMAGINI:
 - Estrai OGNI tag <img src="...">, ogni background-image url(...), ogni <source srcset="...">
 - Converti TUTTE le URL relative in assolute con ${baseUrl}
-- Per il logo: cerca nell'header/nav un <img> con class/alt che contiene "logo"
-- NON inventare URL. Solo URL reali trovati nel codice HTML.
-- Includi URL da CDN esterni (cloudinary, imgix, shopify, wp-content, ecc.)`,
+- NON inventare URL.`,
         file_urls: [siteUrl],
         add_context_from_internet: true,
         response_json_schema: {
           type: "object",
           properties: {
-            name: { type: "string", description: "Nome attività" },
-            primaryColor: { type: "string", description: "Colore primario hex" },
-            secondaryColor: { type: "string", description: "Colore secondario hex" },
-            style: { type: "string", description: "Stile grafico" },
-            description: { type: "string", description: "Descrizione attività" },
-            businessType: { type: "string", description: "Tipo attività" },
-            sectionsOrder: { type: "array", items: { type: "string" }, description: "Ordine sezioni del sito" },
-            menuItems: { type: "array", items: { type: "object", properties: { name: { type: "string" }, description: { type: "string" }, price: { type: "string" }, category: { type: "string" }, image_url: { type: "string" } } }, description: "Piatti/servizi/prodotti trovati con URL assolute per le immagini" },
-            categories: { type: "array", items: { type: "string" }, description: "Categorie" },
-            siteImages: { type: "array", items: { type: "object", properties: { url: { type: "string" }, context: { type: "string" } } }, description: "TUTTE le immagini trovate nel sito con URL assolute" },
+            name: { type: "string" },
+            primaryColor: { type: "string" },
+            secondaryColor: { type: "string" },
+            style: { type: "string" },
+            description: { type: "string" },
+            businessType: { type: "string" },
+            sectionsOrder: { type: "array", items: { type: "string" } },
+            menuItems: { type: "array", items: { type: "object", properties: { name: { type: "string" }, description: { type: "string" }, price: { type: "string" }, category: { type: "string" }, image_url: { type: "string" } } } },
+            categories: { type: "array", items: { type: "string" } },
+            siteImages: { type: "array", items: { type: "object", properties: { url: { type: "string" }, context: { type: "string" } } } },
             address: { type: "string" },
             phone: { type: "string" },
             hours: { type: "string" },
-            logoUrl: { type: "string", description: "URL assoluto del logo" },
-            pdfMenuUrl: { type: "string", description: "URL assoluto di un PDF menu/catalogo trovato (stringa vuota se non trovato)" },
+            logoUrl: { type: "string" },
+            pdfMenuUrl: { type: "string" },
           },
         },
         model: "gemini_3_flash",
       });
 
       let finalResult = { ...result };
-      console.log("[Wizard] Analisi sito completata:", { 
-        name: result.name, 
-        logoUrl: result.logoUrl, 
-        imagesCount: result.siteImages?.length, 
-        itemsCount: result.menuItems?.length,
-        pdfUrl: result.pdfMenuUrl 
-      });
 
-      // Step 2: Se c'è un PDF menu, analizzalo
+      // Se c'è un PDF menu, analizzalo
       if (result.pdfMenuUrl && result.pdfMenuUrl.trim().length > 5) {
         try {
           let pdfUrl = result.pdfMenuUrl.trim();
           if (!pdfUrl.startsWith("http")) pdfUrl = baseUrl + (pdfUrl.startsWith("/") ? "" : "/") + pdfUrl;
-          console.log("[Wizard] Analisi PDF menu:", pdfUrl);
-          
           const pdfExtraction = await base44.integrations.Core.ExtractDataFromUploadedFile({
             file_url: pdfUrl,
             json_schema: {
@@ -325,23 +309,11 @@ REGOLE IMMAGINI — FONDAMENTALE:
               properties: {
                 sections: {
                   type: "array",
-                  description: "Il documento è diviso in SEZIONI con titoli. ESTRAI TUTTE le sezioni nell'ordine del documento. NON omettere nessuna sezione e nessuna voce.",
                   items: {
                     type: "object",
                     properties: {
-                      section_title: { type: "string", description: "Titolo ESATTO della sezione" },
-                      items: {
-                        type: "array",
-                        description: "TUTTE le voci di questa sezione",
-                        items: {
-                          type: "object",
-                          properties: {
-                            name: { type: "string", description: "Nome ESATTO" },
-                            description: { type: "string", description: "Descrizione/ingredienti" },
-                            price: { type: "string", description: "Prezzo esatto" },
-                          },
-                        },
-                      },
+                      section_title: { type: "string" },
+                      items: { type: "array", items: { type: "object", properties: { name: { type: "string" }, description: { type: "string" }, price: { type: "string" } } } },
                     },
                   },
                 },
@@ -350,14 +322,12 @@ REGOLE IMMAGINI — FONDAMENTALE:
           });
           if (pdfExtraction?.status === "success" && pdfExtraction.output?.sections?.length > 0) {
             const pdfSections = pdfExtraction.output.sections;
-            console.log("[Wizard] Estratte", pdfSections.length, "sezioni dal PDF");
             const pdfItems = [];
             pdfSections.forEach(sec => {
               (sec.items || []).forEach(it => {
                 pdfItems.push({ name: it.name || "", description: it.description || "", price: it.price || "", category: sec.section_title || "", image_url: "" });
               });
             });
-            console.log("[Wizard] Totale", pdfItems.length, "items dal PDF");
             if (!finalResult.menuItems || finalResult.menuItems.length < pdfItems.length) {
               finalResult.menuItems = pdfItems;
             } else {
@@ -414,8 +384,9 @@ REGOLE IMMAGINI — FONDAMENTALE:
 
   const buildAndComplete = (wizardData, template, featuresList, techFeaturesList, wa) => {
     let siteInfo = "";
+    const isTemplateMode = template._mode === "template";
 
-    // Aggiungi dati dal PDF se presenti — formato per sezioni
+    // Dati PDF
     if (wizardData.pdfMenuData?.sections?.length > 0) {
       siteInfo += `\n--- DATI ESTRATTI DAL PDF MENU/LISTINO ---\n`;
       siteInfo += `File: ${wizardData.pdfMenuData.fileName}. ${wizardData.pdfMenuData.itemsCount} voci totali in ${wizardData.pdfMenuData.sections.length} sezioni.\n`;
@@ -429,79 +400,89 @@ REGOLE IMMAGINI — FONDAMENTALE:
       });
       siteInfo += `--- FINE DATI PDF ---\n`;
     } else if (wizardData.pdfMenuData?.items?.length > 0) {
-      // Fallback per vecchio formato flat
       siteInfo += `\n--- DATI ESTRATTI DAL PDF MENU/LISTINO ---\n`;
       siteInfo += `File: ${wizardData.pdfMenuData.fileName}. ${wizardData.pdfMenuData.itemsCount} voci.\n`;
       siteInfo += `Categorie: ${wizardData.pdfMenuData.categories.join(", ")}.\n`;
-      siteInfo += `REGOLA: Crea una sezione "menu_nav" con pulsanti per ogni categoria, poi una sezione "menu_list" per ogni categoria.\n`;
       wizardData.pdfMenuData.items.forEach(item => {
         siteInfo += `- ${item.name}${item.price ? ` — ${item.price}` : ""}${item.description ? ` — ${item.description}` : ""}${item.category ? ` [${item.category}]` : ""}\n`;
       });
       siteInfo += `--- FINE DATI PDF ---\n`;
     }
 
-    // Logo caricato senza sito web
     if (wizardData.logoUrl && !wa) {
-      siteInfo += `\nLOGO URL CARICATO DALL'UTENTE (usa questo nell'header dell'app): ${wizardData.logoUrl}\n`;
+      siteInfo += `\nLOGO URL CARICATO DALL'UTENTE: ${wizardData.logoUrl}\n`;
     }
 
     if (wa) {
-      siteInfo = `\n--- DATI ESTRATTI DAL SITO WEB ---\n`;
-      siteInfo += `Colori dal sito: primario ${wa.primaryColor}, secondario ${wa.secondaryColor}. Stile: ${wa.style}.\n`;
+      siteInfo += `\n--- DATI ESTRATTI DAL SITO WEB ---\n`;
+      if (!isTemplateMode) {
+        siteInfo += `Colori dal sito: primario ${wa.primaryColor}, secondario ${wa.secondaryColor}. Stile: ${wa.style}.\n`;
+      }
       if (wizardData.logoUrl) siteInfo += `LOGO URL CARICATO DALL'UTENTE (PRIORITÀ MASSIMA): ${wizardData.logoUrl}\n`;
       else if (wa.logoUrl) siteInfo += `LOGO URL: ${wa.logoUrl}\n`;
       if (wa.sectionsOrder?.length > 0) {
-        siteInfo += `ORDINE SEZIONI DAL SITO (RISPETTA QUESTO ORDINE): ${wa.sectionsOrder.join(" → ")}.\n`;
+        siteInfo += `ORDINE SEZIONI DAL SITO: ${wa.sectionsOrder.join(" → ")}.\n`;
       }
       if (wa.menuItems?.length > 0) {
-        siteInfo += `PRODOTTI/SERVIZI REALI DAL SITO (usa QUESTI nomi, prezzi, descrizioni e image_url):\n`;
+        siteInfo += `PRODOTTI/SERVIZI REALI DAL SITO:\n`;
         wa.menuItems.forEach(item => {
           siteInfo += `- ${item.name}${item.price ? ` — ${item.price}` : ""}${item.description ? ` — ${item.description}` : ""}${item.category ? ` [${item.category}]` : ""}${item.image_url ? ` | image_url: ${item.image_url}` : ""}\n`;
         });
       }
       if (wa.siteImages?.length > 0) {
-        siteInfo += `\nIMMAGINI ORIGINALI DAL SITO (PRIORITÀ MASSIMA — usa queste URL esatte invece di Unsplash):\n`;
+        siteInfo += `\nIMMAGINI ORIGINALI DAL SITO:\n`;
         wa.siteImages.forEach(img => {
           siteInfo += `- ${img.context}: ${img.url}\n`;
         });
       }
-      if (wa.categories?.length > 0) {
-        siteInfo += `Categorie: ${wa.categories.join(", ")}.\n`;
-      }
+      if (wa.categories?.length > 0) siteInfo += `Categorie: ${wa.categories.join(", ")}.\n`;
       if (wa.address) siteInfo += `Indirizzo: ${wa.address}.\n`;
       if (wa.phone) siteInfo += `Telefono: ${wa.phone}.\n`;
       if (wa.hours) siteInfo += `Orari: ${wa.hours}.\n`;
-      if (wa.pdfAnalyzed) siteInfo += `[PDF menu analizzato: ${wa.pdfItemsCount} items estratti]\n`;
       siteInfo += `--- FINE DATI SITO ---\n`;
     }
 
-    const isFromScratch = template.id === "from_scratch";
-    const protoInfo = !isFromScratch && template.previewItems
-      ? `\nPROTOTIPO BASE SCELTO: "${template.name}" (${template.category}). Personalizza per "${wizardData.businessName}". Items prototipo: ${template.previewItems.join(", ")}. Hero: ${template.heroImage || ""}.`
-      : "";
+    const logoLine = wizardData.logoUrl
+      ? `\nLOGO URL (OBBLIGATORIO — inserisci come "logoUrl" nel JSON radice): ${wizardData.logoUrl}`
+      : (wa?.logoUrl ? `\nLOGO URL DAL SITO (OBBLIGATORIO — inserisci come "logoUrl" nel JSON radice): ${wa.logoUrl}` : "");
 
-    const logoLine = wizardData.logoUrl ? `\nLOGO URL (OBBLIGATORIO — inserisci come "logoUrl" nel JSON radice): ${wizardData.logoUrl}` : (wa?.logoUrl ? `\nLOGO URL DAL SITO (OBBLIGATORIO — inserisci come "logoUrl" nel JSON radice): ${wa.logoUrl}` : "");
+    // Istruzioni diverse per TEMPLATE vs AI
+    let styleInstructions = "";
+    if (isTemplateMode) {
+      styleInstructions = `
+MODALITÀ TEMPLATE — RISPETTA RIGOROSAMENTE IL TEMPLATE "${template.name}":
+- Colore primario: ${template.primaryColor}, secondario: ${template.secondaryColor}, accento: ${template.accentColor}.
+- Dark mode: ${template.darkMode}. Font: ${template.fontStyle}.
+- DEVI rispettare ESATTAMENTE il layout del template scelto: header, hero image, card layout, bottom nav, tipografia, spaziature.
+- I contenuti (nomi piatti, prezzi, descrizioni) devono essere adattati al template mantenendo il design identico.
+- NON cambiare i colori del template, NON cambiare il layout — adatta solo i testi e le immagini.
+${template.previewItems ? `- Items di riferimento del template: ${template.previewItems.join(", ")} — sostituisci con i dati reali dell'attività.` : ""}
+${template.heroImage ? `- Hero image di riferimento del template: ${template.heroImage}` : ""}`;
+    } else {
+      styleInstructions = `
+MODALITÀ AI — DESIGN LIBERO:
+- Colore primario: ${template.primaryColor}, secondario: ${template.secondaryColor}, accento: ${template.accentColor || template.secondaryColor}.
+- Dark mode: ${template.darkMode}. Font: ${template.fontStyle}.
+- Genera una struttura originale e unica, ispirata ai colori e allo stile del sito web dell'utente.`;
+    }
 
     const prompt = `Crea un'app per "${wizardData.businessName}" — settore: ${wizardData.businessType}.
 ${wizardData.description ? `Descrizione: ${wizardData.description}.` : ""}
-${protoInfo}
 ${siteInfo}
 ${logoLine}
-Colore primario: ${template.primaryColor}, secondario: ${template.secondaryColor}, accento: ${template.accentColor || template.secondaryColor}. Dark mode: ${template.darkMode}. Font style: ${template.fontStyle}.
+${styleInstructions}
 Sezioni richieste: ${featuresList.join(", ") || "automatiche per il settore"}.
 ${techFeaturesList.length > 0 ? `Funzionalità tecniche (features_requested): ${techFeaturesList.join(", ")}.` : ""}
 
 REGOLE IMPORTANTI:
-- Usa ESATTAMENTE i colori indicati per primaryColor, secondaryColor e accentColor.
+- Usa ESATTAMENTE i colori indicati.
 - Il campo "logoUrl" nel JSON radice è OBBLIGATORIO se fornito sopra.
-${!isFromScratch ? "- Ispirati alla struttura del prototipo scelto ma personalizzala." : "- Genera una struttura originale e unica."}
 - REGOLA CRITICA MENU: Se ci sono dati dal PDF o dal sito web, DEVI inserire il 100% delle voci nel JSON. NON troncare, NON omettere NESSUNA voce e NESSUNA sezione.
 - STRUTTURA MENU OBBLIGATORIA:
-  1. Subito dopo l'hero_banner, inserisci una sezione di tipo "menu_nav" con items = array di oggetti {label: "NomeSezione"} per OGNI sezione del menu. I label devono corrispondere ESATTAMENTE ai title delle sezioni menu_list successive.
-  2. Poi inserisci una sezione "menu_list" separata per OGNI sezione/categoria (es: title "Pizze Classiche", title "Primi di Pesce", ecc.), con TUTTE le voci di quella sezione.
-  L'utente toccherà i pulsanti della menu_nav per scorrere alla sezione corrispondente.
+  1. Subito dopo l'hero_banner, inserisci una sezione "menu_nav" con items = array di oggetti {label: "NomeSezione"} per OGNI sezione del menu.
+  2. Poi inserisci una sezione "menu_list" separata per OGNI sezione/categoria con TUTTE le voci.
 - Per ogni piatto: nome ESATTO, prezzo ESATTO, descrizione ESATTA dal menu originale.
-- Per ogni item, aggiungi un campo "image_url". PRIORITÀ: 1) immagini ORIGINALI dal sito 2) solo se non ci sono, usa Unsplash.
+- Per ogni item, aggiungi "image_url". PRIORITÀ: 1) immagini ORIGINALI dal sito 2) solo se non ci sono, usa Unsplash.
 - Non inventare prodotti/piatti se ci sono quelli reali dal sito o PDF.`;
 
     onComplete(prompt, { ...wizardData, selectedTemplate: template, features: featuresList, techFeatures: techFeaturesList });
@@ -557,8 +538,6 @@ ${!isFromScratch ? "- Ispirati alla struttura del prototipo scelto ma personaliz
             <h2 className="text-lg font-black text-white">Parlaci della tua attività</h2>
             <p className="text-xs text-gray-400 mt-1">Inserisci il nome e il sito web se ce l'hai</p>
           </div>
-
-          {/* Nome */}
           <div>
             <label className="text-xs text-gray-400 mb-1 block">Nome dell'attività *</label>
             <input
@@ -568,8 +547,6 @@ ${!isFromScratch ? "- Ispirati alla struttura del prototipo scelto ma personaliz
               className="w-full bg-[#1a1a2e] border border-white/10 rounded-xl px-4 py-3 text-sm text-white placeholder-gray-500 focus:outline-none focus:border-purple-500/30"
             />
           </div>
-
-          {/* Sito web — solo input, senza pulsante Analizza */}
           <div>
             <label className="text-xs text-gray-400 mb-1 block">Sito web (opzionale)</label>
             <div className="relative">
@@ -603,13 +580,7 @@ ${!isFromScratch ? "- Ispirati alla struttura del prototipo scelto ma personaliz
             </div>
             <div className="space-y-3">
               <div className="w-full h-2 bg-white/5 rounded-full overflow-hidden">
-                <div
-                  className="h-full rounded-full transition-all duration-300 ease-out"
-                  style={{
-                    width: `${analysisProgress}%`,
-                    background: "linear-gradient(90deg, #a855f7, #6366f1)",
-                  }}
-                />
+                <div className="h-full rounded-full transition-all duration-300 ease-out" style={{ width: `${analysisProgress}%`, background: "linear-gradient(90deg, #a855f7, #6366f1)" }} />
               </div>
               <div className="flex justify-between items-center">
                 <span className="text-[10px] text-gray-400">{analysisPhase}</span>
@@ -644,7 +615,7 @@ ${!isFromScratch ? "- Ispirati alla struttura del prototipo scelto ma personaliz
         </div>
       )}
 
-      {/* Step 2: Carica Logo + Menu PDF (UI snella, senza riepilogo dettagliato) */}
+      {/* Step 2: Carica Logo + Menu PDF */}
       {step === 2 && (
         <div className="space-y-5">
           <div className="text-center mb-2">
@@ -766,8 +737,6 @@ ${!isFromScratch ? "- Ispirati alla struttura del prototipo scelto ma personaliz
               </button>
             ))}
           </div>
-
-          {/* Funzionalità tecniche */}
           <div className="mt-4 pt-4 border-t border-white/5">
             <p className="text-xs text-amber-400 font-bold mb-2">⚙️ Funzionalità avanzate (gestite dall'admin)</p>
             <div className="grid grid-cols-2 gap-2">
@@ -790,12 +759,9 @@ ${!isFromScratch ? "- Ispirati alla struttura del prototipo scelto ma personaliz
         </div>
       )}
 
-      {/* Step 5 rimosso — riepilogo eliminato */}
-
       </div>
-      {/* Fine contenuto scrollabile */}
 
-      {/* Navigation — fisso in basso */}
+      {/* Navigation */}
       {!analyzingWebsite && !analyzingPdf && (
         <div className="flex gap-3 pt-3 pb-4 shrink-0">
           {step > 0 && (
@@ -829,9 +795,10 @@ ${!isFromScratch ? "- Ispirati alla struttura del prototipo scelto ma personaliz
                       accentColor: analysisResult.secondaryColor || "#818CF8",
                       darkMode: true,
                       fontStyle: "sans-serif",
+                      _mode: "ai",
                     };
-                    const features = FEATURES_BY_CATEGORY[updatedData.businessType] || FEATURES_BY_CATEGORY._default;
-                    const autoFeatures = features.map(f => f.id);
+                    const feats = FEATURES_BY_CATEGORY[updatedData.businessType] || FEATURES_BY_CATEGORY._default;
+                    const autoFeatures = feats.map(f => f.id);
                     buildAndComplete(updatedData, autoTemplate, autoFeatures, [], analysisResult);
                     return;
                   }
