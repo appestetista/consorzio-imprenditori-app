@@ -139,73 +139,127 @@ function LayoutClassicCream({ t, c }) {
   );
 }
 
-// ─── Layout 3: GREEN FRESH — Sfondo beige, accenti verdi, griglia prodotti ──
+// ─── Layout 3: GREEN FRESH — Come da screenshot: header verde arrotondato, pills, hero, griglia card, bottom bar verde ──
 function LayoutGreenFresh({ t, c }) {
   return (
-    <div style={{ background: t.bg, height: "100%", fontFamily: "Inter, -apple-system, sans-serif" }}>
-      {/* Header verde scuro */}
-      <div style={{ background: t.primary, padding: "8px 8px 6px", display: "flex", alignItems: "center", justifyContent: "space-between" }}>
-        <div style={{ display: "flex", alignItems: "center", gap: 4 }}>
-          <span style={{ color: "rgba(255,255,255,0.5)", fontSize: 7 }}>←</span>
-          {c.logo ? <img src={c.logo} style={{ height: 14, borderRadius: 2 }} alt="" onError={e => e.target.style.display='none'} /> : null}
-          <span style={{ color: "#fff", fontSize: 9, fontWeight: 800, letterSpacing: -0.3 }}>{c.name}</span>
-        </div>
-        <div style={{ display: "flex", gap: 3 }}>
-          <div style={{ width: 14, height: 14, borderRadius: 7, background: "rgba(255,255,255,0.15)", display: "flex", alignItems: "center", justifyContent: "center" }}>
-            <span style={{ fontSize: 5, color: "#fff" }}>☰</span>
+    <div style={{ background: t.bg, height: "100%", fontFamily: "Inter, -apple-system, sans-serif", position: "relative" }}>
+      {/* Header verde con bordi arrotondati in basso */}
+      <div style={{ background: t.primary, borderRadius: "0 0 16px 16px", padding: "8px 8px 6px", marginBottom: 0 }}>
+        {/* Riga top: freccia + nome + icone */}
+        <div style={{ display: "flex", alignItems: "center", justifyContent: "space-between", marginBottom: 5 }}>
+          <div style={{ display: "flex", alignItems: "center", gap: 4 }}>
+            <span style={{ color: "rgba(255,255,255,0.6)", fontSize: 8, fontWeight: 300 }}>‹</span>
+            {c.logo ? <img src={c.logo} style={{ height: 14, borderRadius: 2 }} alt="" onError={e => e.target.style.display='none'} /> : null}
+            <span style={{ color: "#fff", fontSize: 9, fontWeight: 800, letterSpacing: -0.3 }}>{c.name}</span>
+          </div>
+          <div style={{ display: "flex", gap: 4, alignItems: "center" }}>
+            <div style={{ width: 14, height: 14, borderRadius: 7, background: "rgba(255,255,255,0.12)", display: "flex", alignItems: "center", justifyContent: "center" }}>
+              <span style={{ fontSize: 6, color: "#fff" }}>🔍</span>
+            </div>
+            <div style={{ width: 14, height: 14, borderRadius: 7, background: "rgba(255,255,255,0.12)", display: "flex", alignItems: "center", justifyContent: "center" }}>
+              <span style={{ fontSize: 5, color: "#fff" }}>☰</span>
+            </div>
           </div>
         </div>
+        {/* Pills categorie dentro l'header verde */}
+        <div style={{ display: "flex", gap: 3, overflow: "hidden", paddingBottom: 2 }}>
+          {["Tutti", "Primi", "Secondi", "Pizze", "Dolci"].map((cat, i) => (
+            <div key={i} style={{
+              padding: "3px 8px", borderRadius: 14, whiteSpace: "nowrap",
+              background: i === 0 ? "#fff" : "rgba(255,255,255,0.12)",
+              border: i !== 0 ? "1px solid rgba(255,255,255,0.18)" : "none",
+            }}>
+              <span style={{ fontSize: 5, fontWeight: 700, color: i === 0 ? t.primary : "rgba(255,255,255,0.8)" }}>{cat}</span>
+            </div>
+          ))}
+        </div>
       </div>
-      {/* Category pills su sfondo verde */}
-      <div style={{ background: t.primary, padding: "0 8px 8px", display: "flex", gap: 3, overflow: "hidden" }}>
-        {["Tutti", "Primi", "Secondi", "Dolci"].map((cat, i) => (
-          <div key={i} style={{
-            padding: "2.5px 7px", borderRadius: 12, whiteSpace: "nowrap",
-            background: i === 0 ? "#fff" : "rgba(255,255,255,0.15)",
-            border: i === 0 ? "none" : "1px solid rgba(255,255,255,0.2)",
-          }}>
-            <span style={{ fontSize: 5, fontWeight: 700, color: i === 0 ? t.primary : "rgba(255,255,255,0.85)" }}>{cat}</span>
-          </div>
-        ))}
-      </div>
-      {/* Hero image grande con bordi arrotondati */}
+
+      {/* Hero image — grande, bordi molto arrotondati, con gradient e testo */}
       <Tap>
-        <div style={{ margin: "6px 8px 2px", borderRadius: 14, overflow: "hidden", height: 68, position: "relative", boxShadow: "0 2px 10px rgba(0,0,0,0.08)" }}>
+        <div style={{ margin: "6px 8px", borderRadius: 16, overflow: "hidden", height: 68, position: "relative", boxShadow: "0 3px 12px rgba(0,0,0,0.08)" }}>
           <img src={c.hero} style={{ width: "100%", height: "100%", objectFit: "cover" }} alt="" />
-          <div style={{ position: "absolute", inset: 0, background: "linear-gradient(to top, rgba(0,0,0,0.4) 0%, transparent 50%)" }} />
-          <div style={{ position: "absolute", bottom: 5, left: 6 }}>
-            <div style={{ color: "#fff", fontSize: 6.5, fontWeight: 700, textShadow: "0 1px 3px rgba(0,0,0,0.5)" }}>I Nostri Piatti Migliori</div>
-            <div style={{ color: "rgba(255,255,255,0.7)", fontSize: 4.5, marginTop: 1 }}>Ingredienti freschi di stagione</div>
+          <div style={{ position: "absolute", inset: 0, background: "linear-gradient(170deg, transparent 40%, rgba(0,0,0,0.55) 100%)" }} />
+          {/* Badge in alto a sinistra */}
+          <div style={{ position: "absolute", top: 5, left: 5, background: t.primary, borderRadius: 8, padding: "1.5px 5px" }}>
+            <span style={{ color: "#fff", fontSize: 4, fontWeight: 700, letterSpacing: 0.5 }}>⭐ Consigliato</span>
+          </div>
+          {/* Testo overlay in basso */}
+          <div style={{ position: "absolute", bottom: 5, left: 6, right: 6 }}>
+            <div style={{ color: "#fff", fontSize: 6.5, fontWeight: 800, textShadow: "0 1px 4px rgba(0,0,0,0.6)", lineHeight: 1.15 }}>I Nostri Piatti Migliori</div>
+            <div style={{ color: "rgba(255,255,255,0.65)", fontSize: 4.5, marginTop: 1 }}>Ingredienti freschi • di stagione</div>
           </div>
         </div>
       </Tap>
-      {/* Sezione titolo */}
+
+      {/* Barra "Sfoglia il Menu" con icona filtro a destra */}
       <div style={{ padding: "5px 8px 2px", display: "flex", alignItems: "center", justifyContent: "space-between" }}>
         <span style={{ fontSize: 6.5, fontWeight: 800, color: t.text }}>Sfoglia il Menu</span>
-        <span style={{ fontSize: 4.5, color: t.primary, fontWeight: 600 }}>€ prezzi</span>
+        <div style={{ display: "flex", alignItems: "center", gap: 3 }}>
+          <span style={{ fontSize: 5, color: t.primary, fontWeight: 700 }}>€</span>
+          <div style={{ width: 12, height: 12, borderRadius: 4, border: `1px solid ${t.border}`, display: "flex", alignItems: "center", justifyContent: "center" }}>
+            <span style={{ fontSize: 5.5, color: t.muted }}>⇅</span>
+          </div>
+        </div>
       </div>
-      {/* Griglia prodotti 2 colonne — card bianche con immagine grande */}
+
+      {/* Griglia prodotti 2 colonne — card bianche, bordi molto arrotondati, immagine grande */}
       <div style={{ padding: "3px 8px 0", display: "grid", gridTemplateColumns: "1fr 1fr", gap: 5 }}>
         {c.items.map((it, i) => (
           <Tap key={i}>
-            <div style={{ background: t.card, borderRadius: 12, overflow: "hidden", border: `1px solid ${t.border}`, boxShadow: "0 1px 6px rgba(0,0,0,0.05)" }}>
-              <div style={{ position: "relative" }}>
-                <img src={it.img} style={{ width: "100%", height: 34, objectFit: "cover" }} alt="" onError={e => e.target.style.display='none'} />
-                {/* Pulsante + verde */}
-                <div style={{ position: "absolute", bottom: -5, right: 4, width: 12, height: 12, borderRadius: 6, background: t.primary, display: "flex", alignItems: "center", justifyContent: "center", boxShadow: "0 1px 4px rgba(0,0,0,0.2)" }}>
-                  <span style={{ color: "#fff", fontSize: 7, fontWeight: 700, lineHeight: 1 }}>+</span>
+            <div style={{ background: t.card, borderRadius: 14, overflow: "hidden", border: `1px solid ${t.border}`, boxShadow: "0 2px 8px rgba(0,0,0,0.04)" }}>
+              {/* Immagine con pulsante + sovrapposto */}
+              <div style={{ position: "relative", height: 36 }}>
+                <img src={it.img} style={{ width: "100%", height: "100%", objectFit: "cover" }} alt="" onError={e => { e.target.style.background = t.primary + "10"; }} />
+                <div style={{
+                  position: "absolute", bottom: -5, right: 5,
+                  width: 13, height: 13, borderRadius: 7,
+                  background: t.primary, display: "flex", alignItems: "center", justifyContent: "center",
+                  boxShadow: "0 2px 6px rgba(0,0,0,0.2)", border: "1.5px solid #fff",
+                }}>
+                  <span style={{ color: "#fff", fontSize: 8, fontWeight: 700, lineHeight: 1, marginTop: -0.5 }}>+</span>
                 </div>
               </div>
-              <div style={{ padding: "5px 5px 4px" }}>
+              {/* Info prodotto */}
+              <div style={{ padding: "6px 5px 5px" }}>
                 <div style={{ fontSize: 5.5, fontWeight: 800, color: t.text, lineHeight: 1.2 }}>{it.n}</div>
-                {it.desc && <div style={{ fontSize: 4, color: t.muted, marginTop: 1, lineHeight: 1.2 }}>{it.desc.slice(0, 30)}</div>}
-                <div style={{ fontSize: 6, fontWeight: 900, color: t.primary, marginTop: 2 }}>{it.p}</div>
+                {it.desc && <div style={{ fontSize: 4, color: t.muted, marginTop: 1.5, lineHeight: 1.3 }}>{it.desc.slice(0, 28)}</div>}
+                {/* Riga prezzo + stelline */}
+                <div style={{ display: "flex", alignItems: "center", justifyContent: "space-between", marginTop: 3 }}>
+                  <span style={{ fontSize: 6.5, fontWeight: 900, color: t.primary }}>{it.p}</span>
+                  <span style={{ fontSize: 4, color: "#e0a800" }}>★★★★☆</span>
+                </div>
               </div>
             </div>
           </Tap>
         ))}
       </div>
-      <BottomBar t={t} />
+
+      {/* Bottom nav verde scuro con icone e pulsante centrale */}
+      <div style={{
+        position: "absolute", bottom: 0, left: 0, right: 0,
+        display: "flex", justifyContent: "space-around", alignItems: "center",
+        padding: "4px 8px 5px",
+        background: t.primary,
+        borderRadius: "14px 14px 0 0",
+      }}>
+        {["🏠", "📋"].map((ic, i) => (
+          <Tap key={i}><span style={{ color: i === 0 ? "#fff" : "rgba(255,255,255,0.5)", fontSize: 8, padding: "2px 6px" }}>{ic}</span></Tap>
+        ))}
+        {/* Pulsante centrale prominente */}
+        <Tap>
+          <div style={{
+            width: 22, height: 22, borderRadius: 11,
+            background: "#fff", display: "flex", alignItems: "center", justifyContent: "center",
+            marginTop: -8, boxShadow: "0 2px 8px rgba(0,0,0,0.15)", border: `2px solid ${t.primary}`,
+          }}>
+            <span style={{ fontSize: 10, color: t.primary, fontWeight: 900, lineHeight: 1 }}>+</span>
+          </div>
+        </Tap>
+        {["🔍", "♡"].map((ic, i) => (
+          <Tap key={i}><span style={{ color: "rgba(255,255,255,0.5)", fontSize: 8, padding: "2px 6px" }}>{ic}</span></Tap>
+        ))}
+      </div>
     </div>
   );
 }
