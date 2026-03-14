@@ -93,10 +93,10 @@ export function buildTemplateSections(template, pdfMenuData) {
   }
 
   var galleryRistorante = { type: "gallery", title: "Il Locale", subtitle: "GALLERIA", items: [
-    { title: "Sala Principale", image_url: t.heroImage },
-    { title: "Terrazza", image_url: t.heroImage },
-    { title: "Cucina a Vista", image_url: t.heroImage },
-    { title: "Cantina", image_url: t.heroImage },
+    { title: "Sala Principale", image_url: "https://images.unsplash.com/photo-1517248135467-4c7edcad34c4?w=400" },
+    { title: "Terrazza", image_url: "https://images.unsplash.com/photo-1559329007-40df8a9345d8?w=400" },
+    { title: "Cucina a Vista", image_url: "https://images.unsplash.com/photo-1556910103-1c02745aae4d?w=400" },
+    { title: "Cantina", image_url: "https://images.unsplash.com/photo-1528823872057-9c018a7a7553?w=400" },
   ]};
   var contactRistorante = { type: "contact", title: "Contattaci", subtitle: "INFO", items: [{
     email: "info@ristorante.it", phone: "+39 02 1234567",
