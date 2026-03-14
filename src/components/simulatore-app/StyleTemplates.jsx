@@ -1,10 +1,12 @@
 import React, { useState } from "react";
-import { Sparkles, Palette, Check } from "lucide-react";
+import { Sparkles, Palette, Check, Eye } from "lucide-react";
 import TEMPLATE_LIBRARY, { CATEGORY_MAP } from "./templateLibrary";
 import TemplatePhonePreview from "./TemplatePhonePreview";
+import TemplateFullPreview from "./TemplateFullPreview";
 
 export default function StyleTemplates({ businessType, websiteAnalysis, selected, onSelect }) {
   const [mode, setMode] = useState(null);
+  const [previewTemplate, setPreviewTemplate] = useState(null);
 
   const hasWebsite = !!websiteAnalysis;
 
