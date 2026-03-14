@@ -309,13 +309,14 @@ REGOLE IMMAGINI — FONDAMENTALE:
               properties: {
                 items: {
                   type: "array",
+                  description: "ESTRAI OGNI SINGOLA VOCE del menu/listino. NON omettere nulla. Ogni riga con un nome e/o prezzo è un item separato. Includi bevande, contorni, dolci, caffè, amari, vini, birre, acqua, coperto.",
                   items: {
                     type: "object",
                     properties: {
-                      name: { type: "string", description: "Nome piatto/servizio/prodotto" },
-                      description: { type: "string", description: "Descrizione" },
-                      price: { type: "string", description: "Prezzo (es. € 12.00)" },
-                      category: { type: "string", description: "Categoria (es. Antipasti, Primi, Secondi, Dolci, Bevande)" },
+                      name: { type: "string", description: "Nome ESATTO come scritto nel documento" },
+                      description: { type: "string", description: "Descrizione/ingredienti come scritti" },
+                      price: { type: "string", description: "Prezzo esatto (es. € 12.00)" },
+                      category: { type: "string", description: "Categoria/sezione del menu (es. Antipasti, Primi, Pizze, Bevande, Dolci, Vini)" },
                     },
                   },
                 },
