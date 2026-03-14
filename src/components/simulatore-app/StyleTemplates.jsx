@@ -142,6 +142,34 @@ const TEMPLATES = [
 function TemplatePhonePreview({ template }) {
   const p = template.preview;
   const headerIsDark = p.headerBg && p.headerBg !== p.bodyBg && p.headerText === "#ffffff";
+  const isFullscreenHero = p.fullscreenHero;
+
+  if (isFullscreenHero) {
+    return (
+      <div className="w-full h-full relative" style={{ fontFamily: template.fontStyle === "serif" ? "Georgia, serif" : "system-ui, sans-serif" }}>
+        <img src={p.heroImage || template.heroImage} alt="" className="absolute inset-0 w-full h-full object-cover" />
+        <div className="absolute inset-0 bg-gradient-to-b from-black/30 via-transparent to-black/60" />
+        <div className="absolute top-0 left-0 right-0 px-4 pt-8 pb-3 flex items-center justify-between z-10">
+          <div className="w-5 h-5 rounded-full border-2 border-white/70" />
+          <span className="text-[9px] font-bold tracking-[0.15em] text-white/90 uppercase">Portal</span>
+          <div className="space-y-[2px]">
+            <div className="w-4 h-[1.5px] bg-white/80 rounded" />
+            <div className="w-4 h-[1.5px] bg-white/80 rounded" />
+            <div className="w-4 h-[1.5px] bg-white/80 rounded" />
+          </div>
+        </div>
+        <div className="absolute bottom-6 left-0 right-0 text-center z-10 px-4">
+          <p className="text-[7px] tracking-[0.2em] text-white/60 uppercase mb-1">Il Tuo Locale</p>
+          <p className="text-[16px] font-bold text-white leading-tight" style={{ fontFamily: "Georgia, serif" }}>Benvenuto</p>
+          <p className="text-[9px] text-white/70 mt-1">Un'esperienza unica</p>
+        </div>
+        <div className="absolute left-2 bottom-16 z-10">
+          <span className="text-[6px] tracking-[0.15em] text-white/40 uppercase" style={{ writingMode: "vertical-rl" }}>DISCOVER</span>
+        </div>
+      </div>
+    );
+  }
+
   return (
     <div className="w-full h-full flex flex-col" style={{ background: p.bodyBg, fontFamily: template.fontStyle === "serif" ? "Georgia, serif" : "system-ui, sans-serif" }}>
       <div className="px-4 pt-8 pb-3 flex items-center justify-between" style={{ background: p.headerBg, borderRadius: headerIsDark ? "0 0 12px 12px" : undefined }}>
