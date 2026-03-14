@@ -124,8 +124,8 @@ export function buildTemplateSections(template, pdfMenuData) {
     { label: "Trainer", value: "12" }, { label: "Anni", value: "8" },
   ]};
   var pricingFitness = { type: "pricing", title: "Abbonamenti", subtitle: "PIANI", items: [
-    { name: "Base", price: "E39/mese", features: ["Accesso palestra", "Spogliatoio"] },
-    { name: "Premium", price: "E69/mese", features: ["Accesso palestra", "Tutti i corsi", "Personal trainer"], badge: "Consigliato" },
+    { name: "Base", price: "€39/mese", features: ["Accesso palestra", "Spogliatoio"] },
+    { name: "Premium", price: "€69/mese", features: ["Accesso palestra", "Tutti i corsi", "Personal trainer"], badge: "Consigliato" },
   ]};
   var contactFitness = { type: "contact", title: "Vieni a Trovarci", subtitle: "CONTATTI", items: [{
     email: "info@gymclub.it", phone: "+39 06 5551234",
