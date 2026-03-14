@@ -786,9 +786,9 @@ REGOLE IMPORTANTI:
           {/* Contenuti: PDF per categorie menu, testo libero per le altre */}
           {PDF_CATEGORIES.includes(data.businessType) ? (
             <>
-              {/* PDF Menu Upload */}
+              {/* PDF Menu/Listino Upload */}
               <div>
-                <p className="text-xs text-gray-400 font-semibold mb-2 flex items-center gap-1.5"><FileText className="w-3.5 h-3.5" /> Menu / Listino prezzi</p>
+                <p className="text-xs text-gray-400 font-semibold mb-2 flex items-center gap-1.5"><FileText className="w-3.5 h-3.5" /> {data.businessType === "ristorazione" ? "Menu / Listino prezzi" : data.businessType === "beauty" ? "Listino servizi e trattamenti" : data.businessType === "ecommerce" ? "Catalogo prodotti" : "Listino prezzi"}</p>
                 {!data.pdfMenuData ? (
                   <div>
                     <button
@@ -800,8 +800,8 @@ REGOLE IMPORTANTI:
                         <Upload className="w-4 h-4 text-purple-400" />
                       </div>
                       <div className="text-left">
-                        <p className="text-sm font-bold text-white">Carica Menu</p>
-                        <p className="text-[10px] text-gray-500">PDF, immagine del menu o listino</p>
+                        <p className="text-sm font-bold text-white">{data.businessType === "ristorazione" ? "Carica Menu" : data.businessType === "beauty" ? "Carica Listino" : data.businessType === "ecommerce" ? "Carica Catalogo" : "Carica Listino"}</p>
+                        <p className="text-[10px] text-gray-500">{data.businessType === "ristorazione" ? "PDF, immagine del menu o listino" : "PDF o immagine del listino prezzi"}</p>
                       </div>
                     </button>
                     <input ref={pdfInputRef} type="file" accept=".pdf,.jpg,.jpeg,.png,.webp" onChange={handlePdfUpload} className="hidden" />
