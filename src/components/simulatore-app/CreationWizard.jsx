@@ -808,10 +808,11 @@ REGOLE IMPORTANTI:
       {/* Step 3: Template con anteprima */}
       {step === 3 && (
         <StyleTemplates
-          businessType={data.businessType}
-          websiteAnalysis={data.websiteAnalysis}
-          selected={data.selectedTemplate}
-          onSelect={(template) => setData(prev => ({ ...prev, selectedTemplate: template }))}
+        businessType={data.businessType}
+        websiteAnalysis={data.websiteAnalysis}
+        selected={data.selectedTemplate}
+        onSelect={(template) => setData(prev => ({ ...prev, selectedTemplate: template }))}
+        pdfMenuData={data.pdfMenuData}
         />
       )}
 
