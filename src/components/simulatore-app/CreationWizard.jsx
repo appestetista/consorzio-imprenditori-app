@@ -173,92 +173,114 @@ export default function CreationWizard({ onComplete }) {
       const { file_url } = await base44.integrations.Core.UploadFile({ file });
       console.log("[Wizard] File caricato:", file_url);
 
-      // Tenta prima con ExtractDataFromUploadedFile
-      let sections = [];
+      // STRATEGIA DOPPIO PASSAGGIO: estrai con entrambi i metodi e unisci
+      const menuSchema = {
+        type: "object",
+        properties: {
+          sections: {
+            type: "array",
+            description: "TUTTE le sezioni del menu con TUTTE le voci, senza omettere nulla",
+            items: {
+              type: "object",
+              properties: {
+                section_title: { type: "string", description: "Nome della sezione/categoria" },
+                items: {
+                  type: "array",
+                  items: {
+                    type: "object",
+                    properties: {
+                      name: { type: "string", description: "Nome del prodotto/piatto/servizio" },
+                      description: { type: "string", description: "Descrizione o ingredienti" },
+                      price: { type: "string", description: "Prezzo (es. 12.00, €15, 8.50)" },
+                    },
+                  },
+                },
+              },
+            },
+          },
+        },
+      };
+
+      // Passaggio 1: ExtractDataFromUploadedFile (veloce)
+      let sectionsPass1 = [];
       try {
         const extraction = await base44.integrations.Core.ExtractDataFromUploadedFile({
           file_url,
-          json_schema: {
-            type: "object",
-            properties: {
-              sections: {
-                type: "array",
-                description: "ESTRAI IL 100% DELLE SEZIONI E IL 100% DELLE VOCI del documento, senza omettere nulla. Ogni sezione ha un section_title e un array items con TUTTE le voci di quella sezione.",
-                items: {
-                  type: "object",
-                  properties: {
-                    section_title: { type: "string", description: "Nome della sezione/categoria" },
-                    items: {
-                      type: "array",
-                      items: {
-                        type: "object",
-                        properties: {
-                          name: { type: "string", description: "Nome del prodotto/piatto/servizio" },
-                          description: { type: "string", description: "Descrizione o ingredienti" },
-                          price: { type: "string", description: "Prezzo (es. 12.00, €15, 8.50)" },
-                        },
-                      },
-                    },
-                  },
-                },
-              },
-            },
-          },
+          json_schema: menuSchema,
         });
-        console.log("[Wizard] Risultato ExtractData:", JSON.stringify(extraction).substring(0, 500));
+        console.log("[Wizard] Pass1 ExtractData:", (extraction?.output?.sections || []).reduce((n, s) => n + (s.items?.length || 0), 0), "voci");
         if (extraction?.status === "success" && extraction.output?.sections?.length > 0) {
-          sections = extraction.output.sections;
+          sectionsPass1 = extraction.output.sections;
         }
       } catch (extractErr) {
-        console.warn("[Wizard] ExtractData fallito, provo con LLM:", extractErr);
+        console.warn("[Wizard] Pass1 ExtractData fallito:", extractErr);
       }
 
-      // Fallback: se ExtractData non ha funzionato, usa InvokeLLM con modello potente
-      if (sections.length === 0) {
-        console.log("[Wizard] Fallback LLM per estrazione menu...");
+      // Passaggio 2: InvokeLLM con gemini_3_pro (più potente, estrae anche da immagini)
+      let sectionsPass2 = [];
+      try {
+        console.log("[Wizard] Pass2 LLM estrazione completa...");
         const llmResult = await base44.integrations.Core.InvokeLLM({
-          prompt: `Sei un sistema di estrazione dati da menu/listini. Analizza questo file e restituisci un JSON strutturato.
+          prompt: `Sei un sistema di estrazione dati COMPLETA da menu/listini. Analizza OGNI pagina di questo documento e restituisci un JSON.
 
 REGOLE TASSATIVE:
-- Estrai il 100% delle voci presenti nel documento. NON troncare, NON riassumere, NON omettere NESSUNA voce.
-- Ogni sezione/categoria del menu va in un oggetto separato con section_title e items.
-- Per ogni voce estrai: name (nome esatto), description (ingredienti/descrizione se presente, altrimenti stringa vuota), price (prezzo esatto come appare, es. "12.00", "€8", "8,50").
-- Se non c'è un prezzo visibile, metti stringa vuota per price.
-- Mantieni l'ordine originale del documento.
-- Se il documento ha più pagine, processa TUTTE le pagine.`,
+- Estrai il 100% delle voci. NON troncare, NON riassumere, NON omettere NESSUNA voce.
+- Ogni sezione/categoria → un oggetto con section_title e items.
+- Per ogni voce: name (esatto), description (ingredienti se presenti, altrimenti ""), price (esatto, es. "12.00", "€8", "8,50" — se assente "").
+- Mantieni l'ordine originale. Processa TUTTE le pagine.
+- Se vedi varianti (es. piccola/media/grande), crea un item per ogni variante.`,
           file_urls: [file_url],
-          response_json_schema: {
-            type: "object",
-            properties: {
-              sections: {
-                type: "array",
-                description: "TUTTE le sezioni del menu, ognuna con TUTTE le voci",
-                items: {
-                  type: "object",
-                  properties: {
-                    section_title: { type: "string" },
-                    items: {
-                      type: "array",
-                      items: {
-                        type: "object",
-                        properties: {
-                          name: { type: "string" },
-                          description: { type: "string" },
-                          price: { type: "string" },
-                        },
-                      },
-                    },
-                  },
-                },
-              },
-            },
-          },
+          response_json_schema: menuSchema,
           model: "gemini_3_pro",
         });
-        console.log("[Wizard] Risultato LLM fallback:", JSON.stringify(llmResult).substring(0, 500));
+        console.log("[Wizard] Pass2 LLM:", (llmResult?.sections || []).reduce((n, s) => n + (s.items?.length || 0), 0), "voci");
         if (llmResult?.sections?.length > 0) {
-          sections = llmResult.sections;
+          sectionsPass2 = llmResult.sections;
         }
+      } catch (llmErr) {
+        console.warn("[Wizard] Pass2 LLM fallito:", llmErr);
+      }
+
+      // Unione intelligente: prendi il passaggio con più voci come base, poi aggiungi le mancanti dall'altro
+      const countItems = (secs) => secs.reduce((n, s) => n + (s.items?.length || 0), 0);
+      let baseSections, extraSections;
+      if (countItems(sectionsPass2) >= countItems(sectionsPass1)) {
+        baseSections = sectionsPass2;
+        extraSections = sectionsPass1;
+      } else {
+        baseSections = sectionsPass1;
+        extraSections = sectionsPass2;
+      }
+
+      let sections = baseSections;
+      // Merge: aggiungi voci dall'extra che non esistono nella base
+      if (extraSections.length > 0 && baseSections.length > 0) {
+        const baseNames = new Set();
+        baseSections.forEach(s => (s.items || []).forEach(it => baseNames.add((it.name || "").toLowerCase().trim())));
+        
+        extraSections.forEach(extraSec => {
+          const matchingSec = baseSections.find(bs => 
+            (bs.section_title || "").toLowerCase().trim() === (extraSec.section_title || "").toLowerCase().trim()
+          );
+          (extraSec.items || []).forEach(extraItem => {
+            const name = (extraItem.name || "").toLowerCase().trim();
+            if (name && !baseNames.has(name)) {
+              if (matchingSec) {
+                matchingSec.items = [...(matchingSec.items || []), extraItem];
+              } else {
+                // Sezione nuova non presente nella base
+                const existingSec = sections.find(s => (s.section_title || "").toLowerCase().trim() === (extraSec.section_title || "").toLowerCase().trim());
+                if (!existingSec) {
+                  sections.push({ section_title: extraSec.section_title, items: [extraItem] });
+                } else {
+                  existingSec.items = [...(existingSec.items || []), extraItem];
+                }
+              }
+              baseNames.add(name);
+            }
+          });
+        });
+        console.log("[Wizard] Merge completato: totale", countItems(sections), "voci da", sections.length, "sezioni");
       }
 
       if (sections.length > 0) {
