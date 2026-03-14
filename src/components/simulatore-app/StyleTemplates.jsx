@@ -120,15 +120,16 @@ const TEMPLATES = [
 
 function TemplatePhonePreview({ template }) {
   const p = template.preview;
+  const headerIsDark = p.headerBg && p.headerBg !== p.bodyBg && p.headerText === "#ffffff";
   return (
     <div className="w-full h-full flex flex-col" style={{ background: p.bodyBg, fontFamily: template.fontStyle === "serif" ? "Georgia, serif" : "system-ui, sans-serif" }}>
-      <div className="px-4 pt-8 pb-3 flex items-center justify-between" style={{ background: p.headerBg }}>
+      <div className="px-4 pt-8 pb-3 flex items-center justify-between" style={{ background: p.headerBg, borderRadius: headerIsDark ? "0 0 12px 12px" : undefined }}>
         <div>
           <div className="w-6 h-0.5 mb-1 rounded" style={{ background: p.headerText }} />
           <div className="w-4 h-0.5 rounded" style={{ background: p.headerText, opacity: 0.5 }} />
         </div>
         <span className="text-[10px] font-bold" style={{ color: p.headerText }}>Il Tuo Locale</span>
-        <div className="w-4 h-4 rounded-full" style={{ background: p.accent, opacity: 0.4 }} />
+        <div className="w-4 h-4 rounded-full" style={{ background: headerIsDark ? "rgba(255,255,255,0.25)" : p.accent, opacity: headerIsDark ? 1 : 0.4 }} />
       </div>
       <div className="mx-3 mt-2 rounded-xl overflow-hidden h-28 relative">
         <img src={template.heroImage} alt="" className="w-full h-full object-cover" />
