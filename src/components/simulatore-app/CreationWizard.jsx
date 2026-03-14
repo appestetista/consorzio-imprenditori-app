@@ -180,13 +180,14 @@ export default function CreationWizard({ onComplete }) {
           properties: {
             items: {
               type: "array",
+              description: "ESTRAI OGNI SINGOLA VOCE del menu/listino. NON omettere nulla, NON riassumere, NON raggruppare. Ogni riga con un nome e/o un prezzo è un item separato. Includi anche bevande, contorni, dolci, caffè, amari, vini, birre, acqua, coperto. Se ci sono 100 voci, restituisci 100 items. Se ci sono 200 voci, restituisci 200 items.",
               items: {
                 type: "object",
                 properties: {
-                  name: { type: "string", description: "Nome piatto/prodotto/servizio" },
-                  description: { type: "string", description: "Descrizione o ingredienti" },
-                  price: { type: "string", description: "Prezzo (es. € 12.00)" },
-                  category: { type: "string", description: "Categoria (es. Antipasti, Primi, Pizze, Bevande)" },
+                  name: { type: "string", description: "Nome ESATTO del piatto/prodotto/servizio come scritto nel documento" },
+                  description: { type: "string", description: "Descrizione, ingredienti o note come scritti nel documento" },
+                  price: { type: "string", description: "Prezzo esatto come scritto (es. € 12.00, 12,00, 12€)" },
+                  category: { type: "string", description: "Categoria/sezione del menu in cui si trova (es. Antipasti, Primi, Pizze, Bevande, Dolci, Vini)" },
                 },
               },
             },
@@ -390,7 +391,8 @@ REGOLE IMMAGINI — FONDAMENTALE:
       if (wizardData.pdfMenuData.categories?.length > 0) {
         siteInfo += `Categorie trovate: ${wizardData.pdfMenuData.categories.join(", ")}.\n`;
       }
-      siteInfo += `PRODOTTI/PIATTI REALI DAL PDF (usa QUESTI nomi e prezzi, NON inventarne di nuovi):\n`;
+      siteInfo += `PRODOTTI/PIATTI REALI DAL PDF — TOTALE: ${wizardData.pdfMenuData.itemsCount} VOCI.\n`;
+      siteInfo += `REGOLA ASSOLUTA: DEVI inserire TUTTE le ${wizardData.pdfMenuData.itemsCount} voci nel JSON, ognuna come item in una sezione menu_list della sua categoria. NON omettere NESSUNA voce.\n`;
       wizardData.pdfMenuData.items.forEach(item => {
         siteInfo += `- ${item.name}${item.price ? ` — ${item.price}` : ""}${item.description ? ` — ${item.description}` : ""}${item.category ? ` [${item.category}]` : ""}\n`;
       });
@@ -452,10 +454,10 @@ REGOLE IMPORTANTI:
 - Usa ESATTAMENTE i colori indicati per primaryColor, secondaryColor e accentColor.
 - Il campo "logoUrl" nel JSON radice è OBBLIGATORIO se fornito sopra.
 ${!isFromScratch ? "- Ispirati alla struttura del prototipo scelto ma personalizzala." : "- Genera una struttura originale e unica."}
-- Se ci sono dati dal sito web o da un PDF menu, INSERISCI TUTTI I PIATTI REALI, organizzati per categoria.
+- REGOLA CRITICA MENU: Se ci sono dati dal PDF o dal sito web, DEVI inserire il 100% delle voci nel JSON. Se il PDF contiene 80 piatti, il JSON DEVE contenere 80 items. Se ne contiene 150, il JSON ne deve avere 150. NON troncare, NON riassumere, NON omettere NESSUNA voce.
 - Ogni categoria di piatti deve essere una sezione "menu_list" separata (es: title "Pizze Classiche", title "Primi di Pesce", ecc.)
-- Per ogni piatto: nome ESATTO, prezzo ESATTO, descrizione ESATTA dal menu originale. NON omettere piatti.
-- Per ogni item, aggiungi un campo "image_url". PRIORITÀ: 1) immagini ORIGINALI dal sito dell'utente 2) solo se non ci sono, usa Unsplash.
+- Per ogni piatto: nome ESATTO, prezzo ESATTO, descrizione ESATTA dal menu originale.
+- Per ogni item, aggiungi un campo "image_url". PRIORITÀ: 1) immagini ORIGINALI dal sito 2) solo se non ci sono, usa Unsplash.
 - Non inventare prodotti/piatti se ci sono quelli reali dal sito o PDF.`;
 
     onComplete(prompt, { ...wizardData, selectedTemplate: template, features: featuresList, techFeatures: techFeaturesList });
