@@ -171,26 +171,32 @@ export default function CreationWizard({ onComplete }) {
     startPdfProgress();
     try {
       const { file_url } = await base44.integrations.Core.UploadFile({ file });
-      const extraction = await base44.integrations.Core.ExtractDataFromUploadedFile({
-        file_url,
-        json_schema: {
-          type: "object",
-          properties: {
-            sections: {
-              type: "array",
-              description: "Il documento è diviso in SEZIONI. ESTRAI TUTTE le sezioni nell'ordine in cui appaiono. NON omettere nessuna sezione e nessuna voce.",
-              items: {
-                type: "object",
-                properties: {
-                  section_title: { type: "string" },
-                  items: {
-                    type: "array",
+      console.log("[Wizard] File caricato:", file_url);
+
+      // Tenta prima con ExtractDataFromUploadedFile
+      let sections = [];
+      try {
+        const extraction = await base44.integrations.Core.ExtractDataFromUploadedFile({
+          file_url,
+          json_schema: {
+            type: "object",
+            properties: {
+              sections: {
+                type: "array",
+                description: "Estrai TUTTE le sezioni/categorie del documento con TUTTE le voci. Ogni sezione ha un titolo e una lista di items con nome, descrizione e prezzo.",
+                items: {
+                  type: "object",
+                  properties: {
+                    section_title: { type: "string", description: "Nome della sezione/categoria" },
                     items: {
-                      type: "object",
-                      properties: {
-                        name: { type: "string" },
-                        description: { type: "string" },
-                        price: { type: "string" },
+                      type: "array",
+                      items: {
+                        type: "object",
+                        properties: {
+                          name: { type: "string", description: "Nome del prodotto/piatto/servizio" },
+                          description: { type: "string", description: "Descrizione o ingredienti" },
+                          price: { type: "string", description: "Prezzo (es. 12.00, €15, 8.50)" },
+                        },
                       },
                     },
                   },
@@ -198,10 +204,54 @@ export default function CreationWizard({ onComplete }) {
               },
             },
           },
-        },
-      });
-      if (extraction?.status === "success" && extraction.output?.sections?.length > 0) {
-        const sections = extraction.output.sections;
+        });
+        console.log("[Wizard] Risultato ExtractData:", JSON.stringify(extraction).substring(0, 500));
+        if (extraction?.status === "success" && extraction.output?.sections?.length > 0) {
+          sections = extraction.output.sections;
+        }
+      } catch (extractErr) {
+        console.warn("[Wizard] ExtractData fallito, provo con LLM:", extractErr);
+      }
+
+      // Fallback: se ExtractData non ha funzionato, usa InvokeLLM con il file
+      if (sections.length === 0) {
+        console.log("[Wizard] Fallback LLM per estrazione menu...");
+        const llmResult = await base44.integrations.Core.InvokeLLM({
+          prompt: `Questo file è un menu/listino prezzi. Estrai TUTTE le sezioni e TUTTE le voci con nome, descrizione e prezzo. Non omettere nulla.`,
+          file_urls: [file_url],
+          response_json_schema: {
+            type: "object",
+            properties: {
+              sections: {
+                type: "array",
+                items: {
+                  type: "object",
+                  properties: {
+                    section_title: { type: "string" },
+                    items: {
+                      type: "array",
+                      items: {
+                        type: "object",
+                        properties: {
+                          name: { type: "string" },
+                          description: { type: "string" },
+                          price: { type: "string" },
+                        },
+                      },
+                    },
+                  },
+                },
+              },
+            },
+          },
+        });
+        console.log("[Wizard] Risultato LLM fallback:", JSON.stringify(llmResult).substring(0, 500));
+        if (llmResult?.sections?.length > 0) {
+          sections = llmResult.sections;
+        }
+      }
+
+      if (sections.length > 0) {
         const categories = sections.map(s => s.section_title).filter(Boolean);
         const items = [];
         sections.forEach(sec => {
