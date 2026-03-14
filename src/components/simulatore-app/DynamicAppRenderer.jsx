@@ -113,7 +113,7 @@ export default function DynamicAppRenderer({ data, editable, onDataChange }) {
         onTaglineChange={editable && onDataChange ? (v) => onDataChange({ ...data, tagline: v }) : null}
       />
 
-      <div className="flex-1 pb-16 relative z-10">
+      <div className={`flex-1 relative z-10 ${cart.length > 0 ? "pb-28" : "pb-16"}`}>
         {sections?.map((section, i) => {
           if (section.type === "hero") return null;
           const Component = SECTION_MAP[section.type];
