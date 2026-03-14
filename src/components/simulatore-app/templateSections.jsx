@@ -206,10 +206,10 @@ export function buildTemplateSections(template, pdfMenuData) {
 
   function buildEcommerce() {
     var defaultProducts = [
-      { name: t.previewItems[0], price: "E49.00", image_url: t.heroImage, badge: "Nuovo" },
-      { name: t.previewItems[1], price: "E79.00", image_url: t.heroImage, badge: "Bestseller" },
-      { name: t.previewItems[2], price: "E129.00", image_url: t.heroImage },
-      { name: "Accessorio Premium", price: "E35.00", image_url: t.heroImage },
+      { name: t.previewItems[0], price: "€49.00", image_url: "https://images.unsplash.com/photo-1523275335684-37898b6baf30?w=300", badge: "Nuovo" },
+      { name: t.previewItems[1], price: "€79.00", image_url: "https://images.unsplash.com/photo-1441986300917-64674bd600d8?w=300", badge: "Bestseller" },
+      { name: t.previewItems[2], price: "€129.00", image_url: "https://images.unsplash.com/photo-1556742049-0cfed4f6a45d?w=300" },
+      { name: "Accessorio Premium", price: "€35.00", image_url: "https://images.unsplash.com/photo-1491553895911-0055eca6402d?w=300" },
     ];
     var result = [hero];
     if (realMenu) {
