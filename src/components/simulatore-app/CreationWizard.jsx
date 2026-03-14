@@ -99,7 +99,7 @@ export default function CreationWizard({ onComplete }) {
   const pdfProgressInterval = useRef(null);
   const pdfInputRef = useRef(null);
 
-  const totalSteps = 5; // categoria, info+sito, PDF menu, template, funzionalità
+  const totalSteps = 4; // categoria, info+sito, template, funzionalità
 
   // Scroll to top ad ogni cambio step
   useEffect(() => {
@@ -407,8 +407,7 @@ REGOLE IMMAGINI — FONDAMENTALE:
   const canProceed = () => {
     if (step === 0) return !!data.businessType;
     if (step === 1) return !!data.businessName.trim();
-    if (step === 2) return true; // PDF opzionale
-    if (step === 3) return !!data.selectedTemplate;
+    if (step === 2) return !!data.selectedTemplate;
     return true;
   };
 
@@ -644,131 +643,8 @@ ${!isFromScratch ? "- Ispirati alla struttura del prototipo scelto ma personaliz
         </div>
       )}
 
-      {/* Step 2: Carica Logo + Menu/Listino PDF */}
+      {/* Step 2: Template con anteprima */}
       {step === 2 && (
-        <div className="space-y-5">
-          <div className="text-center mb-2">
-            <h2 className="text-lg font-black text-white">Personalizza la tua app</h2>
-            <p className="text-xs text-gray-400 mt-1">Carica il logo e/o il menu PDF (opzionale)</p>
-          </div>
-
-          {/* --- Logo Upload --- */}
-          <div>
-            <p className="text-xs text-gray-400 font-semibold mb-2 flex items-center gap-1.5"><ImageIcon className="w-3.5 h-3.5" /> Logo della tua attività</p>
-            {!data.logoUrl ? (
-              <div className="space-y-2">
-                <button
-                  onClick={() => logoInputRef.current?.click()}
-                  disabled={uploadingLogo}
-                  className="w-full flex items-center justify-center gap-3 py-5 rounded-2xl border-2 border-dashed border-white/10 bg-white/[0.02] hover:border-purple-500/30 hover:bg-purple-500/5 transition-all active:scale-[0.98]"
-                >
-                  {uploadingLogo ? (
-                    <Loader2 className="w-5 h-5 text-purple-400 animate-spin" />
-                  ) : (
-                    <>
-                      <div className="w-10 h-10 rounded-full bg-purple-500/10 flex items-center justify-center">
-                        <Upload className="w-4 h-4 text-purple-400" />
-                      </div>
-                      <div className="text-left">
-                        <p className="text-sm font-bold text-white">Carica logo</p>
-                        <p className="text-[10px] text-gray-500">PNG, JPG o SVG</p>
-                      </div>
-                    </>
-                  )}
-                </button>
-                <input ref={logoInputRef} type="file" accept="image/*" onChange={handleLogoUpload} className="hidden" />
-              </div>
-            ) : (
-              <div className="flex items-center gap-3 rounded-2xl bg-green-500/10 border border-green-500/20 p-3">
-                <img src={data.logoUrl} alt="Logo" className="w-12 h-12 rounded-lg object-contain bg-white/10" />
-                <div className="flex-1 min-w-0">
-                  <p className="text-sm font-bold text-green-400">Logo caricato!</p>
-                  <p className="text-[10px] text-gray-400 truncate">Verrà usato nell'header dell'app</p>
-                </div>
-                <button onClick={() => setData(prev => ({ ...prev, logoUrl: null }))} className="p-1.5 rounded-lg hover:bg-white/5 text-gray-400 hover:text-white transition-colors">
-                  <X className="w-4 h-4" />
-                </button>
-              </div>
-            )}
-          </div>
-
-          {/* --- Separatore --- */}
-          <div className="border-t border-white/5" />
-
-          {/* --- PDF Menu Upload --- */}
-          <div>
-            <p className="text-xs text-gray-400 font-semibold mb-2 flex items-center gap-1.5"><FileText className="w-3.5 h-3.5" /> Menu / Listino prezzi</p>
-
-          {!data.pdfMenuData ? (
-            <div className="space-y-3">
-              <button
-                onClick={() => pdfInputRef.current?.click()}
-                disabled={analyzingPdf}
-                className="w-full flex flex-col items-center justify-center gap-3 py-8 rounded-2xl border-2 border-dashed border-white/10 bg-white/[0.02] hover:border-purple-500/30 hover:bg-purple-500/5 transition-all active:scale-[0.98]"
-              >
-                <div className="w-14 h-14 rounded-full bg-purple-500/10 flex items-center justify-center">
-                  <Upload className="w-6 h-6 text-purple-400" />
-                </div>
-                <div>
-                  <p className="text-sm font-bold text-white">Carica PDF</p>
-                  <p className="text-[10px] text-gray-500 mt-0.5">Menu, listino prezzi, catalogo</p>
-                </div>
-              </button>
-              <input ref={pdfInputRef} type="file" accept=".pdf" onChange={handlePdfUpload} className="hidden" />
-            </div>
-          ) : data.pdfMenuData.error ? (
-            <div className="space-y-3">
-              <div className="rounded-2xl bg-red-500/10 border border-red-500/20 p-4 text-center">
-                <p className="text-sm text-red-400 font-bold">Non siamo riusciti ad estrarre i dati</p>
-                <p className="text-[10px] text-gray-400 mt-1">Prova con un altro file oppure salta questo passaggio</p>
-              </div>
-              <button
-                onClick={() => { setData(prev => ({ ...prev, pdfMenuData: null })); }}
-                className="w-full py-3 rounded-xl bg-white/5 border border-white/10 text-sm text-gray-400 hover:text-white transition-colors"
-              >
-                Riprova con un altro file
-              </button>
-            </div>
-          ) : (
-            <div className="space-y-3">
-              <div className="rounded-2xl bg-green-500/10 border border-green-500/20 p-4">
-                <div className="flex items-center gap-3 mb-3">
-                  <div className="w-10 h-10 rounded-full bg-green-500/20 flex items-center justify-center shrink-0">
-                    <Check className="w-5 h-5 text-green-400" />
-                  </div>
-                  <div>
-                    <p className="text-sm font-bold text-green-400">Menu caricato!</p>
-                    <p className="text-[10px] text-gray-400">{data.pdfMenuData.fileName}</p>
-                  </div>
-                </div>
-                <div className="flex items-center justify-between text-[10px] text-gray-400 border-t border-white/5 pt-2">
-                  <span>🍽️ {data.pdfMenuData.itemsCount} prodotti estratti</span>
-                  <span>📂 {data.pdfMenuData.categories?.length || 0} categorie</span>
-                </div>
-                {data.pdfMenuData.categories?.length > 0 && (
-                  <div className="flex flex-wrap gap-1 mt-2">
-                    {data.pdfMenuData.categories.slice(0, 8).map(c => (
-                      <span key={c} className="text-[10px] bg-purple-600/20 text-purple-300 rounded-full px-2 py-0.5">{c}</span>
-                    ))}
-                  </div>
-                )}
-              </div>
-              <button
-                onClick={() => { setData(prev => ({ ...prev, pdfMenuData: null })); }}
-                className="w-full py-2.5 rounded-xl bg-white/5 border border-white/10 text-xs text-gray-400 hover:text-white transition-colors flex items-center justify-center gap-1.5"
-              >
-                <X className="w-3 h-3" /> Rimuovi e carica un altro file
-              </button>
-            </div>
-          )}
-          </div>
-
-          <p className="text-center text-[10px] text-gray-500">Questi passaggi sono opzionali — puoi saltarli</p>
-        </div>
-      )}
-
-      {/* Step 3: Template con anteprima */}
-      {step === 3 && (
         <StyleTemplates
           businessType={data.businessType}
           websiteAnalysis={data.websiteAnalysis}
@@ -777,8 +653,8 @@ ${!isFromScratch ? "- Ispirati alla struttura del prototipo scelto ma personaliz
         />
       )}
 
-      {/* Step 4: Funzionalità */}
-      {step === 4 && (
+      {/* Step 3: Funzionalità */}
+      {step === 3 && (
         <div className="space-y-4">
           <div className="text-center mb-4">
             <h2 className="text-lg font-black text-white">Cosa vuoi nell'app?</h2>
