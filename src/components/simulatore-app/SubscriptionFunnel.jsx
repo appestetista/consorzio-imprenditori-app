@@ -1,6 +1,7 @@
 import React, { useState } from "react";
-import { ArrowLeft, ArrowRight, Check, Shield, Zap, Clock, Star, Sparkles, Send } from "lucide-react";
+import { ArrowLeft, ArrowRight, Check, Shield, Star, Sparkles, Send } from "lucide-react";
 import { base44 } from "@/api/base44Client";
+import FeatureChecklist from "./FeatureChecklist";
 
 const PLANS = [
   {
@@ -61,6 +62,7 @@ export default function SubscriptionFunnel({ selectedApp, businessType, onBack, 
     phone: "",
     notes: "",
   });
+  const [selectedFeatures, setSelectedFeatures] = useState([]);
   const [submitting, setSubmitting] = useState(false);
   const [submitted, setSubmitted] = useState(false);
 
@@ -69,13 +71,14 @@ export default function SubscriptionFunnel({ selectedApp, businessType, onBack, 
     setSubmitting(true);
     try {
       const user = await base44.auth.me().catch(() => null);
+      const requestedFeatures = selectedFeatures.length ? selectedFeatures : (selectedApp?.features || []);
       await base44.entities.AppProject.create({
         user_email: user?.email || formData.email,
         app_name: formData.businessName,
         category: businessType,
-        description: `Richiesta abbonamento ${selectedPlan.name} (€${selectedPlan.price}/mese). App di riferimento: ${selectedApp?.name || "N/A"}. Note: ${formData.notes}`,
+        description: `Richiesta abbonamento ${selectedPlan.name} (€${selectedPlan.price}/mese). App di riferimento: ${selectedApp?.name || "N/A"}. Funzioni richieste: ${requestedFeatures.join(", ")}. Note: ${formData.notes}`,
         status: "submitted",
-        features_requested: selectedApp?.features || [],
+        features_requested: requestedFeatures,
         note_cliente: formData.notes,
       });
       setSubmitted(true);
@@ -105,29 +108,21 @@ export default function SubscriptionFunnel({ selectedApp, businessType, onBack, 
             <p className="text-sm text-gray-400 mt-1">Hai scelto come riferimento <span className="text-purple-400 font-bold">{selectedApp?.name}</span></p>
           </div>
 
-          <div className="rounded-2xl bg-white/[0.03] border border-white/[0.06] p-4 space-y-3">
-            <p className="text-xs text-gray-500 uppercase font-bold tracking-wider">Cosa realizzeremo per te</p>
-            <ul className="space-y-2">
-              {(selectedApp?.features || []).map((f, i) => (
-                <li key={i} className="flex items-center gap-2.5 text-sm text-gray-300">
-                  <div className="w-5 h-5 rounded-full bg-green-500/20 flex items-center justify-center shrink-0">
-                    <Check className="w-3 h-3 text-green-400" />
-                  </div>
-                  {f}
-                </li>
-              ))}
-              <li className="flex items-center gap-2.5 text-sm text-gray-300">
-                <div className="w-5 h-5 rounded-full bg-purple-500/20 flex items-center justify-center shrink-0">
-                  <Sparkles className="w-3 h-3 text-purple-400" />
-                </div>
-                Personalizzata al 100% per la tua attività
-              </li>
-            </ul>
-          </div>
+          <FeatureChecklist
+            selectedApp={selectedApp}
+            selectedFeatures={selectedFeatures}
+            onToggle={(feature) => {
+              setSelectedFeatures((prev) =>
+                prev.includes(feature)
+                  ? prev.filter((item) => item !== feature)
+                  : [...prev, feature]
+              );
+            }}
+          />
 
           <div className="rounded-2xl bg-gradient-to-r from-purple-600/10 to-indigo-600/10 border border-purple-500/20 p-4 text-center">
             <p className="text-sm font-bold text-purple-300">I nostri programmatori creeranno un'app su misura per te</p>
-            <p className="text-[11px] text-gray-400 mt-1">Ispirata a {selectedApp?.name}, ma personalizzata per il tuo brand</p>
+            <p className="text-[11px] text-gray-400 mt-1">Ispirata a {selectedApp?.name}, con le funzioni che selezioni qui sotto</p>
           </div>
 
           <button
@@ -293,6 +288,9 @@ export default function SubscriptionFunnel({ selectedApp, businessType, onBack, 
             </div>
             <div className="flex justify-between text-xs mt-1">
               <span className="text-gray-500">Riferimento: {selectedApp?.name}</span>
+            </div>
+            <div className="flex justify-between text-xs mt-1">
+              <span className="text-gray-500">Funzioni selezionate: {selectedFeatures.length}</span>
             </div>
           </div>
 
