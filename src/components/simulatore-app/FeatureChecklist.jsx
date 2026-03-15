@@ -104,13 +104,80 @@ const SPECIFIC_GROUPS = {
       items: ["Percorsi benessere", "Prenotazione percorsi", "Pacchetti relax", "Programmi detox"],
     },
   ],
+  estetica: [
+    {
+      title: "Trattamenti viso",
+      description: "Pulizia viso, peeling, trattamenti anti-age e idratanti.",
+      items: [
+        "Pulizia viso",
+        "Peeling",
+        "Trattamenti anti-age",
+        "Trattamenti idratanti",
+        "Radiofrequenza viso",
+        "Microneedling",
+      ],
+    },
+    {
+      title: "Trattamenti corpo",
+      description: "Massaggi, linfodrenaggio, pressoterapia e bendaggi.",
+      items: [
+        "Massaggi corpo",
+        "Linfodrenaggio",
+        "Pressoterapia",
+        "Bendaggi",
+        "Trattamenti anticellulite",
+        "Trattamenti rassodanti",
+      ],
+    },
+    {
+      title: "Epilazione",
+      description: "Ceretta, epilazione laser e luce pulsata.",
+      items: [
+        "Ceretta",
+        "Epilazione laser",
+        "Luce pulsata",
+      ],
+    },
+    {
+      title: "Mani e piedi",
+      description: "Manicure, pedicure, semipermanente e ricostruzione.",
+      items: [
+        "Manicure",
+        "Pedicure",
+        "Semipermanente",
+        "Ricostruzione unghie",
+      ],
+    },
+    {
+      title: "Trucco e make-up",
+      description: "Make-up eventi, trucco sposa e consulenza immagine.",
+      items: [
+        "Make-up eventi",
+        "Trucco sposa",
+        "Consulenza immagine",
+        "Extension ciglia",
+        "Laminazione ciglia",
+        "Tinta sopracciglia",
+      ],
+    },
+    {
+      title: "Solarium e abbronzatura",
+      description: "Solarium, spray tan e lampade abbronzanti.",
+      items: [
+        "Solarium",
+        "Spray tan",
+        "Lampade abbronzanti",
+      ],
+    },
+  ],
 };
 
 function getTemplateType(name = "") {
   const normalized = name.toLowerCase();
-  if (normalized.includes("hair")) return "hair";
-  if (normalized.includes("nails")) return "nails";
-  if (normalized.includes("spa")) return "spa";
+  if (normalized.includes("hair") || normalized.includes("stilist") || normalized.includes("parrucch")) return "hair";
+  if (normalized.includes("nails") || normalized.includes("nail") || normalized.includes("unghie")) return "nails";
+  if (normalized.includes("spa") || normalized.includes("benessere")) return "spa";
+  if (normalized.includes("estet") || normalized.includes("beauty") || normalized.includes("bellezza")) return "estetica";
   return null;
 }
 
