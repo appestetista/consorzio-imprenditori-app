@@ -5,10 +5,12 @@ import { ScrollArea } from "@/components/ui/scroll-area";
 const COMMON_GROUPS = [
   {
     title: "Calendario e prenotazioni",
+    description: "Calendario appuntamenti, prenotazioni e blocchi orari.",
     items: [
       "Calendario appuntamenti",
       "Prenotazione online clienti",
       "Promemoria automatici",
+      "Reminder (promemoria automatico)",
       "Gestione lista d’attesa",
       "Blocco orari non disponibili",
       "Gestione più operatori",
@@ -16,7 +18,9 @@ const COMMON_GROUPS = [
   },
   {
     title: "Profilo cliente",
+    description: "Customer profile (profilo cliente) con archivio completo.",
     items: [
+      "Customer profile (profilo cliente)",
       "Dati personali",
       "Storico servizi",
       "Foto prima/dopo",
@@ -27,7 +31,9 @@ const COMMON_GROUPS = [
   },
   {
     title: "Pagamenti",
+    description: "Payment gateway (sistema di pagamento online) e incassi in negozio.",
     items: [
+      "Payment gateway (sistema di pagamento online)",
       "Pagamento online",
       "Pagamento in negozio",
       "Gestione abbonamenti",
@@ -53,13 +59,21 @@ const COMMON_GROUPS = [
 const SPECIFIC_GROUPS = {
   hair: [
     {
-      title: "Colori e trattamenti capelli",
+      title: "Archivio colori",
+      description: "Archivio colori e formula usata per ogni cliente.",
       items: [
         "Archivio colori",
         "Formula colore utilizzata",
         "Marca",
         "Percentuali",
         "Foto risultato",
+      ],
+    },
+    {
+      title: "Trattamenti capelli",
+      description: "Gestione trattamenti, ricostruzione e reminder.",
+      items: [
+        "Trattamenti capelli",
         "Gestione trattamenti",
         "Piani ricostruzione",
         "Reminder trattamento",
@@ -67,18 +81,26 @@ const SPECIFIC_GROUPS = {
     },
     {
       title: "Consulenza capelli",
-      items: ["Analisi capello", "Analisi cuoio capelluto"],
+      description: "Hair analysis (analisi del capello) e del cuoio capelluto.",
+      items: [
+        "Consulenza capelli",
+        "Hair analysis (analisi del capello)",
+        "Analisi capello",
+        "Analisi cuoio capelluto",
+      ],
     },
   ],
   nails: [
     {
-      title: "Nail",
+      title: "Nail art",
+      description: "Archivio nail art e gusti preferiti della cliente.",
       items: ["Archivio nail art", "Catalogo design", "Preferiti cliente"],
     },
   ],
   spa: [
     {
       title: "Spa e benessere",
+      description: "Percorsi benessere, pacchetti relax e programmi detox.",
       items: ["Percorsi benessere", "Prenotazione percorsi", "Pacchetti relax", "Programmi detox"],
     },
   ],
@@ -108,11 +130,12 @@ export default function FeatureChecklist({ selectedApp, selectedFeatures, onTogg
         </div>
       </div>
 
-      <ScrollArea className="max-h-[360px] pr-2">
+      <ScrollArea className="max-h-[56vh] pr-2">
         <div className="space-y-3">
           {groups.map((group) => (
             <div key={group.title} className="rounded-2xl border border-white/6 bg-white/[0.02] p-3">
-              <p className="text-sm font-bold text-white mb-3">{group.title}</p>
+              <p className="text-sm font-bold text-white">{group.title}</p>
+              {group.description && <p className="text-xs text-gray-400 mt-1 mb-3">{group.description}</p>}
               <div className="space-y-2">
                 {group.items.map((item) => {
                   const checked = selectedFeatures.includes(item);
