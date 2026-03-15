@@ -353,10 +353,17 @@ export const SHOWCASE_CATEGORY_MAP = {
   fitness: "fitness",
   ecommerce: "ecommerce",
   servizi: "servizi",
+  produzione: "servizi",
+  artigiani: "ecommerce",
+  edilizia: "immobiliare",
+  automotive: "servizi",
+  logistica: "servizi",
+  tecnologia: "servizi",
   immobiliare: "immobiliare",
   salute: "salute",
   turismo: "turismo",
   educazione: "educazione",
+  eventi: "turismo",
   altro: "servizi",
 };
 

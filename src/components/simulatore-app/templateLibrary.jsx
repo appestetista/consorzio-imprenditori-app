@@ -1222,10 +1222,17 @@ export const CATEGORY_MAP = {
   fitness: "fitness",
   ecommerce: "ecommerce",
   servizi: "servizi",
+  produzione: "servizi",
+  artigiani: "servizi",
+  edilizia: "immobiliare",
+  automotive: "servizi",
+  logistica: "servizi",
+  tecnologia: "servizi",
   immobiliare: "immobiliare",
   salute: "salute",
   turismo: "turismo",
   educazione: "educazione",
+  eventi: "altro",
   altro: "altro",
 };
 

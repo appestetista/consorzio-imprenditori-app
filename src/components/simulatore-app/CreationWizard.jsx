@@ -14,10 +14,17 @@ const BUSINESS_TYPES = [
   { id: "fitness", label: "Fitness & Sport", emoji: "💪", desc: "Palestre, personal trainer, centri sportivi" },
   { id: "ecommerce", label: "E-commerce", emoji: "🛍️", desc: "Vendita online, abbigliamento, accessori" },
   { id: "servizi", label: "Servizi professionali", emoji: "💼", desc: "Consulenze, studi, agenzie" },
+  { id: "produzione", label: "Aziende di produzione", emoji: "🏭", desc: "Fabbriche, manifattura, lavorazioni industriali" },
+  { id: "artigiani", label: "Artigiani", emoji: "🛠️", desc: "Falegnami, fabbri, laboratori, botteghe" },
+  { id: "edilizia", label: "Edilizia & Impianti", emoji: "🏗️", desc: "Imprese edili, impiantisti, serramentisti" },
+  { id: "automotive", label: "Automotive", emoji: "🚗", desc: "Officine, carrozzerie, noleggio, concessionarie" },
+  { id: "logistica", label: "Logistica & Trasporti", emoji: "🚚", desc: "Spedizioni, corrieri, trasportatori" },
+  { id: "tecnologia", label: "Tecnologia & Software", emoji: "💻", desc: "Software house, startup, IT services" },
   { id: "immobiliare", label: "Immobiliare", emoji: "🏠", desc: "Agenzie, costruttori, interior design" },
   { id: "salute", label: "Salute & Medico", emoji: "🏥", desc: "Cliniche, studi medici, farmacie" },
   { id: "turismo", label: "Turismo & Ospitalità", emoji: "✈️", desc: "Hotel, B&B, tour operator, guide" },
   { id: "educazione", label: "Formazione", emoji: "📚", desc: "Scuole, corsi, coaching, tutoring" },
+  { id: "eventi", label: "Eventi & Matrimoni", emoji: "🎉", desc: "Event planner, wedding, fiere, catering" },
   { id: "altro", label: "Altro", emoji: "✨", desc: "Qualsiasi altro tipo di attività" },
 ];
 

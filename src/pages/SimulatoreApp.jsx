@@ -12,10 +12,18 @@ const BUSINESS_TYPES = [
   { id: "fitness", label: "Fitness & Sport", emoji: "💪", desc: "Palestre, personal trainer" },
   { id: "ecommerce", label: "E-commerce", emoji: "🛍️", desc: "Vendita online, shop" },
   { id: "servizi", label: "Servizi professionali", emoji: "💼", desc: "Consulenze, studi, agenzie" },
+  { id: "produzione", label: "Aziende di produzione", emoji: "🏭", desc: "Fabbriche, manifattura, industria" },
+  { id: "artigiani", label: "Artigiani", emoji: "🛠️", desc: "Falegnami, fabbri, laboratori" },
+  { id: "edilizia", label: "Edilizia & Impianti", emoji: "🏗️", desc: "Imprese edili, impiantisti, cantieri" },
+  { id: "automotive", label: "Automotive", emoji: "🚗", desc: "Officine, concessionarie, noleggio" },
+  { id: "logistica", label: "Logistica & Trasporti", emoji: "🚚", desc: "Spedizioni, corrieri, flotte" },
+  { id: "tecnologia", label: "Tecnologia & Software", emoji: "💻", desc: "Software house, startup, IT" },
   { id: "immobiliare", label: "Immobiliare", emoji: "🏠", desc: "Agenzie, costruttori" },
   { id: "salute", label: "Salute & Medico", emoji: "🏥", desc: "Cliniche, studi medici" },
   { id: "turismo", label: "Turismo & Ospitalità", emoji: "✈️", desc: "Hotel, B&B, tour operator" },
   { id: "educazione", label: "Formazione", emoji: "📚", desc: "Scuole, corsi, coaching" },
+  { id: "eventi", label: "Eventi & Matrimoni", emoji: "🎉", desc: "Event planner, wedding, fiere" },
+  { id: "altro", label: "Altro", emoji: "✨", desc: "Qualsiasi altra attività" },
 ];
 
 export default function SimulatoreApp() {
