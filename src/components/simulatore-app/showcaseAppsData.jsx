@@ -43,7 +43,7 @@ const SHOWCASE_APPS = {
   beauty: [
     {
       id: "estetica_del_sole",
-      name: "Estetica del Sole",
+      name: "Estetista",
       description: "Centro estetico con atmosfera soft, prenotazioni rapide e promozioni beauty dedicate.",
       screenshot: "https://qtrypzzcjebvfcihiynt.supabase.co/storage/v1/object/public/base44-prod/public/695e2f74bb7d2636b5606a98/516325f7c_App_di_bellezza_Estetica_del_Sole-removebg-preview.png",
       features: ["Prenota trattamento", "I nostri servizi", "Offerte esclusive", "Le nostre estetiste"],
@@ -52,7 +52,7 @@ const SHOWCASE_APPS = {
     },
     {
       id: "lumiere_hair_studio",
-      name: "Lumière Hair Studio",
+      name: "Hair Stilist",
       description: "Template premium per hair studio con look elegante, agenda appuntamenti e area prodotti.",
       screenshot: "https://qtrypzzcjebvfcihiynt.supabase.co/storage/v1/object/public/base44-prod/public/695e2f74bb7d2636b5606a98/d72d59a88_ChatGPT_Image_15_mar_2026__07_23_36-removebg-preview.png",
       features: ["Prenota appuntamento", "I nostri servizi", "Stilisti", "Prodotti"],
@@ -61,7 +61,7 @@ const SHOWCASE_APPS = {
     },
     {
       id: "oasis_centro_benessere",
-      name: "Oasis Centro Benessere",
+      name: "Spa",
       description: "Concept wellness e spa con visual rilassante, trattamenti in evidenza e percorso benessere guidato.",
       screenshot: "https://qtrypzzcjebvfcihiynt.supabase.co/storage/v1/object/public/base44-prod/public/695e2f74bb7d2636b5606a98/ab5dc401e_ChatGPT_Image_15_mar_2026__07_36_52-removebg-preview.png",
       features: ["Prenota trattamento", "I nostri servizi", "Spa & zone", "Pacchetti"],
@@ -70,7 +70,7 @@ const SHOWCASE_APPS = {
     },
     {
       id: "bliss_nail_studio",
-      name: "Bliss Nail Studio",
+      name: "Nails",
       description: "Template nails & beauty con stile delicato, fidelizzazione cliente e promo integrate.",
       screenshot: "https://qtrypzzcjebvfcihiynt.supabase.co/storage/v1/object/public/base44-prod/public/695e2f74bb7d2636b5606a98/204cf5701_Bliss_Nail_Studio_app_in_focus-removebg-preview.png",
       features: ["Prenota appuntamento", "I nostri servizi", "Promo", "Fedeltà"],
