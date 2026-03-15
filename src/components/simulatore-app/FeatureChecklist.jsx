@@ -20,10 +20,8 @@ const COMMON_GROUPS = [
     description: "Customer profile (profilo cliente) con archivio completo.",
     items: [
       "Customer profile (profilo cliente)",
-      "Dati personali",
       "Storico servizi",
       "Foto prima/dopo",
-      "Allergie",
       "Preferenze",
       "Prodotti utilizzati",
     ],
@@ -32,12 +30,9 @@ const COMMON_GROUPS = [
     title: "Pagamenti",
     description: "Payment gateway (sistema di pagamento online) e incassi in negozio.",
     items: [
-      "Payment gateway (sistema di pagamento online)",
       "Pagamento online",
-      "Pagamento in negozio",
       "Gestione abbonamenti",
       "Gift card",
-      "Fatturazione",
     ],
   },
   {
