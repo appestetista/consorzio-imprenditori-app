@@ -247,45 +247,31 @@ export default function FeatureChecklist({ selectedApp, selectedFeatures, onTogg
   const groups = [...COMMON_GROUPS, ...(SPECIFIC_GROUPS[templateType] || [])];
 
   return (
-    <div className="rounded-2xl bg-white/[0.03] border border-white/[0.06] p-4 space-y-3">
-      <div className="flex items-center justify-between gap-3">
-        <div>
-          <p className="text-xs text-gray-500 uppercase font-bold tracking-wider">Funzioni selezionabili</p>
-          <p className="text-sm text-gray-300 mt-1">Scegli cosa vuoi inserire nella tua app</p>
+    <div className="space-y-3">
+      {groups.map((group) => (
+        <div key={group.title} className="rounded-2xl border border-white/6 bg-white/[0.02] p-3">
+          <p className="text-sm font-bold text-white">{group.title}</p>
+          {group.description && <p className="text-xs text-gray-400 mt-1 mb-3">{group.description}</p>}
+          <div className="space-y-2">
+            {group.items.map((item) => {
+              const checked = selectedFeatures.includes(item);
+              return (
+                <label
+                  key={item}
+                  className={`flex items-center gap-3 rounded-xl border px-3 py-2.5 cursor-pointer transition-all ${
+                    checked
+                      ? "border-purple-500/40 bg-purple-500/10"
+                      : "border-white/6 bg-white/[0.02] hover:bg-white/[0.04]"
+                  }`}
+                >
+                  <Checkbox checked={checked} onCheckedChange={() => onToggle(item)} className="border-white/30 data-[state=checked]:bg-purple-500 data-[state=checked]:border-purple-500" />
+                  <span className="text-sm text-gray-200">{item}</span>
+                </label>
+              );
+            })}
+          </div>
         </div>
-        <div className="shrink-0 rounded-full bg-purple-500/15 border border-purple-400/20 px-3 py-1 text-xs font-bold text-purple-300">
-          {selectedFeatures.length} scelte
-        </div>
-      </div>
-
-      <ScrollArea className="max-h-[56vh] pr-2">
-        <div className="space-y-3">
-          {groups.map((group) => (
-            <div key={group.title} className="rounded-2xl border border-white/6 bg-white/[0.02] p-3">
-              <p className="text-sm font-bold text-white">{group.title}</p>
-              {group.description && <p className="text-xs text-gray-400 mt-1 mb-3">{group.description}</p>}
-              <div className="space-y-2">
-                {group.items.map((item) => {
-                  const checked = selectedFeatures.includes(item);
-                  return (
-                    <label
-                      key={item}
-                      className={`flex items-center gap-3 rounded-xl border px-3 py-2.5 cursor-pointer transition-all ${
-                        checked
-                          ? "border-purple-500/40 bg-purple-500/10"
-                          : "border-white/6 bg-white/[0.02] hover:bg-white/[0.04]"
-                      }`}
-                    >
-                      <Checkbox checked={checked} onCheckedChange={() => onToggle(item)} className="border-white/30 data-[state=checked]:bg-purple-500 data-[state=checked]:border-purple-500" />
-                      <span className="text-sm text-gray-200">{item}</span>
-                    </label>
-                  );
-                })}
-              </div>
-            </div>
-          ))}
-        </div>
-      </ScrollArea>
+      ))}
     </div>
   );
 }
