@@ -3,11 +3,11 @@ import { ChevronLeft, ChevronRight } from "lucide-react";
 import Phone3DMockup from "./Phone3DMockup";
 
 const POSITION_CONFIG = {
-  "-2": { x: -190, scale: 0.58, rotate: 38, opacity: 0.26, zIndex: 10 },
-  "-1": { x: -104, scale: 0.72, rotate: 24, opacity: 0.52, zIndex: 20 },
-  "0": { x: 0, scale: 0.92, rotate: 0, opacity: 1, zIndex: 40 },
-  "1": { x: 104, scale: 0.72, rotate: -24, opacity: 0.52, zIndex: 20 },
-  "2": { x: 190, scale: 0.58, rotate: -38, opacity: 0.26, zIndex: 10 },
+  "-2": { x: -154, scale: 0.68, rotate: 42, opacity: 0.3, zIndex: 10 },
+  "-1": { x: -82, scale: 0.82, rotate: 27, opacity: 0.62, zIndex: 24 },
+  "0": { x: 0, scale: 0.98, rotate: 0, opacity: 1, zIndex: 40 },
+  "1": { x: 82, scale: 0.82, rotate: -27, opacity: 0.62, zIndex: 24 },
+  "2": { x: 154, scale: 0.68, rotate: -42, opacity: 0.3, zIndex: 10 },
 };
 
 const clamp = (value, min, max) => Math.min(Math.max(value, min), max);
@@ -72,7 +72,7 @@ export default function ShowcasePerspectiveStage({ apps, currentIndex, onChange 
 
   return (
     <div
-      className="relative w-full h-full overflow-hidden touch-pan-y"
+      className="relative w-full h-full overflow-hidden touch-pan-y cursor-grab active:cursor-grabbing"
       onPointerDown={handlePointerDown}
       onPointerMove={handlePointerMove}
       onPointerUp={handlePointerEnd}
