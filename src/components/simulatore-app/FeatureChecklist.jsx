@@ -1,6 +1,5 @@
 import React from "react";
-import { Checkbox } from "@/components/ui/checkbox";
-import { ScrollArea } from "@/components/ui/scroll-area";
+import { Check } from "lucide-react";
 
 const COMMON_GROUPS = [
   {
@@ -247,26 +246,26 @@ export default function FeatureChecklist({ selectedApp, selectedFeatures, onTogg
   const groups = [...COMMON_GROUPS, ...(SPECIFIC_GROUPS[templateType] || [])];
 
   return (
-    <div className="space-y-3">
+    <div className="space-y-5">
       {groups.map((group) => (
-        <div key={group.title} className="rounded-2xl border border-white/6 bg-white/[0.02] p-3">
-          <p className="text-sm font-bold text-white">{group.title}</p>
-          {group.description && <p className="text-xs text-gray-400 mt-1 mb-3">{group.description}</p>}
-          <div className="space-y-2">
+        <div key={group.title}>
+          <p className="text-xs font-semibold text-gray-400 uppercase tracking-wider mb-2 px-1">{group.title}</p>
+          <div className="space-y-1">
             {group.items.map((item) => {
               const checked = selectedFeatures.includes(item);
               return (
-                <label
+                <button
                   key={item}
-                  className={`flex items-center gap-3 rounded-xl border px-3 py-2.5 cursor-pointer transition-all ${
-                    checked
-                      ? "border-purple-500/40 bg-purple-500/10"
-                      : "border-white/6 bg-white/[0.02] hover:bg-white/[0.04]"
-                  }`}
+                  onClick={() => onToggle(item)}
+                  className="flex items-center gap-3 w-full text-left px-2 py-2 rounded-lg hover:bg-white/[0.04] transition-colors"
                 >
-                  <Checkbox checked={checked} onCheckedChange={() => onToggle(item)} className="border-white/30 data-[state=checked]:bg-purple-500 data-[state=checked]:border-purple-500" />
-                  <span className="text-sm text-gray-200">{item}</span>
-                </label>
+                  <div className={`w-5 h-5 rounded flex items-center justify-center shrink-0 transition-colors ${
+                    checked ? "bg-purple-500" : "border border-gray-600"
+                  }`}>
+                    {checked && <Check className="w-3.5 h-3.5 text-white" />}
+                  </div>
+                  <span className={`text-sm ${checked ? "text-white" : "text-gray-400"}`}>{item}</span>
+                </button>
               );
             })}
           </div>
