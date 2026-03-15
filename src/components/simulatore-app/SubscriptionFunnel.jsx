@@ -104,9 +104,9 @@ export default function SubscriptionFunnel({ selectedApp, businessType, onBack, 
           </div>
         </div>
 
-        {/* Titoletto compatto */}
-        <div className="shrink-0 px-4 pt-3 pb-2">
-          <p className="text-sm text-gray-300">Scegli cosa vuoi inserire</p>
+        {/* Titoletto */}
+        <div className="shrink-0 px-4 pt-4 pb-4">
+          <h2 className="text-xl font-bold text-white">Scegli cosa vuoi inserire</h2>
         </div>
 
         {/* Checklist scrollabile — occupa tutto lo spazio centrale */}
