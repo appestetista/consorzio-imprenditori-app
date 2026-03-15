@@ -112,7 +112,6 @@ export default function SimulatoreApp() {
                     <p className="text-[11px] text-gray-500">{t.desc}</p>
                   </div>
                   <div className="flex items-center gap-1 shrink-0">
-                    <span className="text-[10px] text-purple-400 font-semibold">{appCount} app</span>
                     <svg className="w-4 h-4 text-gray-600" fill="none" viewBox="0 0 24 24" stroke="currentColor"><path strokeLinecap="round" strokeLinejoin="round" strokeWidth={2} d="M9 5l7 7-7 7" /></svg>
                   </div>
                 </button>
