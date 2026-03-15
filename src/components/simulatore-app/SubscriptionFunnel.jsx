@@ -92,9 +92,9 @@ export default function SubscriptionFunnel({ selectedApp, businessType, onBack, 
   // Step 0: Riepilogo app scelta
   if (step === 0) {
     return (
-      <div className="h-[100dvh] bg-[#0a0f1a] text-white flex flex-col overflow-hidden">
+      <div className="fixed inset-0 z-50 bg-[#0a0f1a] text-white flex flex-col">
         {/* Header fisso */}
-        <div className="shrink-0 z-30 bg-[#0a0f1a]/90 backdrop-blur-md border-b border-white/5 px-4 py-3">
+        <div className="shrink-0 bg-[#0a0f1a] border-b border-white/5 px-4 py-3">
           <div className="flex items-center gap-3">
             <button onClick={onBack} className="text-gray-400 hover:text-white"><ArrowLeft className="w-5 h-5" /></button>
             <h1 className="text-base font-bold">La tua app ideale</h1>
@@ -105,13 +105,13 @@ export default function SubscriptionFunnel({ selectedApp, businessType, onBack, 
         </div>
 
         {/* Titoletto compatto */}
-        <div className="shrink-0 px-4 pt-4 pb-2 text-center">
+        <div className="shrink-0 px-4 pt-3 pb-2 text-center">
           <h2 className="text-lg font-black">Ottima scelta!</h2>
           <p className="text-xs text-gray-400 mt-0.5">Seleziona le funzioni per la tua app <span className="text-purple-400 font-bold">{selectedApp?.name}</span></p>
         </div>
 
         {/* Checklist scrollabile — occupa tutto lo spazio centrale */}
-        <div className="flex-1 min-h-0 overflow-y-auto px-4 pb-4">
+        <div className="flex-1 min-h-0 overflow-y-auto px-4 pb-2">
           <FeatureChecklist
             selectedApp={selectedApp}
             selectedFeatures={selectedFeatures}
@@ -126,7 +126,7 @@ export default function SubscriptionFunnel({ selectedApp, businessType, onBack, 
         </div>
 
         {/* Bottone fisso in basso */}
-        <div className="shrink-0 px-4 pb-4 pt-2 bg-gradient-to-t from-[#0a0f1a] via-[#0a0f1a] to-transparent">
+        <div className="shrink-0 px-4 pb-4 pt-2 border-t border-white/5 bg-[#0a0f1a]">
           <button
             onClick={() => setStep(1)}
             className="w-full flex items-center justify-center gap-2 py-3.5 rounded-2xl font-bold bg-gradient-to-r from-purple-600 to-indigo-600 text-white hover:from-purple-500 hover:to-indigo-500 active:scale-[0.97] transition-all shadow-lg shadow-purple-500/20"
