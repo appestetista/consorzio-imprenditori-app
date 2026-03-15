@@ -1,6 +1,5 @@
 import React, { useMemo, useRef, useState } from "react";
 import { ChevronLeft, ChevronRight } from "lucide-react";
-import Phone3DMockup from "./Phone3DMockup";
 
 const POSITION_CONFIG = {
   "-2": { x: -154, scale: 0.68, rotate: 42, opacity: 0.3, zIndex: 10 },
@@ -35,7 +34,8 @@ const getInterpolatedConfig = (phase) => {
 
 export default function ShowcasePerspectiveStage({ apps, currentIndex, onChange }) {
   const pointerStartX = useRef(0);
-  const isDragging = useRef(false);
+  const activePointerId = useRef(null);
+  const [isDragging, setIsDragging] = useState(false);
   const [dragOffset, setDragOffset] = useState(0);
 
   const dragRatio = clamp(dragOffset / 180, -1, 1);
@@ -48,35 +48,40 @@ export default function ShowcasePerspectiveStage({ apps, currentIndex, onChange 
   );
 
   const handlePointerDown = (event) => {
-    isDragging.current = true;
+    activePointerId.current = event.pointerId;
     pointerStartX.current = event.clientX;
+    setIsDragging(true);
+    event.currentTarget.setPointerCapture?.(event.pointerId);
   };
 
   const handlePointerMove = (event) => {
-    if (!isDragging.current) return;
+    if (!isDragging || activePointerId.current !== event.pointerId) return;
     setDragOffset(event.clientX - pointerStartX.current);
   };
 
-  const handlePointerEnd = () => {
-    if (!isDragging.current) return;
-    isDragging.current = false;
+  const handlePointerEnd = (event) => {
+    if (!isDragging || activePointerId.current !== event.pointerId) return;
 
-    if (dragOffset <= -60 && currentIndex < apps.length - 1) {
+    activePointerId.current = null;
+    setIsDragging(false);
+
+    if (dragOffset <= -45 && currentIndex < apps.length - 1) {
       onChange(currentIndex + 1);
-    } else if (dragOffset >= 60 && currentIndex > 0) {
+    } else if (dragOffset >= 45 && currentIndex > 0) {
       onChange(currentIndex - 1);
     }
 
     setDragOffset(0);
+    event.currentTarget.releasePointerCapture?.(event.pointerId);
   };
 
   return (
     <div
-      className="relative w-full h-full overflow-hidden touch-pan-y cursor-grab active:cursor-grabbing"
+      className={`relative w-full h-full overflow-hidden select-none ${isDragging ? "cursor-grabbing" : "cursor-grab"}`}
+      style={{ touchAction: "none" }}
       onPointerDown={handlePointerDown}
       onPointerMove={handlePointerMove}
       onPointerUp={handlePointerEnd}
-      onPointerLeave={handlePointerEnd}
       onPointerCancel={handlePointerEnd}
     >
       <div className="absolute inset-x-0 top-8 bottom-16 rounded-[40px] bg-[radial-gradient(circle_at_center,rgba(59,130,246,0.22),rgba(30,41,59,0.18)_45%,transparent_72%)]" />
@@ -89,17 +94,24 @@ export default function ShowcasePerspectiveStage({ apps, currentIndex, onChange 
         return (
           <div
             key={app.id}
-            className={`absolute left-1/2 top-1/2 ${isDragging.current ? "duration-75" : "duration-500"} transition-all ease-out`}
+            className={`absolute left-1/2 top-1/2 ${isDragging ? "duration-75" : "duration-500"} transition-all ease-out`}
             style={{
-              transform: `translate(-50%, -50%) translateX(${config.x}px)`,
+              transform: `translate(-50%, -50%) translateX(${config.x}px) rotateY(${config.rotate}deg)`,
               opacity: config.opacity,
               zIndex: config.zIndex,
+              transformStyle: "preserve-3d",
+              willChange: "transform, opacity",
             }}
           >
-            <div className={isCenter ? "drop-shadow-[0_18px_55px_rgba(0,0,0,0.55)]" : "drop-shadow-[0_10px_30px_rgba(0,0,0,0.35)]"}>
-              <Phone3DMockup scale={config.scale} rotate={config.rotate}>
-                <img src={app.screenshot} alt={app.name} className="w-full h-full object-cover select-none pointer-events-none" loading="lazy" draggable="false" />
-              </Phone3DMockup>
+            <div className={isCenter ? "drop-shadow-[0_18px_55px_rgba(0,0,0,0.45)]" : "drop-shadow-[0_10px_30px_rgba(0,0,0,0.28)]"}>
+              <img
+                src={app.screenshot}
+                alt={app.name}
+                className="block h-[420px] w-auto max-w-none select-none pointer-events-none object-contain"
+                loading="lazy"
+                draggable="false"
+                style={{ transform: `scale(${config.scale})` }}
+              />
             </div>
           </div>
         );
