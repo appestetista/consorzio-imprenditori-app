@@ -13,6 +13,7 @@ import Header from '../components/layout/Header';
 import BottomNav from '../components/layout/BottomNav';
 import SectionHeaderIcons from '../components/layout/SectionHeaderIcons';
 import { useImpersonation } from '../components/admin/ImpersonationContext';
+import VideoRecensioniExamples from '../components/video/VideoRecensioniExamples';
 
 export default function VideoRecensioni() {
   const [user, setUser] = useState(null);
