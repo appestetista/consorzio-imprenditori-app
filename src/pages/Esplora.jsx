@@ -471,7 +471,7 @@ export default function Esplora() {
         }}
       />
       
-      <main className="px-4 py-2 max-w-md mx-auto">
+      <main className="px-4 pt-10 pb-2 max-w-md mx-auto">
         {eventResponse === 'accepted' ? (
           <div className="bg-green-700 rounded-xl p-4 mb-6">
             <h2 className="text-white font-bold text-lg mb-1">✓ Hai scelto di partecipare</h2>
