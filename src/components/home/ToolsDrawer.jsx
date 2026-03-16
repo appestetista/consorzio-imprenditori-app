@@ -439,6 +439,10 @@ export default function ToolsDrawer() {
                         </div>
                         <Icon className="w-6 h-6 text-[#d4af37] mb-1.5" style={{ filter: 'drop-shadow(0 0 5px rgba(212,175,55,0.4))' }} />
                         <span className="text-slate-200 text-[11px] font-semibold tracking-wide">{tool.title}</span>
+                        {/* Icona video tutorial — angolo basso sinistra */}
+                        <div className="absolute bottom-1.5 left-1.5 z-10">
+                          <Play className="w-3 h-3 text-slate-500" />
+                        </div>
                       </div>
                     </div>
                   </div>
