@@ -165,7 +165,7 @@ export default function FeatureCard({
               hasBottomBadge ? "" : ""
             )}
             style={{
-              background: isDark ? 'rgba(20, 40, 80, 0.28)' : '#8ff101',
+              background: isDark ? 'rgba(20, 40, 80, 0.28)' : '#1F1F1F',
               boxShadow: isDark ? 'inset 0 1px 1px rgba(255,255,255,0.15), inset 0 -1px 2px rgba(0,0,0,0.1)' : 'inset 0 1px 1px rgba(255,255,255,0.3), inset 0 -1px 2px rgba(0,0,0,0.05)'
             }}
           >
