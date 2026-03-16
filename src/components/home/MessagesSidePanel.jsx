@@ -134,12 +134,12 @@ export default function MessagesSidePanel({ open, onClose, userEmail }) {
           }}
         >
           {/* Header */}
-          <div className="flex items-center gap-2 px-4 pt-4 pb-3 border-b border-slate-700/50 flex-shrink-0">
-            <MessageCircle className="w-5 h-5 text-[#d4af37]" />
-            <h2 className="text-white font-bold text-lg">Messaggi</h2>
+          <div className="flex items-center gap-2 px-4 pt-4 pb-3 border-b border-black/15 flex-shrink-0" style={{ backgroundColor: '#fef200' }}>
+            <MessageCircle className="w-5 h-5 text-black" />
+            <h2 className="text-black font-bold text-lg">Messaggi</h2>
             {activeFilter !== 'all' && (
               <>
-                <span className="text-slate-500">›</span>
+                <span className="text-black/40">›</span>
                 <span className={`text-xs font-semibold px-2 py-0.5 rounded-full ${sourceConfig[activeFilter]?.color || 'bg-lime-400'} text-white`}>
                   {sourceConfig[activeFilter]?.label || 'Tutti'}
                 </span>
