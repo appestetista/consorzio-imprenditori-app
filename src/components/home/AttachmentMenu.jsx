@@ -1,5 +1,5 @@
 import React, { useState, useRef } from 'react';
-import { Plus, Camera, Image, Paperclip, X } from 'lucide-react';
+import { Plus, Camera, Image, Paperclip, X, Loader2 } from 'lucide-react';
 import { base44 } from '@/api/base44Client';
 import { toast } from 'sonner';
 
@@ -22,14 +22,12 @@ export default function AttachmentMenu({ onFileUploaded, disabled }) {
       toast.error('Errore durante il caricamento');
     } finally {
       setUploading(false);
+      // Reset inputs per permettere di ricaricare lo stesso file
+      if (cameraRef.current) cameraRef.current.value = '';
+      if (photoRef.current) photoRef.current.value = '';
+      if (fileRef.current) fileRef.current.value = '';
     }
   };
-
-  const items = [
-    { icon: Camera, label: 'Fotocamera', onClick: () => cameraRef.current?.click() },
-    { icon: Image, label: 'Foto', onClick: () => photoRef.current?.click() },
-    { icon: Paperclip, label: 'Allega file', onClick: () => fileRef.current?.click() },
-  ];
 
   return (
     <div className="relative flex-shrink-0">
@@ -38,23 +36,41 @@ export default function AttachmentMenu({ onFileUploaded, disabled }) {
       <input ref={photoRef} type="file" accept="image/*" className="hidden" onChange={(e) => handleUpload(e.target.files?.[0])} />
       <input ref={fileRef} type="file" accept="*/*" className="hidden" onChange={(e) => handleUpload(e.target.files?.[0])} />
 
-      {/* Menu popup */}
+      {/* Overlay per chiudere */}
       {open && (
-        <>
-          <div className="fixed inset-0 z-50" onClick={() => setOpen(false)} />
-          <div className="absolute bottom-full left-0 mb-2 z-50 bg-slate-800 border border-slate-700 rounded-xl shadow-xl overflow-hidden min-w-[160px]">
-            {items.map((item) => (
-              <button
-                key={item.label}
-                onClick={item.onClick}
-                className="flex items-center gap-3 w-full px-4 py-3 text-sm text-white hover:bg-slate-700/60 transition-colors"
-              >
-                <item.icon className="w-4 h-4 text-slate-400" />
-                {item.label}
-              </button>
-            ))}
+        <div className="fixed inset-0 z-50" onClick={() => setOpen(false)} />
+      )}
+
+      {/* Popup 3 pulsanti stile ChatGPT */}
+      {open && (
+        <div className="absolute bottom-full left-0 mb-3 z-50">
+          <div className="flex gap-2">
+            {/* Fotocamera */}
+            <button
+              onClick={() => { cameraRef.current?.click(); setOpen(false); }}
+              className="flex flex-col items-center justify-center w-[80px] h-[72px] rounded-xl bg-slate-800 border border-slate-700 hover:bg-slate-700 active:scale-95 transition-all"
+            >
+              <Camera className="w-5 h-5 text-slate-300 mb-1" />
+              <span className="text-[10px] text-slate-400 font-medium">Fotocamera</span>
+            </button>
+            {/* Foto */}
+            <button
+              onClick={() => { photoRef.current?.click(); setOpen(false); }}
+              className="flex flex-col items-center justify-center w-[80px] h-[72px] rounded-xl bg-slate-800 border border-slate-700 hover:bg-slate-700 active:scale-95 transition-all"
+            >
+              <Image className="w-5 h-5 text-slate-300 mb-1" />
+              <span className="text-[10px] text-slate-400 font-medium">Foto</span>
+            </button>
+            {/* File */}
+            <button
+              onClick={() => { fileRef.current?.click(); setOpen(false); }}
+              className="flex flex-col items-center justify-center w-[80px] h-[72px] rounded-xl bg-slate-800 border border-slate-700 hover:bg-slate-700 active:scale-95 transition-all"
+            >
+              <Paperclip className="w-5 h-5 text-slate-300 mb-1" />
+              <span className="text-[10px] text-slate-400 font-medium">File</span>
+            </button>
           </div>
-        </>
+        </div>
       )}
 
       {/* Pulsante + */}
@@ -65,7 +81,7 @@ export default function AttachmentMenu({ onFileUploaded, disabled }) {
         style={{ backgroundColor: open ? '#334155' : 'transparent' }}
       >
         {uploading ? (
-          <div className="w-3.5 h-3.5 border-2 border-slate-400 border-t-transparent rounded-full animate-spin" />
+          <Loader2 className="w-3.5 h-3.5 text-slate-400 animate-spin" />
         ) : open ? (
           <X className="w-3.5 h-3.5 text-slate-400" />
         ) : (
