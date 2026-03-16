@@ -49,9 +49,9 @@ export default function AtecoInfoPopup({ atecoCode }) {
     <span className="relative inline-flex items-center">
       <button
         onClick={handleOpen}
-        className="ml-2 w-6 h-6 rounded-full bg-slate-600/60 hover:bg-slate-500/60 flex items-center justify-center transition-all"
+        className="ml-2 w-6 h-6 rounded-full bg-black/10 hover:bg-black/20 flex items-center justify-center transition-all"
       >
-        <HelpCircle className="w-5 h-5 text-slate-300" />
+        <HelpCircle className="w-5 h-5 text-black" />
       </button>
 
       {open && (

@@ -9,7 +9,7 @@ function Tip({ text }) {
   return (
     <span className="relative inline-block ml-1">
       <button onClick={() => setOpen(!open)} className="align-middle">
-        <HelpCircle className="w-3.5 h-3.5 text-amber-400/70 hover:text-amber-400 inline" />
+        <HelpCircle className="w-3.5 h-3.5 text-black hover:text-black/70 inline" />
       </button>
       {open && (
         <div className="absolute z-50 bottom-full left-1/2 -translate-x-1/2 mb-2 w-64 sm:w-72">
