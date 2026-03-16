@@ -707,10 +707,11 @@ VERIFICA:
         {branches.length === 0 && (
           <button
             onClick={() => setShowBranchManager(true)}
-            className="w-full mb-6 py-4 rounded-xl bg-black border border-slate-700 hover:border-slate-500 active:scale-[0.98] transition-all flex items-center justify-center gap-3"
+            className="w-full mb-6 py-4 rounded-xl border active:scale-[0.98] transition-all flex items-center justify-center gap-3"
+            style={{ backgroundColor: '#0040ff', borderColor: '#3366ff' }}
           >
-            <div className="w-10 h-10 bg-slate-800 rounded-full flex items-center justify-center">
-              <Plus className="w-6 h-6 text-lime-400" />
+            <div className="w-10 h-10 rounded-full flex items-center justify-center" style={{ backgroundColor: 'rgba(255,255,255,0.2)' }}>
+              <Plus className="w-6 h-6 text-white" />
             </div>
             <span className="text-white font-semibold text-base">Aggiungi il primo Ramo Aziendale</span>
           </button>
