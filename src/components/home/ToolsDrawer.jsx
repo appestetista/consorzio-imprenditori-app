@@ -6,7 +6,7 @@ import { useQuery } from '@tanstack/react-query';
 import { 
   FileSearch, Shield, PiggyBank, Euro, Globe, Calculator, Briefcase, Heart, 
   Users, Truck, ShoppingBag, Star, Video, Megaphone, Monitor, User, Handshake, 
-  TrendingUp, Gavel, X, Calendar, Phone, Gift, Bell, Ship
+  TrendingUp, Gavel, X, Calendar, Phone, Gift, Bell, Ship, Play
 } from 'lucide-react';
 import { cn } from '@/lib/utils';
 
