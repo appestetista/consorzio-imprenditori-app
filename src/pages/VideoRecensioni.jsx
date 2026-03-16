@@ -171,7 +171,7 @@ NOTE: ${formData.notes || 'Nessuna'}
     <div className="min-h-screen pb-64" style={{ backgroundColor: 'var(--app-bg)' }}>
       <main className="px-4 pt-16 pb-6 max-w-md mx-auto">
         <div className="flex items-center justify-between mb-6">
-          <h1 className="text-white text-xl font-bold truncate">Video Recensioni</h1>
+          <h1 className="text-black text-xl font-bold truncate">Video Recensioni</h1>
         </div>
 
         {isAdmin ? (
@@ -256,8 +256,8 @@ NOTE: ${formData.notes || 'Nessuna'}
             {!selectedPlan && !requestSent && (
               <div className="space-y-4 mb-6">
                 <div className="text-center mb-1">
-                  <h3 className="text-white font-bold text-lg">Inizia subito</h3>
-                  <p className="text-slate-400 text-xs">Scegli la soluzione più adatta alla tua azienda</p>
+                  <h3 className="text-black font-bold text-lg">Inizia subito</h3>
+                  <p className="text-black/60 text-xs">Scegli la soluzione più adatta alla tua azienda</p>
                 </div>
 
                 {/* Singolo */}
@@ -273,21 +273,21 @@ NOTE: ${formData.notes || 'Nessuna'}
                       </div>
                       <div className="flex-1 min-w-0">
                         <div className="flex items-center justify-between mb-1">
-                          <span className="text-white font-bold text-base">Singolo Filmato</span>
+                          <span className="text-black font-bold text-base">Singolo Filmato</span>
                           <div className="text-right flex-shrink-0">
                             <span className="text-[#d4af37] font-bold text-xl">€ 200</span>
                             <span className="text-slate-500 text-xs block">+ IVA</span>
                           </div>
                         </div>
-                        <p className="text-slate-400 text-xs mb-3">Una video recensione professionale del tuo cliente</p>
+                        <p className="text-black/60 text-xs mb-3">Una video recensione professionale del tuo cliente</p>
                         <div className="flex flex-wrap gap-x-4 gap-y-1">
-                          <span className="text-slate-300 text-xs flex items-center gap-1.5">
+                          <span className="text-black text-xs flex items-center gap-1.5">
                             <Check className="w-3 h-3 text-blue-400 flex-shrink-0" /> Contatto cliente
                           </span>
-                          <span className="text-slate-300 text-xs flex items-center gap-1.5">
+                          <span className="text-black text-xs flex items-center gap-1.5">
                             <Check className="w-3 h-3 text-blue-400 flex-shrink-0" /> Montaggio pro
                           </span>
-                          <span className="text-slate-300 text-xs flex items-center gap-1.5">
+                          <span className="text-black text-xs flex items-center gap-1.5">
                             <Check className="w-3 h-3 text-blue-400 flex-shrink-0" /> Video tuo per sempre
                           </span>
                         </div>
@@ -321,24 +321,24 @@ NOTE: ${formData.notes || 'Nessuna'}
                           </div>
                           <div className="flex-1 min-w-0">
                             <div className="flex items-center justify-between mb-1">
-                              <span className="text-white font-bold text-base">Abbonamento</span>
+                              <span className="text-black font-bold text-base">Abbonamento</span>
                               <div className="text-right flex-shrink-0">
                                 <span className="text-[#d4af37] font-bold text-xl">€ 100</span>
                                 <span className="text-slate-500 text-xs block">/mese + IVA</span>
                               </div>
                             </div>
-                            <p className="text-slate-400 text-xs mb-3">1 video al mese — 12 video all'anno inclusi</p>
+                            <p className="text-black/60 text-xs mb-3">1 video al mese — 12 video all'anno inclusi</p>
                             <div className="flex flex-wrap gap-x-4 gap-y-1 mb-3">
-                              <span className="text-slate-300 text-xs flex items-center gap-1.5">
+                              <span className="text-black text-xs flex items-center gap-1.5">
                                 <Check className="w-3 h-3 text-[#d4af37] flex-shrink-0" /> 12 video/anno
                               </span>
-                              <span className="text-slate-300 text-xs flex items-center gap-1.5">
+                              <span className="text-black text-xs flex items-center gap-1.5">
                                 <Check className="w-3 h-3 text-[#d4af37] flex-shrink-0" /> Risparmi il 50%
                               </span>
-                              <span className="text-slate-300 text-xs flex items-center gap-1.5">
+                              <span className="text-black text-xs flex items-center gap-1.5">
                                 <Check className="w-3 h-3 text-[#d4af37] flex-shrink-0" /> Montaggio pro
                               </span>
-                              <span className="text-slate-300 text-xs flex items-center gap-1.5">
+                              <span className="text-black text-xs flex items-center gap-1.5">
                                 <Check className="w-3 h-3 text-[#d4af37] flex-shrink-0" /> Video tuoi per sempre
                               </span>
                             </div>
@@ -419,7 +419,7 @@ NOTE: ${formData.notes || 'Nessuna'}
               <Card className="bg-[#0a2540] border-[#1a3a5c] mb-6">
                 <CardContent className="p-4 space-y-4">
                   <div className="flex items-center justify-between mb-2">
-                    <h3 className="text-white font-bold">Dati del tuo cliente</h3>
+                    <h3 className="text-black font-bold">Dati del tuo cliente</h3>
                     <button onClick={() => setSelectedPlan(null)} className="text-slate-400 text-xs hover:text-white">← Cambia piano</button>
                   </div>
 
@@ -545,7 +545,7 @@ NOTE: ${formData.notes || 'Nessuna'}
             {/* Le mie richieste */}
             {myRequests.length > 0 && (
               <div className="mt-6">
-                <h3 className="text-white font-bold mb-3">Le mie richieste</h3>
+                <h3 className="text-black font-bold mb-3">Le mie richieste</h3>
                 <div className="space-y-3">
                   {myRequests.map((req) => {
                     const st = statusLabel[req.status] || statusLabel.pending;
@@ -553,10 +553,10 @@ NOTE: ${formData.notes || 'Nessuna'}
                       <Card key={req.id} className="bg-[#0a2540] border-[#1a3a5c]">
                         <CardContent className="p-3">
                           <div className="flex items-center justify-between mb-1">
-                            <p className="text-white text-sm font-medium">{req.client_name}</p>
+                            <p className="text-black text-sm font-medium">{req.client_name}</p>
                             <span className={`${st.color} text-white text-[10px] font-bold px-2 py-0.5 rounded`}>{st.text}</span>
                           </div>
-                          <p className="text-slate-400 text-xs">
+                          <p className="text-black/60 text-xs">
                             {req.plan_type === 'abbonamento' ? '📦 Abbonamento' : '🎬 Singolo'} — {new Date(req.created_date).toLocaleDateString('it-IT')}
                           </p>
                         </CardContent>
