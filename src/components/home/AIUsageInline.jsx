@@ -7,21 +7,7 @@ const MAX_CONSULENZE = 50;
  * Riga compatta color oro che mostra il consumo AI.
  * Sta su una sola riga tra la barra di ricerca e i pulsanti BottomNav.
  */
-export default function AIUsageInline({ usate = 0, piano }) {
-  const isPremium = piano === 'impresa_39';
-
-  // Utente free: mostra messaggio compatto
-  if (!isPremium) {
-    return (
-      <div className="flex items-center gap-2 px-1">
-        <Zap className="w-3 h-3 flex-shrink-0 text-slate-500" />
-        <span className="text-[10px] text-slate-500 font-medium">
-          Piano Free — AI non attiva
-        </span>
-      </div>
-    );
-  }
-
+export default function AIUsageInline({ usate = 0 }) {
   const count = usate || 0;
   const remaining = MAX_CONSULENZE - count;
   const pct = Math.min((count / MAX_CONSULENZE) * 100, 100);
