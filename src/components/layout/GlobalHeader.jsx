@@ -25,14 +25,25 @@ export default function GlobalHeader({ userEmail, userRegime, onMenuClick, onHam
   return (
     <div className="fixed top-0 left-0 right-0 z-[70] pointer-events-none" style={{ background: 'linear-gradient(to bottom, var(--page-bg, #0f172a) 60%, transparent 100%)' }}>
       <div className="max-w-md mx-auto flex items-center justify-between px-3 pt-4 pb-3 pointer-events-auto">
-        {/* Sinistra: hamburger */}
-        <button
-          onPointerUp={handleHamburger}
-          className="w-12 h-12 flex items-center justify-center rounded-xl active:bg-white/10 transition-colors"
-          style={{ touchAction: 'manipulation' }}
-        >
-          <Menu className="w-6 h-6 text-slate-400" />
-        </button>
+        {/* Sinistra: hamburger + freccia indietro su pagine secondarie */}
+        <div className="flex items-center gap-1">
+          <button
+            onPointerUp={handleHamburger}
+            className="w-12 h-12 flex items-center justify-center rounded-xl active:bg-white/10 transition-colors"
+            style={{ touchAction: 'manipulation' }}
+          >
+            <Menu className="w-6 h-6 text-slate-400" />
+          </button>
+          {!['Home', 'Esplora', 'MyProfile', 'AdminPanel'].includes(currentPageName) && (
+            <button
+              onPointerUp={() => navigate(-1)}
+              className="w-10 h-10 flex items-center justify-center rounded-xl active:bg-white/10 transition-colors"
+              style={{ touchAction: 'manipulation' }}
+            >
+              <ArrowLeft className="w-5 h-5 text-[#d4af37]" />
+            </button>
+          )}
+        </div>
 
         {/* Destra: busta + campanella */}
         <div className="flex items-center gap-2 mr-2">
