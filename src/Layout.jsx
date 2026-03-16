@@ -142,8 +142,9 @@ export default function Layout({ children, currentPageName }) {
           }
           
           html, body {
-            background-color: #0a0f1a !important;
+            background-color: var(--app-bg, #0a0f1a) !important;
             overscroll-behavior: none;
+            transition: background-color 0.3s ease, color 0.3s ease;
           }
 
           *, *::before, *::after {
@@ -197,11 +198,11 @@ export default function Layout({ children, currentPageName }) {
           }
         `}</style>
         {/* Imposta --page-bg in base alla pagina corrente per il gradient dell'header */}
-        <style>{`:root { --page-bg: ${
+        <style>{`:root { --page-bg: var(--app-bg, ${
           currentPageName === 'Home' ? '#0a0f1a' :
           currentPageName === 'Esplora' || currentPageName === 'MyProfile' ? '#001d3b' :
           '#0f172a'
-        }; }`}</style>
+        }); }`}</style>
         {/* Header globale trasparente — hamburger + busta + campanella */}
         {currentPageName !== 'AdminPanel' && (
           <GlobalHeader
