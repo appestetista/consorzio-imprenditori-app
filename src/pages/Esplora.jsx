@@ -20,6 +20,7 @@ import SoundPermissionPopup from '../components/notifications/SoundPermissionPop
 import ImpersonationDialog from '../components/admin/ImpersonationDialog';
 import GlobalTopIcons from '../components/layout/GlobalTopIcons';
 import { cn } from '@/lib/utils';
+import { useTheme } from '../components/context/ThemeContext';
 
 export default function Esplora() {
   const [user, setUser] = useState(null);
@@ -34,6 +35,7 @@ export default function Esplora() {
   const [menuOpen, setMenuOpen] = useState(false);
   const [impersonationDialogOpen, setImpersonationDialogOpen] = useState(false);
   const navigate = useNavigate();
+  const { isDark } = useTheme();
 
   useEffect(() => {
     const loadUser = async () => {
@@ -509,11 +511,11 @@ export default function Esplora() {
           </>
         ) : (
           <>
-            <div className="flex items-center gap-2 mb-3 mt-2"><span className="text-lg">🔧</span><h3 className="text-[#d4af37] font-bold text-base tracking-wide">STRUMENTI</h3><div className="flex-1 h-px bg-gradient-to-r from-[#d4af37]/40 to-transparent ml-2"></div></div>
+            <div className="flex items-center gap-2 mb-3 mt-2"><span className="text-lg">🔧</span><h3 className="font-bold text-base tracking-wide" style={{ color: isDark ? '#d4af37' : '#000000' }}>STRUMENTI</h3><div className="flex-1 h-px ml-2" style={{ background: isDark ? 'linear-gradient(to right, rgba(212,175,55,0.4), transparent)' : 'linear-gradient(to right, rgba(0,0,0,0.3), transparent)' }}></div></div>
             <div className="grid grid-cols-2 gap-4 mb-6">
               {strumentiItems.map((f, i) => renderFeatureCard({ ...f, category: 'strumenti' }, i))}
             </div>
-            <div className="flex items-center gap-2 mb-3 mt-4"><span className="text-lg">👤</span><h3 className="text-[#d4af37] font-bold text-base tracking-wide">PERSONALE</h3><div className="flex-1 h-px bg-gradient-to-r from-[#d4af37]/40 to-transparent ml-2"></div></div>
+            <div className="flex items-center gap-2 mb-3 mt-4"><span className="text-lg">👤</span><h3 className="font-bold text-base tracking-wide" style={{ color: isDark ? '#d4af37' : '#000000' }}>PERSONALE</h3><div className="flex-1 h-px ml-2" style={{ background: isDark ? 'linear-gradient(to right, rgba(212,175,55,0.4), transparent)' : 'linear-gradient(to right, rgba(0,0,0,0.3), transparent)' }}></div></div>
             <div className="grid grid-cols-2 gap-4 mb-6">{features.filter(f => f.category === 'personale').map(renderFeatureCard)}</div>
           </>
         )}
