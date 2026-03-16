@@ -163,9 +163,9 @@ export default function VantaggiPanelContent({ onClose }) {
           <Button onClick={() => setShowCreatePanel(true)} className="font-bold h-11 text-sm" style={{ backgroundColor: isDark ? '#d4af37' : '#000', color: isDark ? '#000' : '#fef200' }}>
             <Plus className="w-5 h-5 mr-2" /> Crea Vantaggio
           </Button>
-          <Link to={createPageUrl('MiePrenotazioniVantaggi')} onClick={onClose} className="flex items-center justify-center gap-2 h-11 rounded-md border-2 transition-all active:scale-95" style={{ borderColor: isDark ? 'rgba(212,175,55,0.5)' : 'rgba(0,0,0,0.5)', backgroundColor: isDark ? 'rgba(212,175,55,0.1)' : 'rgba(0,0,0,0.08)' }}>
-            <Clock className="w-4 h-4" style={{ color: isDark ? '#d4af37' : '#000' }} />
-            <span className="text-sm font-bold" style={{ color: isDark ? '#d4af37' : '#000' }}>Storico Vantaggi</span>
+          <Link to={createPageUrl('MiePrenotazioniVantaggi')} onClick={onClose} className="flex items-center justify-center gap-2 h-11 rounded-md border-2 transition-all active:scale-95" style={{ borderColor: isDark ? 'rgba(212,175,55,0.5)' : 'rgba(0,0,0,0.5)', backgroundColor: '#fef200' }}>
+            <Clock className="w-4 h-4 text-black" />
+            <span className="text-sm font-bold text-black">Storico Vantaggi</span>
           </Link>
         </div>
 
