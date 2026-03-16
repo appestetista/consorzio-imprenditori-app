@@ -40,6 +40,18 @@ export default function VantaggiSideTab() {
     return () => window.removeEventListener('open-vantaggi-panel', handler);
   }, [isOpen]);
 
+  // Ascolta evento globale per chiudere il pannello (es. da BottomNav)
+  useEffect(() => {
+    const handler = () => {
+      if (isOpen) {
+        setIsOpen(false);
+        showHeader();
+      }
+    };
+    window.addEventListener('close-vantaggi-panel', handler);
+    return () => window.removeEventListener('close-vantaggi-panel', handler);
+  }, [isOpen]);
+
   const togglePanel = () => {
     const newOpen = !isOpen;
     setIsOpen(newOpen);
