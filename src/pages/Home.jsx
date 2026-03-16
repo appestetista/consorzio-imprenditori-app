@@ -699,11 +699,8 @@ export default function Home() {
               <Target className="w-7 h-7 text-white" />
             </div>
             <h1 className="text-white text-xl font-bold text-center mb-1.5 leading-tight">
-              Centro Decisionale Imprenditore
-            </h1>
-            <p className="text-slate-400 text-sm text-center max-w-xs leading-relaxed">
               Come posso aiutarti oggi?
-            </p>
+            </h1>
 
 
           </div>
