@@ -34,7 +34,7 @@ export default function GlobalHeader({ userEmail, userRegime, onMenuClick, onHam
             className="w-12 h-12 flex items-center justify-center rounded-xl active:bg-white/10 transition-colors"
             style={{ touchAction: 'manipulation' }}
           >
-            <Menu className="w-6 h-6" style={{ color: 'var(--app-lime)' }} />
+            <Menu className="w-7 h-7 text-white" />
           </button>
           {!['Home', 'Esplora', 'MyProfile', 'AdminPanel'].includes(currentPageName) && (
             <button
