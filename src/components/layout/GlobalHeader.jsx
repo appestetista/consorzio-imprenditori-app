@@ -32,9 +32,9 @@ export default function GlobalHeader({ userEmail, userRegime, onMenuClick, onHam
           <button
             onPointerUp={handleHamburger}
             className="w-12 h-12 flex items-center justify-center rounded-xl active:bg-white/10 transition-colors"
-            style={{ touchAction: 'manipulation', opacity: 0.15 }}
+            style={{ touchAction: 'manipulation' }}
           >
-            <Menu className="w-6 h-6 text-lime-400" />
+            <Menu className="w-6 h-6" style={{ color: 'var(--app-lime)' }} />
           </button>
           {!['Home', 'Esplora', 'MyProfile', 'AdminPanel'].includes(currentPageName) && (
             <button
@@ -42,7 +42,7 @@ export default function GlobalHeader({ userEmail, userRegime, onMenuClick, onHam
               className="w-12 h-12 flex items-center justify-center rounded-xl active:bg-white/10 transition-colors"
               style={{ touchAction: 'manipulation' }}
             >
-              <ArrowLeft className="w-7 h-7 text-[#d4af37]" />
+              <ArrowLeft className="w-7 h-7" style={{ color: 'var(--app-accent)' }} />
             </button>
           )}
         </div>
