@@ -7,6 +7,7 @@ import { Link } from 'react-router-dom';
 import { useImpersonation } from '../components/admin/ImpersonationContext';
 import { normalizeUser, isUserConsultant } from '../components/utils/normalizeUser';
 import { cn } from '@/lib/utils';
+import { useTheme } from '../components/context/ThemeContext';
 import BottomNav from '../components/layout/BottomNav';
 import ChatMessage from '../components/home/ChatMessage';
 
@@ -27,6 +28,7 @@ export default function Home() {
   const { impersonation, setCurrentUserRole, appMode } = useImpersonation();
   const navigate = useNavigate();
   const queryClient = useQueryClient();
+  const { isDark } = useTheme();
 
   const [inputText, setInputText] = useState('');
   const [messages, setMessages] = useState([]);
@@ -677,7 +679,7 @@ export default function Home() {
   const hasMessages = messages.length > 0;
 
   return (
-    <div className="fixed inset-0 flex flex-col" style={{ backgroundColor: '#0a0f1a' }}>
+    <div className="fixed inset-0 flex flex-col" style={{ backgroundColor: 'var(--app-bg)' }}>
       
       {/* Sidebar */}
       <ChatSidebar
@@ -695,10 +697,10 @@ export default function Home() {
         {!hasMessages ? (
           // Stato iniziale - schermata pulita stile ChatGPT
           <div className="flex-1 flex flex-col items-center justify-center px-5 pb-32">
-            <div className="w-14 h-14 rounded-2xl bg-gradient-to-br from-[#d4af37] to-[#b8860b] flex items-center justify-center mb-4 shadow-lg shadow-[#d4af37]/20">
-              <Target className="w-7 h-7 text-white" />
+            <div className="w-14 h-14 rounded-2xl flex items-center justify-center mb-4 shadow-lg" style={{ background: 'linear-gradient(to bottom right, var(--app-accent), #b8860b)', boxShadow: `0 10px 25px ${isDark ? 'rgba(212,175,55,0.2)' : 'rgba(161,128,30,0.15)'}` }}>
+              <Target className="w-7 h-7" style={{ color: 'var(--app-text-inverse)' }} />
             </div>
-            <h1 className="text-white text-xl font-bold text-center mb-1.5 leading-tight">
+            <h1 className="text-xl font-bold text-center mb-1.5 leading-tight" style={{ color: 'var(--app-text-primary)' }}>
               Come posso aiutarti oggi?
             </h1>
 
@@ -781,13 +783,13 @@ export default function Home() {
       )}
 
       {/* Campo di input */}
-      <div className="fixed z-40 px-2 pb-2 pt-10 left-0 right-0" style={{ bottom: '100px', background: 'linear-gradient(to top, #0a0f1a 70%, transparent 100%)' }}>
+      <div className="fixed z-40 px-2 pb-2 pt-10 left-0 right-0" style={{ bottom: '100px', background: `linear-gradient(to top, var(--app-bg) 70%, transparent 100%)` }}>
         <div className="max-w-2xl mx-auto space-y-1.5">
           <AIUsageInline usate={consulenzeUsate} piano={pianoAbbonamento} />
           {!compareMode ? (
             <>
               <div className="flex items-end gap-2">
-                <div className="flex-1 relative flex flex-col rounded-xl border border-slate-700/60 bg-slate-800/80 backdrop-blur-lg overflow-hidden" style={isRecording ? { borderColor: '#ef4444' } : {}}>
+                <div className="flex-1 relative flex flex-col rounded-xl backdrop-blur-lg overflow-hidden" style={{ border: `1px solid ${isRecording ? '#ef4444' : 'var(--app-border)'}`, backgroundColor: 'var(--app-bg-input)' }}>
                   {/* File allegati preview */}
                   {attachedFiles.length > 0 && (
                     <div className="flex flex-wrap gap-1.5 px-2 pt-2">
@@ -822,22 +824,21 @@ export default function Home() {
                     value={inputText}
                     onChange={(e) => {
                       setInputText(e.target.value);
-                      // Auto-resize: resetta altezza poi adatta a scrollHeight
                       e.target.style.height = 'auto';
                       e.target.style.height = Math.min(e.target.scrollHeight, 220) + 'px';
                     }}
                     onKeyDown={handleKeyDown}
                     placeholder={isRecording ? "Sto ascoltando..." : "Chiedi qualsiasi cosa..."}
                     rows={1}
-                    className="flex-1 bg-transparent text-white text-base px-2 py-2.5 resize-none outline-none placeholder:text-slate-500"
-                    style={{ scrollbarWidth: 'none', maxHeight: '220px', overflow: 'auto' }}
+                    className="flex-1 bg-transparent text-base px-2 py-2.5 resize-none outline-none"
+                    style={{ scrollbarWidth: 'none', maxHeight: '220px', overflow: 'auto', color: 'var(--app-text-primary)', '::placeholder': { color: 'var(--app-text-muted)' } }}
                   />
                   <button
                     onClick={() => handleSend()}
                     disabled={!inputText.trim() || isTyping || chatBlocked}
                     className="flex-shrink-0 m-1 w-8 h-8 rounded-lg flex items-center justify-center transition-all disabled:opacity-30"
                     style={{
-                      backgroundColor: inputText.trim() && !isTyping && !chatBlocked ? '#d4af37' : '#334155',
+                      backgroundColor: inputText.trim() && !isTyping && !chatBlocked ? 'var(--app-accent)' : 'var(--app-btn-disabled-bg)',
                     }}
                   >
                     {isTyping ? (
@@ -851,9 +852,10 @@ export default function Home() {
                 {/* Pupino My Profilo */}
                 <button
                   onClick={() => navigate(createPageUrl('MyProfile'))}
-                  className="flex-shrink-0 w-10 h-10 rounded-xl border border-slate-700/60 bg-slate-800/80 backdrop-blur-lg flex items-center justify-center active:scale-95 transition-transform mb-0.5"
+                  className="flex-shrink-0 w-10 h-10 rounded-xl backdrop-blur-lg flex items-center justify-center active:scale-95 transition-transform mb-0.5"
+                  style={{ border: '1px solid var(--app-border)', backgroundColor: 'var(--app-bg-input)' }}
                 >
-                  <UserRound className="w-5 h-5 text-slate-400" />
+                  <UserRound className="w-5 h-5" style={{ color: 'var(--app-text-secondary)' }} />
                 </button>
               </div>
             </>
@@ -912,7 +914,7 @@ export default function Home() {
       {/* Pannelli messaggi/notifiche gestiti globalmente nel Layout */}
 
       {/* Bottom Nav */}
-      <BottomNav currentPage="Home" onMenuOpen={() => window.location.href = createPageUrl('MyProfile')} menuOpen={false} bgColor="#0a0f1a" consulenzeUsate={consulenzeUsate} maxConsulenze={50} userEmail={effectiveUser?.email} />
+      <BottomNav currentPage="Home" onMenuOpen={() => window.location.href = createPageUrl('MyProfile')} menuOpen={false} bgColor={null} consulenzeUsate={consulenzeUsate} maxConsulenze={50} userEmail={effectiveUser?.email} />
 
 
     </div>
