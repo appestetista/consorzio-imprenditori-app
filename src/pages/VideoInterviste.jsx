@@ -419,7 +419,7 @@ Questa è una richiesta automatica dalla piattaforma del Consorzio Imprenditori.
     <div className="min-h-screen pb-64" style={{ backgroundColor: 'var(--app-bg)' }}>
       <main className="px-4 pt-16 pb-6 max-w-md mx-auto">
         <div className="flex items-center justify-between mb-6">
-          <h1 className="text-white text-xl font-bold truncate">Video Interviste</h1>
+          <h1 className="text-black text-xl font-bold truncate">Video Interviste</h1>
           {isAdmin && (
             <AdminVideoUploadPanel companyUsers={companyUsers} allUsers={allUsers} />
           )}
@@ -470,7 +470,7 @@ Questa è una richiesta automatica dalla piattaforma del Consorzio Imprenditori.
               ) : videos.length === 0 ? (
                 <div className="text-center py-12">
                   <Video className="w-16 h-16 text-slate-600 mx-auto mb-4" />
-                  <p className="text-slate-400">Nessun video disponibile</p>
+                  <p className="text-black/50">Nessun video disponibile</p>
                 </div>
               ) : (
                 <div className="space-y-4">
@@ -486,7 +486,7 @@ Questa è una richiesta automatica dalla piattaforma del Consorzio Imprenditori.
                           
                           {video.title && (
                             <div className="bg-slate-900 px-3 py-2 border-b border-slate-700">
-                              <h3 className="text-white font-semibold text-base">{video.title}</h3>
+                              <h3 className="text-black font-semibold text-base">{video.title}</h3>
                             </div>
                           )}
                           
@@ -633,7 +633,7 @@ Questa è una richiesta automatica dalla piattaforma del Consorzio Imprenditori.
         ) : (
           /* Vista Utente normale */
           <>
-            <h2 className="text-white text-lg font-bold mb-4 text-center">VIDEO INTERVISTE</h2>
+            <h2 className="text-black text-lg font-bold mb-4 text-center">VIDEO INTERVISTE</h2>
 
             {isLoading ? (
               <div className="text-center py-12">
