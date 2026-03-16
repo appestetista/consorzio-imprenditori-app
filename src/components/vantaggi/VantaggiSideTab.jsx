@@ -72,13 +72,20 @@ export default function VantaggiSideTab() {
       >
         <VantaggiPanelContent onClose={() => { setIsOpen(false); showHeader(); }} />
 
-        {/* Linguetta laterale destra per chiudere */}
-        <button
-          onClick={() => { setIsOpen(false); showHeader(); }}
-          className="absolute top-1/2 -translate-y-1/2 -right-6 z-10 w-6 h-16 rounded-r-lg bg-slate-800 border border-l-0 border-slate-600/50 flex items-center justify-center active:scale-95 transition-transform"
-        >
-          <ChevronLeft className="w-4 h-4 text-[#d4af37]" />
-        </button>
+        {/* Linguetta trapezoidale integrata — visibile solo quando aperto */}
+        {isOpen && (
+          <button
+            onClick={() => { setIsOpen(false); showHeader(); }}
+            className="absolute top-1/2 -translate-y-1/2 z-10 flex items-center justify-center active:scale-95 transition-transform"
+            style={{ right: '-22px', width: '22px', height: '72px' }}
+          >
+            <svg width="22" height="72" viewBox="0 0 22 72" fill="none" xmlns="http://www.w3.org/2000/svg" className="absolute inset-0">
+              <path d="M0 0 L0 72 L22 60 L22 12 Z" fill="#0f172a" />
+              <path d="M0 0 L0 72 L22 60 L22 12 Z" stroke="#334155" strokeWidth="1" strokeLinejoin="round" style={{ strokeDasharray: '0 72 22 60 22 12', clipPath: 'inset(0 0 0 1px)' }} />
+            </svg>
+            <ChevronLeft className="w-5 h-5 text-[#d4af37] relative z-10" />
+          </button>
+        )}
       </div>
     </>
   );
