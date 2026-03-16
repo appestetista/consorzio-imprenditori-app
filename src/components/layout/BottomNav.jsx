@@ -49,7 +49,7 @@ export default function BottomNav({ currentPage, bgColor = null }) {
 
   return (
     <nav
-      className="fixed left-0 right-0 bottom-0 z-[29]"
+      className="fixed left-0 right-0 bottom-0 z-[30]"
       style={{ pointerEvents: 'none' }}
     >
       {/* Sfondo sfumato che sale sopra i pulsanti */}
@@ -106,9 +106,9 @@ export default function BottomNav({ currentPage, bgColor = null }) {
 
             if (item.page && !item.action) {
               return (
-                <Link key={item.name} to={createPageUrl(item.page)}>
+                <button key={item.name} onClick={() => handleNavClick(item)}>
                   {content}
-                </Link>
+                </button>
               );
             }
 
