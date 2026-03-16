@@ -338,12 +338,12 @@ function Slider({ label, value, onChange, min, max, step, suffix = "€", sub })
   return (
     <div className="mb-5">
       <div className="flex justify-between items-baseline mb-1">
-        <label className="text-sm font-medium text-gray-300">{label}</label>
-        <span className="text-xl font-bold text-white">
+        <label className="text-sm font-medium text-black">{label}</label>
+        <span className="text-xl font-bold text-black">
           {suffix === "%" ? `${value}%` : fmt(value)}
         </span>
       </div>
-      {sub && <p className="text-xs text-gray-500 mb-1">{sub}</p>}
+      {sub && <p className="text-xs text-black/60 mb-1">{sub}</p>}
       <input type="range" min={min} max={max} step={step} value={value}
         onChange={e => onChange(Number(e.target.value))}
         className="w-full h-2 rounded-lg appearance-none cursor-pointer"
@@ -359,7 +359,7 @@ function DetailRow({ label, value, color = "text-white", note }) {
         <span className="pr-2">{label}</span>
         <span className="font-mono whitespace-nowrap">{fmt(value)}</span>
       </div>
-      {note && <div className="text-[9px] text-gray-600 pl-1 pb-1">{note}</div>}
+      {note && <div className="text-[9px] text-black/50 pl-1 pb-1">{note}</div>}
     </div>
   );
 }
@@ -369,7 +369,7 @@ function WBar({ step, maxVal }) {
   const col = { start: "#3B82F6", costo: "#F59E0B", tassa: "#EF4444", neutro: "#4B5563" };
   return (
     <div className="flex items-center gap-3 py-1.5">
-      <div className="w-32 sm:w-48 text-right text-xs font-medium text-gray-300 shrink-0">{step.l}</div>
+      <div className="w-32 sm:w-48 text-right text-xs font-medium text-black shrink-0">{step.l}</div>
       <div className="flex-1 h-7">
         <div className="h-full rounded-sm flex items-center transition-all duration-500"
           style={{ width: `${Math.max(pct, 2.5)}%`, backgroundColor: col[step.t], opacity: 0.85 }}>
@@ -524,7 +524,7 @@ export default function SimulatoreInterattivo({ user }) {
         {/* FATTURATO — slider + input manuale */}
         <div className="mb-5">
           <div className="flex justify-between items-center mb-1">
-            <label className="text-sm font-medium text-gray-300">Fatturato annuo</label>
+            <label className="text-sm font-medium text-black">Fatturato annuo</label>
             <input
               type="text"
               inputMode="numeric"
@@ -538,7 +538,7 @@ export default function SimulatoreInterattivo({ user }) {
                 Object.entries(cv).forEach(([k2, val2]) => { n[k2] = Math.round(val2 * r); });
                 setCv(n);
               }}
-              className="text-xl font-bold text-white text-right bg-transparent border-b border-gray-600 focus:border-blue-500 outline-none w-36 px-1"
+              className="text-xl font-bold text-black text-right bg-transparent border-b border-gray-600 focus:border-blue-500 outline-none w-36 px-1"
             />
           </div>
           <input type="range" min={0} max={5000000} step={5000} value={Math.min(fatt, 5000000)}
@@ -558,7 +558,7 @@ export default function SimulatoreInterattivo({ user }) {
         {/* COSTI — slider + input manuale */}
         <div className="mb-3">
           <div className="flex justify-between items-center mb-1">
-            <label className="text-sm font-medium text-gray-300">Costi operativi</label>
+            <label className="text-sm font-medium text-black">Costi operativi</label>
             <input
               type="text"
               inputMode="numeric"
@@ -571,7 +571,7 @@ export default function SimulatoreInterattivo({ user }) {
               className="text-xl font-bold text-amber-400 text-right bg-transparent border-b border-gray-600 focus:border-amber-500 outline-none w-36 px-1"
             />
           </div>
-          <p className="text-xs text-gray-500 mb-1">
+          <p className="text-xs text-black/60 mb-1">
             {fatt > 0 ? ((costi / fatt) * 100).toFixed(0) : 0}% del fatturato · Margine {fmt(fatt - costi)}
           </p>
           <input type="range" min={0} max={5000000} step={500} value={Math.min(costi, 5000000)}
@@ -583,7 +583,7 @@ export default function SimulatoreInterattivo({ user }) {
 
         {/* BOTTONE DETTAGLIO */}
         <button onClick={() => setDetCosti(!detCosti)}
-          className="w-full py-2 rounded-lg text-xs font-medium text-gray-400 hover:text-gray-200 transition-colors flex items-center justify-center gap-1.5"
+          className="w-full py-2 rounded-lg text-xs font-medium text-black hover:text-black/80 transition-colors flex items-center justify-center gap-1.5"
           style={{ backgroundColor: "rgba(255,255,255,0.03)" }}>
           <span style={{ fontSize: "8px" }}>{detCosti ? "▼" : "▶"}</span>
           {detCosti ? "Chiudi dettaglio" : "Dettaglio per voce di costo"}
@@ -608,9 +608,9 @@ export default function SimulatoreInterattivo({ user }) {
               {GRUPPI.map(g => {
                 const tot = gruppoTotale(g);
                 return tot > 0 ? (
-                  <div key={g.id} className="flex items-center gap-1 text-xs text-gray-400">
+                  <div key={g.id} className="flex items-center gap-1 text-xs text-black">
                     <div className="w-2 h-2 rounded-sm" style={{ backgroundColor: g.col }} />
-                    {g.label} <span className="text-gray-500">
+                    {g.label} <span className="text-black/60">
                       {((tot / costi) * 100).toFixed(0)}%
                     </span>
                   </div>
@@ -630,11 +630,11 @@ export default function SimulatoreInterattivo({ user }) {
                     style={{ backgroundColor: isOpen ? g.col + "10" : "rgba(255,255,255,0.02)" }}>
                     <div className="flex items-center gap-2">
                       <span>{g.icon}</span>
-                      <span className="text-sm font-medium text-gray-200">{g.label}</span>
-                      <span className="text-xs text-gray-500">({g.voci.length})</span>
+                      <span className="text-sm font-medium text-black">{g.label}</span>
+                      <span className="text-xs text-black/50">({g.voci.length})</span>
                     </div>
                     <div className="flex items-center gap-2">
-                      <span className="text-sm font-bold text-white">{fmt(tot)}</span>
+                      <span className="text-sm font-bold text-black">{fmt(tot)}</span>
                       <span style={{ fontSize: "8px", color: "#9CA3AF" }}>
                         {isOpen ? "▼" : "▶"}
                       </span>
@@ -649,13 +649,13 @@ export default function SimulatoreInterattivo({ user }) {
                         return (
                           <div key={v.k}>
                             <div className="flex items-center justify-between mb-0.5">
-                              <span className="text-xs text-gray-400">{v.l}</span>
+                              <span className="text-xs text-black">{v.l}</span>
                               <input
                                 type="number"
                                 inputMode="numeric"
                                 value={val}
                                 onChange={e => updCat(v.k, Math.max(0, Number(e.target.value) || 0))}
-                                className="text-xs font-bold text-white text-right bg-slate-800 border border-slate-600 focus:border-blue-500 rounded px-2 py-0.5 outline-none w-24 [appearance:textfield] [&::-webkit-outer-spin-button]:appearance-none [&::-webkit-inner-spin-button]:appearance-none"
+                                className="text-xs font-bold text-black text-right bg-slate-800 border border-slate-600 focus:border-blue-500 rounded px-2 py-0.5 outline-none w-24 [appearance:textfield] [&::-webkit-outer-spin-button]:appearance-none [&::-webkit-inner-spin-button]:appearance-none"
                               />
                             </div>
                             <input type="range" min={0} max={mx} step={500} value={val}
@@ -699,10 +699,10 @@ export default function SimulatoreInterattivo({ user }) {
       {/* Come ti paghi */}
       <div className="rounded-xl p-5"
         style={{ backgroundColor: "rgba(255,255,255,0.03)", border: "1px solid rgba(255,255,255,0.06)" }}>
-        <h2 className="text-sm font-semibold text-gray-400 uppercase tracking-wider mb-1">
+        <h2 className="text-sm font-semibold text-black uppercase tracking-wider mb-1">
           💼 Come ti paghi
         </h2>
-        <p className="text-[11px] text-gray-500 mb-4">Ci sono due modi per portare i soldi dalla SRL alla tua tasca. Regola entrambi per trovare il mix migliore.</p>
+        <p className="text-[11px] text-black/60 mb-4">Ci sono due modi per portare i soldi dalla SRL alla tua tasca. Regola entrambi per trovare il mix migliore.</p>
         <Slider label="Compenso amministratore (lordo annuo)" value={comp}
           onChange={setComp} min={0} max={120000} step={3000}
           sub="È lo 'stipendio' che ti dai come amministratore. Viene tassato con IRPEF + contributi INPS, ma riduce le tasse della società." />
@@ -720,17 +720,17 @@ export default function SimulatoreInterattivo({ user }) {
         background: "linear-gradient(135deg, rgba(16,185,129,0.1) 0%, rgba(59,130,246,0.1) 100%)",
         border: "1px solid rgba(16,185,129,0.2)",
       }}>
-        <div className="text-sm text-gray-400 mb-1">
+        <div className="text-sm text-black mb-1">
           💰 Quanto ti resta davvero in tasca, dopo tutte le tasse
           <Tip text="Questo è il totale che arriva sul tuo conto personale in un anno, sommando ciò che ricevi come compenso (il tuo 'stipendio' da amministratore) e ciò che ricevi come dividendi (la tua quota di utili). Tutte le tasse sono già tolte." />
         </div>
         <div className="text-5xl font-black text-green-400 tracking-tight">
           {fmt(A.totaleTasca)}
         </div>
-        <div className="text-xs text-gray-500 mt-2">
-          Cioè circa <strong className="text-white">{fmt(A.totaleTasca / 12)} al mese</strong> sul tuo conto
+        <div className="text-xs text-black/60 mt-2">
+          Cioè circa <strong className="text-black">{fmt(A.totaleTasca / 12)} al mese</strong> sul tuo conto
         </div>
-        <div className="text-xs text-gray-500 mt-1">
+        <div className="text-xs text-black/60 mt-1">
           Pressione fiscale: <span className="text-amber-400 font-bold">{A.pressioneFiscale.toFixed(1)}%</span>
           <Tip text={`Totale imposte e contributi (${fmt(A.totaleImposteContributi)}) diviso il margine operativo (${fmt(A.margine)}). Misura quanto del margine viene assorbito dal fisco.`} />
           {A.percTasca > 0 && (
@@ -740,20 +740,20 @@ export default function SimulatoreInterattivo({ user }) {
         {/* Dettaglio: da dove arrivano i soldi */}
         <div className="grid grid-cols-2 gap-3 mt-4 text-left">
           <div className="bg-black/20 rounded-lg p-3">
-            <div className="text-[10px] text-gray-500">
+            <div className="text-[10px] text-black/60">
               Dal compenso amm.re
               <Tip text="Questa è la parte del tuo reddito che arriva dallo 'stipendio' che ti sei dato come amministratore. Ha già pagato IRPEF, contributi INPS e addizionali." />
             </div>
             <div className="text-lg font-bold text-blue-400">{fmt(A.nettoCompenso)}</div>
-            <div className="text-[10px] text-gray-600">{fmt(A.nettoCompenso / 12)}/mese netti</div>
+            <div className="text-[10px] text-black/50">{fmt(A.nettoCompenso / 12)}/mese netti</div>
           </div>
           <div className="bg-black/20 rounded-lg p-3">
-            <div className="text-[10px] text-gray-500">
+            <div className="text-[10px] text-black/60">
               Dai dividendi
               <Tip text="Questa è la parte del tuo reddito che arriva dalla distribuzione degli utili della società. Ha già pagato IRES (24%) a livello societario e la ritenuta del 26% a livello personale." />
             </div>
             <div className="text-lg font-bold text-violet-400">{fmt(A.dividendiNetti)}</div>
-            <div className="text-[10px] text-gray-600">dopo ritenuta 26%</div>
+            <div className="text-[10px] text-black/50">dopo ritenuta 26%</div>
           </div>
         </div>
 
@@ -762,70 +762,70 @@ export default function SimulatoreInterattivo({ user }) {
 
       {/* RIEPILOGO TASSE — spiegato semplice */}
       <div className="rounded-xl p-4" style={{ backgroundColor: "rgba(255,255,255,0.03)", border: "1px solid rgba(255,255,255,0.06)" }}>
-        <h2 className="text-sm font-semibold text-gray-400 uppercase tracking-wider mb-1">
+        <h2 className="text-sm font-semibold text-black uppercase tracking-wider mb-1">
           📊 Dettaglio delle tasse che paghi
         </h2>
-        <p className="text-[10px] text-gray-500 mb-3">Ecco dove vanno i tuoi soldi, voce per voce. Tocca i ❓ per capire cosa significa ogni tassa.</p>
+        <p className="text-[10px] text-black/60 mb-3">Ecco dove vanno i tuoi soldi, voce per voce. Tocca i ❓ per capire cosa significa ogni tassa.</p>
         <div className="grid grid-cols-2 gap-3">
           {/* IRPEF */}
           <div className="rounded-lg p-3" style={{ backgroundColor: "rgba(239,68,68,0.08)", border: "1px solid rgba(239,68,68,0.15)" }}>
-            <div className="text-xs text-gray-400 mb-1">
+            <div className="text-xs text-black mb-1">
               IRPEF (tassa sul reddito)
               <Tip text="L'IRPEF è la tassa personale che paghi sul tuo compenso da amministratore. È progressiva: i primi €28.000 pagano il 23%, da €28k a €50k il 33%, oltre €50k il 43%. Più alto il compenso, più alta la percentuale." />
             </div>
             <div className="text-xl font-bold text-red-400">{fmt(A.irpef)}</div>
-            <div className="text-[10px] text-gray-500 mt-0.5">
+            <div className="text-[10px] text-black/60 mt-0.5">
               {comp <= 28000 ? "Fascia 23% — la più bassa ✅" : comp <= 50000 ? "Fascia fino al 33%" : "Fascia fino al 43%"}
             </div>
           </div>
           {/* INPS */}
           <div className="rounded-lg p-3" style={{ backgroundColor: "rgba(245,158,11,0.08)", border: "1px solid rgba(245,158,11,0.15)" }}>
-            <div className="text-xs text-gray-400 mb-1">
+            <div className="text-xs text-black mb-1">
               INPS (contributi pensione)
               <Tip text={`L'INPS Gestione Separata è il contributo previdenziale che si paga sul compenso dell'amministratore. L'aliquota è del 35,03%. Di questa, 2/3 li paga la società (${fmt(A.inpsAzienda)}) e 1/3 lo paghi tu (${fmt(A.inpsAmministratore)}). Servono per la tua pensione.`} />
             </div>
             <div className="text-xl font-bold text-amber-400">{fmt(A.inpsTotale)}</div>
-            <div className="text-[10px] text-gray-500 mt-0.5">
+            <div className="text-[10px] text-black/60 mt-0.5">
               Società paga {fmt(A.inpsAzienda)} · tu paghi {fmt(A.inpsAmministratore)}
             </div>
           </div>
           {/* IRES */}
           <div className="rounded-lg p-3" style={{ backgroundColor: "rgba(239,68,68,0.08)", border: "1px solid rgba(239,68,68,0.15)" }}>
-            <div className="text-xs text-gray-400 mb-1">
+            <div className="text-xs text-black mb-1">
               IRES (tassa sugli utili)
               <Tip text="L'IRES è la tassa che paga la SRL sui suoi utili. L'aliquota è fissa al 24%. Si calcola sull'utile della società DOPO aver tolto il tuo compenso e i costi. Quindi più compenso ti dai, meno IRES paga la società." />
             </div>
             <div className="text-xl font-bold text-red-400">{fmt(A.ires)}</div>
-            <div className="text-[10px] text-gray-500 mt-0.5">24% fisso sull'utile della società</div>
+            <div className="text-[10px] text-black/60 mt-0.5">24% fisso sull'utile della società</div>
           </div>
           {/* IRAP */}
           <div className="rounded-lg p-3" style={{ backgroundColor: "rgba(239,68,68,0.08)", border: "1px solid rgba(239,68,68,0.15)" }}>
-            <div className="text-xs text-gray-400 mb-1">
+            <div className="text-xs text-black mb-1">
               IRAP (tassa regionale)
               <Tip text="L'IRAP si calcola sul valore della produzione netta (D.Lgs. 446/97 art. 5). Il costo del personale, il compenso amministratore e gli interessi passivi NON sono deducibili dalla base IRAP. Quindi la base è più alta del margine contabile." />
             </div>
             <div className="text-xl font-bold text-red-400">{fmt(A.irap)}</div>
-            <div className="text-[10px] text-gray-500 mt-0.5">3,9% su base {fmt(A.baseIrap)}</div>
+            <div className="text-[10px] text-black/60 mt-0.5">3,9% su base {fmt(A.baseIrap)}</div>
           </div>
           {/* Ritenuta dividendi */}
           {A.dividendiLordi > 0 && (
             <div className="rounded-lg p-3" style={{ backgroundColor: "rgba(139,92,246,0.08)", border: "1px solid rgba(139,92,246,0.15)" }}>
-              <div className="text-xs text-gray-400 mb-1">
+              <div className="text-xs text-black mb-1">
                 Ritenuta dividendi
                 <Tip text="Quando prelevi gli utili dalla SRL come dividendi, paghi una tassa secca del 26%. Questa si aggiunge all'IRES già pagata dalla società. Per questo i dividendi costano in totale circa il 43,8%." />
               </div>
               <div className="text-xl font-bold text-violet-400">{fmt(A.ritenutaDividendi)}</div>
-              <div className="text-[10px] text-gray-500 mt-0.5">26% secco sui dividendi lordi</div>
+              <div className="text-[10px] text-black/60 mt-0.5">26% secco sui dividendi lordi</div>
             </div>
           )}
           {/* Addizionali */}
           <div className="rounded-lg p-3" style={{ backgroundColor: "rgba(255,255,255,0.05)" }}>
-            <div className="text-xs text-gray-400 mb-1">
+            <div className="text-xs text-black mb-1">
               Addizionali IRPEF
               <Tip text="Sono tasse aggiuntive regionali (~1,7%) e comunali (~0,8%) che si pagano oltre all'IRPEF, calcolate sul tuo compenso. Variano da regione a regione e da comune a comune." />
             </div>
-            <div className="text-xl font-bold text-white">{fmt(A.addRegionale + A.addComunale)}</div>
-            <div className="text-[10px] text-gray-500 mt-0.5">regionale + comunale</div>
+            <div className="text-xl font-bold text-black">{fmt(A.addRegionale + A.addComunale)}</div>
+            <div className="text-[10px] text-black/60 mt-0.5">regionale + comunale</div>
           </div>
         </div>
       </div>
@@ -834,7 +834,7 @@ export default function SimulatoreInterattivo({ user }) {
       <div className="rounded-xl p-5"
         style={{ backgroundColor: "rgba(255,255,255,0.03)", border: "1px solid rgba(255,255,255,0.06)" }}>
         <div className="flex items-center justify-between mb-1">
-          <h2 className="text-sm font-semibold text-gray-400 uppercase tracking-wider">
+          <h2 className="text-sm font-semibold text-black uppercase tracking-wider">
             🔍 Dove vanno i tuoi soldi
           </h2>
           <button onClick={() => setDetComp(!detComp)}
@@ -842,7 +842,7 @@ export default function SimulatoreInterattivo({ user }) {
             {detComp ? "Chiudi dettaglio" : "📋 Vedi calcoli compenso"}
           </button>
         </div>
-        <p className="text-[10px] text-gray-500 mb-3">Dal fatturato, ogni barra mostra quanto viene "tolto" — ciò che resta alla fine è tuo.</p>
+        <p className="text-[10px] text-black/60 mb-3">Dal fatturato, ogni barra mostra quanto viene "tolto" — ciò che resta alla fine è tuo.</p>
         {A.steps.map((s, i) => <WBar key={i} step={s} maxVal={fatt} />)}
         <div className="border-t border-gray-700 pt-2 mt-2">
           <div className="flex items-center gap-3 py-1.5">
@@ -871,7 +871,7 @@ export default function SimulatoreInterattivo({ user }) {
           <h2 className="text-sm font-semibold text-blue-400 mb-1">
             💼 Come viene calcolato il tuo compenso
           </h2>
-          <p className="text-[10px] text-gray-500 mb-3">Ecco passo per passo cosa succede ai soldi del tuo compenso da amministratore:</p>
+          <p className="text-[10px] text-black/60 mb-3">Ecco passo per passo cosa succede ai soldi del tuo compenso da amministratore:</p>
           <div className="space-y-1">
             <DetailRow label="Il tuo compenso lordo (quanto deliberi in assemblea)" value={comp} color="text-white" />
             <DetailRow label="− I tuoi contributi INPS (1/3 del 35,03%)" value={-A.inpsAmministratore} color="text-red-400"
@@ -887,12 +887,12 @@ export default function SimulatoreInterattivo({ user }) {
             </div>
           </div>
           <div className="mt-3 pt-3 border-t border-gray-800">
-            <div className="flex justify-between text-xs text-gray-500">
+            <div className="flex justify-between text-xs text-black/60">
               <span>
                 Costo totale per la SRL (il tuo compenso + i 2/3 di INPS che paga la società)
                 <Tip text="La società paga il tuo compenso LORDO + i 2/3 dei contributi INPS. Tutto questo è un costo deducibile per la SRL, quindi riduce l'utile su cui si paga IRES (24%). È per questo che il compenso conviene: riduce le tasse della società." />
               </span>
-              <span className="font-mono text-gray-300">{fmt(A.costoCompensoPerSocieta)}</span>
+              <span className="font-mono text-black">{fmt(A.costoCompensoPerSocieta)}</span>
             </div>
           </div>
         </div>
@@ -902,7 +902,7 @@ export default function SimulatoreInterattivo({ user }) {
       <div className="grid grid-cols-2 gap-3">
         <div className="rounded-xl p-4"
           style={{ backgroundColor: "rgba(255,255,255,0.03)", border: "1px solid rgba(255,255,255,0.06)" }}>
-          <div className="text-xs text-gray-400 mb-1">
+          <div className="text-xs text-black mb-1">
             💡 Se fatturi {fmt(50000)} in più
           </div>
           <div className="text-lg font-bold text-green-400">
@@ -914,11 +914,11 @@ export default function SimulatoreInterattivo({ user }) {
               costiIndeducibiliIrap,
             }).totaleTasca - A.totaleTasca)}
           </div>
-          <div className="text-xs text-gray-500">netti in più in tasca</div>
+          <div className="text-xs text-black/60">netti in più in tasca</div>
         </div>
         <div className="rounded-xl p-4"
           style={{ backgroundColor: "rgba(255,255,255,0.03)", border: "1px solid rgba(255,255,255,0.06)" }}>
-          <div className="text-xs text-gray-400 mb-1">
+          <div className="text-xs text-black mb-1">
             💡 Ogni €1.000 di costo in più
           </div>
           <div className="text-lg font-bold text-red-400">
@@ -930,7 +930,7 @@ export default function SimulatoreInterattivo({ user }) {
               costiIndeducibiliIrap,
             }).totaleTasca - A.totaleTasca)}
           </div>
-          <div className="text-xs text-gray-500">effetto netto in tasca</div>
+          <div className="text-xs text-black/60">effetto netto in tasca</div>
         </div>
       </div>
 
@@ -941,11 +941,11 @@ export default function SimulatoreInterattivo({ user }) {
           <div className="flex items-center gap-3">
             <span className="text-xl">📊</span>
             <div>
-              <span className="text-sm font-bold text-white block">Pianificatore Mensile</span>
-              <span className="text-[10px] text-gray-400">Inserisci fatturato mese per mese — ottimizzazione automatica compenso/dividendi</span>
+              <span className="text-sm font-bold text-black block">Pianificatore Mensile</span>
+              <span className="text-[10px] text-black/60">Inserisci fatturato mese per mese — ottimizzazione automatica compenso/dividendi</span>
             </div>
           </div>
-          <span className="text-gray-500 text-xs">{showPianificatore ? '▼' : '▶'}</span>
+          <span className="text-black/50 text-xs">{showPianificatore ? '▼' : '▶'}</span>
         </button>
         {showPianificatore && (
           <div className="px-4 pb-5">
@@ -955,7 +955,7 @@ export default function SimulatoreInterattivo({ user }) {
       </div>
 
       {/* DISCLAIMER */}
-      <div className="text-center text-xs text-gray-600 px-2">
+      <div className="text-center text-xs text-black/50 px-2">
         ⚠️ Simulazione orientativa — non sostituisce il commercialista.
         IRPEF 2026: 23%/33%/43% (L. Bilancio 2026).
         INPS GS co.co.co.: 35,03% su max €122.295 (Circ. INPS 8/2026), 2/3 azienda + 1/3 amm.re.
