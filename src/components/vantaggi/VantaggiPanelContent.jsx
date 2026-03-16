@@ -256,13 +256,13 @@ export default function VantaggiPanelContent({ onClose }) {
 
       {/* Pannello Crea Vantaggio - slide-in interno (versione completa come VantaggiIscritti) */}
       {showCreatePanel && (
-        <div className="absolute inset-0 z-10 bg-slate-900 flex flex-col overflow-hidden">
-          <div className="flex items-center gap-3 px-4 pt-4 pb-3 border-b border-[#d4af37]/20">
-            <button onClick={() => { resetForm(); setShowCreatePanel(false); }} className="text-[#d4af37] p-1">
+        <div className="absolute inset-0 z-10 flex flex-col overflow-hidden" style={{ backgroundColor: '#fef200' }}>
+          <div className="flex items-center gap-3 px-4 pt-4 pb-3 border-b border-black/20">
+            <button onClick={() => { resetForm(); setShowCreatePanel(false); }} className="text-black p-1">
               <ChevronLeft className="w-6 h-6" />
             </button>
-            <Gift className="w-5 h-5 text-[#d4af37]" />
-            <h1 className="text-white text-lg font-bold flex-1">Crea Nuovo Vantaggio</h1>
+            <Gift className="w-5 h-5 text-black" />
+            <h1 className="text-black text-lg font-bold flex-1">Crea Nuovo Vantaggio</h1>
           </div>
           <div className="flex-1 overflow-y-auto px-4 py-4">
             <div className="space-y-4">
