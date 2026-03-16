@@ -16,7 +16,7 @@ const SOURCE_TO_TOOL = {
   marketplace: 'marketplace',
   video: 'video_interviste',
   cultura_aziendale: 'video_recensioni',
-  import_export: 'import_export',
+  import_export: 'export',
   analisi_contratti: 'analisi_contratti',
   calendario: null, // non c'è nel drawer
   finanziamenti: 'bandi',
@@ -54,7 +54,8 @@ const DEFAULT_TOOLS = [
   { id: 'compliance', title: 'Evita Sanzioni', icon: 'Shield', page: 'ComplianceAziendale' },
   { id: 'risparmio', title: 'Risparmio', icon: 'PiggyBank', page: 'RisparmioEnergetico' },
   { id: 'bandi', title: 'Bandi', icon: 'Euro', page: 'FinanziamentiAgevolati' },
-  { id: 'import_export', title: 'Import / Export', icon: 'Globe', page: 'ImportExport' },
+  { id: 'export', title: 'Export', icon: 'Globe', page: 'ImportExport' },
+  { id: 'import', title: 'Import', icon: 'Truck', page: 'ImportExport?tab=import' },
   { id: 'simulatore', title: 'Simulatore Fiscale', icon: 'Calculator', page: 'SimulatoreFiscale' },
   { id: 'consulenze', title: 'Consulenze', icon: 'Briefcase', page: 'Consulenze' },
   { id: 'welfare', title: 'Benefit Dipendenti', icon: 'Heart', page: 'WelfareAziendale' },
