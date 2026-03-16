@@ -427,7 +427,7 @@ export default function ToolsDrawer() {
                     transition: 'background 0.6s ease',
                   }}>
                       <div className="rounded-[12px] flex flex-col items-center justify-center py-5 relative" style={{
-                        background: 'var(--app-gradient-card)',
+                        background: isDark ? 'var(--app-gradient-card)' : '#fef200',
                         boxShadow: isDark ? 'inset 0 2px 4px rgba(0,0,0,0.5), inset 0 -1px 2px rgba(255,255,255,0.05)' : 'inset 0 2px 4px rgba(0,0,0,0.06), inset 0 -1px 2px rgba(255,255,255,0.5)'
                       }}>
                         {/* Campanella notifiche — angolo alto destra */}
