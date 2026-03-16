@@ -176,10 +176,8 @@ export default function NotificationsPanel({ open, onClose, userEmail, userRegim
       >
       <div
         className="w-full max-w-md flex flex-col pointer-events-auto shadow-2xl rounded-t-2xl transition-transform duration-300 ease-out"
-        style={{ backgroundColor: '#fef200' }}
-      >
-        /* second style applied via spread below */
-        style2={{
+        style={{
+          backgroundColor: '#fef200',
           position: 'absolute',
           bottom: 0,
           left: '50%',
@@ -191,38 +189,38 @@ export default function NotificationsPanel({ open, onClose, userEmail, userRegim
         {/* Header */}
         <div className="flex items-center justify-between px-4 pt-4 pb-2">
           <div className="flex items-center gap-2">
-            <Bell className="w-5 h-5 text-[#d4af37]" />
-            <h2 className="text-white font-semibold text-sm">Notifiche</h2>
+            <Bell className="w-5 h-5 text-black" />
+            <h2 className="text-black font-semibold text-sm">Notifiche</h2>
             {unreadNotifs > 0 && (
               <span className="bg-red-500 text-white text-[9px] rounded-full min-w-4 h-4 px-1 flex items-center justify-center font-bold">
                 {unreadNotifs}
               </span>
             )}
           </div>
-          <button onClick={onClose} className="p-2 rounded-xl hover:bg-slate-800 transition-colors">
-            <X className="w-5 h-5 text-slate-300" />
+          <button onClick={onClose} className="p-2 rounded-xl hover:bg-black/10 transition-colors">
+            <X className="w-5 h-5 text-black" />
           </button>
         </div>
 
         {/* Tabs */}
-        <div className="flex border-b border-slate-700/50 px-4">
+        <div className="flex border-b border-black/15 px-4">
           <button
             onClick={() => setTab('notifiche')}
             className={cn(
               "flex-1 py-2.5 text-xs font-semibold text-center border-b-2 transition-colors",
-              tab === 'notifiche' ? 'border-[#d4af37] text-[#d4af37]' : 'border-transparent text-slate-400 hover:text-slate-300'
+              tab === 'notifiche' ? 'border-black text-black' : 'border-transparent text-black/50 hover:text-black/70'
             )}
           >
-            Notifiche {unreadNotifs > 0 && <span className="ml-1 px-1.5 py-0.5 rounded-full bg-red-500/20 text-red-400 text-[9px] font-bold">{unreadNotifs}</span>}
+            Notifiche {unreadNotifs > 0 && <span className="ml-1 px-1.5 py-0.5 rounded-full bg-red-500 text-white text-[9px] font-bold">{unreadNotifs}</span>}
           </button>
           <button
             onClick={() => setTab('scadenze')}
             className={cn(
               "flex-1 py-2.5 text-xs font-semibold text-center border-b-2 transition-colors",
-              tab === 'scadenze' ? 'border-[#d4af37] text-[#d4af37]' : 'border-transparent text-slate-400 hover:text-slate-300'
+              tab === 'scadenze' ? 'border-black text-black' : 'border-transparent text-black/50 hover:text-black/70'
             )}
           >
-            Scadenze {urgentCount > 0 && <span className="ml-1 px-1.5 py-0.5 rounded-full bg-red-500/20 text-red-400 text-[9px] font-bold">{urgentCount}</span>}
+            Scadenze {urgentCount > 0 && <span className="ml-1 px-1.5 py-0.5 rounded-full bg-red-500 text-white text-[9px] font-bold">{urgentCount}</span>}
           </button>
         </div>
 
@@ -232,13 +230,13 @@ export default function NotificationsPanel({ open, onClose, userEmail, userRegim
             <>
               {unreadNotifs > 0 && (
                 <div className="px-4 py-2 flex justify-end">
-                  <button onClick={markAllRead} className="text-[10px] text-[#d4af37] hover:underline">Segna tutte come lette</button>
+                  <button onClick={markAllRead} className="text-[10px] text-black font-medium hover:underline">Segna tutte come lette</button>
                 </div>
               )}
               {allNotifications.length === 0 ? (
                 <div className="flex flex-col items-center justify-center py-16">
-                  <Bell className="w-8 h-8 text-slate-600 mb-3" />
-                  <p className="text-slate-400 text-xs">Nessuna notifica</p>
+                  <Bell className="w-8 h-8 text-black/30 mb-3" />
+                  <p className="text-black/50 text-xs">Nessuna notifica</p>
                 </div>
               ) : (
                 allNotifications.map(n => (
@@ -256,15 +254,15 @@ export default function NotificationsPanel({ open, onClose, userEmail, userRegim
           ) : (
             <>
               {!userRegime && (
-                <div className="mx-4 mt-3 px-3 py-2.5 rounded-xl bg-orange-500/10 border border-orange-500/30">
+                <div className="mx-4 mt-3 px-3 py-2.5 rounded-xl bg-black/10 border border-black/20">
                   <div className="flex items-start gap-2">
-                    <UserIcon className="w-4 h-4 text-orange-400 mt-0.5 flex-shrink-0" />
+                    <UserIcon className="w-4 h-4 text-black mt-0.5 flex-shrink-0" />
                     <div>
-                      <p className="text-[11px] text-orange-300 font-medium">Completa il profilo per vedere tutte le scadenze</p>
+                      <p className="text-[11px] text-black font-medium">Completa il profilo per vedere tutte le scadenze</p>
                       <Link
                         to={createPageUrl('ProfiloUtente')}
                         onClick={onClose}
-                        className="text-[10px] text-[#d4af37] hover:underline mt-1 inline-block"
+                        className="text-[10px] text-black font-bold hover:underline mt-1 inline-block"
                       >
                         Vai al profilo →
                       </Link>
@@ -275,8 +273,8 @@ export default function NotificationsPanel({ open, onClose, userEmail, userRegim
 
               {upcomingScadenze.length === 0 ? (
                 <div className="flex flex-col items-center justify-center py-16">
-                  <CheckCircle2 className="w-8 h-8 text-emerald-500/40 mb-3" />
-                  <p className="text-slate-400 text-xs">Nessuna scadenza nei prossimi 90 giorni</p>
+                  <CheckCircle2 className="w-8 h-8 text-black/30 mb-3" />
+                  <p className="text-black/50 text-xs">Nessuna scadenza nei prossimi 90 giorni</p>
                 </div>
               ) : (
                 <div className="mt-1">
