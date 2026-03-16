@@ -713,17 +713,11 @@ export default function Home() {
               Come posso aiutarti oggi?
             </p>
 
-            <button
-              onClick={() => navigate('/SimulatoreApp')}
-              className="mt-6 flex items-center gap-2.5 px-5 py-3 rounded-2xl bg-gradient-to-r from-purple-600/20 to-indigo-600/20 border border-purple-500/30 text-purple-300 hover:from-purple-600/30 hover:to-indigo-600/30 active:scale-[0.97] transition-all"
-            >
-              <Sparkles className="w-4 h-4 text-purple-400" />
-              <span className="text-sm font-semibold">Crea la tua App</span>
-            </button>
+
           </div>
         ) : (
           // Conversazione attiva
-          <div ref={messagesContainerRef} className="flex-1 overflow-y-scroll px-4 pb-40" style={{ WebkitOverflowScrolling: 'touch', overscrollBehaviorY: 'contain', paddingTop: '56px' }}>
+          <div ref={messagesContainerRef} className="flex-1 overflow-y-scroll px-4" style={{ WebkitOverflowScrolling: 'touch', overscrollBehaviorY: 'contain', paddingTop: '56px', paddingBottom: '180px' }}>
             <div className="max-w-2xl mx-auto space-y-4">
               {messages.map((msg, i) => {
                 // Calcola se è l'ultimo messaggio utente o l'ultimo assistente
@@ -776,20 +770,7 @@ export default function Home() {
                   </div>
                 );
               })}
-              {isTyping && !isStreaming && messages.some(m => m.role === 'user') && (
-                <div ref={lastAssistantMsgRef} className="flex items-start gap-3">
-                  <div className="w-8 h-8 rounded-xl bg-gradient-to-br from-[#d4af37] to-[#b8860b] flex items-center justify-center flex-shrink-0">
-                    <Sparkles className="w-4 h-4 text-white" />
-                  </div>
-                  <div className="bg-slate-800/60 rounded-2xl rounded-tl-sm px-4 py-3">
-                    <div className="flex items-center gap-1.5">
-                      <div className="w-2 h-2 bg-slate-400 rounded-full animate-bounce" style={{ animationDelay: '0ms' }} />
-                      <div className="w-2 h-2 bg-slate-400 rounded-full animate-bounce" style={{ animationDelay: '150ms' }} />
-                      <div className="w-2 h-2 bg-slate-400 rounded-full animate-bounce" style={{ animationDelay: '300ms' }} />
-                    </div>
-                  </div>
-                </div>
-              )}
+
               <div ref={messagesEndRef} />
             </div>
           </div>
@@ -811,7 +792,7 @@ export default function Home() {
       )}
 
       {/* Campo di input */}
-      <div className="fixed z-40 px-2 pb-2 pt-8 left-0 right-0 transition-[bottom] duration-400 ease-[cubic-bezier(0.25,0.1,0.25,1)]" style={{ bottom: bottomNavExpanded ? '172px' : '52px', background: 'linear-gradient(to top, #0a0f1a 60%, transparent 100%)' }}>
+      <div className="fixed z-40 px-2 pb-2 pt-10 left-0 right-0" style={{ bottom: '88px', background: 'linear-gradient(to top, #0a0f1a 70%, transparent 100%)' }}>
         <div className="max-w-2xl mx-auto space-y-1">
           {!compareMode ? (
             <>

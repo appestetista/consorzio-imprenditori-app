@@ -6,18 +6,17 @@ import { Send, UserRound } from 'lucide-react';
 export default function GlobalSearchBar({ currentPageName }) {
   const navigate = useNavigate();
 
-  const handleFocus = () => {
-    if (currentPageName !== 'Home') {
-      navigate(createPageUrl('Home'));
-    }
-  };
+  // Non mostrare sulla Home (ha la sua barra input) né su AdminPanel
+  if (currentPageName === 'Home' || currentPageName === 'AdminPanel') return null;
 
   return (
-    <div className="fixed z-40 left-0 right-0" style={{ bottom: '96px' }}>
-      <div className="max-w-md mx-auto px-3 flex items-center gap-2">
+    <div className="fixed z-40 left-0 right-0" style={{ bottom: '88px' }}>
+      {/* Sfondo sfumato per coprire il contenuto dietro */}
+      <div className="absolute inset-0 pointer-events-none" style={{ top: '-30px', background: 'linear-gradient(to top, var(--page-bg, #0f172a) 60%, transparent 100%)' }} />
+      <div className="relative max-w-md mx-auto px-3 flex items-center gap-2">
         {/* Barra di ricerca */}
         <button
-          onClick={handleFocus}
+          onClick={() => navigate(createPageUrl('Home'))}
           className="flex-1 relative flex items-center rounded-xl border border-slate-700/60 bg-slate-800/80 backdrop-blur-lg overflow-hidden"
         >
           <span className="flex-1 text-left text-slate-500 text-sm px-4 py-2.5 truncate">
