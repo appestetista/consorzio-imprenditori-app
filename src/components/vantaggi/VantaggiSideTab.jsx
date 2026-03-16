@@ -52,24 +52,32 @@ export default function VantaggiSideTab() {
     <>
       {/* Linguette laterali rimosse — apertura gestita dal BottomNav */}
 
-      {/* Pannello Vantaggi - scorre da sinistra a destra (speculare al calendario) */}
+      {/* Overlay scuro dietro il pannello */}
+      {isOpen && (
+        <div
+          className="fixed inset-0 bg-black/40 z-[24] transition-opacity duration-[1200ms]"
+          onClick={() => { setIsOpen(false); showHeader(); }}
+        />
+      )}
+
+      {/* Pannello Vantaggi - scorre da sinistra, larghezza 95% */}
       <div
         className={cn(
-          "fixed transition-transform duration-[800ms] ease-[cubic-bezier(0.25,0.1,0.25,1)]",
-          "bg-slate-900 shadow-2xl",
+          "fixed transition-transform duration-[1200ms] ease-[cubic-bezier(0.22,0.61,0.36,1)]",
+          "bg-slate-900 shadow-2xl rounded-r-2xl",
           isOpen ? "translate-x-0" : "-translate-x-full",
           "z-[25]"
         )}
-        style={{ display: 'flex', flexDirection: 'column', top: 0, left: 0, right: 0, bottom: '0px' }}
+        style={{ display: 'flex', flexDirection: 'column', top: 0, left: 0, width: '95%', bottom: 0 }}
       >
         <VantaggiPanelContent onClose={() => { setIsOpen(false); showHeader(); }} />
 
-        {/* X chiudi in alto a destra */}
+        {/* Linguetta laterale destra per chiudere */}
         <button
           onClick={() => { setIsOpen(false); showHeader(); }}
-          className="absolute top-4 right-4 z-10 w-9 h-9 rounded-full bg-slate-800/80 border border-slate-600/50 flex items-center justify-center active:scale-90 transition-transform backdrop-blur-sm"
+          className="absolute top-1/2 -translate-y-1/2 -right-6 z-10 w-6 h-16 rounded-r-lg bg-slate-800 border border-l-0 border-slate-600/50 flex items-center justify-center active:scale-95 transition-transform"
         >
-          <X className="w-5 h-5 text-slate-300" />
+          <ChevronLeft className="w-4 h-4 text-[#d4af37]" />
         </button>
       </div>
     </>
