@@ -803,12 +803,17 @@ export default function Home() {
                   <textarea
                     ref={inputRef}
                     value={inputText}
-                    onChange={(e) => setInputText(e.target.value)}
+                    onChange={(e) => {
+                      setInputText(e.target.value);
+                      // Auto-resize: resetta altezza poi adatta a scrollHeight
+                      e.target.style.height = 'auto';
+                      e.target.style.height = Math.min(e.target.scrollHeight, 160) + 'px';
+                    }}
                     onKeyDown={handleKeyDown}
                     placeholder={isRecording ? "Sto ascoltando..." : "Chiedi qualsiasi cosa..."}
                     rows={1}
-                    className="flex-1 bg-transparent text-white text-base px-2 py-2.5 resize-none outline-none placeholder:text-slate-500 max-h-28"
-                    style={{ scrollbarWidth: 'none' }}
+                    className="flex-1 bg-transparent text-white text-base px-2 py-2.5 resize-none outline-none placeholder:text-slate-500"
+                    style={{ scrollbarWidth: 'none', maxHeight: '160px', overflow: 'auto' }}
                   />
                   <button
                     onClick={() => handleSend()}
