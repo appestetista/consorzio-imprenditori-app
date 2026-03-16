@@ -545,10 +545,7 @@ export default function Home() {
 
 
   const handleKeyDown = (e) => {
-    if (e.key === 'Enter' && !e.shiftKey) {
-      e.preventDefault();
-      handleSend();
-    }
+    // Enter fa solo "a capo" — l'invio avviene solo col pulsante freccia
   };
 
   const toggleRecording = () => {
