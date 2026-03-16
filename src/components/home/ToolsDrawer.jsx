@@ -322,19 +322,19 @@ export default function ToolsDrawer() {
             height: '60px',
             background: isDark
               ? 'linear-gradient(270deg, rgba(254,242,0,0.3) 0%, transparent 100%)'
-              : 'linear-gradient(270deg, rgba(0,100,255,0.3) 0%, transparent 100%)',
+              : 'linear-gradient(270deg, rgba(0,80,255,0.6) 0%, rgba(0,80,255,0.15) 100%)',
             borderTopLeftRadius: '10px',
             borderBottomLeftRadius: '10px',
-            borderLeft: isDark ? '1.5px solid rgba(254,242,0,0.6)' : '1.5px solid rgba(0,100,255,0.6)',
-            borderTop: isDark ? '1px solid rgba(254,242,0,0.3)' : '1px solid rgba(0,100,255,0.3)',
-            borderBottom: isDark ? '1px solid rgba(254,242,0,0.3)' : '1px solid rgba(0,100,255,0.3)',
+            borderLeft: isDark ? '1.5px solid rgba(254,242,0,0.6)' : '2px solid rgba(0,80,255,0.85)',
+            borderTop: isDark ? '1px solid rgba(254,242,0,0.3)' : '1.5px solid rgba(0,80,255,0.5)',
+            borderBottom: isDark ? '1px solid rgba(254,242,0,0.3)' : '1.5px solid rgba(0,80,255,0.5)',
             backdropFilter: 'blur(8px)',
           }}
         >
           <div className="flex flex-col gap-[3px]">
-            <div className="w-[3px] h-[3px] rounded-full" style={{ backgroundColor: isDark ? '#fef200' : '#0064ff' }} />
-            <div className="w-[3px] h-[3px] rounded-full" style={{ backgroundColor: isDark ? '#fef200' : '#0064ff' }} />
-            <div className="w-[3px] h-[3px] rounded-full" style={{ backgroundColor: isDark ? '#fef200' : '#0064ff' }} />
+            <div className="w-[3.5px] h-[3.5px] rounded-full" style={{ backgroundColor: isDark ? '#fef200' : '#0050ff' }} />
+            <div className="w-[3.5px] h-[3.5px] rounded-full" style={{ backgroundColor: isDark ? '#fef200' : '#0050ff' }} />
+            <div className="w-[3.5px] h-[3.5px] rounded-full" style={{ backgroundColor: isDark ? '#fef200' : '#0050ff' }} />
           </div>
         </div>
       )}
