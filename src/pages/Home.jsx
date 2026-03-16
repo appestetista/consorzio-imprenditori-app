@@ -783,7 +783,7 @@ export default function Home() {
       )}
 
       {/* Campo di input */}
-      <div className="fixed z-40 px-2 pb-2 pt-10 left-0 right-0" style={{ bottom: '100px', background: `linear-gradient(to top, var(--app-bg) 70%, transparent 100%)` }}>
+      <div className="fixed z-40 px-2 pb-2 pt-10 left-0 right-0" style={{ bottom: '100px', background: `linear-gradient(to top, var(--app-bg) 80%, transparent 100%)` }}>
         <div className="max-w-2xl mx-auto space-y-1.5">
           <AIUsageInline usate={consulenzeUsate} piano={pianoAbbonamento} />
           {!compareMode ? (
