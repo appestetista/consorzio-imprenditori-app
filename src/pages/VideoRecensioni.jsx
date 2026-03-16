@@ -274,6 +274,9 @@ NOTE: ${formData.notes || 'Nessuna'}
               </CardContent>
             </Card>
 
+            {/* Esempi video */}
+            <VideoRecensioniExamples />
+
             {/* Scelta piano */}
             {!selectedPlan && !requestSent && (
               <div className="space-y-3 mb-6">
