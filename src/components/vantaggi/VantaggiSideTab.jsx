@@ -76,11 +76,11 @@ export default function VantaggiSideTab() {
       <div
         className={cn(
           "fixed transition-transform duration-[1200ms] ease-[cubic-bezier(0.22,0.61,0.36,1)]",
-          "bg-slate-900 shadow-2xl rounded-r-2xl",
+          "shadow-2xl rounded-r-2xl",
           isOpen ? "translate-x-0" : "-translate-x-full",
           "z-[25]"
         )}
-        style={{ display: 'flex', flexDirection: 'column', top: 0, left: 0, width: '90%', bottom: 0 }}
+        style={{ display: 'flex', flexDirection: 'column', top: 0, left: 0, width: '90%', bottom: 0, backgroundColor: 'var(--app-bg)' }}
       >
         <VantaggiPanelContent onClose={() => { setIsOpen(false); showHeader(); }} />
 
@@ -92,7 +92,7 @@ export default function VantaggiSideTab() {
             style={{ right: '-22px', width: '22px', height: '72px' }}
           >
             <svg width="22" height="72" viewBox="0 0 22 72" fill="none" xmlns="http://www.w3.org/2000/svg" className="absolute inset-0">
-              <path d="M0 0 L0 72 L22 60 L22 12 Z" fill="#0f172a" />
+              <path d="M0 0 L0 72 L22 60 L22 12 Z" fill="var(--app-bg)" />
               <path d="M0 0 L0 72 L22 60 L22 12 Z" stroke="#334155" strokeWidth="1" strokeLinejoin="round" style={{ strokeDasharray: '0 72 22 60 22 12', clipPath: 'inset(0 0 0 1px)' }} />
             </svg>
             <ChevronLeft className="w-8 h-8 text-[#d4af37] relative z-10" />
