@@ -28,8 +28,22 @@ export default function GlobalHeader({ userEmail, userRegime, onMenuClick, onHam
   return (
     <div className="fixed top-0 left-0 right-0 z-[70] pointer-events-none" style={{ background: `linear-gradient(to bottom, var(--app-bg, #0f172a) 60%, transparent 100%)` }}>
       <div className="max-w-md mx-auto flex items-center justify-between px-3 pt-4 pb-3 pointer-events-auto">
-        {/* Sinistra: hamburger + tema + freccia indietro */}
+        {/* Sinistra: freccia indietro + tema + hamburger */}
         <div className="flex items-center gap-0">
+          {/* Freccia indietro — visibile solo su pagine interne */}
+          {!['Home', 'Esplora', 'MyProfile', 'AdminPanel'].includes(currentPageName) ? (
+            <button
+              onPointerUp={() => navigate(-1)}
+              className="w-11 h-11 flex items-center justify-center rounded-xl active:bg-white/10 transition-colors"
+              style={{ touchAction: 'manipulation' }}
+            >
+              <ArrowLeft className="w-7 h-7" style={{ color: 'var(--app-accent)' }} />
+            </button>
+          ) : (
+            <div className="w-11 h-11" />
+          )}
+          {/* Tema sole/luna */}
+          <ThemeToggle />
           {/* Hamburger — apre sidebar chat */}
           <button
             onPointerUp={handleHamburger}
@@ -38,17 +52,6 @@ export default function GlobalHeader({ userEmail, userRegime, onMenuClick, onHam
           >
             <Menu className="w-7 h-7" style={{ color: isDark ? '#ffffff' : '#000000' }} />
           </button>
-          {/* Tema sole/luna */}
-          <ThemeToggle />
-          {!['Home', 'Esplora', 'MyProfile', 'AdminPanel'].includes(currentPageName) && (
-            <button
-              onPointerUp={() => navigate(-1)}
-              className="w-11 h-11 flex items-center justify-center rounded-xl active:bg-white/10 transition-colors"
-              style={{ touchAction: 'manipulation' }}
-            >
-              <ArrowLeft className="w-7 h-7" style={{ color: 'var(--app-accent)' }} />
-            </button>
-          )}
         </div>
 
         {/* Destra: busta + campanella */}
