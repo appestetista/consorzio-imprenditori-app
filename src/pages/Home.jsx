@@ -16,6 +16,7 @@ import ChatSidebar from '../components/home/ChatSidebar';
 import GlobalTopIcons from '../components/layout/GlobalTopIcons';
 import AIUsageBar, { AIUsageBadge } from '../components/home/AIUsageBar';
 import AIUsageInline from '../components/home/AIUsageInline';
+import AttachmentMenu from '../components/home/AttachmentMenu';
 import useStreamingAI from '../components/home/useStreamingAI';
 import { useQueryClient } from '@tanstack/react-query';
 
@@ -49,6 +50,7 @@ export default function Home() {
   const [pendingContextAnswer, setPendingContextAnswer] = useState('');
   const [webSearchLoading, setWebSearchLoading] = useState(false);
   const [webSearchResult, setWebSearchResult] = useState(null);
+  const [attachedFiles, setAttachedFiles] = useState([]);
   const { streamAI } = useStreamingAI();
   const recognitionRef = useRef(null);
   const pendingContextRef = useRef('');
@@ -788,10 +790,28 @@ export default function Home() {
           {!compareMode ? (
             <>
               <div className="flex items-end gap-2">
-                <div className="flex-1 relative flex items-end rounded-xl border border-slate-700/60 bg-slate-800/80 backdrop-blur-lg overflow-hidden" style={isRecording ? { borderColor: '#ef4444' } : {}}>
+                <div className="flex-1 relative flex flex-col rounded-xl border border-slate-700/60 bg-slate-800/80 backdrop-blur-lg overflow-hidden" style={isRecording ? { borderColor: '#ef4444' } : {}}>
+                  {/* File allegati preview */}
+                  {attachedFiles.length > 0 && (
+                    <div className="flex flex-wrap gap-1.5 px-2 pt-2">
+                      {attachedFiles.map((f, idx) => (
+                        <div key={idx} className="flex items-center gap-1 bg-slate-700/60 rounded-lg px-2 py-1 text-xs text-slate-300">
+                          <span className="truncate max-w-[120px]">{f.name}</span>
+                          <button onClick={() => setAttachedFiles(prev => prev.filter((_, i) => i !== idx))} className="text-slate-500 hover:text-white">
+                            <X className="w-3 h-3" />
+                          </button>
+                        </div>
+                      ))}
+                    </div>
+                  )}
+                  <div className="flex items-end">
+                  <AttachmentMenu
+                    disabled={isTyping}
+                    onFileUploaded={(url, name) => setAttachedFiles(prev => [...prev, { url, name }])}
+                  />
                   <button
                     onClick={toggleRecording}
-                    className="flex-shrink-0 ml-2 mb-2 w-7 h-7 rounded-full flex items-center justify-center transition-all"
+                    className="flex-shrink-0 mb-2 w-7 h-7 rounded-full flex items-center justify-center transition-all"
                     style={{ backgroundColor: isRecording ? '#ef4444' : 'transparent' }}
                   >
                     {isRecording ? (
@@ -829,6 +849,7 @@ export default function Home() {
                       <Send className="w-4 h-4 text-white" />
                     )}
                   </button>
+                  </div>
                 </div>
                 {/* Pupino My Profilo */}
                 <button
