@@ -13,7 +13,7 @@ export default function AIUsageInline({ usate = 0 }) {
   const pct = Math.min((count / MAX_CONSULENZE) * 100, 100);
 
   let barColor = '#d4af37';
-  let label = `${count}/${MAX_CONSULENZE} consulenze AI`;
+  let label = `${count}/${MAX_CONSULENZE} consumo AI`;
   if (remaining <= 2) {
     barColor = '#ef4444';
     label = `${count}/${MAX_CONSULENZE} — ultime ${remaining}!`;
