@@ -66,11 +66,8 @@ export default function ContattaConsorzio() {
 
   return (
     <div className="min-h-screen bg-slate-900 pb-64">
-      <main className="px-4 py-6 max-w-md mx-auto">
+      <main className="px-4 pt-16 pb-6 max-w-md mx-auto">
         <div className="flex items-center gap-3 mb-6">
-          <Link to={createPageUrl('Home')} className="text-lime-400">
-            <ArrowLeft className="w-6 h-6" />
-          </Link>
           <h1 className="text-white text-xl font-bold">Contatta il Consorzio</h1>
         </div>
 

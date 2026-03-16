@@ -823,15 +823,9 @@ export default function FinanziamentiAgevolati() {
 
   return (
     <div className="min-h-screen bg-slate-900 pb-64">
-      <main className="px-4 py-6 max-w-md mx-auto">
+      <main className="px-4 pt-16 pb-6 max-w-md mx-auto">
         <div className="flex items-center justify-between mb-6">
-          <div className="flex items-center gap-3">
-            <Link to={createPageUrl('Esplora?tab=strumenti')} className="text-slate-400 p-3 -m-3 rounded-full back-arrow-tap hover:text-white transition-colors">
-              <ArrowLeft className="w-6 h-6" />
-            </Link>
-            <h1 className="text-white text-lg font-bold">Bandi e Agevolazioni</h1>
-          </div>
-          {/* Icone gestite dal GlobalHeader */}
+          <h1 className="text-white text-lg font-bold">Bandi e Agevolazioni</h1>
         </div>
 
         {/* SEZIONE ADMIN: Gestione Bandi */}

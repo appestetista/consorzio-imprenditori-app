@@ -213,17 +213,11 @@ export default function Consulenze() {
 
   return (
     <div className="min-h-screen bg-slate-900 pb-64">
-      <main className="px-4 py-6 max-w-4xl mx-auto">
+      <main className="px-4 pt-16 pb-6 max-w-4xl mx-auto">
         <div className="flex items-center justify-between mb-6">
-          <div className="flex items-center gap-3">
-            <Link to={createPageUrl('Esplora?tab=strumenti')} className="text-lime-400 p-3 -m-3 rounded-full back-arrow-tap">
-              <ArrowLeft className="w-7 h-7" />
-            </Link>
-            <h1 className="text-white text-xl font-bold">
-              {isAdmin ? 'GESTIONE CONSULENZE' : isConsultant ? 'RICHIESTE DI CONSULENZA' : 'CONSULENZE'}
-            </h1>
-          </div>
-          {/* Icone gestite dal GlobalHeader */}
+          <h1 className="text-white text-xl font-bold">
+            {isAdmin ? 'GESTIONE CONSULENZE' : isConsultant ? 'RICHIESTE DI CONSULENZA' : 'CONSULENZE'}
+          </h1>
         </div>
 
         {/* Banner consulenze gratuite (solo per member) */}

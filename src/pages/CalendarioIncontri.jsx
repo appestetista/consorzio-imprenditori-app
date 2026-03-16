@@ -516,18 +516,9 @@ export default function CalendarioIncontri() {
 
   return (
     <div className="min-h-screen pb-64 overflow-x-hidden" style={{ backgroundColor: `color-mix(in srgb, ${currentMonthColor} 10%, #0f172a)` }}>
-      <main className="px-4 py-6 max-w-md mx-auto w-full" id="calendario-incontri">
+      <main className="px-4 pt-16 pb-6 max-w-md mx-auto w-full" id="calendario-incontri">
         <div className="flex items-center justify-between mb-6 gap-2">
           <div className="flex items-center gap-2 min-w-0 flex-shrink">
-            {urlParams.get('fromCalendar') === '1' ? (
-              <Link to={createPageUrl('Home?openCalendar=1')} className="text-lime-400 flex-shrink-0 p-2 -m-2 rounded-full back-arrow-tap">
-                <X className="w-6 h-6" />
-              </Link>
-            ) : (
-              <Link to={createPageUrl('Esplora?tab=strumenti')} className="text-lime-400 flex-shrink-0 p-2 -m-2 rounded-full back-arrow-tap">
-                <ArrowLeft className="w-6 h-6" />
-              </Link>
-            )}
             <div className="w-9 h-9 rounded-full bg-lime-400 flex items-center justify-center flex-shrink-0">
               <span className="text-slate-900 font-bold text-base">{futureEventsCount}</span>
             </div>
@@ -535,7 +526,6 @@ export default function CalendarioIncontri() {
           </div>
           
           <div className="flex items-center gap-1 flex-shrink-0">
-            <SectionHeaderIcons userEmail={user?.email} unreadCount={messages.length} />
           {isAdmin && (
             <Dialog open={showAddEvent} onOpenChange={setShowAddEvent}>
               <DialogTrigger asChild>

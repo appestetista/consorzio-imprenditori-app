@@ -217,24 +217,18 @@ export default function CulturaAziendale() {
 
   return (
     <div className="min-h-screen bg-slate-900 pb-64">
-      <main className="px-4 py-6 max-w-4xl mx-auto">
+      <main className="px-4 pt-16 pb-6 max-w-4xl mx-auto">
         <div className="flex items-center justify-between mb-6">
           <div className="flex items-center gap-3 min-w-0 flex-shrink">
-            <Link to={createPageUrl('Esplora?tab=strumenti')} className="text-[#d4af37] p-3 -m-3 rounded-full back-arrow-tap flex-shrink-0">
-              <ArrowLeft className="w-7 h-7" />
-            </Link>
-            <div className="flex items-center gap-3 min-w-0">
-              <div className="w-12 h-12 bg-[#d4af37] rounded-full flex items-center justify-center flex-shrink-0">
-                <BookOpen className="w-6 h-6 text-slate-900" />
-              </div>
-              <div className="min-w-0">
-                <h1 className="text-white text-2xl font-bold truncate">Academy</h1>
-                <p className="text-slate-400 text-sm truncate">Contenuti formativi per il tuo team</p>
-              </div>
+            <div className="w-12 h-12 bg-[#d4af37] rounded-full flex items-center justify-center flex-shrink-0">
+              <BookOpen className="w-6 h-6 text-slate-900" />
+            </div>
+            <div className="min-w-0">
+              <h1 className="text-white text-2xl font-bold truncate">Academy</h1>
+              <p className="text-slate-400 text-sm truncate">Contenuti formativi per il tuo team</p>
             </div>
           </div>
           <div className="flex items-center gap-1 flex-shrink-0">
-            <SectionHeaderIcons userEmail={effectiveUser?.email} unreadCount={messages.length} />
             {isAdmin && (
               <Button
                 onClick={() => setShowAddVideo(true)}
