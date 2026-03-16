@@ -156,38 +156,38 @@ export default function ChatSidebar({ open, onClose, userEmail, activeConversati
           "fixed top-0 left-0 bottom-0 z-50 w-[300px] flex flex-col transition-transform duration-300 ease-out",
           open ? "translate-x-0" : "-translate-x-full"
         )}
-        style={{ backgroundColor: '#111827' }}
+        style={{ backgroundColor: '#fef200' }}
       >
         {/* Header */}
         <div className="flex items-center justify-between px-4 pt-4 pb-2">
-          <span className="text-white font-semibold text-base">Chat</span>
+          <span className="text-black font-semibold text-base">Chat</span>
           <div className="flex items-center gap-2">
-            <button onClick={() => { onNewChat(); onClose(); }} className="w-8 h-8 rounded-lg flex items-center justify-center hover:bg-slate-700 transition-colors">
-              <Pencil className="w-4 h-4 text-slate-400" />
+            <button onClick={() => { onNewChat(); onClose(); }} className="w-8 h-8 rounded-lg flex items-center justify-center hover:bg-black/10 transition-colors">
+              <Pencil className="w-4 h-4 text-black" />
             </button>
-            <button onClick={onClose} className="w-8 h-8 rounded-lg flex items-center justify-center hover:bg-slate-700 transition-colors">
-              <X className="w-4 h-4 text-slate-400" />
+            <button onClick={onClose} className="w-8 h-8 rounded-lg flex items-center justify-center hover:bg-black/10 transition-colors">
+              <X className="w-4 h-4 text-black" />
             </button>
           </div>
         </div>
 
         <div className="px-4 pb-1">
-          <span className="text-[11px] text-slate-500 font-medium">{totalFiltered} analisi</span>
+          <span className="text-[11px] text-black/60 font-medium">{totalFiltered} analisi</span>
         </div>
 
         {/* Ricerca */}
         <div className="px-3 pb-1.5">
-          <div className="flex items-center gap-2 bg-slate-800 rounded-lg px-3 py-2">
-            <Search className="w-4 h-4 text-slate-500" />
+          <div className="flex items-center gap-2 bg-black/10 rounded-lg px-3 py-2">
+            <Search className="w-4 h-4 text-black/50" />
             <input
               value={search}
               onChange={(e) => setSearch(e.target.value)}
               placeholder="Cerca nelle conversazioni..."
-              className="flex-1 bg-transparent text-sm text-white outline-none placeholder:text-slate-500"
+              className="flex-1 bg-transparent text-sm text-black outline-none placeholder:text-black/40"
             />
             {search && (
               <button onClick={() => setSearch('')} className="w-4 h-4 flex items-center justify-center">
-                <X className="w-3 h-3 text-slate-500" />
+                <X className="w-3 h-3 text-black/50" />
               </button>
             )}
           </div>
@@ -196,16 +196,16 @@ export default function ChatSidebar({ open, onClose, userEmail, activeConversati
         {/* Filtro categoria */}
         {availableCategories.length > 0 && (
           <div className="px-3 pb-2">
-            <div className="flex items-center gap-2 bg-slate-800 rounded-lg px-3 py-1.5">
-              <Filter className="w-3.5 h-3.5 text-slate-500 flex-shrink-0" />
+            <div className="flex items-center gap-2 bg-black/10 rounded-lg px-3 py-1.5">
+              <Filter className="w-3.5 h-3.5 text-black/50 flex-shrink-0" />
               <select
                 value={categoryFilter}
                 onChange={(e) => setCategoryFilter(e.target.value)}
-                className="flex-1 bg-transparent text-xs text-slate-300 outline-none appearance-none cursor-pointer"
+                className="flex-1 bg-transparent text-xs text-black outline-none appearance-none cursor-pointer"
               >
-                <option value="all" className="bg-slate-800">Tutte le categorie</option>
+                <option value="all" className="bg-yellow-200">Tutte le categorie</option>
                 {availableCategories.map(cat => (
-                  <option key={cat} value={cat} className="bg-slate-800">{cat}</option>
+                  <option key={cat} value={cat} className="bg-yellow-200">{cat}</option>
                 ))}
               </select>
             </div>
@@ -215,43 +215,43 @@ export default function ChatSidebar({ open, onClose, userEmail, activeConversati
         {/* Nuova chat */}
         <button
           onClick={() => { onNewChat(); onClose(); }}
-          className="mx-3 mb-1 flex items-center gap-3 px-3 py-2.5 rounded-lg hover:bg-slate-800 transition-colors"
+          className="mx-3 mb-1 flex items-center gap-3 px-3 py-2.5 rounded-lg hover:bg-black/10 transition-colors"
         >
-          <Plus className="w-4 h-4 text-slate-400" />
-          <span className="text-sm text-slate-300">Nuova chat</span>
+          <Plus className="w-4 h-4 text-black" />
+          <span className="text-sm text-black">Nuova chat</span>
         </button>
 
         {/* Nuova cartella */}
         <button
           onClick={() => setNewFolderMode(true)}
-          className="mx-3 mb-2 flex items-center gap-3 px-3 py-2.5 rounded-lg hover:bg-slate-800 transition-colors"
+          className="mx-3 mb-2 flex items-center gap-3 px-3 py-2.5 rounded-lg hover:bg-black/10 transition-colors"
         >
-          <FolderPlus className="w-4 h-4 text-slate-400" />
-          <span className="text-sm text-slate-300">Nuova cartella</span>
+          <FolderPlus className="w-4 h-4 text-black" />
+          <span className="text-sm text-black">Nuova cartella</span>
         </button>
 
         {/* Input nuova cartella */}
         {newFolderMode && (
-          <div className="mx-3 mb-2 flex items-center gap-2 bg-slate-800 rounded-lg px-3 py-2">
-            <Folder className="w-4 h-4 text-[#d4af37]" />
+          <div className="mx-3 mb-2 flex items-center gap-2 bg-black/10 rounded-lg px-3 py-2">
+            <Folder className="w-4 h-4 text-black" />
             <input
               ref={newFolderRef}
               value={newFolderName}
               onChange={(e) => setNewFolderName(e.target.value)}
               onKeyDown={(e) => { if (e.key === 'Enter') handleCreateFolder(); if (e.key === 'Escape') { setNewFolderMode(false); setNewFolderName(''); } }}
               placeholder="Nome cartella"
-              className="flex-1 bg-transparent text-sm text-white outline-none placeholder:text-slate-500"
+              className="flex-1 bg-transparent text-sm text-black outline-none placeholder:text-black/40"
             />
-            <button onClick={handleCreateFolder} className="w-6 h-6 rounded flex items-center justify-center hover:bg-slate-700">
-              <Check className="w-3.5 h-3.5 text-[#d4af37]" />
+            <button onClick={handleCreateFolder} className="w-6 h-6 rounded flex items-center justify-center hover:bg-black/10">
+              <Check className="w-3.5 h-3.5 text-black" />
             </button>
-            <button onClick={() => { setNewFolderMode(false); setNewFolderName(''); }} className="w-6 h-6 rounded flex items-center justify-center hover:bg-slate-700">
-              <X className="w-3.5 h-3.5 text-slate-500" />
+            <button onClick={() => { setNewFolderMode(false); setNewFolderName(''); }} className="w-6 h-6 rounded flex items-center justify-center hover:bg-black/10">
+              <X className="w-3.5 h-3.5 text-black/50" />
             </button>
           </div>
         )}
 
-        <div className="mx-3 border-t border-slate-700/50 mb-1" />
+        <div className="mx-3 border-t border-black/15 mb-1" />
 
         {/* Lista scrollabile */}
         <div className="flex-1 overflow-y-auto px-1" style={{ scrollbarWidth: 'none' }}>
@@ -267,10 +267,10 @@ export default function ChatSidebar({ open, onClose, userEmail, activeConversati
                 <div className="flex items-center group">
                   <button
                     onClick={() => toggleFolder(folder.id)}
-                    className="flex-1 flex items-center gap-2.5 px-3 py-2 rounded-lg hover:bg-slate-800 transition-colors"
+                    className="flex-1 flex items-center gap-2.5 px-3 py-2 rounded-lg hover:bg-black/10 transition-colors"
                   >
-                    <ChevronRight className={cn("w-3.5 h-3.5 text-slate-500 transition-transform", isExpanded && "rotate-90")} />
-                    <Folder className="w-4 h-4 text-[#d4af37]" />
+                    <ChevronRight className={cn("w-3.5 h-3.5 text-black/50 transition-transform", isExpanded && "rotate-90")} />
+                    <Folder className="w-4 h-4 text-black" />
                     {isEditing ? (
                       <input
                         ref={editFolderRef}
@@ -278,27 +278,27 @@ export default function ChatSidebar({ open, onClose, userEmail, activeConversati
                         onChange={(e) => setEditingFolderName(e.target.value)}
                         onKeyDown={(e) => { if (e.key === 'Enter') handleUpdateFolder(); if (e.key === 'Escape') setEditingFolderId(null); }}
                         onClick={(e) => e.stopPropagation()}
-                        className="flex-1 bg-transparent text-sm text-white outline-none"
+                        className="flex-1 bg-transparent text-sm text-black outline-none"
                       />
                     ) : (
-                      <span className="text-sm text-slate-300 truncate">{folder.nome}</span>
+                      <span className="text-sm text-black truncate">{folder.nome}</span>
                     )}
                     {folderConvs.length > 0 && !isEditing && (
-                      <span className="text-[10px] text-slate-600 ml-auto">{folderConvs.length}</span>
+                      <span className="text-[10px] text-black/50 ml-auto">{folderConvs.length}</span>
                     )}
                   </button>
                   
                   {isEditing ? (
-                    <button onClick={handleUpdateFolder} className="mr-2 w-6 h-6 rounded flex items-center justify-center hover:bg-slate-700">
-                      <Check className="w-3.5 h-3.5 text-[#d4af37]" />
+                    <button onClick={handleUpdateFolder} className="mr-2 w-6 h-6 rounded flex items-center justify-center hover:bg-black/10">
+                      <Check className="w-3.5 h-3.5 text-black" />
                     </button>
                   ) : (
                     <div className="mr-1 flex items-center gap-0.5 opacity-0 group-hover:opacity-100 transition-opacity">
-                      <button onClick={() => { setEditingFolderId(folder.id); setEditingFolderName(folder.nome); }} className="w-6 h-6 rounded flex items-center justify-center hover:bg-slate-700">
-                        <Pencil className="w-3 h-3 text-slate-500" />
+                      <button onClick={() => { setEditingFolderId(folder.id); setEditingFolderName(folder.nome); }} className="w-6 h-6 rounded flex items-center justify-center hover:bg-black/10">
+                        <Pencil className="w-3 h-3 text-black/50" />
                       </button>
-                      <button onClick={() => deleteFolder.mutate(folder.id)} className="w-6 h-6 rounded flex items-center justify-center hover:bg-slate-700">
-                        <Trash2 className="w-3 h-3 text-slate-500" />
+                      <button onClick={() => deleteFolder.mutate(folder.id)} className="w-6 h-6 rounded flex items-center justify-center hover:bg-black/10">
+                        <Trash2 className="w-3 h-3 text-black/50" />
                       </button>
                     </div>
                   )}
@@ -330,7 +330,7 @@ export default function ChatSidebar({ open, onClose, userEmail, activeConversati
           ))}
 
           {filteredFolders.length === 0 && filteredLoose.length === 0 && (
-            <div className="px-4 py-8 text-center text-sm text-slate-600">
+            <div className="px-4 py-8 text-center text-sm text-black/40">
               {search ? 'Nessun risultato' : 'Nessuna conversazione'}
             </div>
           )}
@@ -383,7 +383,7 @@ function ConversationItem({ conv, isActive, onSelect, onOpenMenu, indent }) {
     <div
       className={cn(
         "flex items-start group rounded-lg mx-1 transition-colors cursor-pointer",
-        isActive ? "bg-slate-800" : "hover:bg-slate-800/50",
+        isActive ? "bg-black/15" : "hover:bg-black/10",
         indent && "ml-6"
       )}
       onTouchStart={handleTouchStart}
@@ -394,32 +394,32 @@ function ConversationItem({ conv, isActive, onSelect, onOpenMenu, indent }) {
         onClick={onSelect}
         className="flex-1 flex items-start gap-2 px-3 py-2 min-w-0"
       >
-        <MessageSquare className="w-4 h-4 text-slate-600 flex-shrink-0 mt-0.5" />
+        <MessageSquare className="w-4 h-4 text-black/40 flex-shrink-0 mt-0.5" />
         <div className="flex-1 min-w-0">
           <div className="flex items-center gap-1.5">
-            {conv.is_pinned && <Pin className="w-3 h-3 text-[#d4af37] flex-shrink-0" />}
-            <span className="text-sm text-slate-400 truncate block">{conv.titolo || 'Chat senza titolo'}</span>
+            {conv.is_pinned && <Pin className="w-3 h-3 text-black flex-shrink-0" />}
+            <span className="text-sm text-black truncate block">{conv.titolo || 'Chat senza titolo'}</span>
           </div>
           <div className="flex items-center gap-1.5 mt-1 flex-wrap">
             {catStyle && (
-              <span className={cn("text-[9px] font-semibold px-1.5 py-0.5 rounded-full border", catStyle.bg, catStyle.text, catStyle.border)}>
+              <span className="text-[9px] font-semibold px-1.5 py-0.5 rounded-full border bg-black/10 text-black border-black/20">
                 {conv.categoria}
               </span>
             )}
             {conv.ha_piano && (
-              <span className="text-[8px] font-bold px-1.5 py-0.5 rounded-full bg-[#d4af37]/20 text-[#d4af37] border border-[#d4af37]/30 flex items-center gap-0.5">
+              <span className="text-[8px] font-bold px-1.5 py-0.5 rounded-full bg-black/10 text-black border border-black/20 flex items-center gap-0.5">
                 <ListChecks className="w-2.5 h-2.5" />Piano
               </span>
             )}
-            <span className="text-[10px] text-slate-600 ml-auto">{formatConvDate(conv.created_date)}</span>
+            <span className="text-[10px] text-black/50 ml-auto">{formatConvDate(conv.created_date)}</span>
           </div>
         </div>
       </button>
       <button
         onClick={(e) => { e.stopPropagation(); onOpenMenu(); }}
-        className="mr-2 mt-2 w-6 h-6 rounded flex items-center justify-center opacity-0 group-hover:opacity-100 hover:bg-slate-700 transition-all flex-shrink-0"
+        className="mr-2 mt-2 w-6 h-6 rounded flex items-center justify-center opacity-0 group-hover:opacity-100 hover:bg-black/10 transition-all flex-shrink-0"
       >
-        <MoreVertical className="w-3.5 h-3.5 text-slate-500" />
+        <MoreVertical className="w-3.5 h-3.5 text-black/50" />
       </button>
     </div>
   );
