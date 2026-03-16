@@ -91,13 +91,13 @@ export default function BottomNav({ currentPage, bgColor = null }) {
                     <item.icon
                       className="w-8 h-8 mb-0.5 relative z-10 transition-all duration-200"
                       style={{
-                        color: isHighlighted ? 'var(--app-accent)' : (isDark ? 'var(--app-text-muted)' : '#000000'),
+                        color: isHighlighted ? '#b8860b' : '#b8860b',
                         strokeWidth: isHighlighted ? 2 : undefined,
-                        filter: isHighlighted ? `drop-shadow(0 0 6px var(--app-accent-glow))` : 'none'
+                        filter: isHighlighted ? 'drop-shadow(0 0 6px rgba(184,134,11,0.4))' : 'none'
                       }}
                     />
                     <span className="text-[10px] font-semibold relative z-10 tracking-wide transition-colors duration-200" style={{
-                      color: isHighlighted ? 'var(--app-accent)' : (isDark ? 'var(--app-text-muted)' : '#000000')
+                      color: isHighlighted ? '#b8860b' : '#b8860b'
                     }}>
                       {item.label}
                     </span>
