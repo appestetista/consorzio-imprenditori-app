@@ -1,5 +1,5 @@
 import React, { useState, useEffect } from 'react';
-import { X } from 'lucide-react';
+import { ChevronLeft } from 'lucide-react';
 import { cn } from '@/lib/utils';
 import VantaggiPanelContent from './VantaggiPanelContent.jsx';
 import { usePanels } from '../layout/GlobalTopIcons';
