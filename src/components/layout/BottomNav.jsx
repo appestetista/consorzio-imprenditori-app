@@ -3,10 +3,12 @@ import { Link, useNavigate } from 'react-router-dom';
 import { createPageUrl } from '@/utils';
 import { Wrench, Gift, Calendar, Home } from 'lucide-react';
 import { cn } from '@/lib/utils';
+import { useTheme } from '../context/ThemeContext';
 
 export default function BottomNav({ currentPage, bgColor = null }) {
   const [tappedItem, setTappedItem] = useState(null);
   const navigate = useNavigate();
+  const { isDark } = useTheme();
 
   // Pagine che fanno parte degli "Strumenti" — il pulsante resta evidenziato
   const strumentiPages = [
@@ -56,7 +58,7 @@ export default function BottomNav({ currentPage, bgColor = null }) {
       <div
         className="absolute inset-0 pointer-events-none"
         style={{
-          background: `linear-gradient(to top, ${bgColor || '#0a0f1a'} 75%, transparent 100%)`,
+          background: `linear-gradient(to top, var(--app-bg, ${bgColor || '#0a0f1a'}) 75%, transparent 100%)`,
           top: '-40px',
         }}
       />
@@ -73,30 +75,30 @@ export default function BottomNav({ currentPage, bgColor = null }) {
 
             const content = (
               <div className={cn("relative w-[78px] h-[78px] transition-transform duration-100 ease-out active:scale-[0.96]")}>
-                <div className="absolute inset-0 rounded-[16px]" style={{ boxShadow: '0 6px 20px rgba(0,0,0,0.5), 0 3px 8px rgba(0,0,0,0.3)' }} />
+                <div className="absolute inset-0 rounded-[16px]" style={{ boxShadow: 'var(--app-shadow-card)' }} />
                 <div className="absolute inset-0 rounded-[16px] p-[2.5px]" style={{
                   background: isHighlighted
-                    ? 'linear-gradient(145deg, #d4af37 0%, #b8860b 25%, #8b7355 50%, #d4af37 75%, #f0e68c 100%)'
-                    : 'linear-gradient(145deg, #c0c0c0 0%, #a8a8a8 25%, #808080 50%, #c0c0c0 75%, #e8e8e8 100%)',
+                    ? 'var(--app-gradient-border-active)'
+                    : 'var(--app-gradient-border-inactive)',
                   transition: 'background 0.3s ease'
                 }}>
                   <div className="relative w-full h-full rounded-[14px] flex flex-col items-center justify-center overflow-hidden" style={{
                     background: isHighlighted
-                      ? 'linear-gradient(160deg, #2a2a2a 0%, #152040 50%, #1a2850 100%)'
-                      : 'linear-gradient(160deg, #1a1a1a 0%, #001d3b 50%, #001530 100%)',
-                    boxShadow: 'inset 0 2px 4px rgba(0,0,0,0.5), inset 0 -1px 2px rgba(255,255,255,0.05)'
+                      ? (isDark ? 'linear-gradient(160deg, #2a2a2a 0%, #152040 50%, #1a2850 100%)' : 'linear-gradient(160deg, #e8e0d0 0%, #f5f0e5 50%, #ede5d5 100%)')
+                      : 'var(--app-gradient-card)',
+                    boxShadow: isDark ? 'inset 0 2px 4px rgba(0,0,0,0.5), inset 0 -1px 2px rgba(255,255,255,0.05)' : 'inset 0 2px 4px rgba(0,0,0,0.06), inset 0 -1px 2px rgba(255,255,255,0.5)'
                   }}>
                     <item.icon
-                      className={cn(
-                        "w-8 h-8 mb-0.5 relative z-10 transition-all duration-200",
-                        isHighlighted ? "text-[#d4af37] stroke-[2px]" : "text-slate-400"
-                      )}
-                      style={{ filter: isHighlighted ? 'drop-shadow(0 0 6px rgba(212,175,55,0.5))' : 'none' }}
+                      className="w-8 h-8 mb-0.5 relative z-10 transition-all duration-200"
+                      style={{
+                        color: isHighlighted ? 'var(--app-accent)' : 'var(--app-text-muted)',
+                        strokeWidth: isHighlighted ? 2 : undefined,
+                        filter: isHighlighted ? `drop-shadow(0 0 6px var(--app-accent-glow))` : 'none'
+                      }}
                     />
-                    <span className={cn(
-                      "text-[10px] font-semibold relative z-10 tracking-wide transition-colors duration-200",
-                      isHighlighted ? "text-[#d4af37]" : "text-slate-400"
-                    )}>
+                    <span className="text-[10px] font-semibold relative z-10 tracking-wide transition-colors duration-200" style={{
+                      color: isHighlighted ? 'var(--app-accent)' : 'var(--app-text-muted)'
+                    }}>
                       {item.label}
                     </span>
                   </div>
