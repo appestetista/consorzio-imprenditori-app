@@ -2,7 +2,7 @@ import React, { useState, useEffect, useRef } from 'react';
 import { base44 } from '@/api/base44Client';
 import { useNavigate } from 'react-router-dom';
 import { createPageUrl } from '@/utils';
-import { Send, Sparkles, ArrowUp, Loader2, Mic, MicOff, X, Target, Scale } from 'lucide-react';
+import { Send, Sparkles, ArrowUp, Loader2, Mic, MicOff, X, Target, Scale, UserRound } from 'lucide-react';
 import { Link } from 'react-router-dom';
 import { useImpersonation } from '../components/admin/ImpersonationContext';
 import { normalizeUser, isUserConsultant } from '../components/utils/normalizeUser';
