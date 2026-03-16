@@ -23,7 +23,7 @@ export default function GlobalSearchBar({ currentPageName }) {
   return (
     <div className="fixed z-40 left-0 right-0" style={{ bottom: '100px' }}>
       {/* Sfondo sfumato per coprire il contenuto dietro */}
-      <div className="absolute inset-0 pointer-events-none" style={{ top: '-36px', background: 'linear-gradient(to top, var(--page-bg, #0f172a) 60%, transparent 100%)' }} />
+      <div className="absolute inset-0 pointer-events-none" style={{ top: '-36px', background: 'linear-gradient(to top, var(--app-bg) 60%, transparent 100%)' }} />
       <div className="relative max-w-md mx-auto px-3 space-y-1.5">
         <AIUsageInline usate={usate} piano={piano} />
         <div className="flex items-center gap-2">
