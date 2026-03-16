@@ -95,7 +95,7 @@ export default function VantaggiSideTab() {
               <path d="M0 0 L0 72 L22 60 L22 12 Z" fill="#0f172a" />
               <path d="M0 0 L0 72 L22 60 L22 12 Z" stroke="#334155" strokeWidth="1" strokeLinejoin="round" style={{ strokeDasharray: '0 72 22 60 22 12', clipPath: 'inset(0 0 0 1px)' }} />
             </svg>
-            <ChevronLeft className="w-5 h-5 text-[#d4af37] relative z-10" />
+            <ChevronLeft className="w-8 h-8 text-[#d4af37] relative z-10" />
           </button>
         )}
       </div>
