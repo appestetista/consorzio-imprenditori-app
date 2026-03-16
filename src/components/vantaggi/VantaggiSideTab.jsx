@@ -80,7 +80,7 @@ export default function VantaggiSideTab() {
           isOpen ? "translate-x-0" : "-translate-x-full",
           "z-[25]"
         )}
-        style={{ display: 'flex', flexDirection: 'column', top: 0, left: 0, width: '95%', bottom: 0 }}
+        style={{ display: 'flex', flexDirection: 'column', top: 0, left: 0, width: '90%', bottom: 0 }}
       >
         <VantaggiPanelContent onClose={() => { setIsOpen(false); showHeader(); }} />
 
