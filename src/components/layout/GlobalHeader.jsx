@@ -5,6 +5,7 @@ import { createPageUrl } from '@/utils';
 import { usePanels } from './GlobalTopIcons';
 import { useNotificationsBadge } from '../home/NotificationsPanel';
 import ThemeToggle from './ThemeToggle';
+import { useTheme } from '../context/ThemeContext';
 
 /**
  * Header globale trasparente — hamburger a sinistra, busta + campanella a destra.
@@ -14,6 +15,7 @@ export default function GlobalHeader({ userEmail, userRegime, onMenuClick, onHam
   const { toggleNotif, openChatSidebar, headerHidden, notifPanelOpen } = usePanels();
   const { totalBadge, unreadMessageCount } = useNotificationsBadge(userEmail, userRegime);
   const navigate = useNavigate();
+  const { isDark } = useTheme();
 
   const handleHamburger = () => {
     // Sempre: apri la sidebar chat con lo storico conversazioni
@@ -34,7 +36,7 @@ export default function GlobalHeader({ userEmail, userRegime, onMenuClick, onHam
             className="w-11 h-11 flex items-center justify-center rounded-xl active:bg-white/10 transition-colors"
             style={{ touchAction: 'manipulation' }}
           >
-            <Menu className="w-7 h-7 text-white" />
+            <Menu className="w-7 h-7" style={{ color: isDark ? '#ffffff' : '#000000' }} />
           </button>
           {/* Tema sole/luna */}
           <ThemeToggle />
@@ -76,7 +78,7 @@ export default function GlobalHeader({ userEmail, userRegime, onMenuClick, onHam
             className="relative w-12 h-12 flex items-center justify-center flex-shrink-0 rounded-xl active:bg-white/10 transition-colors"
             style={{ touchAction: 'manipulation', WebkitTapHighlightColor: 'transparent' }}
           >
-            <Bell className="w-7 h-7 text-slate-400 pointer-events-none" />
+            <Bell className="w-7 h-7 pointer-events-none" style={{ color: isDark ? '#94a3b8' : '#000000' }} />
             {totalBadge > 0 && (
               <span className="absolute top-0.5 right-0.5 bg-red-500 text-white text-[9px] rounded-full min-w-4 h-4 px-1 flex items-center justify-center font-bold pointer-events-none">
                 {totalBadge > 99 ? '99+' : totalBadge}
