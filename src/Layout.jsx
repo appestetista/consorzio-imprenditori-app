@@ -123,7 +123,7 @@ export default function Layout({ children, currentPageName }) {
             --app-accent-glow: rgba(161, 128, 30, 0.25);
             --app-accent-secondary: #16a34a;
             --app-gradient-bottom: linear-gradient(to top, #f0f2f5 75%, transparent 100%);
-            --app-gradient-card: linear-gradient(160deg, #d3e502 0%, #d3e502 50%, #d3e502 100%);
+            --app-gradient-card: linear-gradient(160deg, #e4c15d 0%, #e4c15d 50%, #e4c15d 100%);
             --app-gradient-border-inactive: linear-gradient(145deg, #cbd5e1 0%, #94a3b8 25%, #64748b 50%, #cbd5e1 75%, #e2e8f0 100%);
             --app-gradient-border-active: linear-gradient(145deg, #a1801e 0%, #8b6914 25%, #6b5a30 50%, #a1801e 75%, #d4c477 100%);
             --app-shadow-card: 0 4px 12px rgba(0,0,0,0.08), 0 2px 4px rgba(0,0,0,0.04);
