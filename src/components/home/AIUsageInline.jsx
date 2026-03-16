@@ -25,7 +25,7 @@ export default function AIUsageInline({ usate = 0 }) {
   return (
     <div className="flex items-center gap-2 px-1">
       <Zap className="w-3 h-3 flex-shrink-0" style={{ color: barColor }} />
-      <div className="flex-1 h-[3px] bg-slate-700/40 rounded-full overflow-hidden">
+      <div className="flex-1 h-[3px] rounded-full overflow-hidden" style={{ backgroundColor: 'var(--app-border)' }}>
         <div
           className="h-full rounded-full transition-all duration-500"
           style={{ width: `${pct}%`, backgroundColor: barColor }}
