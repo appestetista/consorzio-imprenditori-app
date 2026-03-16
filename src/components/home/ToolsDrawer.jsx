@@ -296,7 +296,7 @@ export default function ToolsDrawer() {
 
   return (
     <>
-      {/* Linguetta trasparente — sporge sul bordo sinistro sotto l'hamburger */}
+      {/* Linguetta verde fluo — sporge sul bordo destro */}
       {!isOpen && (
         <div
           ref={tabRef}
@@ -306,23 +306,23 @@ export default function ToolsDrawer() {
           onClick={() => setIsOpen(true)}
           className="fixed z-[45] flex items-center justify-center"
           style={{
-            left: 0,
+            right: 0,
             top: '100px',
             width: '18px',
             height: '60px',
-            background: 'linear-gradient(90deg, rgba(212,175,55,0.15) 0%, rgba(212,175,55,0.05) 100%)',
-            borderTopRightRadius: '10px',
-            borderBottomRightRadius: '10px',
-            borderRight: '1.5px solid rgba(212,175,55,0.3)',
-            borderTop: '1px solid rgba(212,175,55,0.15)',
-            borderBottom: '1px solid rgba(212,175,55,0.15)',
+            background: 'linear-gradient(270deg, rgba(132,255,0,0.25) 0%, rgba(132,255,0,0.08) 100%)',
+            borderTopLeftRadius: '10px',
+            borderBottomLeftRadius: '10px',
+            borderLeft: '1.5px solid rgba(132,255,0,0.5)',
+            borderTop: '1px solid rgba(132,255,0,0.25)',
+            borderBottom: '1px solid rgba(132,255,0,0.25)',
             backdropFilter: 'blur(8px)',
           }}
         >
           <div className="flex flex-col gap-[3px]">
-            <div className="w-[3px] h-[3px] rounded-full bg-[#d4af37]/50" />
-            <div className="w-[3px] h-[3px] rounded-full bg-[#d4af37]/50" />
-            <div className="w-[3px] h-[3px] rounded-full bg-[#d4af37]/50" />
+            <div className="w-[3px] h-[3px] rounded-full bg-[#84ff00]" />
+            <div className="w-[3px] h-[3px] rounded-full bg-[#84ff00]" />
+            <div className="w-[3px] h-[3px] rounded-full bg-[#84ff00]" />
           </div>
         </div>
       )}
