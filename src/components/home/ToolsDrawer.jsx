@@ -6,7 +6,7 @@ import { useQuery } from '@tanstack/react-query';
 import { 
   FileSearch, Shield, PiggyBank, Euro, Globe, Calculator, Briefcase, Heart, 
   Users, Truck, ShoppingBag, Star, Video, Megaphone, Monitor, User, Handshake, 
-  TrendingUp, Gavel, X, Calendar, Phone, Gift, Bell
+  TrendingUp, Gavel, X, Calendar, Phone, Gift, Bell, Ship
 } from 'lucide-react';
 import { cn } from '@/lib/utils';
 
@@ -46,7 +46,7 @@ const NOTIF_TYPE_TO_TOOL = {
 const ICON_MAP = {
   FileSearch, Shield, PiggyBank, Euro, Globe, Calculator, Briefcase, Heart,
   Users, Truck, ShoppingBag, Star, Video, Megaphone, Monitor, User, Handshake,
-  TrendingUp, Gavel, Calendar, Phone, Gift
+  TrendingUp, Gavel, Calendar, Phone, Gift, Ship
 };
 
 const DEFAULT_TOOLS = [
@@ -55,7 +55,7 @@ const DEFAULT_TOOLS = [
   { id: 'risparmio', title: 'Risparmio', icon: 'PiggyBank', page: 'RisparmioEnergetico' },
   { id: 'bandi', title: 'Bandi', icon: 'Euro', page: 'FinanziamentiAgevolati' },
   { id: 'export', title: 'Export', icon: 'Globe', page: 'ImportExport' },
-  { id: 'import', title: 'Import', icon: 'Truck', page: 'ImportExport?tab=import' },
+  { id: 'import', title: 'Import', icon: 'Ship', page: 'ImportExport?tab=import' },
   { id: 'simulatore', title: 'Simulatore Fiscale', icon: 'Calculator', page: 'SimulatoreFiscale' },
   { id: 'consulenze', title: 'Consulenze', icon: 'Briefcase', page: 'Consulenze' },
   { id: 'welfare', title: 'Benefit Dipendenti', icon: 'Heart', page: 'WelfareAziendale' },
