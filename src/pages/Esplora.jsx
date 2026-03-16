@@ -456,7 +456,7 @@ export default function Esplora() {
   };
 
   return (
-    <div className="min-h-screen pb-72" style={{ backgroundColor: '#001d3b' }}>
+    <div className="min-h-screen pb-72" style={{ backgroundColor: 'var(--app-bg)' }}>
       {/* Top bar gestita dal GlobalHeader nel Layout */}
 
       {/* Menu Panel rimosso - il pulsante Menu naviga direttamente a MyProfile */}
