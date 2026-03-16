@@ -417,21 +417,12 @@ Questa è una richiesta automatica dalla piattaforma del Consorzio Imprenditori.
 
   return (
     <div className="min-h-screen bg-slate-900 pb-64">
-      <main className="px-4 py-6 max-w-md mx-auto">
+      <main className="px-4 pt-16 pb-6 max-w-md mx-auto">
         <div className="flex items-center justify-between mb-6">
-          <div className="flex items-center gap-3 min-w-0 flex-shrink">
-            <Link to={createPageUrl('Esplora?tab=strumenti')} className="text-[#d4af37] p-3 -m-3 rounded-full back-arrow-tap flex-shrink-0">
-              <ArrowLeft className="w-7 h-7" />
-            </Link>
-            <h1 className="text-white text-xl font-bold truncate">Video Interviste</h1>
-          </div>
-          
-          <div className="flex items-center gap-1 flex-shrink-0">
-            <SectionHeaderIcons userEmail={effectiveUser?.email} unreadCount={messages.length} />
+          <h1 className="text-white text-xl font-bold truncate">Video Interviste</h1>
           {isAdmin && (
             <AdminVideoUploadPanel companyUsers={companyUsers} allUsers={allUsers} />
           )}
-          </div>
         </div>
 
         {/* Banner richiesta video - solo per utenti non admin */}
