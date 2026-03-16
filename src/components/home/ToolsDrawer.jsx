@@ -292,6 +292,13 @@ export default function ToolsDrawer() {
     return () => document.removeEventListener('pointerdown', handleOutsideClick, true);
   }, [isOpen]);
 
+  // Ascolta evento globale per chiudere il drawer (es. da BottomNav)
+  useEffect(() => {
+    const handler = () => setIsOpen(false);
+    window.addEventListener('close-tools-drawer', handler);
+    return () => window.removeEventListener('close-tools-drawer', handler);
+  }, []);
+
   // Actual drawer translateX
   const drawerX = isOpen ? 0 : (swipeOffset > 0 ? swipeOffset - DRAWER_WIDTH : -DRAWER_WIDTH);
 

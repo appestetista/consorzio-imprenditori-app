@@ -37,12 +37,12 @@ export default function BottomNav({ currentPage, bgColor = null }) {
     if (item.action === 'vantaggi') {
       window.dispatchEvent(new CustomEvent('open-vantaggi-panel'));
     } else if (item.action === 'calendario') {
-      // Chiudi vantaggi se aperto, poi apri calendario
       window.dispatchEvent(new CustomEvent('close-vantaggi-panel'));
+      window.dispatchEvent(new CustomEvent('close-tools-drawer'));
       window.dispatchEvent(new CustomEvent('open-calendario-panel'));
     } else if (item.page) {
-      // Chiudi vantaggi se aperto, poi naviga
       window.dispatchEvent(new CustomEvent('close-vantaggi-panel'));
+      window.dispatchEvent(new CustomEvent('close-tools-drawer'));
       navigate(createPageUrl(item.page));
     }
   };
