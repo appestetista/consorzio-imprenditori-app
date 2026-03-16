@@ -155,7 +155,7 @@ export default function VantaggiPanelContent({ onClose }) {
       </div>
 
       {/* Contenuto scrollabile */}
-      <div className="flex-1 overflow-y-auto px-4 py-4 space-y-4">
+      <div className="flex-1 overflow-y-auto px-4 py-4 space-y-4" style={{ paddingBottom: '220px' }}>
         {/* Pulsanti Crea e Storico */}
         <div className="grid grid-cols-2 gap-3">
           <Button onClick={() => setShowCreatePanel(true)} className="bg-[#d4af37] hover:bg-[#b8860b] text-black font-bold h-11 text-sm">
