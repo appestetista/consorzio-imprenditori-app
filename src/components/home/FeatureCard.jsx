@@ -7,6 +7,7 @@ import { base44 } from '@/api/base44Client';
 import { useQueryClient } from '@tanstack/react-query';
 import { useVideoVisit } from '../context/VideoVisitContext';
 import { Dialog, DialogContent } from '@/components/ui/dialog';
+import { useTheme } from '../context/ThemeContext';
 
 export default function FeatureCard({ 
   title, 
@@ -86,6 +87,7 @@ export default function FeatureCard({
   const navigate = useNavigate();
   const queryClient = useQueryClient();
   const { markVideosAsVisited } = useVideoVisit();
+  const { isDark } = useTheme();
   const [showHelpVideo, setShowHelpVideo] = useState(false);
   
   // Mappa dei video help per ogni pagina
@@ -163,8 +165,8 @@ export default function FeatureCard({
               hasBottomBadge ? "" : ""
             )}
             style={{
-              background: 'rgba(20, 40, 80, 0.28)',
-              boxShadow: 'inset 0 1px 1px rgba(255,255,255,0.15), inset 0 -1px 2px rgba(0,0,0,0.1)'
+              background: isDark ? 'rgba(20, 40, 80, 0.28)' : '#8ff101',
+              boxShadow: isDark ? 'inset 0 1px 1px rgba(255,255,255,0.15), inset 0 -1px 2px rgba(0,0,0,0.1)' : 'inset 0 1px 1px rgba(255,255,255,0.3), inset 0 -1px 2px rgba(0,0,0,0.05)'
             }}
           >
 
