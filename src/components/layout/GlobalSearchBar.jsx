@@ -6,13 +6,13 @@ import { Send, UserRound } from 'lucide-react';
 export default function GlobalSearchBar({ currentPageName }) {
   const navigate = useNavigate();
 
-  // Non mostrare sulla Home (ha la sua barra input) né su AdminPanel
-  if (currentPageName === 'Home' || currentPageName === 'AdminPanel') return null;
+  // Non mostrare su Home (ha la sua barra input con pupino), AdminPanel, CalendarioIncontri
+  if (currentPageName === 'Home' || currentPageName === 'AdminPanel' || currentPageName === 'CalendarioIncontri') return null;
 
   return (
-    <div className="fixed z-40 left-0 right-0" style={{ bottom: '88px' }}>
+    <div className="fixed z-40 left-0 right-0" style={{ bottom: '100px' }}>
       {/* Sfondo sfumato per coprire il contenuto dietro */}
-      <div className="absolute inset-0 pointer-events-none" style={{ top: '-30px', background: 'linear-gradient(to top, var(--page-bg, #0f172a) 60%, transparent 100%)' }} />
+      <div className="absolute inset-0 pointer-events-none" style={{ top: '-36px', background: 'linear-gradient(to top, var(--page-bg, #0f172a) 60%, transparent 100%)' }} />
       <div className="relative max-w-md mx-auto px-3 flex items-center gap-2">
         {/* Barra di ricerca */}
         <button

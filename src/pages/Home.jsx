@@ -784,45 +784,54 @@ export default function Home() {
       )}
 
       {/* Campo di input */}
-      <div className="fixed z-40 px-2 pb-2 pt-10 left-0 right-0" style={{ bottom: '88px', background: 'linear-gradient(to top, #0a0f1a 70%, transparent 100%)' }}>
+      <div className="fixed z-40 px-2 pb-2 pt-10 left-0 right-0" style={{ bottom: '100px', background: 'linear-gradient(to top, #0a0f1a 70%, transparent 100%)' }}>
         <div className="max-w-2xl mx-auto space-y-1">
           {!compareMode ? (
             <>
-              <div className="relative flex items-end rounded-xl border border-slate-700/60 bg-slate-800/80 backdrop-blur-lg overflow-hidden" style={isRecording ? { borderColor: '#ef4444' } : {}}>
+              <div className="flex items-end gap-2">
+                <div className="flex-1 relative flex items-end rounded-xl border border-slate-700/60 bg-slate-800/80 backdrop-blur-lg overflow-hidden" style={isRecording ? { borderColor: '#ef4444' } : {}}>
+                  <button
+                    onClick={toggleRecording}
+                    className="flex-shrink-0 ml-2 mb-2 w-7 h-7 rounded-full flex items-center justify-center transition-all"
+                    style={{ backgroundColor: isRecording ? '#ef4444' : 'transparent' }}
+                  >
+                    {isRecording ? (
+                      <MicOff className="w-3.5 h-3.5 text-white" />
+                    ) : (
+                      <Mic className="w-3.5 h-3.5 text-slate-400" />
+                    )}
+                  </button>
+                  <textarea
+                    ref={inputRef}
+                    value={inputText}
+                    onChange={(e) => setInputText(e.target.value)}
+                    onKeyDown={handleKeyDown}
+                    placeholder={isRecording ? "Sto ascoltando..." : "Chiedi qualsiasi cosa..."}
+                    rows={1}
+                    className="flex-1 bg-transparent text-white text-base px-2 py-2.5 resize-none outline-none placeholder:text-slate-500 max-h-28"
+                    style={{ scrollbarWidth: 'none' }}
+                  />
+                  <button
+                    onClick={() => handleSend()}
+                    disabled={!inputText.trim() || isTyping || chatBlocked}
+                    className="flex-shrink-0 m-1 w-8 h-8 rounded-lg flex items-center justify-center transition-all disabled:opacity-30"
+                    style={{
+                      backgroundColor: inputText.trim() && !isTyping && !chatBlocked ? '#d4af37' : '#334155',
+                    }}
+                  >
+                    {isTyping ? (
+                      <Loader2 className="w-4 h-4 text-slate-400 animate-spin" />
+                    ) : (
+                      <Send className="w-4 h-4 text-white" />
+                    )}
+                  </button>
+                </div>
+                {/* Pupino My Profilo */}
                 <button
-                  onClick={toggleRecording}
-                  className="flex-shrink-0 ml-2 mb-2 w-7 h-7 rounded-full flex items-center justify-center transition-all"
-                  style={{ backgroundColor: isRecording ? '#ef4444' : 'transparent' }}
+                  onClick={() => navigate(createPageUrl('MyProfile'))}
+                  className="flex-shrink-0 w-10 h-10 rounded-xl border border-slate-700/60 bg-slate-800/80 backdrop-blur-lg flex items-center justify-center active:scale-95 transition-transform mb-0.5"
                 >
-                  {isRecording ? (
-                    <MicOff className="w-3.5 h-3.5 text-white" />
-                  ) : (
-                    <Mic className="w-3.5 h-3.5 text-slate-400" />
-                  )}
-                </button>
-                <textarea
-                  ref={inputRef}
-                  value={inputText}
-                  onChange={(e) => setInputText(e.target.value)}
-                  onKeyDown={handleKeyDown}
-                  placeholder={isRecording ? "Sto ascoltando..." : "Chiedi qualsiasi cosa..."}
-                  rows={1}
-                  className="flex-1 bg-transparent text-white text-base px-2 py-2.5 resize-none outline-none placeholder:text-slate-500 max-h-28"
-                  style={{ scrollbarWidth: 'none' }}
-                />
-                <button
-                  onClick={() => handleSend()}
-                  disabled={!inputText.trim() || isTyping || chatBlocked}
-                  className="flex-shrink-0 m-1 w-8 h-8 rounded-lg flex items-center justify-center transition-all disabled:opacity-30"
-                  style={{
-                    backgroundColor: inputText.trim() && !isTyping && !chatBlocked ? '#d4af37' : '#334155',
-                  }}
-                >
-                  {isTyping ? (
-                    <Loader2 className="w-4 h-4 text-slate-400 animate-spin" />
-                  ) : (
-                    <Send className="w-4 h-4 text-white" />
-                  )}
+                  <UserRound className="w-5 h-5 text-slate-400" />
                 </button>
               </div>
             </>
