@@ -58,7 +58,7 @@ export default function SimulatoreFiscale() {
             </Link>
             <div className="flex items-center gap-2">
               <Calculator className="w-5 h-5 text-[#d4af37]" />
-              <h1 className="text-white text-xl font-bold">Quanto Mi Resta?</h1>
+              <h1 className="text-black text-xl font-bold">Quanto Mi Resta?</h1>
             </div>
           </div>
         </div>
@@ -88,13 +88,13 @@ export default function SimulatoreFiscale() {
             </button>
             <span className="text-[#d4af37] text-xs font-semibold bg-[#d4af37]/10 px-2 py-0.5 rounded">{effectiveUser.forma_giuridica}</span>
             {effectiveUser?.regime_fiscale && (
-              <span className="text-slate-300 text-xs bg-slate-800/80 px-2 py-0.5 rounded">{effectiveUser.regime_fiscale}</span>
+              <span className="text-black text-xs bg-slate-800/80 px-2 py-0.5 rounded">{effectiveUser.regime_fiscale}</span>
             )}
             {(effectiveUser?.regione || effectiveUser?.region) && (
-              <span className="text-slate-300 text-xs bg-slate-800/80 px-2 py-0.5 rounded">{effectiveUser.regione || effectiveUser.region}</span>
+              <span className="text-black text-xs bg-slate-800/80 px-2 py-0.5 rounded">{effectiveUser.regione || effectiveUser.region}</span>
             )}
             {effectiveUser?.ateco_code && (
-              <span className="text-slate-300 text-xs bg-slate-800/80 px-2 py-0.5 rounded inline-flex items-center">
+              <span className="text-black text-xs bg-slate-800/80 px-2 py-0.5 rounded inline-flex items-center">
                 ATECO {effectiveUser.ateco_code}
                 <AtecoInfoPopup atecoCode={effectiveUser.ateco_code} />
               </span>
