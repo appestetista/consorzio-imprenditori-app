@@ -107,7 +107,7 @@ export default function Layout({ children, currentPageName }) {
 
           /* ======= TEMA GIORNO ======= */
           body.theme-light {
-            --app-bg: #f0f2f5;
+            --app-bg: #fef200;
             --app-bg-secondary: #e2e8f0;
             --app-bg-card: #ffffff;
             --app-bg-card-hover: #f1f5f9;
@@ -133,7 +133,7 @@ export default function Layout({ children, currentPageName }) {
           }
 
           body.theme-light {
-            background-color: #f0f2f5 !important;
+            background-color: #fef200 !important;
             color: #1e293b;
           }
           body.theme-dark {
