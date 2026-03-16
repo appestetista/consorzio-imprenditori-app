@@ -43,9 +43,9 @@ export default function AttachmentMenu({ onFileUploaded, disabled }) {
         <div className="fixed inset-0 z-50" onClick={() => setOpen(false)} />
       )}
 
-      {/* Popup 3 pulsanti stile ChatGPT */}
+      {/* Popup 3 pulsanti stile ChatGPT — portale fixed per evitare overflow:hidden del parent */}
       {open && (
-        <div className="absolute bottom-full left-0 mb-3 z-50">
+        <div className="fixed left-3 z-[60]" style={{ bottom: '200px' }}>
           <div className="flex gap-2">
             {[
               { ref: cameraRef, icon: Camera, label: 'Fotocamera' },
@@ -55,7 +55,7 @@ export default function AttachmentMenu({ onFileUploaded, disabled }) {
               <button
                 key={label}
                 onClick={() => { ref.current?.click(); setOpen(false); }}
-                className="flex flex-col items-center justify-center w-[80px] h-[72px] rounded-xl active:scale-95 transition-all"
+                className="flex flex-col items-center justify-center w-[80px] h-[72px] rounded-xl active:scale-95 transition-all shadow-lg"
                 style={{
                   backgroundColor: 'var(--app-bg-card)',
                   border: '1px solid var(--app-border)',
