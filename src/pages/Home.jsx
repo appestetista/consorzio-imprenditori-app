@@ -55,14 +55,6 @@ export default function Home() {
   const messagesContainerRef = useRef(null);
   const inputRef = useRef(null);
   const [showScrollDown, setShowScrollDown] = useState(false);
-  const [bottomNavExpanded, setBottomNavExpanded] = useState(false);
-
-  // Ascolta espansione BottomNav per spostare la barra input
-  useEffect(() => {
-    const handler = (e) => setBottomNavExpanded(!!e.detail?.expanded);
-    window.addEventListener('bottomnav-toggle', handler);
-    return () => window.removeEventListener('bottomnav-toggle', handler);
-  }, []);
 
   // Caricamento utente
   useEffect(() => {
@@ -785,7 +777,7 @@ export default function Home() {
             setShowScrollDown(false);
           }}
           className="fixed z-50 left-1/2 -translate-x-1/2 w-9 h-9 rounded-full bg-slate-700/90 border border-slate-600/50 flex items-center justify-center shadow-lg backdrop-blur-sm transition-all hover:bg-slate-600/90"
-          style={{ bottom: bottomNavExpanded ? '260px' : '140px', transition: 'bottom 0.4s cubic-bezier(0.25,0.1,0.25,1)' }}
+          style={{ bottom: '180px' }}
         >
           <ArrowUp className="w-4 h-4 text-slate-200 rotate-180" />
         </button>
