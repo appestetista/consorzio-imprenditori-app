@@ -30,25 +30,27 @@ export default function GlobalSearchBar({ currentPageName }) {
           {/* Barra di ricerca */}
           <button
             onClick={() => navigate(createPageUrl('Home'))}
-            className="flex-1 relative flex items-center rounded-xl border border-slate-700/60 bg-slate-800/80 backdrop-blur-lg overflow-hidden"
+            className="flex-1 relative flex items-center rounded-xl backdrop-blur-lg overflow-hidden"
+            style={{ border: '1px solid var(--app-border)', backgroundColor: 'var(--app-bg-input)' }}
           >
-            <span className="flex-1 text-left text-slate-500 text-sm px-4 py-2.5 truncate">
+            <span className="flex-1 text-left text-sm px-4 py-2.5 truncate" style={{ color: 'var(--app-text-muted)' }}>
               Chiedi qualsiasi cosa...
             </span>
             <div
               className="flex-shrink-0 m-1 w-8 h-8 rounded-lg flex items-center justify-center"
-              style={{ backgroundColor: '#334155' }}
+              style={{ backgroundColor: 'var(--app-btn-disabled-bg)' }}
             >
-              <Send className="w-4 h-4 text-slate-500" />
+              <Send className="w-4 h-4" style={{ color: 'var(--app-text-muted)' }} />
             </div>
           </button>
 
           {/* Pulsante My Profilo */}
           <button
             onClick={() => navigate(createPageUrl('MyProfile'))}
-            className="flex-shrink-0 w-10 h-10 rounded-xl border border-slate-700/60 bg-slate-800/80 backdrop-blur-lg flex items-center justify-center active:scale-95 transition-transform"
+            className="flex-shrink-0 w-10 h-10 rounded-xl backdrop-blur-lg flex items-center justify-center active:scale-95 transition-transform"
+            style={{ border: '1px solid var(--app-border)', backgroundColor: 'var(--app-bg-input)' }}
           >
-            <UserRound className="w-5 h-5 text-slate-400" />
+            <UserRound className="w-5 h-5" style={{ color: 'var(--app-text-secondary)' }} />
           </button>
         </div>
       </div>
