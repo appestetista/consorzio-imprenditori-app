@@ -14,6 +14,7 @@ import BottomNav from '../components/layout/BottomNav';
 import SectionHeaderIcons from '../components/layout/SectionHeaderIcons';
 import { useImpersonation } from '../components/admin/ImpersonationContext';
 import VideoRecensioniExamples from '../components/video/VideoRecensioniExamples';
+import VideoRecensioniHero from '../components/video/VideoRecensioniHero';
 
 export default function VideoRecensioni() {
   const [user, setUser] = useState(null);
@@ -245,28 +246,10 @@ NOTE: ${formData.notes || 'Nessuna'}
         ) : (
           /* VISTA UTENTE */
           <>
-            {/* Descrizione servizio */}
-            <Card className="bg-[#0a2540] border-[#1a3a5c] mb-6">
-              <CardContent className="p-4">
-                <div className="flex items-center gap-2 mb-3">
-                  <Film className="w-5 h-5 text-[#d4af37]" />
-                  <h2 className="text-white font-bold">Come funziona</h2>
-                </div>
-                <p className="text-slate-300 text-sm mb-3">
-                  Richiedi una video recensione da parte di un tuo cliente. Inserisci i dati del cliente e noi ci occuperemo di tutto: contatto, intervista, montaggio e pubblicazione.
-                </p>
-                <div className="bg-slate-900/50 rounded-lg p-3 border border-slate-700/50">
-                  <p className="text-slate-400 text-xs flex items-center gap-1">
-                    🔒 <span className="font-medium text-slate-300">I dati del tuo cliente non verranno divulgati.</span>
-                  </p>
-                  <p className="text-slate-500 text-xs mt-1">
-                    Saranno utilizzati esclusivamente da noi per contattarlo e organizzare la video recensione.
-                  </p>
-                </div>
-              </CardContent>
-            </Card>
+            {/* Hero con percorso grafico */}
+            <VideoRecensioniHero />
 
-            {/* Esempi video */}
+            {/* Esempi video affiancati */}
             <VideoRecensioniExamples />
 
             {/* Scelta piano */}
