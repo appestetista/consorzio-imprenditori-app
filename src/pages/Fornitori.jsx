@@ -87,10 +87,10 @@ export default function Fornitori() {
               } else {
                 navigate(createPageUrl('Esplora?tab=strumenti'));
               }
-            }} className="text-lime-400 p-3 -m-3 rounded-full back-arrow-tap">
+            }} className="text-black p-3 -m-3 rounded-full back-arrow-tap">
               <ArrowLeft className="w-7 h-7" />
             </button>
-            <h1 className="text-lime-400 text-xl font-bold">Fornitori</h1>
+            <h1 className="text-black text-xl font-bold">Ricerca Fornitori Anonima</h1>
           </div>
           {/* Icone gestite dal GlobalHeader */}
         </div>
@@ -102,8 +102,8 @@ export default function Fornitori() {
               <Shield className="w-5 h-5 text-lime-400" />
             </div>
             <div>
-              <p className="text-white font-medium">Ricerca fornitori anonima</p>
-              <p className="text-slate-400 text-sm">Trova fornitori seri partendo dal tuo problema. Tutto in anonimato finché non decidi tu.</p>
+              <p className="text-black font-medium">Ricerca fornitori anonima</p>
+              <p className="text-black/60 text-sm">Trova fornitori seri partendo dal tuo problema. Tutto in anonimato finché non decidi tu.</p>
             </div>
           </div>
         </div>
@@ -126,21 +126,21 @@ export default function Fornitori() {
             <Button
               size="sm"
               onClick={() => setActiveTab('my-requests')}
-              className={`flex-1 text-xs ${activeTab === 'my-requests' ? 'bg-lime-400 text-slate-900 hover:bg-lime-500' : 'bg-slate-800 text-slate-400 border border-slate-700 hover:bg-slate-700'}`}
+              className={`flex-1 text-xs ${activeTab === 'my-requests' ? 'bg-blue-600 text-white hover:bg-blue-700' : 'bg-white text-black border border-black/15 hover:border-black/30'}`}
             >
               <Search className="w-3 h-3 mr-1" /> Cerca fornitore
             </Button>
             <Button
               size="sm"
               onClick={() => setActiveTab('open-requests')}
-              className={`flex-1 text-xs ${activeTab === 'open-requests' ? 'bg-lime-400 text-slate-900 hover:bg-lime-500' : 'bg-slate-800 text-slate-400 border border-slate-700 hover:bg-slate-700'}`}
+              className={`flex-1 text-xs ${activeTab === 'open-requests' ? 'bg-blue-600 text-white hover:bg-blue-700' : 'bg-white text-black border border-black/15 hover:border-black/30'}`}
             >
               <Users className="w-3 h-3 mr-1" /> Candidati
             </Button>
             <Button
               size="sm"
               onClick={() => setActiveTab('my-profile')}
-              className={`flex-1 text-xs ${activeTab === 'my-profile' ? 'bg-lime-400 text-slate-900 hover:bg-lime-500' : 'bg-slate-800 text-slate-400 border border-slate-700 hover:bg-slate-700'}`}
+              className={`flex-1 text-xs ${activeTab === 'my-profile' ? 'bg-blue-600 text-white hover:bg-blue-700' : 'bg-white text-black border border-black/15 hover:border-black/30'}`}
             >
               <Eye className="w-3 h-3 mr-1" /> Profilo
             </Button>
@@ -162,7 +162,7 @@ export default function Fornitori() {
                 <Button 
                   onClick={() => setShowNewRequest(true)}
                   disabled={effectiveUser?.piano_abbonamento !== 'impresa_39'}
-                  className="w-full bg-lime-400 text-slate-900 hover:bg-lime-500 mb-4"
+                  className="w-full bg-blue-600 text-white hover:bg-blue-700 mb-4"
                 >
                   <Plus className="w-4 h-4 mr-2" /> Cerca nuovo fornitore
                 </Button>
