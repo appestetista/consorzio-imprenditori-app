@@ -77,6 +77,69 @@ export default function Layout({ children, currentPageName }) {
         <PanelProvider>
         <style>{`
           @import url('https://fonts.googleapis.com/css2?family=Inter:wght@300;400;500;600;700&display=swap');
+
+          /* ======= TEMA NOTTE (default) ======= */
+          body.theme-dark {
+            --app-bg: #0a0f1a;
+            --app-bg-secondary: #0f172a;
+            --app-bg-card: #1e293b;
+            --app-bg-card-hover: #334155;
+            --app-bg-input: rgba(30, 41, 59, 0.8);
+            --app-bg-overlay: rgba(0, 0, 0, 0.5);
+            --app-border: rgba(71, 85, 105, 0.4);
+            --app-border-accent: rgba(212, 175, 55, 0.2);
+            --app-text-primary: #ffffff;
+            --app-text-secondary: #94a3b8;
+            --app-text-muted: #64748b;
+            --app-text-inverse: #0f172a;
+            --app-accent: #d4af37;
+            --app-accent-glow: rgba(212, 175, 55, 0.4);
+            --app-accent-secondary: #84ff00;
+            --app-gradient-bottom: linear-gradient(to top, #0a0f1a 75%, transparent 100%);
+            --app-gradient-card: linear-gradient(160deg, #1a1a1a 0%, #001d3b 50%, #001530 100%);
+            --app-gradient-border-inactive: linear-gradient(145deg, #c0c0c0 0%, #a8a8a8 25%, #808080 50%, #c0c0c0 75%, #e8e8e8 100%);
+            --app-gradient-border-active: linear-gradient(145deg, #d4af37 0%, #b8860b 25%, #8b7355 50%, #d4af37 75%, #f0e68c 100%);
+            --app-shadow-card: 0 6px 20px rgba(0,0,0,0.5), 0 3px 8px rgba(0,0,0,0.3);
+            --app-btn-disabled-bg: #334155;
+            --app-lime: #84ff00;
+            --app-lime-alpha: rgba(132, 255, 0, 0.25);
+          }
+
+          /* ======= TEMA GIORNO ======= */
+          body.theme-light {
+            --app-bg: #f0f2f5;
+            --app-bg-secondary: #e2e8f0;
+            --app-bg-card: #ffffff;
+            --app-bg-card-hover: #f1f5f9;
+            --app-bg-input: rgba(255, 255, 255, 0.9);
+            --app-bg-overlay: rgba(0, 0, 0, 0.25);
+            --app-border: rgba(203, 213, 225, 0.8);
+            --app-border-accent: rgba(161, 128, 30, 0.3);
+            --app-text-primary: #1e293b;
+            --app-text-secondary: #475569;
+            --app-text-muted: #94a3b8;
+            --app-text-inverse: #ffffff;
+            --app-accent: #a1801e;
+            --app-accent-glow: rgba(161, 128, 30, 0.25);
+            --app-accent-secondary: #16a34a;
+            --app-gradient-bottom: linear-gradient(to top, #f0f2f5 75%, transparent 100%);
+            --app-gradient-card: linear-gradient(160deg, #ffffff 0%, #f8fafc 50%, #f1f5f9 100%);
+            --app-gradient-border-inactive: linear-gradient(145deg, #cbd5e1 0%, #94a3b8 25%, #64748b 50%, #cbd5e1 75%, #e2e8f0 100%);
+            --app-gradient-border-active: linear-gradient(145deg, #a1801e 0%, #8b6914 25%, #6b5a30 50%, #a1801e 75%, #d4c477 100%);
+            --app-shadow-card: 0 4px 12px rgba(0,0,0,0.08), 0 2px 4px rgba(0,0,0,0.04);
+            --app-btn-disabled-bg: #cbd5e1;
+            --app-lime: #16a34a;
+            --app-lime-alpha: rgba(22, 163, 74, 0.2);
+          }
+
+          body.theme-light {
+            background-color: #f0f2f5 !important;
+            color: #1e293b;
+          }
+          body.theme-dark {
+            background-color: #0a0f1a !important;
+            color: #ffffff;
+          }
           
           html, body {
             background-color: #0a0f1a !important;
