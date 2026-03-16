@@ -49,23 +49,23 @@ function NotificationItem({ notif, onMarkRead, onDelete, expanded, onToggleExpan
   return (
     <div 
       className={cn(
-        "px-4 py-3 border-b border-slate-700/30 last:border-b-0 transition-colors cursor-pointer hover:bg-slate-800/60",
-        !notif.is_read ? "bg-slate-800/40" : ""
+        "px-4 py-3 border-b border-black/10 last:border-b-0 transition-colors cursor-pointer hover:bg-black/10",
+        !notif.is_read ? "bg-black/5" : ""
       )}
       onClick={handleClick}
     >
       <div className="flex items-start justify-between gap-2">
         <div className="flex-1 min-w-0">
           <div className="flex items-center gap-1.5">
-            {!notif.is_read && <span className="w-2 h-2 rounded-full bg-[#d4af37] flex-shrink-0" />}
-            <p className="text-xs font-medium text-white truncate">{notif.title}</p>
+            {!notif.is_read && <span className="w-2 h-2 rounded-full bg-black flex-shrink-0" />}
+            <p className="text-xs font-medium text-black truncate">{notif.title}</p>
           </div>
           {notif.content && (
-            <p className={cn("text-[11px] text-slate-400 mt-0.5", expanded ? "whitespace-pre-wrap" : "line-clamp-2")}>
+            <p className={cn("text-[11px] text-black/60 mt-0.5", expanded ? "whitespace-pre-wrap" : "line-clamp-2")}>
               {notif.content}
             </p>
           )}
-          <p className="text-[10px] text-slate-500 mt-1">
+          <p className="text-[10px] text-black/50 mt-1">
             {notif.created_date ? new Date(notif.created_date).toLocaleDateString('it-IT', { day: 'numeric', month: 'short', hour: '2-digit', minute: '2-digit' }) : ''}
           </p>
         </div>
@@ -93,18 +93,18 @@ function ScadenzaItem({ scadenza }) {
     : { label: 'In programma', bg: 'bg-emerald-500/20', text: 'text-emerald-400', border: 'border-emerald-500/30' };
 
   return (
-    <div className="px-4 py-3 border-b border-slate-700/30 last:border-b-0">
+    <div className="px-4 py-3 border-b border-black/10 last:border-b-0">
       <div className="flex items-start justify-between gap-2">
         <div className="flex-1 min-w-0">
           <div className="flex items-center gap-2">
-            <p className="text-xs font-medium text-white truncate">{scadenza.titolo}</p>
+            <p className="text-xs font-medium text-black truncate">{scadenza.titolo}</p>
             <span className={cn("flex-shrink-0 px-1.5 py-0.5 rounded text-[9px] font-bold border", badgeConfig.bg, badgeConfig.text, badgeConfig.border)}>
               {badgeConfig.label}
             </span>
           </div>
           <div className="flex items-center gap-1.5 mt-1">
-            <Calendar className="w-3 h-3 text-slate-500" />
-            <span className="text-[10px] text-slate-500">{dateStr} — {scadenza.daysLeft === 0 ? 'oggi' : scadenza.daysLeft === 1 ? 'domani' : `tra ${scadenza.daysLeft} giorni`}</span>
+            <Calendar className="w-3 h-3 text-black/50" />
+            <span className="text-[10px] text-black/50">{dateStr} — {scadenza.daysLeft === 0 ? 'oggi' : scadenza.daysLeft === 1 ? 'domani' : `tra ${scadenza.daysLeft} giorni`}</span>
           </div>
           {scadenza.sanzione_ritardo && (
             <p className="text-[10px] text-red-400/70 mt-1 leading-snug">⚠ {scadenza.sanzione_ritardo}</p>
@@ -175,8 +175,11 @@ export default function NotificationsPanel({ open, onClose, userEmail, userRegim
         style={{ top: 0 }}
       >
       <div
-        className="w-full max-w-md bg-slate-900 flex flex-col pointer-events-auto shadow-2xl rounded-t-2xl transition-transform duration-300 ease-out"
-        style={{
+        className="w-full max-w-md flex flex-col pointer-events-auto shadow-2xl rounded-t-2xl transition-transform duration-300 ease-out"
+        style={{ backgroundColor: '#fef200' }}
+      >
+        /* second style applied via spread below */
+        style2={{
           position: 'absolute',
           bottom: 0,
           left: '50%',
