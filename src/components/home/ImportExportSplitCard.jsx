@@ -3,8 +3,10 @@ import { useNavigate } from 'react-router-dom';
 import { createPageUrl } from '@/utils';
 import { TrendingUp, Ship } from 'lucide-react';
 import { cn } from '@/lib/utils';
+import { useTheme } from '../context/ThemeContext';
 
 export default function ImportExportSplitCard({ disabled = false }) {
+  const { isDark } = useTheme();
   const navigate = useNavigate();
   const [pressedSide, setPressedSide] = useState(null);
 
@@ -48,8 +50,8 @@ export default function ImportExportSplitCard({ disabled = false }) {
           <div
             className="relative w-full h-full rounded-[19px] flex overflow-hidden backdrop-blur-sm"
             style={{
-              background: 'rgba(20, 40, 80, 0.28)',
-              boxShadow: 'inset 0 1px 1px rgba(255,255,255,0.15), inset 0 -1px 2px rgba(0,0,0,0.1)'
+              background: isDark ? 'rgba(20, 40, 80, 0.28)' : '#1F1F1F',
+              boxShadow: isDark ? 'inset 0 1px 1px rgba(255,255,255,0.15), inset 0 -1px 2px rgba(0,0,0,0.1)' : 'inset 0 1px 1px rgba(255,255,255,0.3), inset 0 -1px 2px rgba(0,0,0,0.05)'
             }}
           >
             {/* Metà sinistra - EXPORT */}
