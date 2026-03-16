@@ -1122,7 +1122,7 @@ export default function FinanziamentiAgevolati() {
                     <p className="text-white text-2xl font-bold">
                       {loadingMatch ? '...' : matchedGrants.length > 0 ? matchedGrants.length : filteredGrants.length}
                     </p>
-                    <p className="text-slate-400 text-sm">
+                    <p className="text-lime-300 text-sm">
                       {matchedGrants.length > 0 ? 'bandi compatibili con il tuo profilo' : 'bandi disponibili'}
                     </p>
                   </div>
@@ -1180,12 +1180,12 @@ export default function FinanziamentiAgevolati() {
             {!loadingMatch && matchedGrants.length > 0 && otherMatchedGrants.length > 0 && (
               <div className="mb-6 space-y-3">
                 <div className="flex items-center justify-between">
-                  <p className="text-slate-300 text-sm font-medium">
+                  <p className="text-lime-300 text-sm font-medium">
                     Altri {otherMatchedGrants.length} bandi compatibili
                   </p>
                   <button
                     onClick={() => setShowFiltersPanel(!showFiltersPanel)}
-                    className="flex items-center gap-1.5 text-xs text-slate-400 hover:text-slate-200 transition-colors"
+                    className="flex items-center gap-1.5 text-xs text-lime-300 hover:text-lime-100 transition-colors"
                   >
                     <SlidersHorizontal className="w-3.5 h-3.5" />
                     <span>Filtra</span>
@@ -1208,12 +1208,12 @@ export default function FinanziamentiAgevolati() {
             {!loadingMatch && matchedGrants.length === 0 && !hasIncompleteProfile && filteredGrants.length > 0 && (
               <div className="mb-6 space-y-3">
                 <div className="flex items-center justify-between">
-                  <p className="text-slate-300 text-sm font-medium">
+                  <p className="text-lime-300 text-sm font-medium">
                     Tutti i {filteredGrants.length} bandi disponibili
                   </p>
                   <button
                     onClick={() => setShowFiltersPanel(!showFiltersPanel)}
-                    className="flex items-center gap-1.5 text-xs text-slate-400 hover:text-slate-200 transition-colors"
+                    className="flex items-center gap-1.5 text-xs text-lime-300 hover:text-lime-100 transition-colors"
                   >
                     <SlidersHorizontal className="w-3.5 h-3.5" />
                     <span>Filtra</span>
