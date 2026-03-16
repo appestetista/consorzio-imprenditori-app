@@ -12,10 +12,16 @@ export default function BottomNav({ currentPage, bgColor = null }) {
   const strumentiPages = [
     'Esplora', 'AnalisiContratti', 'ComplianceAziendale', 'RisparmioEnergetico',
     'FinanziamentiAgevolati', 'ImportExport', 'SimulatoreFiscale', 'Consulenze',
-    'WelfareAziendale', 'SimulatoreCostoPersonale', 'Fornitori', 'Marketplace',
+    'WelfareAziendale', 'WelfareNormativa', 'WelfareTipologie', 'WelfareOrdina', 'WelfareStorico',
+    'SimulatoreCostoPersonale', 'Fornitori', 'Marketplace',
     'VideoRecensioni', 'VideoInterviste', 'GestioneMembri', 'Imprenditori',
-    'AsteImmobiliari', 'CulturaAziendale', 'FiscalitaEnergetica',
+    'AsteImmobiliari', 'AsteSalvate', 'PromemoriaAste',
+    'CulturaAziendale', 'FiscalitaEnergetica',
     'RisparmioDettaglio', 'ProfiloBandi', 'CruscottoFiscale',
+    'VantaggiIscritti', 'MiePrenotazioniVantaggi', 'GestioneVantaggi', 'ScannerQRVantaggi',
+    'ContattaConsorzio', 'ContattaMembri', 'DirectoryUtenti',
+    'SimulatoreApp', 'RichiestaWelfare', 'CatalogoBuoniPasto',
+    'QRCodeHub', 'MioQRCode', 'Messaggi', 'Pricing',
   ];
 
   const navItems = [
