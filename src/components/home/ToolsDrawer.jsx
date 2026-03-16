@@ -365,7 +365,7 @@ export default function ToolsDrawer() {
       >
         {/* Header */}
         <div className="flex items-center justify-between px-3 pt-16 pb-2 border-b border-[#d4af37]/15">
-          <span className="text-xs font-bold tracking-wider" style={{ color: 'var(--app-accent)' }}>STRUMENTI</span>
+          <span className="text-xs font-bold tracking-wider text-black">STRUMENTI</span>
           <button 
             onClick={() => setIsOpen(false)}
             className="w-9 h-9 rounded-full flex items-center justify-center bg-slate-800 hover:bg-slate-700 active:scale-95 transition-transform"
