@@ -8,6 +8,16 @@ export default function BottomNav({ currentPage, bgColor = null }) {
   const [tappedItem, setTappedItem] = useState(null);
   const navigate = useNavigate();
 
+  // Pagine che fanno parte degli "Strumenti" — il pulsante resta evidenziato
+  const strumentiPages = [
+    'Esplora', 'AnalisiContratti', 'ComplianceAziendale', 'RisparmioEnergetico',
+    'FinanziamentiAgevolati', 'ImportExport', 'SimulatoreFiscale', 'Consulenze',
+    'WelfareAziendale', 'SimulatoreCostoPersonale', 'Fornitori', 'Marketplace',
+    'VideoRecensioni', 'VideoInterviste', 'GestioneMembri', 'Imprenditori',
+    'AsteImmobiliari', 'CulturaAziendale', 'FiscalitaEnergetica',
+    'RisparmioDettaglio', 'ProfiloBandi', 'CruscottoFiscale',
+  ];
+
   const navItems = [
     { name: 'home', label: 'Home', icon: Home, page: 'Home' },
     { name: 'vantaggi', label: 'Vantaggi', icon: Gift, action: 'vantaggi' },
@@ -46,7 +56,7 @@ export default function BottomNav({ currentPage, bgColor = null }) {
           {navItems.map((item) => {
             const isActive =
               item.name === 'home' ? currentPage === 'Home' :
-              item.name === 'strumenti' ? currentPage === 'Esplora' :
+              item.name === 'strumenti' ? strumentiPages.includes(currentPage) :
               false;
             const isTapped = tappedItem === item.name;
             const isHighlighted = isActive || isTapped;
