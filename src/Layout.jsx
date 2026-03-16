@@ -117,7 +117,7 @@ export default function Layout({ children, currentPageName }) {
             --app-border-accent: rgba(161, 128, 30, 0.3);
             --app-text-primary: #1e293b;
             --app-text-secondary: #475569;
-            --app-text-muted: #000000;
+            --app-text-muted: #94a3b8;
             --app-text-inverse: #ffffff;
             --app-accent: #a1801e;
             --app-accent-glow: rgba(161, 128, 30, 0.25);
