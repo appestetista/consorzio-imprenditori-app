@@ -19,6 +19,7 @@ import { Switch } from '@/components/ui/switch';
 import { Sheet, SheetContent, SheetHeader, SheetTitle } from '@/components/ui/sheet';
 import { useImpersonation } from '../admin/ImpersonationContext';
 import { toast } from 'sonner';
+import { useTheme } from '../context/ThemeContext';
 
 const TIPI_VANTAGGIO = [
   "Sconto percentuale", "Sconto fisso", "Consulenza gratuita", "Omaggio",
@@ -38,6 +39,7 @@ export default function VantaggiPanelContent({ onClose }) {
   const [selectedCategory, setSelectedCategory] = useState(null);
   const { impersonation } = useImpersonation();
   const queryClient = useQueryClient();
+  const { isDark } = useTheme();
 
   useEffect(() => {
     const loadUser = async () => {
@@ -149,21 +151,21 @@ export default function VantaggiPanelContent({ onClose }) {
   return (
     <div className="flex-1 flex flex-col overflow-hidden relative">
       {/* Header pannello */}
-      <div className="flex items-center gap-3 px-4 pt-4 pb-3 border-b border-[#d4af37]/20">
-        <Gift className="w-5 h-5 text-[#d4af37]" />
-        <h1 className="text-white text-lg font-bold flex-1">Vantaggi Iscritti</h1>
+      <div className="flex items-center gap-3 px-4 pt-4 pb-3 border-b" style={{ borderColor: isDark ? 'rgba(212,175,55,0.2)' : 'rgba(0,0,0,0.15)' }}>
+        <Gift className="w-5 h-5" style={{ color: isDark ? '#d4af37' : '#000' }} />
+        <h1 className="text-lg font-bold flex-1" style={{ color: isDark ? '#fff' : '#000' }}>Vantaggi Iscritti</h1>
       </div>
 
       {/* Contenuto scrollabile */}
       <div className="flex-1 overflow-y-auto px-4 py-4 space-y-4" style={{ paddingBottom: '220px' }}>
         {/* Pulsanti Crea e Storico */}
         <div className="grid grid-cols-2 gap-3">
-          <Button onClick={() => setShowCreatePanel(true)} className="bg-[#d4af37] hover:bg-[#b8860b] text-black font-bold h-11 text-sm">
+          <Button onClick={() => setShowCreatePanel(true)} className="font-bold h-11 text-sm" style={{ backgroundColor: isDark ? '#d4af37' : '#000', color: isDark ? '#000' : '#fef200' }}>
             <Plus className="w-5 h-5 mr-2" /> Crea Vantaggio
           </Button>
-          <Link to={createPageUrl('MiePrenotazioniVantaggi')} onClick={onClose} className="flex items-center justify-center gap-2 h-11 rounded-md border-2 border-[#d4af37]/50 bg-[#d4af37]/10 hover:bg-[#d4af37]/20 transition-all active:scale-95">
-            <Clock className="w-4 h-4 text-[#d4af37]" />
-            <span className="text-[#d4af37] text-sm font-bold">Storico Vantaggi</span>
+          <Link to={createPageUrl('MiePrenotazioniVantaggi')} onClick={onClose} className="flex items-center justify-center gap-2 h-11 rounded-md border-2 transition-all active:scale-95" style={{ borderColor: isDark ? 'rgba(212,175,55,0.5)' : 'rgba(0,0,0,0.5)', backgroundColor: isDark ? 'rgba(212,175,55,0.1)' : 'rgba(0,0,0,0.08)' }}>
+            <Clock className="w-4 h-4" style={{ color: isDark ? '#d4af37' : '#000' }} />
+            <span className="text-sm font-bold" style={{ color: isDark ? '#d4af37' : '#000' }}>Storico Vantaggi</span>
           </Link>
         </div>
 
@@ -199,7 +201,7 @@ export default function VantaggiPanelContent({ onClose }) {
                 const esauritoPerUtente = consumato && vantaggio.utilizzi_massimi === 1;
 
                 return (
-                  <Card key={vantaggio.id} className={`overflow-hidden relative ${esauritoPerUtente ? 'border-red-500/50 bg-red-900/30' : 'border-slate-700 bg-slate-800'}`}>
+                  <Card key={vantaggio.id} className={`overflow-hidden relative ${esauritoPerUtente ? 'border-red-500/50 bg-red-900/30' : ''}`} style={!esauritoPerUtente ? { borderColor: isDark ? '#334155' : 'rgba(0,0,0,0.2)', backgroundColor: isDark ? '#1e293b' : 'rgba(255,255,255,0.6)' } : {}}>
                     <CardContent className="p-0">
                       <div className="flex">
                         <div className="relative w-28 h-28 flex-shrink-0">
@@ -216,16 +218,16 @@ export default function VantaggiPanelContent({ onClose }) {
                           <div className="flex items-start justify-between gap-2 mb-2">
                             <div className="flex flex-wrap gap-1">
                               <Badge className={`${getTipoColor(vantaggio.tipo_vantaggio)} text-white text-[10px]`}>{vantaggio.tipo_vantaggio}</Badge>
-                              {vantaggio.categoria_vantaggio && <Badge variant="outline" className="text-slate-300 border-slate-600 text-[10px]">{vantaggio.categoria_vantaggio}</Badge>}
+                              {vantaggio.categoria_vantaggio && <Badge variant="outline" className="text-[10px]" style={{ color: isDark ? '#cbd5e1' : '#000', borderColor: isDark ? '#475569' : 'rgba(0,0,0,0.3)' }}>{vantaggio.categoria_vantaggio}</Badge>}
                             </div>
-                            <div className="flex items-center gap-1 text-slate-400 text-xs">
+                            <div className="flex items-center gap-1 text-xs" style={{ color: isDark ? '#94a3b8' : '#555' }}>
                               {creator.logo ? <img src={creator.logo} alt="" className="w-4 h-4 rounded-full object-cover" /> : creator.type === 'consulente' ? <User className="w-3 h-3" /> : <Building2 className="w-3 h-3" />}
                               <span className="truncate max-w-[80px]">{creator.name}</span>
                             </div>
                           </div>
-                          <h3 className="text-white font-bold text-sm mb-1">{vantaggio.titolo}</h3>
-                          {vantaggio.valore && <p className="text-[#d4af37] font-bold text-lg">{vantaggio.valore}</p>}
-                          {vantaggio.descrizione && <p className="text-slate-400 text-xs mt-1 line-clamp-2">{vantaggio.descrizione}</p>}
+                          <h3 className="font-bold text-sm mb-1" style={{ color: isDark ? '#fff' : '#000' }}>{vantaggio.titolo}</h3>
+                          {vantaggio.valore && <p className="font-bold text-lg" style={{ color: isDark ? '#d4af37' : '#000' }}>{vantaggio.valore}</p>}
+                          {vantaggio.descrizione && <p className="text-xs mt-1 line-clamp-2" style={{ color: isDark ? '#94a3b8' : '#333' }}>{vantaggio.descrizione}</p>}
                           <div className="flex flex-wrap gap-2 mt-2">
                             {vantaggio.data_scadenza && <span className="text-slate-500 text-[10px] flex items-center gap-1"><Calendar className="w-3 h-3" />Scade: {new Date(vantaggio.data_scadenza).toLocaleDateString('it-IT')}</span>}
                             {utilizziRimasti !== null && <span className="text-slate-500 text-[10px] flex items-center gap-1"><Clock className="w-3 h-3" />{utilizziRimasti} rimasti</span>}
@@ -238,7 +240,7 @@ export default function VantaggiPanelContent({ onClose }) {
                         ) : prenotato ? (
                           <div className="bg-green-500/20 border border-green-500/50 rounded-lg p-2 flex items-center justify-center gap-2"><Check className="w-4 h-4 text-green-400" /><span className="text-green-400 text-sm font-medium">Prenotato</span></div>
                         ) : vantaggio.richiede_prenotazione ? (
-                          <Button onClick={() => prenotaMutation.mutate(vantaggio.id)} disabled={prenotaMutation.isPending || consumato || isBloccato} className="w-full bg-[#d4af37] hover:bg-[#b8860b] text-slate-900 font-bold disabled:opacity-50" size="sm"><Gift className="w-4 h-4 mr-2" />{isBloccato ? 'Bloccato' : 'Prenota'}</Button>
+                          <Button onClick={() => prenotaMutation.mutate(vantaggio.id)} disabled={prenotaMutation.isPending || consumato || isBloccato} className="w-full font-bold disabled:opacity-50" size="sm" style={{ backgroundColor: isDark ? '#d4af37' : '#000', color: isDark ? '#0f172a' : '#fef200' }}><Gift className="w-4 h-4 mr-2" />{isBloccato ? 'Bloccato' : 'Prenota'}</Button>
                         ) : (
                           <div className="bg-amber-500/20 border border-amber-500/50 rounded-lg p-2 text-center"><span className="text-amber-400 text-sm">Mostra il QR in negozio</span></div>
                         )}
