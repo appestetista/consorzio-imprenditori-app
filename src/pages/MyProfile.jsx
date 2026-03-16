@@ -1001,7 +1001,7 @@ export default function MyProfile() {
   }
 
   return (
-   <div className="min-h-screen bg-slate-900 pb-64" style={{ backgroundColor: '#001d3b' }}>
+   <div className="min-h-screen pb-64" style={{ backgroundColor: 'var(--app-bg)' }}>
      {/* Top bar gestita dal GlobalHeader nel Layout */}
 
      <main className="px-4 pt-16 pb-2 max-w-2xl mx-auto">

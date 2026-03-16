@@ -460,7 +460,7 @@ Accedi all'app per visualizzare gli allegati e rispondere direttamente al client
   });
 
   return (
-    <div className="min-h-screen bg-slate-900 pb-64">
+    <div className="min-h-screen pb-64" style={{ backgroundColor: 'var(--app-bg)' }}>
       <main className="px-4 py-6 max-w-md mx-auto">
         <div className="flex items-center justify-between mb-6">
           <div className="flex items-center gap-3">
