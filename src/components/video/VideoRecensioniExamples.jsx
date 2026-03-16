@@ -9,6 +9,11 @@ const EXAMPLE_VIDEOS = [
     type: 'short',
   },
   {
+    id: '9nco_qVdoY4',
+    title: 'Video Testimonianza 2',
+    type: 'short',
+  },
+  {
     id: 'GzWJRPdVwmo',
     title: 'Video Recensioni',
     type: 'video',
