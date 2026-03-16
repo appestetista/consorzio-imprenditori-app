@@ -254,19 +254,46 @@ NOTE: ${formData.notes || 'Nessuna'}
 
             {/* Scelta piano */}
             {!selectedPlan && !requestSent && (
-              <div className="space-y-3 mb-6">
-                <h3 className="text-white font-bold text-center mb-2">Scegli il tuo piano</h3>
+              <div className="space-y-4 mb-6">
+                <div className="text-center mb-1">
+                  <h3 className="text-white font-bold text-lg">Inizia subito</h3>
+                  <p className="text-slate-400 text-xs">Scegli la soluzione più adatta alla tua azienda</p>
+                </div>
 
                 {/* Singolo */}
                 <button
                   onClick={() => setSelectedPlan('singolo')}
-                  className="w-full text-left bg-[#0a2540] border border-[#1a3a5c] rounded-xl p-4 hover:border-[#d4af37]/50 transition-colors"
+                  className="w-full text-left rounded-2xl p-[1px] hover:scale-[1.01] transition-all duration-200"
+                  style={{ background: 'linear-gradient(135deg, #1a3a5c 0%, #0d2847 50%, #1a3a5c 100%)' }}
                 >
-                  <div className="flex items-center justify-between mb-2">
-                    <span className="text-white font-bold text-base">🎬 Singolo Filmato</span>
-                    <span className="text-[#d4af37] font-bold text-lg">€ 200</span>
+                  <div className="bg-[#0a1e35] rounded-2xl p-4">
+                    <div className="flex items-start gap-3">
+                      <div className="w-11 h-11 rounded-xl bg-blue-500/15 border border-blue-500/25 flex items-center justify-center flex-shrink-0">
+                        <Film className="w-5 h-5 text-blue-400" />
+                      </div>
+                      <div className="flex-1 min-w-0">
+                        <div className="flex items-center justify-between mb-1">
+                          <span className="text-white font-bold text-base">Singolo Filmato</span>
+                          <div className="text-right flex-shrink-0">
+                            <span className="text-[#d4af37] font-bold text-xl">€ 200</span>
+                            <span className="text-slate-500 text-xs block">+ IVA</span>
+                          </div>
+                        </div>
+                        <p className="text-slate-400 text-xs mb-3">Una video recensione professionale del tuo cliente</p>
+                        <div className="flex flex-wrap gap-x-4 gap-y-1">
+                          <span className="text-slate-300 text-xs flex items-center gap-1.5">
+                            <Check className="w-3 h-3 text-blue-400 flex-shrink-0" /> Contatto cliente
+                          </span>
+                          <span className="text-slate-300 text-xs flex items-center gap-1.5">
+                            <Check className="w-3 h-3 text-blue-400 flex-shrink-0" /> Montaggio pro
+                          </span>
+                          <span className="text-slate-300 text-xs flex items-center gap-1.5">
+                            <Check className="w-3 h-3 text-blue-400 flex-shrink-0" /> Video tuo per sempre
+                          </span>
+                        </div>
+                      </div>
+                    </div>
                   </div>
-                  <p className="text-slate-400 text-sm">+ IVA — Una video recensione professionale del tuo cliente</p>
                 </button>
 
                 {/* Abbonamento */}
@@ -276,44 +303,74 @@ NOTE: ${formData.notes || 'Nessuna'}
                   const completedAbbonamento = abbRequests.length;
 
                   return (
-                    <div className="w-full text-left bg-[#0a2540] border-2 border-[#d4af37]/40 rounded-xl p-4 relative overflow-hidden">
-                      <div className="absolute top-0 right-0 bg-[#d4af37] text-slate-900 text-[10px] font-bold px-2 py-0.5 rounded-bl">
-                        CONVENIENTE
-                      </div>
-                      <div className="flex items-center justify-between mb-2">
-                        <span className="text-white font-bold text-base">📦 Abbonamento Mensile</span>
-                        <span className="text-[#d4af37] font-bold text-lg">€ 100<span className="text-sm font-normal">/mese</span></span>
-                      </div>
-                      <p className="text-slate-400 text-sm">+ IVA — 1 video recensione al mese inclusa nell'abbonamento</p>
-
-                      {/* Barra progresso 12 video */}
-                      <div className={`mt-3 pt-3 border-t border-slate-700/50 ${!hasAbbonamento ? 'opacity-40' : ''}`}>
-                        <div className="flex items-center justify-between mb-1.5">
-                          <span className="text-slate-400 text-xs">Video utilizzati</span>
-                          <span className="text-[#d4af37] text-xs font-bold">{completedAbbonamento} / 12</span>
-                        </div>
-                        <div className="flex gap-1">
-                          {Array.from({ length: 12 }).map((_, i) => (
-                            <div
-                              key={i}
-                              className="flex-1 h-3 rounded-full transition-colors"
-                              style={{
-                                backgroundColor: i < completedAbbonamento ? '#d4af37' : '#1e293b',
-                                boxShadow: i < completedAbbonamento ? '0 0 6px rgba(212,175,55,0.4)' : 'none'
-                              }}
-                            />
-                          ))}
-                        </div>
-                        <p className="text-slate-500 text-[10px] mt-1 text-center">12 video inclusi nell'abbonamento annuale</p>
+                    <div
+                      className="w-full text-left rounded-2xl p-[1.5px] relative"
+                      style={{ background: 'linear-gradient(135deg, #d4af37 0%, #9e6f0f 30%, #d4af37 60%, #9e6f0f 100%)' }}
+                    >
+                      {/* Badge CONVENIENTE */}
+                      <div className="absolute -top-2.5 left-1/2 -translate-x-1/2 z-10">
+                        <span className="bg-[#d4af37] text-slate-900 text-[10px] font-extrabold px-3 py-1 rounded-full shadow-lg uppercase tracking-wider">
+                          ⭐ Più conveniente
+                        </span>
                       </div>
 
-                      {/* Pulsanti azione abbonamento */}
-                      <div className="mt-3 flex gap-2">
-                        {!hasAbbonamento ? (
-                          <>
+                      <div className="bg-[#0a1e35] rounded-2xl p-4 pt-5">
+                        <div className="flex items-start gap-3">
+                          <div className="w-11 h-11 rounded-xl bg-[#d4af37]/15 border border-[#d4af37]/30 flex items-center justify-center flex-shrink-0">
+                            <Star className="w-5 h-5 text-[#d4af37]" />
+                          </div>
+                          <div className="flex-1 min-w-0">
+                            <div className="flex items-center justify-between mb-1">
+                              <span className="text-white font-bold text-base">Abbonamento</span>
+                              <div className="text-right flex-shrink-0">
+                                <span className="text-[#d4af37] font-bold text-xl">€ 100</span>
+                                <span className="text-slate-500 text-xs block">/mese + IVA</span>
+                              </div>
+                            </div>
+                            <p className="text-slate-400 text-xs mb-3">1 video al mese — 12 video all'anno inclusi</p>
+                            <div className="flex flex-wrap gap-x-4 gap-y-1 mb-3">
+                              <span className="text-slate-300 text-xs flex items-center gap-1.5">
+                                <Check className="w-3 h-3 text-[#d4af37] flex-shrink-0" /> 12 video/anno
+                              </span>
+                              <span className="text-slate-300 text-xs flex items-center gap-1.5">
+                                <Check className="w-3 h-3 text-[#d4af37] flex-shrink-0" /> Risparmi il 50%
+                              </span>
+                              <span className="text-slate-300 text-xs flex items-center gap-1.5">
+                                <Check className="w-3 h-3 text-[#d4af37] flex-shrink-0" /> Montaggio pro
+                              </span>
+                              <span className="text-slate-300 text-xs flex items-center gap-1.5">
+                                <Check className="w-3 h-3 text-[#d4af37] flex-shrink-0" /> Video tuoi per sempre
+                              </span>
+                            </div>
+                          </div>
+                        </div>
+
+                        {/* Barra progresso 12 video */}
+                        <div className={`pt-3 border-t border-slate-700/40 ${!hasAbbonamento ? 'opacity-40' : ''}`}>
+                          <div className="flex items-center justify-between mb-1.5">
+                            <span className="text-slate-400 text-xs">Video utilizzati</span>
+                            <span className="text-[#d4af37] text-xs font-bold">{completedAbbonamento} / 12</span>
+                          </div>
+                          <div className="flex gap-1">
+                            {Array.from({ length: 12 }).map((_, i) => (
+                              <div
+                                key={i}
+                                className="flex-1 h-2.5 rounded-full transition-colors"
+                                style={{
+                                  backgroundColor: i < completedAbbonamento ? '#d4af37' : '#1e293b',
+                                  boxShadow: i < completedAbbonamento ? '0 0 6px rgba(212,175,55,0.4)' : 'none'
+                                }}
+                              />
+                            ))}
+                          </div>
+                        </div>
+
+                        {/* Pulsanti azione abbonamento */}
+                        <div className="mt-3 flex gap-2">
+                          {!hasAbbonamento ? (
                             <button
                               onClick={() => setShowAttivaPopup(true)}
-                              className="flex-1 h-10 rounded-xl text-slate-900 font-bold text-sm transition-all hover:brightness-110 active:scale-[0.98]"
+                              className="flex-1 h-11 rounded-xl text-slate-900 font-bold text-sm transition-all hover:brightness-110 active:scale-[0.98]"
                               style={{
                                 background: 'linear-gradient(to bottom, #f7d774 0%, #e6b93d 35%, #c6921b 60%, #9e6f0f 100%)',
                                 boxShadow: 'inset 0 2px 3px rgba(255,255,255,0.5), inset 0 -4px 6px rgba(0,0,0,0.35), 0 6px 14px rgba(0,0,0,0.5)'
@@ -322,35 +379,35 @@ NOTE: ${formData.notes || 'Nessuna'}
                               <Lock className="w-4 h-4 inline mr-1 -mt-0.5" />
                               Attiva Abbonamento
                             </button>
-                          </>
-                        ) : (
-                          <>
-                            {completedAbbonamento < 12 && (
-                              <button
-                                onClick={() => setSelectedPlan('abbonamento')}
-                                className="flex-1 h-10 rounded-xl text-slate-900 font-bold text-sm transition-all hover:brightness-110 active:scale-[0.98]"
-                                style={{
-                                  background: 'linear-gradient(to bottom, #f7d774 0%, #e6b93d 35%, #c6921b 60%, #9e6f0f 100%)',
-                                  boxShadow: 'inset 0 2px 3px rgba(255,255,255,0.5), inset 0 -4px 6px rgba(0,0,0,0.35), 0 6px 14px rgba(0,0,0,0.5)'
-                                }}
-                              >
-                                Richiedi Video {completedAbbonamento + 1}/12
-                              </button>
-                            )}
-                            {completedAbbonamento >= 12 && (
-                              <div className="flex-1 h-10 rounded-xl bg-green-500/20 border border-green-500/30 flex items-center justify-center">
-                                <span className="text-green-400 font-bold text-sm">✅ Abbonamento completato</span>
-                              </div>
-                            )}
-                          </>
+                          ) : (
+                            <>
+                              {completedAbbonamento < 12 && (
+                                <button
+                                  onClick={() => setSelectedPlan('abbonamento')}
+                                  className="flex-1 h-11 rounded-xl text-slate-900 font-bold text-sm transition-all hover:brightness-110 active:scale-[0.98]"
+                                  style={{
+                                    background: 'linear-gradient(to bottom, #f7d774 0%, #e6b93d 35%, #c6921b 60%, #9e6f0f 100%)',
+                                    boxShadow: 'inset 0 2px 3px rgba(255,255,255,0.5), inset 0 -4px 6px rgba(0,0,0,0.35), 0 6px 14px rgba(0,0,0,0.5)'
+                                  }}
+                                >
+                                  Richiedi Video {completedAbbonamento + 1}/12
+                                </button>
+                              )}
+                              {completedAbbonamento >= 12 && (
+                                <div className="flex-1 h-11 rounded-xl bg-green-500/20 border border-green-500/30 flex items-center justify-center">
+                                  <span className="text-green-400 font-bold text-sm">✅ Abbonamento completato</span>
+                                </div>
+                              )}
+                            </>
+                          )}
+                        </div>
+
+                        {!hasAbbonamento && (
+                          <p className="text-slate-500 text-[10px] mt-2 text-center flex items-center justify-center gap-1">
+                            <Lock className="w-3 h-3" /> Procedi al pagamento per sbloccare
+                          </p>
                         )}
                       </div>
-
-                      {!hasAbbonamento && (
-                        <p className="text-slate-500 text-[10px] mt-2 text-center flex items-center justify-center gap-1">
-                          <Lock className="w-3 h-3" /> Abbonamento non ancora attivo — procedi al pagamento per sbloccare
-                        </p>
-                      )}
                     </div>
                   );
                 })()}
