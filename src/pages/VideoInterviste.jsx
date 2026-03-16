@@ -416,7 +416,7 @@ Questa è una richiesta automatica dalla piattaforma del Consorzio Imprenditori.
   };
 
   return (
-    <div className="min-h-screen bg-slate-900 pb-64">
+    <div className="min-h-screen pb-64" style={{ backgroundColor: 'var(--app-bg)' }}>
       <main className="px-4 pt-16 pb-6 max-w-md mx-auto">
         <div className="flex items-center justify-between mb-6">
           <h1 className="text-white text-xl font-bold truncate">Video Interviste</h1>

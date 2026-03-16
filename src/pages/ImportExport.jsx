@@ -63,7 +63,7 @@ export default function ImportExport() {
   const { usageCount, limit, isLimitReached } = useAILimits(user?.email, actionType);
 
   return (
-    <div className="min-h-screen bg-gradient-to-b from-slate-950 via-slate-900 to-slate-950 pb-64">
+    <div className="min-h-screen pb-64" style={{ backgroundColor: 'var(--app-bg)' }}>
       <main className="px-4 py-6 max-w-md mx-auto">
         {/* Header */}
         <div className="flex items-center justify-between mb-6">
