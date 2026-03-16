@@ -68,10 +68,10 @@ export default function ImportExport() {
         {/* Header */}
         <div className="flex items-center justify-between mb-6">
           <div className="flex items-center gap-3">
-            <Link to={createPageUrl('Esplora?tab=strumenti')} className="text-slate-400 p-3 -m-3 rounded-full back-arrow-tap hover:text-white transition-colors">
+            <Link to={createPageUrl('Esplora?tab=strumenti')} className="text-black p-3 -m-3 rounded-full back-arrow-tap hover:text-black/70 transition-colors">
               <ArrowLeft className="w-6 h-6" />
             </Link>
-            <h1 className="text-white text-xl font-bold">
+            <h1 className="text-black text-xl font-bold">
               {isExport || activeTab === 'history' ? 'Export' : 'Import'}
             </h1>
           </div>
@@ -97,13 +97,13 @@ export default function ImportExport() {
           <div className="mb-6">
             <button
               onClick={() => setActiveTab('history')}
-              className="w-full flex items-center justify-between rounded-xl bg-slate-800/60 border border-slate-700/50 px-4 py-3 text-sm hover:border-slate-600 transition-colors"
+              className="w-full flex items-center justify-between rounded-xl bg-blue-600 border border-blue-700 px-4 py-3 text-sm hover:bg-blue-700 transition-colors"
             >
               <div className="flex items-center gap-2">
-                <History className="w-4 h-4 text-slate-400" />
-                <span className="text-slate-300">Storico ricerche</span>
+                <History className="w-4 h-4 text-white" />
+                <span className="text-white">Storico ricerche</span>
               </div>
-              <span className="text-slate-500 text-xs">Vedi tutto →</span>
+              <span className="text-white/80 text-xs">Vedi tutto →</span>
             </button>
           </div>
         )}
@@ -115,7 +115,7 @@ export default function ImportExport() {
           <>
             <button
               onClick={() => setActiveTab('export')}
-              className="flex items-center gap-2 text-slate-400 hover:text-white mb-4 text-sm transition-colors"
+              className="flex items-center gap-2 text-black hover:text-black/70 mb-4 text-sm transition-colors"
             >
               <ArrowLeft className="w-4 h-4" />
               Torna all'analisi

@@ -186,14 +186,14 @@ export default function ExportSection({ user, exportManagers, selectedMapCountry
       {/* Ricerca rapida export */}
       {!analysisResult && !analyzing && (
         <div className="mb-5 space-y-3">
-          <p className="text-white font-semibold text-sm">Cosa vuoi esportare?</p>
+          <p className="text-black font-semibold text-sm">Cosa vuoi esportare?</p>
           <div>
             <Input placeholder="Es. Olio d'oliva, macchine tessili, vino..." value={exportForm.prodotto}
               onChange={(e) => { setExportForm({ ...exportForm, prodotto: e.target.value }); setExportValidationErrors(prev => ({ ...prev, prodotto: '' })); }}
               className={`bg-slate-800/60 text-white h-11 rounded-xl placeholder:text-slate-500 ${exportValidationErrors.prodotto ? 'border-red-500 border-2' : 'border-white/10'}`} />
             {exportValidationErrors.prodotto && <p className="text-red-400 text-xs mt-1">{exportValidationErrors.prodotto}</p>}
           </div>
-          <p className="text-white font-semibold text-sm">Indica dove</p>
+          <p className="text-black font-semibold text-sm">Indica dove</p>
           <WorldMapExplorer onCountrySelect={(country) => {
             setSelectedMapCountry(country);
           }} />
@@ -203,7 +203,7 @@ export default function ExportSection({ user, exportManagers, selectedMapCountry
               <MapPin className="w-5 h-5 text-cyan-400 flex-shrink-0" />
               <div className="flex-1">
                 <p className="text-cyan-400 text-[10px] font-semibold uppercase tracking-wider">Mercato selezionato</p>
-                <p className="text-white font-bold text-sm">{selectedMapCountry.name}</p>
+                <p className="text-black font-bold text-sm">{selectedMapCountry.name}</p>
               </div>
               <button onClick={() => setSelectedMapCountry(null)} className="text-slate-500 hover:text-white"><X className="w-4 h-4" /></button>
             </div>
@@ -215,13 +215,13 @@ export default function ExportSection({ user, exportManagers, selectedMapCountry
       {!analysisResult && !analyzing && (
         <div className="mt-4 mb-2">
           <div className="flex items-center gap-2 mb-2">
-            <p className="text-white font-semibold text-sm">Settore *</p>
+            <p className="text-black font-semibold text-sm">Settore *</p>
             {exportValidationErrors.settore && <p className="text-red-400 text-xs">{exportValidationErrors.settore}</p>}
           </div>
           <div className="grid grid-cols-2 gap-2">
             {SETTORI.map((s) => (
               <button key={s} onClick={() => { setExportForm({ ...exportForm, settore: exportForm.settore === s ? '' : s }); setExportValidationErrors(prev => ({ ...prev, settore: '' })); }}
-                className={`px-3 py-2 rounded-xl text-xs font-medium transition-all border text-center ${exportForm.settore === s ? 'bg-lime-400 text-slate-900 border-lime-400 shadow-lg shadow-lime-400/20' : 'bg-slate-800/60 text-slate-400 border-white/10 hover:border-white/20 hover:text-white'}`}>
+                className={`px-3 py-2 rounded-xl text-xs font-medium transition-all border text-center ${exportForm.settore === s ? 'bg-blue-600 text-white border-blue-600 shadow-lg shadow-blue-600/20' : 'bg-white text-black border-black/15 hover:border-black/30'}`}>
                 {s}
               </button>
             ))}
@@ -244,7 +244,7 @@ export default function ExportSection({ user, exportManagers, selectedMapCountry
         ) : (
           <div className="space-y-4">
             <div>
-              <label className="text-slate-400 text-xs font-medium mb-1.5 block">Capacità produttiva per export</label>
+              <label className="text-black text-xs font-medium mb-1.5 block">Capacità produttiva per export</label>
               <div className="grid grid-cols-2 gap-2">
                 <Input placeholder="Es. 1000/mese" value={exportForm.capacita_produttiva}
                   onChange={(e) => setExportForm({ ...exportForm, capacita_produttiva: e.target.value })}
@@ -265,17 +265,17 @@ export default function ExportSection({ user, exportManagers, selectedMapCountry
             </div>
 
             <div>
-              <label className="text-slate-400 text-xs font-medium mb-1.5 block">Posizionamento di prezzo</label>
+              <label className="text-black text-xs font-medium mb-1.5 block">Posizionamento di prezzo</label>
               <div className="grid grid-cols-4 gap-2">
                 {['Entry Level', 'Mid-range', 'Premium', 'Luxury'].map(p => (
                   <button key={p} onClick={() => setExportForm({ ...exportForm, posizionamento: exportForm.posizionamento === p ? '' : p })}
-                    className={`px-2 py-2 rounded-xl text-[11px] font-medium transition-all border text-center ${exportForm.posizionamento === p ? 'bg-lime-400 text-slate-900 border-lime-400 shadow-lg shadow-lime-400/20' : 'bg-slate-800/60 text-slate-400 border-white/10 hover:border-white/20 hover:text-white'}`}>{p}</button>
+                    className={`px-2 py-2 rounded-xl text-[11px] font-medium transition-all border text-center ${exportForm.posizionamento === p ? 'bg-blue-600 text-white border-blue-600 shadow-lg shadow-blue-600/20' : 'bg-white text-black border-black/15 hover:border-black/30'}`}>{p}</button>
                 ))}
               </div>
             </div>
 
             <div>
-              <label className="text-slate-400 text-xs font-medium mb-1.5 block">Prezzo medio dei prodotti (€)</label>
+              <label className="text-black text-xs font-medium mb-1.5 block">Prezzo medio dei prodotti (€)</label>
               <Input type="number" step="0.01" min="0" placeholder="Es. 15.00" value={exportForm.prezzo_medio}
                 onChange={(e) => setExportForm({ ...exportForm, prezzo_medio: e.target.value })}
                 className="bg-slate-800/60 border-white/10 text-white h-11 rounded-xl placeholder:text-slate-500" />
@@ -283,16 +283,16 @@ export default function ExportSection({ user, exportManagers, selectedMapCountry
 
             <div className="grid grid-cols-2 gap-3">
               <div>
-                <label className="text-slate-400 text-xs font-medium mb-1.5 block">Business Model</label>
+                <label className="text-black text-xs font-medium mb-1.5 block">Business Model</label>
                 <div className="grid grid-cols-2 gap-2">
                   {['B2B', 'B2C'].map(bm => (
                     <button key={bm} onClick={() => setExportForm({ ...exportForm, business_model: exportForm.business_model === bm ? '' : bm })}
-                      className={`px-2 py-2 rounded-xl text-xs font-bold transition-all border text-center ${exportForm.business_model === bm ? 'bg-lime-400 text-slate-900 border-lime-400' : 'bg-slate-800/60 text-slate-400 border-white/10 hover:text-white'}`}>{bm}</button>
+                      className={`px-2 py-2 rounded-xl text-xs font-bold transition-all border text-center ${exportForm.business_model === bm ? 'bg-blue-600 text-white border-blue-600' : 'bg-white text-black border-black/15 hover:border-black/30'}`}>{bm}</button>
                   ))}
                 </div>
               </div>
               <div>
-                <label className="text-slate-400 text-xs font-medium mb-1.5 block">Canale preferito</label>
+                <label className="text-black text-xs font-medium mb-1.5 block">Canale preferito</label>
                 <Select value={exportForm.canale_preferito} onValueChange={(v) => setExportForm({ ...exportForm, canale_preferito: v })}>
                   <SelectTrigger className="bg-slate-800/60 border-white/10 text-white h-10 rounded-xl text-xs"><SelectValue placeholder="Seleziona" /></SelectTrigger>
                   <SelectContent>
@@ -306,7 +306,7 @@ export default function ExportSection({ user, exportManagers, selectedMapCountry
             </div>
 
             <div>
-              <label className="text-slate-400 text-xs font-medium mb-1.5 block">Certificazioni possedute</label>
+              <label className="text-black text-xs font-medium mb-1.5 block">Certificazioni possedute</label>
               <Input placeholder="Es. CE, ISO 9001, BIO, FDA, HACCP..." value={exportForm.certificazioni}
                 onChange={(e) => setExportForm({ ...exportForm, certificazioni: e.target.value })}
                 className="bg-slate-800/60 border-white/10 text-white h-11 rounded-xl placeholder:text-slate-500" />
@@ -321,7 +321,7 @@ export default function ExportSection({ user, exportManagers, selectedMapCountry
                 setExportValidationErrors(errors);
                 if (Object.keys(errors).length > 0) return;
                 setShowHSClassifier(true);
-              }} className="w-full bg-gradient-to-r from-lime-400 to-emerald-500 text-slate-900 font-bold h-12 rounded-xl shadow-lg shadow-lime-400/20 hover:shadow-lime-400/30">
+              }} className="w-full bg-blue-600 hover:bg-blue-700 text-white font-bold h-12 rounded-xl shadow-lg shadow-blue-600/20 hover:shadow-blue-600/30">
                 <TrendingUp className="w-5 h-5 mr-2" /> Avvia Analisi Export
               </Button>
             )}
@@ -399,12 +399,12 @@ export default function ExportSection({ user, exportManagers, selectedMapCountry
               <ExportContactCard contactForm={contactForm} setContactForm={setContactForm} contactSent={contactSent} setContactSent={setContactSent} sendContactMutation={sendContactMutation} uploadingAttachment={uploadingAttachment} handleAttachmentUpload={handleAttachmentUpload} removeAttachment={removeAttachment} exportManagers={exportManagers} />
             </>
           )}
-          <Button onClick={resetAnalysis} variant="outline" className="w-full border-slate-600 text-slate-400 hover:bg-slate-800">Nuova Analisi</Button>
+          <Button onClick={resetAnalysis} variant="outline" className="w-full bg-blue-600 hover:bg-blue-700 text-white border-blue-600">Nuova Analisi</Button>
         </div>
       ) : analysisResult?._api_error ? (
         <div className="space-y-4">
           <Card className="bg-amber-500/10 border-amber-500/30"><CardContent className="p-6 text-center"><AlertTriangle className="w-8 h-8 text-amber-400 mx-auto mb-3" /><h3 className="text-amber-400 font-bold text-base mb-2">Si è verificato un problema durante l'analisi</h3><p className="text-slate-400 text-sm">L'analisi non è riuscita a completarsi. Puoi riprovare oppure contattare un consulente export per assistenza.</p></CardContent></Card>
-          <Button onClick={resetAnalysis} className="w-full bg-gradient-to-r from-lime-400 to-emerald-500 text-slate-900 font-bold h-11 rounded-xl">Riprova Analisi</Button>
+          <Button onClick={resetAnalysis} className="w-full bg-blue-600 hover:bg-blue-700 text-white font-bold h-11 rounded-xl">Riprova Analisi</Button>
         </div>
       ) : (
         null
