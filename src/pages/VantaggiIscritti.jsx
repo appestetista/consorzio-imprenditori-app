@@ -325,7 +325,7 @@ export default function VantaggiIscritti() {
   }
 
   return (
-    <div className="min-h-screen bg-slate-900 pb-64">
+    <div className="min-h-screen bg-slate-900" style={{ paddingBottom: '280px' }}>
       <main className="px-4 py-6 max-w-4xl mx-auto">
         {/* Pulsante Crea Vantaggio */}
         <Button
