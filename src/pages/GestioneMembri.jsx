@@ -316,7 +316,7 @@ export default function GestioneMembri() {
   // Vista per utenti normali (non admin)
   if (!isAdmin) {
     return (
-      <div className="min-h-screen bg-slate-900 pb-64">
+      <div className="min-h-screen pb-64" style={{ backgroundColor: 'var(--app-bg)' }}>
             <Header user={user} />
 
             <main className="px-4 py-6 max-w-md mx-auto">
@@ -337,7 +337,7 @@ export default function GestioneMembri() {
 
   // Vista Admin
   return (
-    <div className="min-h-screen bg-slate-900 pb-64">
+    <div className="min-h-screen pb-64" style={{ backgroundColor: 'var(--app-bg)' }}>
       <main className="px-4 py-6 max-w-md mx-auto">
         <div className="flex items-center justify-between mb-6">
           <div className="flex items-center gap-3">

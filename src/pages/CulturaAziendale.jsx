@@ -216,7 +216,7 @@ export default function CulturaAziendale() {
   }
 
   return (
-    <div className="min-h-screen bg-slate-900 pb-64">
+    <div className="min-h-screen pb-64" style={{ backgroundColor: 'var(--app-bg)' }}>
       <main className="px-4 pt-16 pb-6 max-w-4xl mx-auto">
         <div className="flex items-center justify-between mb-6">
           <div className="flex items-center gap-3 min-w-0 flex-shrink">
