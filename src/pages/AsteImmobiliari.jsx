@@ -205,7 +205,7 @@ export default function AsteImmobiliari() {
 
   return (
     <div className="min-h-screen pb-64" style={{ backgroundColor: 'var(--app-bg)' }}>
-      <main className="px-4 py-4 max-w-2xl mx-auto">
+      <main className="px-4 pt-16 pb-4 max-w-2xl mx-auto">
         {/* Header */}
         <div className="flex items-center gap-3 mb-4">
           <Link to={createPageUrl('Esplora?tab=strumenti')} className="text-lime-400 p-3 -m-3 rounded-full back-arrow-tap">
