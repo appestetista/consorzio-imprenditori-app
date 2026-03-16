@@ -13,11 +13,7 @@ const EXAMPLE_VIDEOS = [
     title: 'Video Testimonianza 2',
     type: 'short',
   },
-  {
-    id: 'GzWJRPdVwmo',
-    title: 'Video Recensioni',
-    type: 'video',
-  },
+
 ];
 
 export default function VideoRecensioniExamples() {
