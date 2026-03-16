@@ -2,10 +2,12 @@ import React, { useState, useRef } from 'react';
 import { Plus, Camera, Image, Paperclip, X, Loader2 } from 'lucide-react';
 import { base44 } from '@/api/base44Client';
 import { toast } from 'sonner';
+import { useTheme } from '../context/ThemeContext';
 
 export default function AttachmentMenu({ onFileUploaded, disabled }) {
   const [open, setOpen] = useState(false);
   const [uploading, setUploading] = useState(false);
+  const { isDark } = useTheme();
   const cameraRef = useRef(null);
   const photoRef = useRef(null);
   const fileRef = useRef(null);
@@ -45,30 +47,24 @@ export default function AttachmentMenu({ onFileUploaded, disabled }) {
       {open && (
         <div className="absolute bottom-full left-0 mb-3 z-50">
           <div className="flex gap-2">
-            {/* Fotocamera */}
-            <button
-              onClick={() => { cameraRef.current?.click(); setOpen(false); }}
-              className="flex flex-col items-center justify-center w-[80px] h-[72px] rounded-xl bg-slate-800 border border-slate-700 hover:bg-slate-700 active:scale-95 transition-all"
-            >
-              <Camera className="w-5 h-5 text-slate-300 mb-1" />
-              <span className="text-[10px] text-slate-400 font-medium">Fotocamera</span>
-            </button>
-            {/* Foto */}
-            <button
-              onClick={() => { photoRef.current?.click(); setOpen(false); }}
-              className="flex flex-col items-center justify-center w-[80px] h-[72px] rounded-xl bg-slate-800 border border-slate-700 hover:bg-slate-700 active:scale-95 transition-all"
-            >
-              <Image className="w-5 h-5 text-slate-300 mb-1" />
-              <span className="text-[10px] text-slate-400 font-medium">Foto</span>
-            </button>
-            {/* File */}
-            <button
-              onClick={() => { fileRef.current?.click(); setOpen(false); }}
-              className="flex flex-col items-center justify-center w-[80px] h-[72px] rounded-xl bg-slate-800 border border-slate-700 hover:bg-slate-700 active:scale-95 transition-all"
-            >
-              <Paperclip className="w-5 h-5 text-slate-300 mb-1" />
-              <span className="text-[10px] text-slate-400 font-medium">File</span>
-            </button>
+            {[
+              { ref: cameraRef, icon: Camera, label: 'Fotocamera' },
+              { ref: photoRef, icon: Image, label: 'Foto' },
+              { ref: fileRef, icon: Paperclip, label: 'File' },
+            ].map(({ ref, icon: Icon, label }) => (
+              <button
+                key={label}
+                onClick={() => { ref.current?.click(); setOpen(false); }}
+                className="flex flex-col items-center justify-center w-[80px] h-[72px] rounded-xl active:scale-95 transition-all"
+                style={{
+                  backgroundColor: 'var(--app-bg-card)',
+                  border: '1px solid var(--app-border)',
+                }}
+              >
+                <Icon className="w-5 h-5 mb-1" style={{ color: 'var(--app-text-secondary)' }} />
+                <span className="text-[10px] font-medium" style={{ color: 'var(--app-text-muted)' }}>{label}</span>
+              </button>
+            ))}
           </div>
         </div>
       )}
