@@ -1,27 +1,26 @@
 import React from 'react';
 import { useNavigate } from 'react-router-dom';
 import { createPageUrl } from '@/utils';
-import { Send } from 'lucide-react';
+import { Send, UserRound } from 'lucide-react';
 
 export default function GlobalSearchBar({ currentPageName }) {
   const navigate = useNavigate();
 
-  // Non mostrare sulla Home (ha già la sua barra) e su pagine fullscreen
-  if (currentPageName === 'Home') return null;
-
   const handleFocus = () => {
-    // Naviga alla Home per usare la chat AI
-    navigate(createPageUrl('Home'));
+    if (currentPageName !== 'Home') {
+      navigate(createPageUrl('Home'));
+    }
   };
 
   return (
-    <div className="fixed z-40 px-1 pb-1 pt-1" style={{ left: '44px', right: '44px', bottom: '155px' }}>
-      <div className="max-w-2xl mx-auto">
+    <div className="fixed z-40 left-0 right-0" style={{ bottom: '96px' }}>
+      <div className="max-w-md mx-auto px-3 flex items-center gap-2">
+        {/* Barra di ricerca */}
         <button
           onClick={handleFocus}
-          className="w-full relative flex items-center rounded-xl border border-slate-700/60 bg-slate-800/80 backdrop-blur-lg overflow-hidden"
+          className="flex-1 relative flex items-center rounded-xl border border-slate-700/60 bg-slate-800/80 backdrop-blur-lg overflow-hidden"
         >
-          <span className="flex-1 text-left text-slate-500 text-sm px-4 py-2.5">
+          <span className="flex-1 text-left text-slate-500 text-sm px-4 py-2.5 truncate">
             Chiedi qualsiasi cosa...
           </span>
           <div
@@ -30,6 +29,14 @@ export default function GlobalSearchBar({ currentPageName }) {
           >
             <Send className="w-4 h-4 text-slate-500" />
           </div>
+        </button>
+
+        {/* Pulsante My Profilo */}
+        <button
+          onClick={() => navigate(createPageUrl('MyProfile'))}
+          className="flex-shrink-0 w-10 h-10 rounded-xl border border-slate-700/60 bg-slate-800/80 backdrop-blur-lg flex items-center justify-center active:scale-95 transition-transform"
+        >
+          <UserRound className="w-5 h-5 text-slate-400" />
         </button>
       </div>
     </div>

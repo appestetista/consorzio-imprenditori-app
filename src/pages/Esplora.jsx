@@ -383,7 +383,6 @@ export default function Esplora() {
     { title: 'Video\nRecensioni', icon: Star, page: 'VideoRecensioni', notifications: 0, permission: 'video_interviste' },
     { title: 'Video\nInterviste', icon: Video, page: 'VideoInterviste', notifications: videoNotifications, permission: 'video_interviste', newVideosCount: videosData.newCount, totalVideosCount: videosData.totalCount, hasVisitedVideos: videosData.hasVisited, latestVideoDate: videosData.latestVideoDate },
     { title: 'Marketing', icon: Megaphone, page: null, notifications: 0, comingSoon: true },
-    { title: 'Creazione\nApp e Siti', icon: Monitor, page: 'SimulatoreApp', notifications: 0 },
     { title: 'Contatta\nImprenditori', icon: User, page: 'GestioneMembri', notifications: messages.length, permission: 'contatta_membri' },
     { title: 'Consigli da\nImprenditori', icon: Handshake, page: 'Imprenditori', notifications: unviewedPollsCount, permission: 'imprenditori' },
     { title: 'Investimenti', icon: TrendingUp, page: null, notifications: 0, comingSoon: true },
