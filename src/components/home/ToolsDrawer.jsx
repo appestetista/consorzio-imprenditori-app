@@ -9,6 +9,7 @@ import {
   TrendingUp, Gavel, X, Calendar, Phone, Gift, Bell, Ship, Play
 } from 'lucide-react';
 import { cn } from '@/lib/utils';
+import { useTheme } from '../context/ThemeContext';
 
 // Mappa source messaggi → tool id nel drawer
 const SOURCE_TO_TOOL = {
@@ -85,6 +86,7 @@ function saveOrder(order) {
 
 export default function ToolsDrawer() {
   const navigate = useNavigate();
+  const { isDark } = useTheme();
   const [isOpen, setIsOpen] = useState(false);
   const [currentEmail, setCurrentEmail] = useState(null);
 
@@ -318,19 +320,19 @@ export default function ToolsDrawer() {
             top: '100px',
             width: '18px',
             height: '60px',
-            background: 'linear-gradient(270deg, rgba(132,255,0,0.25) 0%, rgba(132,255,0,0.08) 100%)',
+            background: `linear-gradient(270deg, var(--app-lime-alpha) 0%, transparent 100%)`,
             borderTopLeftRadius: '10px',
             borderBottomLeftRadius: '10px',
-            borderLeft: '1.5px solid rgba(132,255,0,0.5)',
-            borderTop: '1px solid rgba(132,255,0,0.25)',
-            borderBottom: '1px solid rgba(132,255,0,0.25)',
+            borderLeft: `1.5px solid ${isDark ? 'rgba(132,255,0,0.5)' : 'rgba(22,163,74,0.5)'}`,
+            borderTop: `1px solid ${isDark ? 'rgba(132,255,0,0.25)' : 'rgba(22,163,74,0.25)'}`,
+            borderBottom: `1px solid ${isDark ? 'rgba(132,255,0,0.25)' : 'rgba(22,163,74,0.25)'}`,
             backdropFilter: 'blur(8px)',
           }}
         >
           <div className="flex flex-col gap-[3px]">
-            <div className="w-[3px] h-[3px] rounded-full bg-[#84ff00]" />
-            <div className="w-[3px] h-[3px] rounded-full bg-[#84ff00]" />
-            <div className="w-[3px] h-[3px] rounded-full bg-[#84ff00]" />
+            <div className="w-[3px] h-[3px] rounded-full" style={{ backgroundColor: 'var(--app-lime)' }} />
+            <div className="w-[3px] h-[3px] rounded-full" style={{ backgroundColor: 'var(--app-lime)' }} />
+            <div className="w-[3px] h-[3px] rounded-full" style={{ backgroundColor: 'var(--app-lime)' }} />
           </div>
         </div>
       )}
@@ -356,14 +358,14 @@ export default function ToolsDrawer() {
           width: `${DRAWER_WIDTH}px`,
           transform: `translateX(${drawerX}px)`,
           transition: swipeOffset > 0 ? 'none' : 'transform 0.35s cubic-bezier(0.25,0.1,0.25,1)',
-          background: 'linear-gradient(180deg, #0c1425 0%, #0a0f1a 100%)',
-          borderRight: '1px solid rgba(212,175,55,0.2)',
-          boxShadow: '4px 0 20px rgba(0,0,0,0.5)',
+          background: isDark ? 'linear-gradient(180deg, #0c1425 0%, #0a0f1a 100%)' : 'linear-gradient(180deg, #f8fafc 0%, #f0f2f5 100%)',
+          borderRight: `1px solid var(--app-border-accent)`,
+          boxShadow: isDark ? '4px 0 20px rgba(0,0,0,0.5)' : '4px 0 20px rgba(0,0,0,0.1)',
         }}
       >
         {/* Header */}
         <div className="flex items-center justify-between px-3 pt-16 pb-2 border-b border-[#d4af37]/15">
-          <span className="text-[#d4af37] text-xs font-bold tracking-wider">STRUMENTI</span>
+          <span className="text-xs font-bold tracking-wider" style={{ color: 'var(--app-accent)' }}>STRUMENTI</span>
           <button 
             onClick={() => setIsOpen(false)}
             className="w-9 h-9 rounded-full flex items-center justify-center bg-slate-800 hover:bg-slate-700 active:scale-95 transition-transform"
@@ -417,16 +419,16 @@ export default function ToolsDrawer() {
                   onTouchEnd={handleItemTouchEnd}
                   className={cn("flex justify-center w-full active:scale-[0.96] transition-transform duration-100 cursor-pointer select-none", dragActive && !isDragging && "pointer-events-none")}
                 >
-                  <div className="w-[140px]" style={{ boxShadow: '0 6px 18px rgba(0,0,0,0.5), 0 3px 8px rgba(0,0,0,0.3)' }}>
-                    <div className="rounded-[14px] p-[2px]" style={{
-                      background: (isDragging && dragActive) || isJustDropped
-                        ? 'linear-gradient(145deg, #d4af37 0%, #b8860b 25%, #8b7355 50%, #d4af37 75%, #f0e68c 100%)'
-                        : 'linear-gradient(145deg, #c0c0c0 0%, #a8a8a8 25%, #808080 50%, #c0c0c0 75%, #e8e8e8 100%)',
-                      transition: 'background 0.6s ease',
-                    }}>
+                  <div className="w-[140px]" style={{ boxShadow: 'var(--app-shadow-card)' }}>
+                  <div className="rounded-[14px] p-[2px]" style={{
+                    background: (isDragging && dragActive) || isJustDropped
+                      ? 'var(--app-gradient-border-active)'
+                      : 'var(--app-gradient-border-inactive)',
+                    transition: 'background 0.6s ease',
+                  }}>
                       <div className="rounded-[12px] flex flex-col items-center justify-center py-5 relative" style={{
-                        background: 'linear-gradient(160deg, #1a1a1a 0%, #001d3b 50%, #001530 100%)',
-                        boxShadow: 'inset 0 2px 4px rgba(0,0,0,0.5), inset 0 -1px 2px rgba(255,255,255,0.05)'
+                        background: 'var(--app-gradient-card)',
+                        boxShadow: isDark ? 'inset 0 2px 4px rgba(0,0,0,0.5), inset 0 -1px 2px rgba(255,255,255,0.05)' : 'inset 0 2px 4px rgba(0,0,0,0.06), inset 0 -1px 2px rgba(255,255,255,0.5)'
                       }}>
                         {/* Campanella notifiche — angolo alto destra */}
                         <div className="absolute top-1.5 right-1.5 z-10 flex items-center justify-center">
@@ -437,8 +439,8 @@ export default function ToolsDrawer() {
                             </span>
                           )}
                         </div>
-                        <Icon className="w-6 h-6 text-[#d4af37] mb-1.5" style={{ filter: 'drop-shadow(0 0 5px rgba(212,175,55,0.4))' }} />
-                        <span className="text-slate-200 text-[11px] font-semibold tracking-wide">{tool.title}</span>
+                        <Icon className="w-6 h-6 mb-1.5" style={{ color: 'var(--app-accent)', filter: `drop-shadow(0 0 5px var(--app-accent-glow))` }} />
+                        <span className="text-[11px] font-semibold tracking-wide" style={{ color: isDark ? '#e2e8f0' : '#334155' }}>{tool.title}</span>
                         {/* Icona video tutorial — angolo basso sinistra */}
                         <div className="absolute bottom-1.5 left-1.5 z-10">
                           <Play className="w-3 h-3 text-slate-500" />
