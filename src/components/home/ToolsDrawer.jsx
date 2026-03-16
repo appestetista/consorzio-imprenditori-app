@@ -358,7 +358,7 @@ export default function ToolsDrawer() {
           width: `${DRAWER_WIDTH}px`,
           transform: `translateX(${drawerX}px)`,
           transition: swipeOffset > 0 ? 'none' : 'transform 0.35s cubic-bezier(0.25,0.1,0.25,1)',
-          background: isDark ? 'linear-gradient(180deg, #0c1425 0%, #0a0f1a 100%)' : 'linear-gradient(180deg, #f8fafc 0%, #f0f2f5 100%)',
+          background: isDark ? 'linear-gradient(180deg, #0c1425 0%, #0a0f1a 100%)' : 'var(--app-bg)',
           borderRight: `1px solid var(--app-border-accent)`,
           boxShadow: isDark ? '4px 0 20px rgba(0,0,0,0.5)' : '4px 0 20px rgba(0,0,0,0.1)',
         }}
