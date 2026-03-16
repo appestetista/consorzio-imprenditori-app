@@ -649,13 +649,13 @@ export default function SimulatoreInterattivo({ user }) {
                         return (
                           <div key={v.k}>
                             <div className="flex items-center justify-between mb-0.5">
-                              <span className="text-xs text-black">{v.l}</span>
+                              <span className="text-xs text-white">{v.l}</span>
                               <input
                                 type="number"
                                 inputMode="numeric"
                                 value={val}
                                 onChange={e => updCat(v.k, Math.max(0, Number(e.target.value) || 0))}
-                                className="text-xs font-bold text-black text-right bg-slate-800 border border-slate-600 focus:border-blue-500 rounded px-2 py-0.5 outline-none w-24 [appearance:textfield] [&::-webkit-outer-spin-button]:appearance-none [&::-webkit-inner-spin-button]:appearance-none"
+                                className="text-xs font-bold text-white text-right bg-slate-800 border border-slate-600 focus:border-blue-500 rounded px-2 py-0.5 outline-none w-24 [appearance:textfield] [&::-webkit-outer-spin-button]:appearance-none [&::-webkit-inner-spin-button]:appearance-none"
                               />
                             </div>
                             <input type="range" min={0} max={mx} step={500} value={val}
@@ -873,10 +873,10 @@ export default function SimulatoreInterattivo({ user }) {
           </h2>
           <p className="text-[10px] text-black/60 mb-3">Ecco passo per passo cosa succede ai soldi del tuo compenso da amministratore:</p>
           <div className="space-y-1">
-            <DetailRow label="Il tuo compenso lordo (quanto deliberi in assemblea)" value={comp} color="text-white" />
+            <DetailRow label="Il tuo compenso lordo (quanto deliberi in assemblea)" value={comp} color="text-black" />
             <DetailRow label="− I tuoi contributi INPS (1/3 del 35,03%)" value={-A.inpsAmministratore} color="text-red-400"
               note="Questa quota INPS la paghi tu. Serve per la tua pensione. È integralmente deducibile dal reddito (art. 10 TUIR)." />
-            <DetailRow label="= Reddito su cui si calcola l'IRPEF" value={A.imponibileIrpef} color="text-gray-300"
+            <DetailRow label="= Reddito su cui si calcola l'IRPEF" value={A.imponibileIrpef} color="text-black/70"
               note="Dopo aver dedotto i tuoi contributi INPS (integralmente deducibili), questo è l'importo su cui calcoli l'IRPEF." />
             <DetailRow label={`− IRPEF (tassa sul reddito: ${comp <= 28000 ? '23%' : comp <= 50000 ? 'fino al 33%' : 'fino al 43%'})`} value={-A.irpef} color="text-red-400"
               note={comp <= 28000 ? "Ottimo: resti nel primo scaglione, paghi solo il 23%!" : comp <= 50000 ? "Sei entrato nel secondo scaglione: da €28k a €50k paghi il 33%." : "Attenzione: oltre €50k paghi il 43% su ogni euro in più."} />
