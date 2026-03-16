@@ -4,6 +4,7 @@ import { useNavigate } from 'react-router-dom';
 import { createPageUrl } from '@/utils';
 import { usePanels } from './GlobalTopIcons';
 import { useNotificationsBadge } from '../home/NotificationsPanel';
+import ThemeToggle from './ThemeToggle';
 
 /**
  * Header globale trasparente — hamburger a sinistra, busta + campanella a destra.
@@ -46,8 +47,9 @@ export default function GlobalHeader({ userEmail, userRegime, onMenuClick, onHam
           )}
         </div>
 
-        {/* Destra: busta + campanella */}
-        <div className="flex items-center gap-2 mr-2">
+        {/* Destra: tema + busta + campanella */}
+        <div className="flex items-center gap-1 mr-2">
+          <ThemeToggle />
           {/* Busta messaggi — naviga a pagina Messaggi */}
           <button
             onPointerUp={(e) => { e.stopPropagation(); navigate(createPageUrl('Messaggi')); }}

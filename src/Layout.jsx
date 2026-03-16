@@ -14,6 +14,7 @@ import ChatSidebar from './components/home/ChatSidebar';
 import ToolsDrawer from './components/home/ToolsDrawer';
 import { createPageUrl } from '@/utils';
 import { useNavigate } from 'react-router-dom';
+import { ThemeProvider } from './components/context/ThemeContext';
 
 export default function Layout({ children, currentPageName }) {
   const [selectedDate, setSelectedDate] = useState(null);
@@ -70,6 +71,7 @@ export default function Layout({ children, currentPageName }) {
   }, [currentPageName]);
 
   return (
+    <ThemeProvider>
     <ImpersonationProvider>
       <VideoVisitProvider>
         <PanelProvider>
@@ -171,5 +173,6 @@ export default function Layout({ children, currentPageName }) {
         </PanelProvider>
       </VideoVisitProvider>
     </ImpersonationProvider>
+    </ThemeProvider>
   );
 }
