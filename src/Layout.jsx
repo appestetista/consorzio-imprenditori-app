@@ -76,6 +76,11 @@ export default function Layout({ children, currentPageName }) {
         <style>{`
           @import url('https://fonts.googleapis.com/css2?family=Inter:wght@300;400;500;600;700&display=swap');
           
+          html, body {
+            background-color: #0a0f1a !important;
+            overscroll-behavior: none;
+          }
+
           *, *::before, *::after {
             font-family: 'Inter', -apple-system, BlinkMacSystemFont, 'Segoe UI', Roboto, Helvetica, Arial, sans-serif;
           }
