@@ -15,6 +15,7 @@ import CompareResult from '../components/home/CompareResult';
 import ChatSidebar from '../components/home/ChatSidebar';
 import GlobalTopIcons from '../components/layout/GlobalTopIcons';
 import AIUsageBar, { AIUsageBadge } from '../components/home/AIUsageBar';
+import AIUsageInline from '../components/home/AIUsageInline';
 import useStreamingAI from '../components/home/useStreamingAI';
 import { useQueryClient } from '@tanstack/react-query';
 
@@ -785,7 +786,8 @@ export default function Home() {
 
       {/* Campo di input */}
       <div className="fixed z-40 px-2 pb-2 pt-10 left-0 right-0" style={{ bottom: '100px', background: 'linear-gradient(to top, #0a0f1a 70%, transparent 100%)' }}>
-        <div className="max-w-2xl mx-auto space-y-1">
+        <div className="max-w-2xl mx-auto space-y-1.5">
+          <AIUsageInline usate={consulenzeUsate} piano={pianoAbbonamento} />
           {!compareMode ? (
             <>
               <div className="flex items-end gap-2">
