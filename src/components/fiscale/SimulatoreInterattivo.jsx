@@ -519,7 +519,7 @@ export default function SimulatoreInterattivo({ user }) {
 
       {/* ═══ PARAMETRI ═══ */}
       <div className="rounded-xl p-5"
-        style={{ backgroundColor: "rgba(255,255,255,0.03)", border: "1px solid rgba(255,255,255,0.06)" }}>
+        style={{ backgroundColor: "rgba(255,255,255,0.03)", border: "1px solid rgba(0,0,0,0.15)" }}>
 
         {/* FATTURATO — slider + input manuale */}
         <div className="mb-5">
@@ -584,7 +584,7 @@ export default function SimulatoreInterattivo({ user }) {
         {/* BOTTONE DETTAGLIO */}
         <button onClick={() => setDetCosti(!detCosti)}
           className="w-full py-2 rounded-lg text-xs font-medium text-black hover:text-black/80 transition-colors flex items-center justify-center gap-1.5"
-          style={{ backgroundColor: "rgba(255,255,255,0.03)" }}>
+          style={{ backgroundColor: "rgba(255,255,255,0.03)", border: "1px solid rgba(0,0,0,0.15)" }}>
           <span style={{ fontSize: "8px" }}>{detCosti ? "▼" : "▶"}</span>
           {detCosti ? "Chiudi dettaglio" : "Dettaglio per voce di costo"}
         </button>
@@ -624,7 +624,7 @@ export default function SimulatoreInterattivo({ user }) {
               const isOpen = openGruppi[g.id];
               return (
                 <div key={g.id} className="rounded-lg overflow-hidden"
-                  style={{ border: `1px solid ${isOpen ? g.col + "40" : "rgba(255,255,255,0.05)"}` }}>
+                  style={{ border: `1px solid ${isOpen ? g.col + "40" : "rgba(0,0,0,0.15)"}` }}>
                   <button onClick={() => toggleGruppo(g.id)}
                     className="w-full flex items-center justify-between px-3 py-2.5 transition-colors hover:bg-white/5"
                     style={{ backgroundColor: isOpen ? g.col + "10" : "rgba(255,255,255,0.02)" }}>
@@ -698,7 +698,7 @@ export default function SimulatoreInterattivo({ user }) {
 
       {/* Come ti paghi */}
       <div className="rounded-xl p-5"
-        style={{ backgroundColor: "rgba(255,255,255,0.03)", border: "1px solid rgba(255,255,255,0.06)" }}>
+        style={{ backgroundColor: "rgba(255,255,255,0.03)", border: "1px solid rgba(0,0,0,0.15)" }}>
         <h2 className="text-sm font-semibold text-black uppercase tracking-wider mb-1">
           💼 Come ti paghi
         </h2>
@@ -718,7 +718,7 @@ export default function SimulatoreInterattivo({ user }) {
       {/* QUANTO TI RESTA IN TASCA */}
       <div className="rounded-xl p-6 text-center" style={{
         background: "linear-gradient(135deg, rgba(16,185,129,0.1) 0%, rgba(59,130,246,0.1) 100%)",
-        border: "1px solid rgba(16,185,129,0.2)",
+        border: "1px solid rgba(0,0,0,0.15)",
       }}>
         <div className="text-sm text-black mb-1">
           💰 Quanto ti resta davvero in tasca, dopo tutte le tasse
@@ -761,14 +761,14 @@ export default function SimulatoreInterattivo({ user }) {
       </div>
 
       {/* RIEPILOGO TASSE — spiegato semplice */}
-      <div className="rounded-xl p-4" style={{ backgroundColor: "rgba(255,255,255,0.03)", border: "1px solid rgba(255,255,255,0.06)" }}>
+      <div className="rounded-xl p-4" style={{ backgroundColor: "rgba(255,255,255,0.03)", border: "1px solid rgba(0,0,0,0.15)" }}>
         <h2 className="text-sm font-semibold text-black uppercase tracking-wider mb-1">
           📊 Dettaglio delle tasse che paghi
         </h2>
         <p className="text-[10px] text-black/60 mb-3">Ecco dove vanno i tuoi soldi, voce per voce. Tocca i ❓ per capire cosa significa ogni tassa.</p>
         <div className="grid grid-cols-2 gap-3">
           {/* IRPEF */}
-          <div className="rounded-lg p-3" style={{ backgroundColor: "rgba(239,68,68,0.08)", border: "1px solid rgba(239,68,68,0.15)" }}>
+          <div className="rounded-lg p-3" style={{ backgroundColor: "rgba(239,68,68,0.08)", border: "1px solid rgba(0,0,0,0.15)" }}>
             <div className="text-xs text-black mb-1">
               IRPEF (tassa sul reddito)
               <Tip text="L'IRPEF è la tassa personale che paghi sul tuo compenso da amministratore. È progressiva: i primi €28.000 pagano il 23%, da €28k a €50k il 33%, oltre €50k il 43%. Più alto il compenso, più alta la percentuale." />
@@ -779,7 +779,7 @@ export default function SimulatoreInterattivo({ user }) {
             </div>
           </div>
           {/* INPS */}
-          <div className="rounded-lg p-3" style={{ backgroundColor: "rgba(245,158,11,0.08)", border: "1px solid rgba(245,158,11,0.15)" }}>
+          <div className="rounded-lg p-3" style={{ backgroundColor: "rgba(245,158,11,0.08)", border: "1px solid rgba(0,0,0,0.15)" }}>
             <div className="text-xs text-black mb-1">
               INPS (contributi pensione)
               <Tip text={`L'INPS Gestione Separata è il contributo previdenziale che si paga sul compenso dell'amministratore. L'aliquota è del 35,03%. Di questa, 2/3 li paga la società (${fmt(A.inpsAzienda)}) e 1/3 lo paghi tu (${fmt(A.inpsAmministratore)}). Servono per la tua pensione.`} />
@@ -790,7 +790,7 @@ export default function SimulatoreInterattivo({ user }) {
             </div>
           </div>
           {/* IRES */}
-          <div className="rounded-lg p-3" style={{ backgroundColor: "rgba(239,68,68,0.08)", border: "1px solid rgba(239,68,68,0.15)" }}>
+          <div className="rounded-lg p-3" style={{ backgroundColor: "rgba(239,68,68,0.08)", border: "1px solid rgba(0,0,0,0.15)" }}>
             <div className="text-xs text-black mb-1">
               IRES (tassa sugli utili)
               <Tip text="L'IRES è la tassa che paga la SRL sui suoi utili. L'aliquota è fissa al 24%. Si calcola sull'utile della società DOPO aver tolto il tuo compenso e i costi. Quindi più compenso ti dai, meno IRES paga la società." />
@@ -799,7 +799,7 @@ export default function SimulatoreInterattivo({ user }) {
             <div className="text-[10px] text-black/60 mt-0.5">24% fisso sull'utile della società</div>
           </div>
           {/* IRAP */}
-          <div className="rounded-lg p-3" style={{ backgroundColor: "rgba(239,68,68,0.08)", border: "1px solid rgba(239,68,68,0.15)" }}>
+          <div className="rounded-lg p-3" style={{ backgroundColor: "rgba(239,68,68,0.08)", border: "1px solid rgba(0,0,0,0.15)" }}>
             <div className="text-xs text-black mb-1">
               IRAP (tassa regionale)
               <Tip text="L'IRAP si calcola sul valore della produzione netta (D.Lgs. 446/97 art. 5). Il costo del personale, il compenso amministratore e gli interessi passivi NON sono deducibili dalla base IRAP. Quindi la base è più alta del margine contabile." />
@@ -809,7 +809,7 @@ export default function SimulatoreInterattivo({ user }) {
           </div>
           {/* Ritenuta dividendi */}
           {A.dividendiLordi > 0 && (
-            <div className="rounded-lg p-3" style={{ backgroundColor: "rgba(139,92,246,0.08)", border: "1px solid rgba(139,92,246,0.15)" }}>
+            <div className="rounded-lg p-3" style={{ backgroundColor: "rgba(139,92,246,0.08)", border: "1px solid rgba(0,0,0,0.15)" }}>
               <div className="text-xs text-black mb-1">
                 Ritenuta dividendi
                 <Tip text="Quando prelevi gli utili dalla SRL come dividendi, paghi una tassa secca del 26%. Questa si aggiunge all'IRES già pagata dalla società. Per questo i dividendi costano in totale circa il 43,8%." />
@@ -819,7 +819,7 @@ export default function SimulatoreInterattivo({ user }) {
             </div>
           )}
           {/* Addizionali */}
-          <div className="rounded-lg p-3" style={{ backgroundColor: "rgba(255,255,255,0.05)" }}>
+          <div className="rounded-lg p-3" style={{ backgroundColor: "rgba(255,255,255,0.05)", border: "1px solid rgba(0,0,0,0.15)" }}>
             <div className="text-xs text-black mb-1">
               Addizionali IRPEF
               <Tip text="Sono tasse aggiuntive regionali (~1,7%) e comunali (~0,8%) che si pagano oltre all'IRPEF, calcolate sul tuo compenso. Variano da regione a regione e da comune a comune." />
@@ -832,7 +832,7 @@ export default function SimulatoreInterattivo({ user }) {
 
       {/* WATERFALL — Dove vanno i tuoi soldi */}
       <div className="rounded-xl p-5"
-        style={{ backgroundColor: "rgba(255,255,255,0.03)", border: "1px solid rgba(255,255,255,0.06)" }}>
+        style={{ backgroundColor: "rgba(255,255,255,0.03)", border: "1px solid rgba(0,0,0,0.15)" }}>
         <div className="flex items-center justify-between mb-1">
           <h2 className="text-sm font-semibold text-black uppercase tracking-wider">
             🔍 Dove vanno i tuoi soldi
@@ -867,7 +867,7 @@ export default function SimulatoreInterattivo({ user }) {
       {/* DETTAGLIO COMPENSO — calcolo passo passo */}
       {detComp && (
         <div className="rounded-xl p-5"
-          style={{ backgroundColor: "rgba(59,130,246,0.04)", border: "1px solid rgba(59,130,246,0.15)" }}>
+          style={{ backgroundColor: "rgba(59,130,246,0.04)", border: "1px solid rgba(0,0,0,0.15)" }}>
           <h2 className="text-sm font-semibold text-blue-400 mb-1">
             💼 Come viene calcolato il tuo compenso
           </h2>
@@ -901,7 +901,7 @@ export default function SimulatoreInterattivo({ user }) {
       {/* INSIGHTS */}
       <div className="grid grid-cols-2 gap-3">
         <div className="rounded-xl p-4"
-          style={{ backgroundColor: "rgba(255,255,255,0.03)", border: "1px solid rgba(255,255,255,0.06)" }}>
+          style={{ backgroundColor: "rgba(255,255,255,0.03)", border: "1px solid rgba(0,0,0,0.15)" }}>
           <div className="text-xs text-black mb-1">
             💡 Se fatturi {fmt(50000)} in più
           </div>
@@ -917,7 +917,7 @@ export default function SimulatoreInterattivo({ user }) {
           <div className="text-xs text-black/60">netti in più in tasca</div>
         </div>
         <div className="rounded-xl p-4"
-          style={{ backgroundColor: "rgba(255,255,255,0.03)", border: "1px solid rgba(255,255,255,0.06)" }}>
+          style={{ backgroundColor: "rgba(255,255,255,0.03)", border: "1px solid rgba(0,0,0,0.15)" }}>
           <div className="text-xs text-black mb-1">
             💡 Ogni €1.000 di costo in più
           </div>
@@ -935,7 +935,7 @@ export default function SimulatoreInterattivo({ user }) {
       </div>
 
       {/* PIANIFICATORE MENSILE */}
-      <div className="rounded-xl overflow-hidden" style={{ backgroundColor: "rgba(255,255,255,0.03)", border: "1px solid rgba(212,175,55,0.15)" }}>
+      <div className="rounded-xl overflow-hidden" style={{ backgroundColor: "rgba(255,255,255,0.03)", border: "1px solid rgba(0,0,0,0.15)" }}>
         <button onClick={() => setShowPianificatore(!showPianificatore)}
           className="w-full flex items-center justify-between px-5 py-4 text-left hover:bg-white/5 transition-colors">
           <div className="flex items-center gap-3">
