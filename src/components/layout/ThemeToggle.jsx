@@ -13,9 +13,9 @@ export default function ThemeToggle() {
       title={isDark ? 'Passa a modalità giorno' : 'Passa a modalità notte'}
     >
       {isDark ? (
-        <Sun className="w-5 h-5 text-[#d4af37]" />
+        <Sun className="w-6 h-6 text-white" />
       ) : (
-        <Moon className="w-5 h-5 text-slate-600" />
+        <Moon className="w-6 h-6 text-slate-800" />
       )}
     </button>
   );
