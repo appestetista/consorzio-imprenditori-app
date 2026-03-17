@@ -348,7 +348,8 @@ Deno.serve(async (req) => {
       prezzo_attuale,    // €/unità (prezzo di vendita attuale dell'utente)
       peso_prodotto,     // kg per unità
       settore,
-      esperienza_export
+      esperienza_export,
+      commissione_agente // €/unità (opzionale, dato dall'utente)
     } = body;
 
     if (!trade_data) {
