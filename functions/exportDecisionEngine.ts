@@ -234,7 +234,7 @@ function calcolaDifficolta(dazioInfo, partnerData) {
   return "ALTA";
 }
 
-function generaSpiegazione(countryName, prezzoInfo, dazioInfo, trasporto, commissione, costoTotale, margine, difficolta, serieStorica, topFornitori, macroData, userInputs) {
+function generaSpiegazione(countryName, prezzoInfo, dazioInfo, trasportoInfo, commissioneInfo, costoTotale, margine, difficolta, serieStorica, topFornitori, macroData, userInputs, trasportoPerUnita, prezziB2B, ivaInfo, fontePrezzoCalcolo, componentiMancanti) {
   const righe = [];
 
   // 1. Domanda di mercato
@@ -242,89 +242,101 @@ function generaSpiegazione(countryName, prezzoInfo, dazioInfo, trasporto, commis
     const ultimo = serieStorica[serieStorica.length - 1];
     const primo = serieStorica[0];
     righe.push(`📊 DOMANDA DI MERCATO:`);
-    righe.push(`Il commercio verso ${countryName} per questo prodotto è stato registrato in ${serieStorica.length} anni (${primo.year}-${ultimo.year}).`);
-    righe.push(`Ultimo valore disponibile (${ultimo.year}): $${(ultimo.trade_value_usd / 1e6).toFixed(2)}M USD (fonte: ${ultimo.source}).`);
-
+    righe.push(`Commercio verso ${countryName}: ${serieStorica.length} anni di dati (${primo.year}-${ultimo.year}).`);
+    righe.push(`Ultimo dato (${ultimo.year}): $${(ultimo.trade_value_usd / 1e6).toFixed(2)}M USD (fonte: ${ultimo.source}).`);
     if (serieStorica.length >= 2) {
       const variazione = ((ultimo.trade_value_usd - primo.trade_value_usd) / primo.trade_value_usd * 100).toFixed(1);
-      righe.push(`Variazione nel periodo: ${variazione > 0 ? '+' : ''}${variazione}%.`);
+      righe.push(`Trend: ${variazione > 0 ? '+' : ''}${variazione}% nel periodo.`);
     }
   } else {
-    righe.push(`📊 DOMANDA DI MERCATO: Dati storici non disponibili per questo mercato/prodotto.`);
+    righe.push(`📊 DOMANDA DI MERCATO: Dati storici non disponibili.`);
   }
-
   righe.push('');
 
-  // 2. Prezzo medio
-  righe.push(`💰 PREZZO MEDIO MERCATO:`);
+  // 2. Prezzo medio statistico
+  righe.push(`💰 PREZZO MEDIO STATISTICO (Comtrade):`);
   if (prezzoInfo.prezzo_medio !== null) {
-    righe.push(`Calcolato da dati reali (${prezzoInfo.anno}): $${prezzoInfo.prezzo_medio.toFixed(2)}/kg.`);
-    righe.push(`Basato su: valore $${(prezzoInfo.valore / 1e6).toFixed(2)}M / ${(prezzoInfo.quantita / 1e3).toFixed(1)}t (fonte: ${prezzoInfo.source}).`);
+    righe.push(`$${prezzoInfo.prezzo_medio.toFixed(2)}/kg (${prezzoInfo.anno}) — calcolato da valore/quantità reali (fonte: ${prezzoInfo.source}).`);
   } else {
-    righe.push(`Non calcolabile: mancano dati simultanei di valore E quantità (kg) per lo stesso anno.`);
+    righe.push(`Non calcolabile (mancano dati simultanei valore + quantità kg).`);
   }
-
   righe.push('');
+
+  // 2b. Prezzi B2B di mercato
+  if (prezziB2B) {
+    righe.push(`🏪 PREZZI B2B DI MERCATO (ricerca web):`);
+    if (prezziB2B.range_fob) righe.push(`Range FOB: ${prezziB2B.range_fob}`);
+    if (prezziB2B.range_retail) righe.push(`Range retail: ${prezziB2B.range_retail}`);
+    if (prezziB2B.media_fob_usd) righe.push(`Media FOB calcolata: $${prezziB2B.media_fob_usd}/unità`);
+    if (prezziB2B.prezzi_fob.length > 0) {
+      righe.push(`Fonti: ${prezziB2B.prezzi_fob.slice(0, 3).map(p => `${p.fonte}: ${p.prezzo}`).join(' | ')}`);
+    }
+    if (prezziB2B.affidabilita) righe.push(`Affidabilità prezzi web: ${prezziB2B.affidabilita}`);
+    righe.push('');
+  }
 
   // 3. Componenti costo
   righe.push(`🏭 COMPONENTI DI COSTO:`);
   righe.push(`- Costo industriale: €${userInputs.costo_industriale}/unità (dato utente)`);
-  righe.push(`- Dazio: ${dazioInfo.dazio !== null ? `${dazioInfo.dazio}% (${dazioInfo.tipo})` : NA}`);
-  righe.push(`- Trasporto: ${trasporto !== null ? `€${trasporto}` : `${NA} — nessun dato reale di trasporto disponibile dalle fonti`}`);
-  righe.push(`- Commissioni: ${commissione !== null ? `€${commissione}` : `${NA} — nessun dato reale sulle commissioni disponibile dalle fonti`}`);
+  righe.push(`- Dazio: ${dazioInfo.dazio !== null ? `${dazioInfo.dazio}% ${dazioInfo.tipo} (fonte: ${dazioInfo.fonte})` : NA}`);
 
+  if (trasportoInfo) {
+    righe.push(`- Trasporto: $${trasportoInfo.costo_min_usd}-${trasportoInfo.costo_max_usd} USD (${trasportoInfo.modalita}), ${trasportoInfo.origine} → ${trasportoInfo.destinazione}`);
+    if (trasportoInfo.transito_giorni) righe.push(`  Transit time: ${trasportoInfo.transito_giorni} giorni`);
+    if (trasportoPerUnita !== null) righe.push(`  Per unità: ~$${trasportoPerUnita.toFixed(2)}/unità`);
+    righe.push(`  Fonte: ${trasportoInfo.fonte}`);
+  } else {
+    righe.push(`- Trasporto: ${NA} — Freightos non ha restituito stime per questa rotta`);
+  }
+
+  righe.push(`- Commissioni: ${commissioneInfo ? `€${commissioneInfo.valore}/unità (${commissioneInfo.tipo})` : `${NA} — l'utente non ha specificato commissioni`}`);
+  if (ivaInfo) righe.push(`- IVA destinazione: ${ivaInfo.percentuale}% (fonte: ${ivaInfo.fonte})`);
   righe.push('');
 
-  // 4. Costo totale e margine
+  // 4. Calcolo finale
   righe.push(`📋 CALCOLO FINALE:`);
   if (costoTotale !== null) {
-    righe.push(`Costo totale export: €${costoTotale.toFixed(2)}/unità`);
+    righe.push(`Costo totale landed: ~€${costoTotale.toFixed(2)}/unità`);
   } else {
-    righe.push(`Costo totale export: ${NA} — mancano uno o più componenti di costo.`);
+    righe.push(`Costo totale: ${NA} — mancano: ${componentiMancanti.join(', ')}`);
   }
   if (margine !== null) {
-    righe.push(`Margine reale: ${(margine * 100).toFixed(1)}%`);
+    righe.push(`Margine: ${(margine * 100).toFixed(1)}% (basato su ${fontePrezzoCalcolo})`);
   } else {
-    righe.push(`Margine reale: ${NA} — non calcolabile senza prezzo medio E costo totale completo.`);
+    righe.push(`Margine: ${NA}`);
   }
-
   righe.push('');
 
   // 5. Concorrenza
   if (topFornitori && topFornitori.length > 0) {
-    righe.push(`🏆 CONCORRENZA (Top fornitori nel mercato):`);
+    righe.push(`🏆 CONCORRENZA:`);
     topFornitori.slice(0, 5).forEach((s, i) => {
-      righe.push(`  ${i + 1}. ${s.partner_name || s.partner_code}: $${(s.import_value_usd / 1e6).toFixed(2)}M (${s.market_share_pct?.toFixed(1) || '?'}%)`);
+      const name = s.partner_name || s.paese || s.partner_code;
+      const val = s.import_value_usd || s.valore_usd;
+      const share = s.market_share_pct || s.quota_percentuale;
+      righe.push(`  ${i + 1}. ${name}: $${val ? (val / 1e6).toFixed(2) + 'M' : '?'} (${share || '?'})`);
     });
   }
-
   righe.push('');
 
   // 6. Macro
   if (macroData) {
-    righe.push(`🌍 CONTESTO MACROECONOMICO (${countryName}):`);
-    if (macroData.gdp) righe.push(`- PIL: $${(macroData.gdp.value / 1e9).toFixed(1)}B (${macroData.gdp.year})`);
-    if (macroData.gdp_per_capita) righe.push(`- PIL pro capite: $${macroData.gdp_per_capita.value?.toFixed(0)} (${macroData.gdp_per_capita.year})`);
-    if (macroData.inflation) righe.push(`- Inflazione: ${macroData.inflation.value?.toFixed(1)}% (${macroData.inflation.year})`);
-    if (macroData.exchange_rate) righe.push(`- Tasso di cambio: ${macroData.exchange_rate.value?.toFixed(4)} (${macroData.exchange_rate.year})`);
+    righe.push(`🌍 MACRO (${countryName}):`);
+    if (macroData.gdp) righe.push(`PIL: $${(macroData.gdp.value / 1e9).toFixed(1)}B (${macroData.gdp.year})`);
+    if (macroData.gdp_per_capita) righe.push(`PIL/capita: $${macroData.gdp_per_capita.value?.toFixed(0)} (${macroData.gdp_per_capita.year})`);
+    if (macroData.inflation) righe.push(`Inflazione: ${macroData.inflation.value?.toFixed(1)}% (${macroData.inflation.year})`);
   }
-
   righe.push('');
 
   // 7. Limiti
-  righe.push(`⚠️ LIMITI DEI DATI:`);
   const limiti = [];
-  if (prezzoInfo.prezzo_medio === null) limiti.push("Prezzo medio non calcolabile (mancano valore o quantità)");
-  if (dazioInfo.dazio === null) limiti.push("Dazio non disponibile dalle fonti consultate");
-  if (trasporto === null) limiti.push("Costo trasporto non disponibile (nessun dato reale)");
-  if (commissione === null) limiti.push("Commissioni non disponibili (nessun dato reale)");
-  if (!serieStorica || serieStorica.length < 3) limiti.push("Serie storica limitata o insufficiente");
-  if (!topFornitori || topFornitori.length === 0) limiti.push("Dati sui concorrenti non disponibili");
+  if (prezzoInfo.prezzo_medio === null && (!prezziB2B || !prezziB2B.media_fob_usd)) limiti.push("Nessun prezzo di riferimento disponibile");
+  if (dazioInfo.dazio === null) limiti.push("Dazio non trovato");
+  if (!trasportoInfo) limiti.push("Trasporto non stimabile (Freightos)");
+  if (!serieStorica || serieStorica.length < 3) limiti.push("Serie storica limitata");
 
-  if (limiti.length === 0) {
-    righe.push("Tutti i dati principali sono disponibili.");
-  } else {
-    limiti.forEach(l => righe.push(`- ${l}`));
+  if (limiti.length > 0) {
+    righe.push(`⚠️ LIMITI: ${limiti.join(' | ')}`);
   }
 
   return righe.join('\n');
