@@ -817,6 +817,12 @@ export default function MyProfile() {
         if (el) el.scrollIntoView({ behavior: 'smooth', block: 'start' });
       }, 500);
     }
+    if (params.get('scrollTo') === 'export') {
+      setTimeout(() => {
+        const el = document.getElementById('export-profile-section');
+        if (el) el.scrollIntoView({ behavior: 'smooth', block: 'start' });
+      }, 500);
+    }
     // Evidenzia campi fiscali se richiesto dal Simulatore Fiscale
     if (params.get('highlight') === 'fiscale') {
       setHighlightFiscale(true);
