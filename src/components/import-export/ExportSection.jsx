@@ -311,6 +311,29 @@ export default function ExportSection({ user, exportManagers, selectedMapCountry
             </div>
 
             <div>
+              <label className="text-black text-xs font-medium mb-1.5 block">Margine disponibile (%)</label>
+              <p className="text-slate-400 text-[10px] mb-2 leading-relaxed">
+                È la differenza tra il tuo prezzo di vendita e il costo di produzione, espressa in percentuale sul prezzo. Formula: (Prezzo − Costo) / Prezzo × 100. Serve a capire quanto spazio hai per assorbire i costi di esportazione (logistica, dazi, intermediari) senza andare in perdita.
+              </p>
+              <div className="flex gap-2 mb-2">
+                {[
+                  { label: 'Basso', sublabel: '10–20%', value: '15' },
+                  { label: 'Medio', sublabel: '20–40%', value: '30' },
+                  { label: 'Alto', sublabel: '40%+', value: '50' },
+                ].map(opt => (
+                  <button key={opt.value} onClick={() => setExportForm({ ...exportForm, margine_disponibile: opt.value })}
+                    className={`flex-1 px-2 py-2 rounded-xl text-center transition-all border ${exportForm.margine_disponibile === opt.value ? 'bg-blue-600 text-white border-blue-600 shadow-lg shadow-blue-600/20' : 'bg-white text-black border-black/15 hover:border-black/30'}`}>
+                    <span className="text-xs font-bold block">{opt.label}</span>
+                    <span className="text-[10px] opacity-70">{opt.sublabel}</span>
+                  </button>
+                ))}
+              </div>
+              <Input type="number" step="1" min="0" max="100" placeholder="Es. 30%" value={exportForm.margine_disponibile}
+                onChange={(e) => setExportForm({ ...exportForm, margine_disponibile: e.target.value })}
+                className="bg-slate-800/60 border-white/10 text-white h-11 rounded-xl placeholder:text-white/50" />
+            </div>
+
+            <div>
               <label className="text-black text-xs font-medium mb-1.5 block">Certificazioni possedute</label>
               <Input placeholder="Es. CE, ISO 9001, BIO, FDA, HACCP..." value={exportForm.certificazioni}
                 onChange={(e) => setExportForm({ ...exportForm, certificazioni: e.target.value })}
