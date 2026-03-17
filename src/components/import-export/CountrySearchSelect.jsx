@@ -78,7 +78,7 @@ const WORLD_OPTION = { code: 'WLD', name: 'World (Mondo intero)' };
 
 function getFlagUrl(code) {
   if (code === 'WLD') return null;
-  return `https://flagcdn.com/w40/${code.toLowerCase()}.png`;
+  return `https://www.bandiere-mondo.it/data/flags/h80/${code.toLowerCase()}.webp`;
 }
 
 const CONTINENT_MAP = {
