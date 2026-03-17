@@ -199,24 +199,25 @@ export default function ExportSection({ user, exportManagers, selectedMapCountry
               className={`bg-slate-800/60 text-white h-11 rounded-xl placeholder:text-white/50 ${exportValidationErrors.prodotto ? 'border-red-500 border-2' : 'border-white/10'}`} />
             {exportValidationErrors.prodotto && <p className="text-red-400 text-xs mt-1">{exportValidationErrors.prodotto}</p>}
           </div>
-          <p className="text-black font-semibold text-sm">Indica dove</p>
+          <p className="font-semibold text-sm" style={{ color: 'var(--app-text-primary)' }}>Indica dove</p>
           <WorldMapExplorer onCountrySelect={(country) => {
             setSelectedMapCountry(country);
           }} />
 
           {selectedMapCountry && (
-            <div className="flex items-center gap-3 bg-slate-800/80 border border-cyan-500/30 rounded-xl px-4 py-3">
+            <div className="flex items-center gap-3 rounded-xl px-4 py-3" style={{ background: 'var(--app-bg-card)', border: '1px solid var(--app-border-accent)' }}>
               <img
-                src={`https://www.bandiere-mondo.it/data/flags/h80/${selectedMapCountry.iso_a2?.toLowerCase()}.webp`}
+                src={`https://flagcdn.com/w80/${selectedMapCountry.iso_a2?.toLowerCase()}.png`}
                 alt={selectedMapCountry.name}
-                className="w-8 h-6 rounded object-cover flex-shrink-0 border border-white/10"
+                className="w-10 h-7 rounded object-cover flex-shrink-0"
+                style={{ border: '1px solid var(--app-border)' }}
                 onError={(e) => { e.target.style.display = 'none'; }}
               />
               <div className="flex-1">
-                <p className="text-cyan-400 text-[10px] font-semibold uppercase tracking-wider">Mercato selezionato</p>
-                <p className="text-white font-bold text-sm">{selectedMapCountry.name}</p>
+                <p className="text-[10px] font-semibold uppercase tracking-wider" style={{ color: 'var(--app-accent)' }}>Mercato di riferimento</p>
+                <p className="font-bold text-sm" style={{ color: 'var(--app-text-primary)' }}>{selectedMapCountry.name}</p>
               </div>
-              <button onClick={() => setSelectedMapCountry(null)} className="text-slate-500 hover:text-white"><X className="w-4 h-4" /></button>
+              <button onClick={() => setSelectedMapCountry(null)} style={{ color: 'var(--app-text-muted)' }}><X className="w-4 h-4" /></button>
             </div>
           )}
         </div>
