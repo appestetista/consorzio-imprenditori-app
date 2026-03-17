@@ -377,7 +377,7 @@ function MercatoContextSection({ data }) {
             <div className="flex flex-wrap gap-1 mt-1">
               {data.topFornitori.map((f, i) => (
                 <span key={i} className="bg-white/5 text-white px-2 py-0.5 rounded text-[10px]">
-                  {f.paese} {f.quota_percentuale}
+                  {typeof f === 'string' ? f : `${f.paese || ''} ${f.quota_percentuale || ''}`}
                 </span>
               ))}
             </div>
