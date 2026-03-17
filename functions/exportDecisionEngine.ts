@@ -399,14 +399,19 @@ Deno.serve(async (req) => {
       // 2. DAZIO
       const dazioInfo = extractDazio(partnerData);
 
-      // 3. TRASPORTO (solo dati reali)
-      const trasporto = extractTrasporto(partnerData);
+      // 3. TRASPORTO (Freightos API reale)
+      const trasportoInfo = extractTrasporto(partnerData);
 
-      // 4. COMMISSIONI (solo dati reali)
-      const commissione = extractCommissioni(partnerData);
+      // 4. COMMISSIONI (dato utente)
+      const commissioneInfo = extractCommissioni(userInputs);
 
-      // 5. COSTO TOTALE EXPORT
-      let costoTotale = null;
+      // 5. IVA destinazione (Access2Markets)
+      const ivaInfo = extractIVA(partnerData);
+
+      // 6. PREZZI B2B (LLM search)
+      const prezziB2B = extractPrezziB2B(partnerData);
+
+      // 7. COSTO TOTALE EXPORT
       const costoIndustriale = userInputs.costo_industriale;
 
       // Calcolo dazio in euro sul costo industriale
@@ -415,9 +420,42 @@ Deno.serve(async (req) => {
         dazioEur = costoIndustriale * (dazioInfo.dazio / 100);
       }
 
-      // Costo totale SOLO se TUTTI i componenti sono disponibili
-      if (costoIndustriale !== null && trasporto !== null && dazioEur !== null && commissione !== null) {
-        costoTotale = costoIndustriale + trasporto + dazioEur + commissione;
+      // Trasporto per unità: se abbiamo peso prodotto, calcoliamo costo/unità
+      let trasportoPerUnita = null;
+      if (trasportoInfo && trasportoInfo.costo_usd > 0) {
+        // Costo totale spedizione / numero unità stimato
+        // Se conosciamo il peso per unità e il peso totale spedizione
+        if (userInputs.peso_prodotto && trasportoInfo.peso_kg) {
+          const unitaPerSpedizione = trasportoInfo.peso_kg / userInputs.peso_prodotto;
+          if (unitaPerSpedizione > 0) {
+            trasportoPerUnita = trasportoInfo.costo_usd / unitaPerSpedizione;
+          }
+        } else {
+          // Fallback: mostriamo il costo totale della spedizione
+          trasportoPerUnita = null;
+        }
+      }
+
+      // Commissione per unità
+      const commissionePerUnita = commissioneInfo ? commissioneInfo.valore : null;
+
+      // Costo totale — calcoliamo con quello che abbiamo
+      let costoTotale = null;
+      let costoComponentiDisponibili = costoIndustriale;
+      let componentiMancanti = [];
+
+      if (dazioEur !== null) costoComponentiDisponibili += dazioEur;
+      else componentiMancanti.push('dazio');
+
+      if (trasportoPerUnita !== null) costoComponentiDisponibili += trasportoPerUnita;
+      else componentiMancanti.push('trasporto');
+
+      if (commissionePerUnita !== null) costoComponentiDisponibili += commissionePerUnita;
+      else componentiMancanti.push('commissioni');
+
+      // Se abbiamo almeno dazio E trasporto, calcoliamo il costo (commissioni opzionali)
+      if (dazioEur !== null && trasportoPerUnita !== null) {
+        costoTotale = costoComponentiDisponibili;
       }
 
       // 6. MARGINE REALE
