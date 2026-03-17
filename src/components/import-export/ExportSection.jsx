@@ -263,7 +263,7 @@ export default function ExportSection({ user, exportManagers, selectedMapCountry
                   onChange={(e) => setExportForm({ ...exportForm, capacita_produttiva: e.target.value })}
                   className="h-11 rounded-xl" style={{ background: 'var(--app-bg-input)', color: 'var(--app-text-primary)', border: '1px solid var(--app-border)' }} />
                 <Select value={exportForm.unita_capacita || undefined} onValueChange={(v) => setExportForm({ ...exportForm, unita_capacita: v })}>
-                  <SelectTrigger className="bg-slate-800/60 border-white/10 text-white h-11 rounded-xl text-xs"><SelectValue placeholder="Unità di misura" /></SelectTrigger>
+                  <SelectTrigger className="h-11 rounded-xl text-xs" style={{ background: 'var(--app-bg-input)', color: 'var(--app-text-primary)', border: '1px solid var(--app-border)' }}><SelectValue placeholder="Unità di misura" /></SelectTrigger>
                   <SelectContent>
                     <SelectItem value="pezzi/anno">Pezzi/anno</SelectItem>
                     <SelectItem value="kg/anno">kg/anno</SelectItem>
