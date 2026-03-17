@@ -1,17 +1,17 @@
-import React from 'react';
+import React, { useState } from 'react';
 import { Card, CardContent } from '@/components/ui/card';
 import { 
   Target, TrendingUp, Shield, Truck, 
   DollarSign, MapPin, AlertTriangle, Calendar, CheckCircle, 
   BarChart3, Package, ExternalLink, ArrowRight, HelpCircle, X 
 } from 'lucide-react';
-import { useState } from 'react';
 
 import { 
   VerificaNormativaCard, StrutturaIngressoCard, CanaliVenditaCard, 
   LogisticaDoganeGTMCard, ValidazioneCommercialeCard, DatiMancantiCard 
 } from './ExportPhaseCards';
 import CustomsDutyGuideCard from './CustomsDutyGuideCard';
+import InfoTooltip from './InfoTooltip';
 
 function EntryBarriersSection({ entryBarriers }) {
   const [showBLInfo, setShowBLInfo] = useState(false);
@@ -139,19 +139,59 @@ function OpenSection({ title, icon: Icon, iconColor, children }) {
   );
 }
 
+// Dizionario spiegazioni per ogni label
+const SPIEGAZIONI = {
+  "Import totale": { title: "Import Totale", body: "È il valore totale in dollari delle importazioni di questo prodotto nel paese target in un anno. Più è alto, più il mercato è grande e c'è domanda." },
+  "CAGR": { title: "CAGR — Tasso di Crescita Annuo Composto", body: "È la crescita media annua delle importazioni negli ultimi anni. Un CAGR positivo (es. +5%) indica un mercato in espansione. Se negativo, la domanda sta calando." },
+  "Dazi": { title: "Dazi Doganali", body: "È la tassa che il paese di destinazione applica ai prodotti importati. Si esprime in percentuale sul valore della merce. Un dazio alto rende il tuo prodotto più costoso rispetto ai concorrenti locali." },
+  "Barriere non tariffarie": { title: "Barriere Non Tariffarie", body: "Sono ostacoli diversi dai dazi: certificazioni obbligatorie, standard di qualità, regole sanitarie, etichettatura speciale. Possono essere più difficili da superare dei dazi stessi." },
+  "Ranking": { title: "Classifica di Mercato", body: "Indica la posizione relativa di questo mercato rispetto agli altri analizzati, in base a domanda, accessibilità e potenziale di crescita." },
+  "Import annuo": { title: "Importazioni Annue", body: "Il valore totale in dollari che il paese ha importato di questo tipo di prodotto nell'ultimo anno disponibile. Rappresenta la dimensione della domanda." },
+  "Export ITA→paese": { title: "Export Italia verso questo Paese", body: "Il valore in dollari dei prodotti italiani di questa categoria già esportati verso il paese. Se il numero è alto, significa che c'è già un canale commerciale attivo." },
+  "Trend YoY": { title: "Trend Anno su Anno (Year over Year)", body: "La variazione percentuale delle importazioni rispetto all'anno precedente. Se positivo (+), il mercato cresce. Se negativo (-), sta diminuendo." },
+  "Quota Italia": { title: "Quota di Mercato dell'Italia", body: "La percentuale delle importazioni totali del paese che arrivano dall'Italia. Se è alta, i prodotti italiani sono molto presenti. Se bassa, c'è spazio per crescere." },
+  "Consumo Apparente (C)": { title: "Consumo Apparente", body: "Formula: Produzione locale + Import − Export. Rappresenta quanto il mercato consuma realmente di questo prodotto. È la misura più completa della domanda." },
+  "Produzione Locale (P)": { title: "Produzione Locale", body: "Quanto il paese produce internamente di questo tipo di prodotto. Se la produzione è alta, ci sono concorrenti locali." },
+  "Import (M)": { title: "Importazioni", body: "Quanto il paese importa dall'estero di questo prodotto. Più importa, più ha bisogno di fornitori esterni come te." },
+  "Export (X)": { title: "Esportazioni", body: "Quanto il paese esporta di questo prodotto. Se esporta molto, potrebbe essere un concorrente piuttosto che un cliente." },
+  "Dipendenza Import": { title: "Dipendenza dalle Importazioni", body: "Indica quanto il paese dipende dalle importazioni per soddisfare la domanda interna. Una dipendenza alta è positiva: il paese HA BISOGNO di importare." },
+  "Demand Score": { title: "Punteggio di Domanda", body: "Un indice sintetico (0-100) che combina volume importazioni, crescita, popolazione e PIL pro capite per stimare quanto forte è la domanda nel mercato." },
+  "Import pro capite": { title: "Import Pro Capite", body: "Le importazioni divise per il numero di abitanti. Un valore alto indica che ogni persona nel paese spende molto per questo tipo di prodotto — alto potere d'acquisto." },
+  "Validazione coerenza": { title: "Validazione Coerenza Dati", body: "Un controllo automatico che verifica se i dati commerciali sono coerenti tra loro. Se segnala anomalie, alcuni dati potrebbero essere inaffidabili o incompleti." },
+  "Segmentazione": { title: "Segmentazione del Mercato", body: "Come il mercato è diviso: fascia alta, media, bassa. Ti aiuta a capire dove posizionare il tuo prodotto." },
+  "Volumi consumo": { title: "Volumi di Consumo", body: "La quantità fisica (tonnellate, unità, litri) consumata nel mercato. Complementa il dato in valore ($) per capire le dimensioni reali." },
+  "Trend": { title: "Trend di Mercato", body: "La direzione in cui si sta muovendo il mercato: in crescita, stabile o in calo." },
+  "Simulazione prezzo": { title: "Simulazione Prezzo", body: "Una stima del prezzo a cui dovresti vendere per essere competitivo nel mercato target, considerando dazi, trasporto e margini intermediari." },
+  "Margine lordo": { title: "Margine Lordo", body: "La differenza tra il tuo prezzo di vendita e il costo totale del prodotto esportato (costo industriale + dazi + trasporto). È ciò che ti rimane in tasca." },
+  "Break even": { title: "Punto di Pareggio (Break Even)", body: "Il volume minimo di vendita necessario per coprire tutti i costi fissi dell'operazione export. Sotto questa soglia, sei in perdita." },
+  "Investimento iniziale": { title: "Investimento Iniziale Stimato", body: "Il budget iniziale necessario per avviare l'operazione export: certificazioni, fiere, primo lotto, logistica, marketing." },
+  "Quota online": { title: "Quota Vendite Online", body: "La percentuale delle vendite di questo tipo di prodotto che avviene tramite canali digitali (e-commerce, marketplace). Più è alta, più puoi vendere senza intermediari fisici." },
+  "Margine trade": { title: "Margine per gli Intermediari (Trade Margin)", body: "La percentuale che i distributori e importatori locali trattengono sul prezzo finale. Devi tenerne conto perché riduce il tuo margine." },
+  "Modalità ingresso": { title: "Modalità di Ingresso nel Mercato", body: "Il modo più comune per entrare in questo mercato: tramite distributore, agente, filiale diretta, marketplace o joint venture." },
+  "Posizionamento rispetto ai competitor italiani": { title: "Posizionamento Italia", body: "Come si posizionano i prodotti italiani rispetto ai concorrenti in questo mercato: se sono percepiti come premium, di nicchia, o in diretta competizione con produttori locali." },
+};
+
 function DataRow({ label, value, warning }) {
+  const spiegazione = SPIEGAZIONI[label];
+
   if (!value || value === 'N/D' || value === 'Dato non disponibile da fonti ufficiali verificabili') {
     return (
       <div className="flex justify-between items-start py-1.5 border-b border-white/5 last:border-0">
-        <span className="text-slate-500 text-xs">{label}</span>
-        <span className="text-slate-600 text-xs italic">Non disponibile</span>
+        <span className="text-white/60 text-xs flex items-center gap-1">
+          {label}
+          {spiegazione && <InfoTooltip title={spiegazione.title}><p>{spiegazione.body}</p></InfoTooltip>}
+        </span>
+        <span className="text-white/30 text-xs italic">Non disponibile</span>
       </div>
     );
   }
   return (
     <div className="flex justify-between items-start py-1.5 border-b border-white/5 last:border-0 gap-4">
-      <span className="text-slate-400 text-xs flex-shrink-0">{label}</span>
-      <span className={`text-xs text-right ${warning ? 'text-amber-400' : 'text-white'}`}>{value}</span>
+      <span className="text-white/70 text-xs flex-shrink-0 flex items-center gap-1">
+        {label}
+        {spiegazione && <InfoTooltip title={spiegazione.title}><p>{spiegazione.body}</p></InfoTooltip>}
+      </span>
+      <span className={`text-xs text-right font-medium ${warning ? 'text-amber-400' : 'text-white'}`}>{value}</span>
     </div>
   );
 }
