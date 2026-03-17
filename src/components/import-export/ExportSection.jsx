@@ -208,7 +208,7 @@ export default function ExportSection({ user, exportManagers, selectedMapCountry
           {selectedMapCountry && (
             <div className="flex items-center gap-3 rounded-xl px-4 py-3" style={{ background: 'var(--app-bg-card)', border: '1px solid var(--app-border-accent)' }}>
               <img
-                src={`https://flagcdn.com/w80/${selectedMapCountry.iso_a2?.toLowerCase()}.png`}
+                src={`https://www.bandiere-mondo.it/data/flags/h80/${selectedMapCountry.iso_a2?.toLowerCase()}.webp`}
                 alt={selectedMapCountry.name}
                 className="w-10 h-7 rounded object-cover flex-shrink-0"
                 style={{ border: '1px solid var(--app-border)' }}
