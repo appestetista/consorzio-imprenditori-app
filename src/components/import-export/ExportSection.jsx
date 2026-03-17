@@ -18,6 +18,7 @@ import CountryInfoCard from './CountryInfoCard';
 
 
 import ExportAnalysisResult from './ExportAnalysisResult';
+import ExportVerdictCard from './ExportVerdictCard';
 import ExportContactCard from './ExportContactCard';
 import { buildExportSummary } from './buildAnalysisSummary';
 import WorldMapExplorer from './WorldMapExplorer';
