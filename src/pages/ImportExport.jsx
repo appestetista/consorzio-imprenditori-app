@@ -115,6 +115,7 @@ export default function ImportExport() {
         )}
 
         {/* Contenuto per tab */}
+        <AnalysisErrorBoundary>
         {activeTab === 'messages' ? (
           <ImportMessagesSection user={user} />
         ) : activeTab === 'history' ? (
