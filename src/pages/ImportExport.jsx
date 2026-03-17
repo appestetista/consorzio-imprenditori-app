@@ -18,6 +18,7 @@ import UsageCounter from '@/components/common/UsageCounter';
 import LimitReachedBanner from '@/components/common/LimitReachedBanner';
 import { Button } from '@/components/ui/button';
 import { FileSearch } from 'lucide-react';
+import AnalysisErrorBoundary from '@/components/import-export/AnalysisErrorBoundary';
 
 export default function ImportExport() {
   const [user, setUser] = useState(null);
