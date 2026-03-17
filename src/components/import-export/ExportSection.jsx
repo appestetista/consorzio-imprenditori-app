@@ -23,6 +23,7 @@ import ExportContactCard from './ExportContactCard';
 import { buildExportSummary } from './buildAnalysisSummary';
 import WorldMapExplorer from './WorldMapExplorer';
 import AnalysisErrorBoundary from './AnalysisErrorBoundary';
+import ExportAnalysisProgress from './ExportAnalysisProgress';
 
 const SETTORI = [
   'Alimentare e bevande', 'Moda e tessile', 'Arredamento e design',
