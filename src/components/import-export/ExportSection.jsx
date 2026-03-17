@@ -228,7 +228,7 @@ export default function ExportSection({ user, exportManagers, selectedMapCountry
       {!analysisResult && !analyzing && (
         <div className="mt-4 mb-2">
           <div className="flex items-center gap-2 mb-2">
-            <p className="text-black font-semibold text-sm">Settore *</p>
+            <p className="font-semibold text-sm" style={{ color: 'var(--app-text-primary)' }}>Settore *</p>
             {exportValidationErrors.settore && <p className="text-red-400 text-xs">{exportValidationErrors.settore}</p>}
           </div>
           <div className="grid grid-cols-2 gap-2">
