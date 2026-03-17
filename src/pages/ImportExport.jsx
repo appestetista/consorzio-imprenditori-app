@@ -151,7 +151,7 @@ export default function ImportExport() {
           />
         )}
         </AnalysisErrorBoundary>
-      </main>
+        </main>
 
       <ContactExportManagerPopup open={showContactPopup} onClose={() => setShowContactPopup(false)} exportManagers={exportManagers} user={user} />
       <BottomNavWithMenu currentPage="ImportExport" unreadMessages={messages.length} />
