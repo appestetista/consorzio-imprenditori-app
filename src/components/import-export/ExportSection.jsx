@@ -200,7 +200,12 @@ export default function ExportSection({ user, exportManagers, selectedMapCountry
 
           {selectedMapCountry && (
             <div className="flex items-center gap-3 bg-slate-800/80 border border-cyan-500/30 rounded-xl px-4 py-3">
-              <MapPin className="w-5 h-5 text-cyan-400 flex-shrink-0" />
+              <img
+                src={`https://www.bandiere-mondo.it/data/flags/h80/${selectedMapCountry.iso_a2?.toLowerCase()}.webp`}
+                alt={selectedMapCountry.name}
+                className="w-8 h-6 rounded object-cover flex-shrink-0 border border-white/10"
+                onError={(e) => { e.target.style.display = 'none'; }}
+              />
               <div className="flex-1">
                 <p className="text-cyan-400 text-[10px] font-semibold uppercase tracking-wider">Mercato selezionato</p>
                 <p className="text-white font-bold text-sm">{selectedMapCountry.name}</p>
