@@ -500,11 +500,11 @@ Deno.serve(async (req) => {
       const serieStorica = extractSerieStorica(partnerData);
       const topFornitori = extractTopFornitori(partnerData);
 
-      // 10. SPIEGAZIONE
+      // 12. SPIEGAZIONE
       const spiegazione = generaSpiegazione(
-        countryCode, prezzoInfo, dazioInfo, trasporto, commissione,
+        countryCode, prezzoInfo, dazioInfo, trasportoInfo, commissioneInfo,
         costoTotale, margine, difficolta, serieStorica, topFornitori,
-        countryMacro, userInputs
+        countryMacro, userInputs, trasportoPerUnita, prezziB2B, ivaInfo, fontePrezzoCalcolo, componentiMancanti
       );
 
       risultati.push({
@@ -512,6 +512,7 @@ Deno.serve(async (req) => {
         decisione: decisione,
         margine_reale: margine !== null ? `${(margine * 100).toFixed(1)}%` : NA,
         margine_valore: margine,
+        fonte_prezzo_calcolo: fontePrezzoCalcolo,
         prezzo_medio_mercato: prezzoInfo.prezzo_medio !== null
           ? {
               usd_per_kg: `$${prezzoInfo.prezzo_medio.toFixed(2)}/kg`,
@@ -520,14 +521,27 @@ Deno.serve(async (req) => {
               fonte: prezzoInfo.source
             }
           : NA,
+        prezzi_b2b: prezziB2B || null,
         costo_totale_export: costoTotale !== null ? `€${costoTotale.toFixed(2)}` : NA,
+        componenti_mancanti: componentiMancanti,
         costo_dettaglio: {
           costo_industriale: `€${costoIndustriale.toFixed(2)}`,
           dazio: dazioInfo.dazio !== null
-            ? { percentuale: `${dazioInfo.dazio}%`, tipo: dazioInfo.tipo, valore_euro: dazioEur !== null ? `€${dazioEur.toFixed(2)}` : NA }
+            ? { percentuale: `${dazioInfo.dazio}%`, tipo: dazioInfo.tipo, fonte: dazioInfo.fonte, valore_euro: dazioEur !== null ? `€${dazioEur.toFixed(2)}` : NA }
             : NA,
-          trasporto: trasporto !== null ? `€${trasporto}` : NA,
-          commissioni: commissione !== null ? `€${commissione}` : NA
+          trasporto: trasportoInfo
+            ? {
+                costo_spedizione_usd: `$${trasportoInfo.costo_usd}`,
+                range_usd: `$${trasportoInfo.costo_min_usd}-${trasportoInfo.costo_max_usd}`,
+                costo_per_unita: trasportoPerUnita !== null ? `$${trasportoPerUnita.toFixed(2)}/unità` : 'Non calcolabile (manca peso/unità)',
+                modalita: trasportoInfo.modalita,
+                transito: trasportoInfo.transito_giorni,
+                rotta: `${trasportoInfo.origine} → ${trasportoInfo.destinazione}`,
+                fonte: trasportoInfo.fonte
+              }
+            : NA,
+          commissioni: commissioneInfo ? `€${commissioneInfo.valore} (${commissioneInfo.tipo})` : `${NA} — l'utente non ha specificato commissioni agente`,
+          iva_destinazione: ivaInfo ? { percentuale: `${ivaInfo.percentuale}%`, dettaglio: ivaInfo.testo, fonte: ivaInfo.fonte } : NA
         },
         difficolta: difficolta || NA,
         serie_storica: serieStorica || [],
