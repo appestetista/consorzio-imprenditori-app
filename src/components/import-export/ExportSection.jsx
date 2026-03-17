@@ -570,21 +570,21 @@ export default function ExportSection({ user, exportManagers, selectedMapCountry
             </div>
           )}
 
-          <AnalysisErrorBoundary>
-            {Array.isArray(tradeMetrics?.metriche) && tradeMetrics.metriche.length > 0 && (
+          {Array.isArray(tradeMetrics?.metriche) && tradeMetrics.metriche.length > 0 && (
+            <AnalysisErrorBoundary>
               <div className="space-y-3">{tradeMetrics.metriche.map(m => (
                 m?.paese_code ? <CountryInfoCard key={m.paese_code} countryCode={m.paese_code} countryName={m.paese_nome} macroData={macroData?.[m.paese_code]} metrics={m} isCompact={false} /> : null
               ))}</div>
-            )}
+            </AnalysisErrorBoundary>
+          )}
 
-            {analysisResult && !analyzing && (
-              <>
-                <ExportVerdictCard analysisResult={analysisResult} tradeData={tradeData} exportForm={exportForm} macroData={macroData} />
-                <ExportAnalysisResult analysisResult={analysisResult} tradeMetrics={tradeMetrics} macroData={macroData} confirmedExportHS={confirmedExportHS} tradeData={tradeData} exportForm={exportForm} />
-                <ExportContactCard contactForm={contactForm} setContactForm={setContactForm} contactSent={contactSent} setContactSent={setContactSent} sendContactMutation={sendContactMutation} uploadingAttachment={uploadingAttachment} handleAttachmentUpload={handleAttachmentUpload} removeAttachment={removeAttachment} exportManagers={exportManagers} />
-              </>
-            )}
-          </AnalysisErrorBoundary>
+          {analysisResult && !analyzing && (
+            <AnalysisErrorBoundary>
+              <ExportVerdictCard analysisResult={analysisResult} tradeData={tradeData} exportForm={exportForm} macroData={macroData} />
+              <ExportAnalysisResult analysisResult={analysisResult} tradeMetrics={tradeMetrics} macroData={macroData} confirmedExportHS={confirmedExportHS} tradeData={tradeData} exportForm={exportForm} />
+              <ExportContactCard contactForm={contactForm} setContactForm={setContactForm} contactSent={contactSent} setContactSent={setContactSent} sendContactMutation={sendContactMutation} uploadingAttachment={uploadingAttachment} handleAttachmentUpload={handleAttachmentUpload} removeAttachment={removeAttachment} exportManagers={exportManagers} />
+            </AnalysisErrorBoundary>
+          )}
           <Button onClick={resetAnalysis} variant="outline" className="w-full bg-blue-600 hover:bg-blue-700 text-white border-blue-600">Nuova Analisi</Button>
         </div>
       ) : analysisResult?._api_error ? (
