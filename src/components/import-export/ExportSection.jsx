@@ -577,6 +577,7 @@ export default function ExportSection({ user, exportManagers, selectedMapCountry
 
           {analysisResult && !analyzing && (
             <>
+              <ExportVerdictCard analysisResult={analysisResult} tradeData={tradeData} exportForm={exportForm} macroData={macroData} />
               <ExportAnalysisResult analysisResult={analysisResult} tradeMetrics={tradeMetrics} macroData={macroData} confirmedExportHS={confirmedExportHS} tradeData={tradeData} exportForm={exportForm} />
               <ExportContactCard contactForm={contactForm} setContactForm={setContactForm} contactSent={contactSent} setContactSent={setContactSent} sendContactMutation={sendContactMutation} uploadingAttachment={uploadingAttachment} handleAttachmentUpload={handleAttachmentUpload} removeAttachment={removeAttachment} exportManagers={exportManagers} />
             </>
