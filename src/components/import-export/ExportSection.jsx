@@ -196,7 +196,8 @@ export default function ExportSection({ user, exportManagers, selectedMapCountry
           <div>
             <Input placeholder="Es. Olio d'oliva, macchine tessili, vino..." value={exportForm.prodotto}
               onChange={(e) => { setExportForm({ ...exportForm, prodotto: e.target.value }); setExportValidationErrors(prev => ({ ...prev, prodotto: '' })); }}
-              className={`bg-slate-800/60 text-white h-11 rounded-xl placeholder:text-white/50 ${exportValidationErrors.prodotto ? 'border-red-500 border-2' : 'border-white/10'}`} />
+              className={`h-11 rounded-xl ${exportValidationErrors.prodotto ? 'border-red-500 border-2' : ''}`}
+              style={{ background: 'var(--app-bg-input)', color: 'var(--app-text-primary)', border: exportValidationErrors.prodotto ? undefined : '1px solid var(--app-border)' }} />
             {exportValidationErrors.prodotto && <p className="text-red-400 text-xs mt-1">{exportValidationErrors.prodotto}</p>}
           </div>
           <p className="font-semibold text-sm" style={{ color: 'var(--app-text-primary)' }}>Indica dove</p>
