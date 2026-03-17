@@ -127,7 +127,7 @@ export default function ExportSection({ user, exportManagers, selectedMapCountry
       const interpretation = await interpretData(rawData, metrics, hsData.hs_code, hsData.descrizione_ufficiale, {
         settore: exportForm.settore, prodotto: exportForm.prodotto, descrizione: '',
         fatturato_annuo: user?.export_fatturato_annuo || '', esperienza_export: user?.export_esperienza || '',
-        certificazioni: exportForm.certificazioni || user?.export_certificazioni || '',
+        certificazioni: (Array.isArray(exportForm.certificazioni) ? exportForm.certificazioni.join(', ') : exportForm.certificazioni) || user?.export_certificazioni || '',
         capacita_produttiva: exportForm.capacita_produttiva, unita_capacita: exportForm.unita_capacita,
         posizionamento: exportForm.posizionamento, prezzo_medio: exportForm.prezzo_medio,
         business_model: exportForm.business_model, canale_preferito: exportForm.canale_preferito
@@ -463,9 +463,34 @@ export default function ExportSection({ user, exportManagers, selectedMapCountry
 
             <div>
               <label className="text-black text-xs font-medium mb-1.5 block">Certificazioni possedute</label>
-              <Input placeholder="Es. CE, ISO 9001, BIO, FDA, HACCP..." value={exportForm.certificazioni}
-                onChange={(e) => setExportForm({ ...exportForm, certificazioni: e.target.value })}
-                className="bg-slate-800/60 border-white/10 text-white h-11 rounded-xl placeholder:text-white/50" />
+              <p className="text-slate-400 text-[10px] mb-2 leading-relaxed">
+                Seleziona le certificazioni che la tua azienda possiede. Influenzano i mercati raggiungibili e i requisiti normativi.
+              </p>
+              <div className="grid grid-cols-2 gap-2">
+                {[
+                  { value: 'CE', label: 'CE', desc: 'Conformità Europea' },
+                  { value: 'ISO 9001', label: 'ISO 9001', desc: 'Qualità aziendale' },
+                  { value: 'BIO', label: 'BIO', desc: 'Biologico' },
+                  { value: 'FDA', label: 'FDA', desc: 'USA alim./farmaceutico' },
+                  { value: 'HACCP', label: 'HACCP', desc: 'Sicurezza alimentare' },
+                  { value: 'ISO 14001', label: 'ISO 14001', desc: 'Ambiente' },
+                  { value: 'ISO 22000', label: 'ISO 22000', desc: 'Sicurezza alimentare' },
+                  { value: 'REACH', label: 'REACH', desc: 'Sostanze chimiche UE' },
+                ].map(cert => {
+                  const certs = Array.isArray(exportForm.certificazioni) ? exportForm.certificazioni : [];
+                  const isSelected = certs.includes(cert.value);
+                  return (
+                    <button key={cert.value} onClick={() => {
+                      const updated = isSelected ? certs.filter(c => c !== cert.value) : [...certs, cert.value];
+                      setExportForm({ ...exportForm, certificazioni: updated });
+                    }}
+                      className={`px-3 py-2 rounded-xl text-left transition-all border ${isSelected ? 'bg-blue-600 text-white border-blue-600 shadow-lg shadow-blue-600/20' : 'bg-white text-black border-black/15 hover:border-black/30'}`}>
+                      <span className="text-xs font-bold block">{cert.label}</span>
+                      <span className={`text-[10px] ${isSelected ? 'text-blue-100' : 'text-slate-500'}`}>{cert.desc}</span>
+                    </button>
+                  );
+                })}
+              </div>
             </div>
 
             {!exportLimitReached && !analyzing && !confirmedExportHS && !showHSClassifier && (
