@@ -865,7 +865,13 @@ Deno.serve(async (req) => {
     period_years = 5,
     skip_cache = false,
     include_tariffs = true,
-    include_eurostat = true
+    include_eurostat = true,
+    include_freight = true,
+    include_prices = true,
+    origin_city = null,
+    dest_cities = {},
+    product_description = null,
+    shipment_weight_kg = null
   } = payload;
 
   if (!hs_code || partner_codes.length === 0) {
