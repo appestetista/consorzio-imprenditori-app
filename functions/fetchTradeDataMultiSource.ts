@@ -493,6 +493,158 @@ IMPORTANTE: cerca dati il più recenti possibile (2024-2025).`,
   }
 }
 
+// ===== SOURCE 9: Freightos Freight Rate Estimator (FREE, no API key) =====
+
+async function fetchFreightosEstimate(originCity, originCountryISO2, destCity, destCountryISO2, weightKg, volumeCbm) {
+  // Costruisci origin e destination come "City,Country"
+  const originName = ISO2_TO_NAME[originCountryISO2] || originCountryISO2;
+  const destName = ISO2_TO_NAME[destCountryISO2] || destCountryISO2;
+  const origin = originCity ? `${originCity},${originName}` : originName;
+  const dest = destCity ? `${destCity},${destName}` : destName;
+
+  const weight = weightKg || 500; // default 500kg (mezza tonnellata)
+  // Stima dimensioni cubiche da volume o default
+  const side = volumeCbm ? Math.round(Math.cbrt(volumeCbm * 1e6)) : 80; // cm
+
+  const url = `https://ship.freightos.com/api/shippingCalculator?loadtype=boxes&weight=${weight}&width=${side}&length=${side}&height=${side}&origin=${encodeURIComponent(origin)}&destination=${encodeURIComponent(dest)}&quantity=1`;
+  console.log(`[Freightos] Fetching estimate: ${origin} -> ${dest}, ${weight}kg`);
+
+  try {
+    const resp = await fetch(url, { 
+      headers: { 'Accept': 'application/json' },
+      signal: AbortSignal.timeout(15000) 
+    });
+    if (!resp.ok) {
+      console.log(`[Freightos] HTTP ${resp.status}`);
+      return null;
+    }
+
+    const json = await resp.json();
+    const rates = json?.response?.estimatedFreightRates;
+    if (!rates) { console.log('[Freightos] No rates in response'); return null; }
+
+    // Può essere un singolo oggetto o array
+    const modes = Array.isArray(rates.mode) ? rates.mode : (rates.mode ? [rates.mode] : []);
+    if (modes.length === 0) return null;
+
+    const results = modes.map(m => {
+      const minPrice = parseFloat(m?.price?.min?.moneyAmount?.amount || 0);
+      const maxPrice = parseFloat(m?.price?.max?.moneyAmount?.amount || 0);
+      const currency = m?.price?.min?.moneyAmount?.currency || 'USD';
+      const minTransit = parseInt(m?.transitTimes?.min || 0);
+      const maxTransit = parseInt(m?.transitTimes?.max || 0);
+      const mode = m?.mode || 'unknown';
+
+      return {
+        modalita: mode,
+        prezzo_min: minPrice,
+        prezzo_max: maxPrice,
+        prezzo_medio: Math.round((minPrice + maxPrice) / 2),
+        valuta: currency,
+        transito_giorni_min: minTransit,
+        transito_giorni_max: maxTransit
+      };
+    }).filter(r => r.prezzo_min > 0 || r.prezzo_max > 0);
+
+    if (results.length === 0) return null;
+
+    return {
+      origine: origin,
+      destinazione: dest,
+      peso_kg: weight,
+      stime: results,
+      stima_migliore: results[0],
+      fonte: 'Freightos Freight Estimator',
+      nota: 'Stime indicative basate su tariffe reali di mercato'
+    };
+  } catch (e) {
+    console.log(`[Freightos] Error: ${e.message}`);
+    return null;
+  }
+}
+
+// ===== SOURCE 10: LLM B2B Price Search (Alibaba/Amazon/TradeMap) =====
+
+async function fetchLLMPriceSearch(base44, hsCode, productDesc, destCountryISO2, destCountryName) {
+  const hs6 = String(hsCode).replace(/\D/g, '').substring(0, 6);
+  const hs4 = hs6.substring(0, 4);
+
+  console.log(`[LLM-Prices] Searching B2B prices for HS${hs6} in ${destCountryName}`);
+
+  try {
+    const result = await base44.asServiceRole.integrations.Core.InvokeLLM({
+      prompt: `Cerca PREZZI REALI B2B/wholesale attuali per prodotti con codice HS ${hs6} (heading ${hs4}).
+Cerca su:
+1. Alibaba.com: cerca "HS ${hs4}" o la descrizione del prodotto, trova prezzi FOB reali
+2. Amazon (mercato ${destCountryName}): cerca il prodotto, trova prezzi al consumo reali
+3. Made-in-China.com: prezzi FOB export
+4. TradeIndia, GlobalSources se rilevanti
+
+Per ogni prezzo trovato, riporta:
+- Il prezzo ESATTO come appare sul sito
+- La valuta
+- Se è FOB, CIF, o retail
+- Il nome del prodotto/listato
+- L'URL o nome del venditore
+
+NON inventare prezzi. Se non trovi nulla, scrivi "Nessun prezzo trovato".
+Cerca il più possibile, almeno 5-10 listati se disponibili.`,
+      add_context_from_internet: true,
+      response_json_schema: {
+        type: "object",
+        properties: {
+          prezzi_b2b: {
+            type: "array",
+            items: {
+              type: "object",
+              properties: {
+                fonte: { type: "string", description: "Nome sito (Alibaba, Made-in-China, ecc.)" },
+                prodotto: { type: "string", description: "Nome/descrizione del prodotto trovato" },
+                prezzo: { type: "string", description: "Prezzo come appare (es. $2.50-5.00/piece)" },
+                prezzo_min_usd: { type: "number", description: "Prezzo minimo in USD (se convertibile)" },
+                prezzo_max_usd: { type: "number", description: "Prezzo massimo in USD" },
+                unita: { type: "string", description: "Unità di misura (piece, kg, ton, set)" },
+                tipo_prezzo: { type: "string", enum: ["FOB", "CIF", "EXW", "retail", "wholesale", "altro"], description: "Tipo di prezzo" },
+                moq: { type: "string", description: "Minimum Order Quantity se indicata" },
+                venditore: { type: "string", description: "Nome venditore/azienda" }
+              }
+            }
+          },
+          prezzi_retail: {
+            type: "array",
+            items: {
+              type: "object",
+              properties: {
+                fonte: { type: "string", description: "Nome sito (Amazon, eBay, ecc.)" },
+                prodotto: { type: "string", description: "Nome prodotto" },
+                prezzo: { type: "string", description: "Prezzo come appare" },
+                prezzo_usd: { type: "number", description: "Prezzo in USD" },
+                valuta_originale: { type: "string", description: "Valuta originale se non USD" },
+                url: { type: "string", description: "URL o riferimento" }
+              }
+            }
+          },
+          riepilogo: {
+            type: "object",
+            properties: {
+              range_fob_usd: { type: "string", description: "Range FOB medio trovato (es. $2.50-8.00/kg)" },
+              range_retail_usd: { type: "string", description: "Range retail medio trovato" },
+              num_fonti: { type: "number", description: "Numero fonti consultate con risultati" },
+              affidabilita: { type: "string", enum: ["alta", "media", "bassa"], description: "Affidabilità prezzi trovati" },
+              note: { type: "string" }
+            }
+          }
+        }
+      }
+    });
+    console.log(`[LLM-Prices] Price search completed for HS${hs6}`);
+    return result;
+  } catch (e) {
+    console.log(`[LLM-Prices] Error: ${e.message}`);
+    return null;
+  }
+}
+
 // ===== SOURCE 8: Eurostat Comext API =====
 
 async function fetchFromEurostat(reporterISO2, partnerISO2, hsCode, flowType, startYear, endYear) {
