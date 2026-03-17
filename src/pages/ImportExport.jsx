@@ -150,6 +150,7 @@ export default function ImportExport() {
             exportManagers={exportManagers}
           />
         )}
+        </AnalysisErrorBoundary>
       </main>
 
       <ContactExportManagerPopup open={showContactPopup} onClose={() => setShowContactPopup(false)} exportManagers={exportManagers} user={user} />
