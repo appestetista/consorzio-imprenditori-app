@@ -117,6 +117,14 @@ export default function ImportSection({ user, exportManagers }) {
         <CardContent className="p-4"><div className="flex items-center gap-3"><span className="text-4xl">🇨🇳</span><div><h3 className="text-white font-bold">Import dalla Cina</h3><p className="text-white/80 text-sm">Produci su misura o trova prodotti esistenti</p></div></div></CardContent>
       </Card>
 
+      <div className="flex justify-center">
+        <img
+          src="https://media.base44.com/images/public/695e2f74bb7d2636b5606a98/cae5d216c_148074185-posizione-della-provincia-di-anhui-all-interno-della-mappa-3d-della-cina-removebg-preview.png"
+          alt="Provincia di Anhui, Cina"
+          className="w-48 h-auto object-contain"
+        />
+      </div>
+
       {importResult?._api_error ? (
         <div className="space-y-4">
           <Card className="bg-red-500/15 border-red-500/40"><CardContent className="p-6 text-center"><AlertTriangle className="w-10 h-10 text-red-400 mx-auto mb-3" /><h3 className="text-red-400 font-bold text-lg mb-2">Dati temporaneamente non disponibili dal database ufficiale.</h3><p className="text-slate-400 text-sm">Non è possibile completare l'analisi. Riprova tra qualche minuto.</p></CardContent></Card>
