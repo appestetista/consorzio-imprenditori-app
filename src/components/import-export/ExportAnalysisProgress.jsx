@@ -47,7 +47,7 @@ export default function ExportAnalysisProgress({ exportStep, countryName }) {
   const currentStepIdx = STEPS.findIndex(s => s.key === exportStep);
 
   return (
-    <div className="rounded-2xl overflow-hidden" style={{ background: 'var(--app-gradient-card)', border: '1px solid var(--app-border)' }}>
+    <div className="rounded-2xl overflow-hidden" style={{ background: '#0a0f1a', border: '1px solid rgba(212,175,55,0.2)' }}>
       <div className="p-5">
         {/* Header */}
         <div className="flex items-center gap-3 mb-5">
@@ -58,7 +58,7 @@ export default function ExportAnalysisProgress({ exportStep, countryName }) {
             <span className="text-2xl relative z-10">📡</span>
           </div>
           <div className="flex-1">
-            <p className="font-bold text-sm" style={{ color: 'var(--app-text-primary)' }}>Analisi in corso</p>
+            <p className="font-bold text-sm text-white">Analisi in corso</p>
             {countryName && (
               <p className="text-xs mt-0.5" style={{ color: 'var(--app-accent)' }}>Mercato: {countryName}</p>
             )}
@@ -68,10 +68,10 @@ export default function ExportAnalysisProgress({ exportStep, countryName }) {
         {/* Progress bar */}
         <div className="mb-5">
           <div className="flex justify-between items-center mb-2">
-            <span className="text-[10px] font-medium" style={{ color: 'var(--app-text-secondary)' }}>Progresso</span>
+            <span className="text-[10px] font-medium text-white/70">Progresso</span>
             <span className="text-xs font-bold" style={{ color: 'var(--app-accent)' }}>{progress}%</span>
           </div>
-          <div className="w-full h-3 rounded-full overflow-hidden" style={{ background: 'var(--app-bg-input)' }}>
+          <div className="w-full h-3 rounded-full overflow-hidden" style={{ background: 'rgba(255,255,255,0.08)' }}>
             <div
               className="h-full rounded-full transition-all duration-500 ease-out"
               style={{
@@ -107,12 +107,11 @@ export default function ExportAnalysisProgress({ exportStep, countryName }) {
                     <span className="text-xs">{step.icon}</span>
                   </div>
                 ) : (
-                  <div className="w-6 h-6 rounded-full flex items-center justify-center flex-shrink-0" style={{ border: '1.5px solid var(--app-text-muted)' }}>
-                    <span className="text-[10px]" style={{ color: 'var(--app-text-muted)' }}>{i + 1}</span>
+                  <div className="w-6 h-6 rounded-full flex items-center justify-center flex-shrink-0" style={{ border: '1.5px solid rgba(255,255,255,0.3)' }}>
+                    <span className="text-[10px] text-white/40">{i + 1}</span>
                   </div>
                 )}
-                <span className={`text-xs font-medium ${isActive ? 'text-amber-300' : isDone ? 'text-green-400' : ''}`}
-                  style={!isActive && !isDone ? { color: 'var(--app-text-muted)' } : {}}>
+                <span className={`text-xs font-medium ${isActive ? 'text-amber-300' : isDone ? 'text-green-400' : 'text-white/40'}`}>
                   {step.label}
                 </span>
               </div>
@@ -121,11 +120,10 @@ export default function ExportAnalysisProgress({ exportStep, countryName }) {
         </div>
 
         {/* Frase animata */}
-        <div className="text-center py-3 rounded-xl" style={{ background: 'var(--app-bg-input)' }}>
+        <div className="text-center py-3 rounded-xl" style={{ background: 'rgba(255,255,255,0.05)' }}>
           <p
             key={phraseIndex}
-            className="text-xs font-medium animate-pulse"
-            style={{ color: 'var(--app-text-secondary)' }}
+            className="text-xs font-medium animate-pulse text-white/70"
           >
             {PHRASES[phraseIndex]}
           </p>
