@@ -212,7 +212,7 @@ export default function ExportAnalysisResult({ analysisResult, tradeMetrics, mac
         <div className="relative p-5">
           <div className="flex items-center justify-between">
             <div>
-              <p className="text-white/60 text-xs uppercase tracking-wider font-medium">Export Readiness</p>
+              <p className="text-white/60 text-xs uppercase tracking-wider font-medium">Prontezza all'Export</p>
               <p className="text-white/90 text-sm mt-1 max-w-[200px]">{analysisResult.readiness_commento || ''}</p>
             </div>
             <div className="text-right">
@@ -249,7 +249,14 @@ export default function ExportAnalysisResult({ analysisResult, tradeMetrics, mac
           <CardContent className="p-0">
             {/* Market Screening */}
             {m.market_screening && (
-              <OpenSection title="Market Screening" icon={BarChart3} iconColor="text-lime-400">
+              <OpenSection title={
+                <span className="flex items-center gap-1.5">
+                  Analisi di Mercato
+                  <InfoTooltip title="Analisi di Mercato (Market Screening)">
+                    <p>L'analisi di mercato è il primo passo per capire se un paese è interessante per il tuo prodotto. Mostra quante importazioni ci sono, se crescono, quanto costano i dazi e quali ostacoli burocratici potresti incontrare.</p>
+                  </InfoTooltip>
+                </span>
+              } icon={BarChart3} iconColor="text-lime-400">
                 <DataRow label="Import totale" value={m.market_screening.import_totale} />
                 <DataRow label="CAGR" value={m.market_screening.cagr} />
                 <DataRow label="Dazi" value={m.market_screening.dazi} />
@@ -260,7 +267,14 @@ export default function ExportAnalysisResult({ analysisResult, tradeMetrics, mac
 
             {/* Flussi Commerciali */}
             {m.flussi_commerciali && (
-              <OpenSection title="Flussi Commerciali" icon={TrendingUp} iconColor="text-cyan-400">
+              <OpenSection title={
+                <span className="flex items-center gap-1.5">
+                  Flussi Commerciali
+                  <InfoTooltip title="Flussi Commerciali">
+                    <p>I flussi commerciali mostrano i movimenti reali di merci tra paesi. Qui vedi quanto il paese importa di questo prodotto, quanto l'Italia ci esporta già, e chi sono gli altri fornitori principali. Più il flusso dall'Italia è forte, più c'è già un canale avviato.</p>
+                  </InfoTooltip>
+                </span>
+              } icon={TrendingUp} iconColor="text-cyan-400">
                 <DataRow label="Import annuo" value={m.flussi_commerciali.valore_import_annuo} />
                 <DataRow label="Export ITA→paese" value={m.flussi_commerciali.export_italia_verso_paese} />
                 <DataRow label="Trend YoY" value={m.flussi_commerciali.trend_yoy_percentuale} />
@@ -282,10 +296,17 @@ export default function ExportAnalysisResult({ analysisResult, tradeMetrics, mac
 
             {/* Domanda Locale & Market Sizing */}
             {m.domanda_locale && (
-              <OpenSection title="Domanda Locale & Market Sizing" icon={Target} iconColor="text-purple-400">
+              <OpenSection title={
+                <span className="flex items-center gap-1.5">
+                  Domanda Locale e Dimensione del Mercato
+                  <InfoTooltip title="Domanda Locale e Dimensione del Mercato">
+                    <p>Questa sezione calcola quanto il mercato consuma realmente del tuo prodotto. Usa la formula C = P + M − X (Consumo = Produzione + Import − Export). Ti dice se il paese ha davvero bisogno di importare o se produce già abbastanza da solo.</p>
+                  </InfoTooltip>
+                </span>
+              } icon={Target} iconColor="text-purple-400">
                 {/* Market Sizing quantitativo */}
                 <div className="bg-purple-500/5 border border-purple-500/10 rounded-lg p-2.5 mb-3">
-                  <p className="text-purple-400 text-[10px] font-bold uppercase tracking-wider mb-1.5">Market Sizing (C = P + M − X)</p>
+                  <p className="text-purple-400 text-[10px] font-bold uppercase tracking-wider mb-1.5">Dimensione del Mercato (C = P + M − X)</p>
                   <DataRow label="Consumo Apparente (C)" value={m.domanda_locale.consumo_apparente} />
                   <DataRow label="Produzione Locale (P)" value={m.domanda_locale.produzione_locale} />
                   <DataRow label="Import (M)" value={m.domanda_locale.import_value} />
@@ -383,7 +404,14 @@ export default function ExportAnalysisResult({ analysisResult, tradeMetrics, mac
 
       {/* Analisi Economica Export */}
       {analysisResult.analisi_economica && (
-        <OpenSection title="Analisi Economica Export" icon={DollarSign} iconColor="text-lime-400">
+        <OpenSection title={
+          <span className="flex items-center gap-1.5">
+            Analisi Economica Export
+            <InfoTooltip title="Analisi Economica Export">
+              <p>Questa sezione stima i numeri economici della tua operazione export: a che prezzo vendere, quale margine aspettarti, quante unità devi vendere per andare in pareggio e quanto budget iniziale serve.</p>
+            </InfoTooltip>
+          </span>
+        } icon={DollarSign} iconColor="text-lime-400">
           <DataRow label="Simulazione prezzo" value={analysisResult.analisi_economica.simulazione_prezzo} />
           <DataRow label="Margine lordo" value={analysisResult.analisi_economica.margine_lordo} />
           <DataRow label="Break even" value={analysisResult.analisi_economica.break_even} />
@@ -470,17 +498,17 @@ export default function ExportAnalysisResult({ analysisResult, tradeMetrics, mac
       )}
 
       <div className="bg-white/[0.02] border border-white/5 rounded-xl p-3">
-        <p className="text-slate-600 text-[10px] font-semibold uppercase tracking-wider mb-2">Trasparenza dati</p>
-        <div className="grid grid-cols-2 gap-x-4 gap-y-1 text-[10px] text-slate-500">
-          <div><span className="text-slate-600">Fonte:</span> UN Comtrade</div>
-          <div><span className="text-slate-600">Macro:</span> World Bank</div>
-          <div><span className="text-slate-600">HS:</span> {confirmedExportHS?.hs_code}</div>
-          <div><span className="text-slate-600">Esportatore:</span> {tradeData?._query_log?.exporter || 'IT'}</div>
-          <div><span className="text-slate-600">Periodo:</span> {tradeData?._query_log?.periodo || `${new Date().getFullYear() - 5}-${new Date().getFullYear() - 1}`}</div>
-          <div><span className="text-slate-600">Data:</span> {tradeData?._timestamp_recupero ? new Date(tradeData._timestamp_recupero).toLocaleString('it-IT') : 'N/D'}</div>
-          {tradeData?._partial && <div className="col-span-2"><span className="text-amber-500 text-[9px]">⚠ Alcuni dati commerciali non disponibili — analisi basata su fonti web</span></div>}
+        <p className="text-white/50 text-[10px] font-semibold uppercase tracking-wider mb-2">Trasparenza dati</p>
+        <div className="grid grid-cols-2 gap-x-4 gap-y-1 text-[10px] text-white/60">
+          <div><span className="text-white/40">Fonte:</span> UN Comtrade</div>
+          <div><span className="text-white/40">Macro:</span> World Bank</div>
+          <div><span className="text-white/40">HS:</span> {confirmedExportHS?.hs_code}</div>
+          <div><span className="text-white/40">Esportatore:</span> {tradeData?._query_log?.exporter || 'IT'}</div>
+          <div><span className="text-white/40">Periodo:</span> {tradeData?._query_log?.periodo || `${new Date().getFullYear() - 5}-${new Date().getFullYear() - 1}`}</div>
+          <div><span className="text-white/40">Data:</span> {tradeData?._timestamp_recupero ? new Date(tradeData._timestamp_recupero).toLocaleString('it-IT') : 'N/D'}</div>
+          {tradeData?._partial && <div className="col-span-2"><span className="text-amber-400 text-[9px]">⚠ Alcuni dati commerciali non disponibili — analisi basata su fonti web</span></div>}
         </div>
-        <p className="text-slate-600 text-[10px] mt-2 italic">Metodologia conforme a ICE, SACE, World Bank, International Trade Centre.</p>
+        <p className="text-white/40 text-[10px] mt-2 italic">Metodologia conforme a ICE, SACE, World Bank, International Trade Centre.</p>
       </div>
     </div>
   );
@@ -494,7 +522,7 @@ function CompetitiveIntelligenceSection({ m }) {
   return (
               <OpenSection title={
                 <span className="flex items-center gap-2">
-                  Competitive Intelligence
+                  Intelligenza Competitiva
                   <button onClick={(e) => { e.stopPropagation(); setShowCIInfo(true); }}
                     className="w-5 h-5 rounded-full bg-white/10 border border-white/30 flex items-center justify-center hover:bg-white/20 transition-colors flex-shrink-0">
                     <span className="text-white text-[10px] font-bold leading-none">?</span>
@@ -506,13 +534,13 @@ function CompetitiveIntelligenceSection({ m }) {
                   <div className="fixed inset-0 z-50 flex items-center justify-center bg-black/70 backdrop-blur-sm px-4" onClick={() => setShowCIInfo(false)}>
                     <div className="bg-slate-900 border border-white/10 rounded-2xl p-5 max-w-sm w-full shadow-2xl max-h-[85vh] overflow-y-auto" onClick={e => e.stopPropagation()}>
                       <div className="flex items-center justify-between mb-3">
-                        <h3 className="text-white font-bold text-sm">Competitive Intelligence</h3>
+                        <h3 className="text-white font-bold text-sm">Intelligenza Competitiva</h3>
                         <button onClick={() => setShowCIInfo(false)} className="text-slate-400 hover:text-white"><X className="w-4 h-4" /></button>
                       </div>
                       <div className="space-y-3 text-slate-300 text-xs leading-relaxed">
                         <div className="bg-orange-500/10 border border-orange-500/20 rounded-lg p-3">
                           <p className="text-orange-400 text-[10px] font-bold uppercase tracking-wider mb-1">Cos'è</p>
-                          <p>La sezione Competitive Intelligence analizza il panorama competitivo del mercato target: chi sono i concorrenti principali, come si posizionano, quali prezzi praticano e quali canali distributivi utilizzano.</p>
+                          <p>La sezione Intelligenza Competitiva analizza il panorama competitivo del mercato target: chi sono i concorrenti principali, come si posizionano, quali prezzi praticano e quali canali distributivi utilizzano.</p>
                         </div>
                         <div className="bg-slate-800 rounded-lg p-3">
                           <p className="text-[10px] text-slate-500 uppercase tracking-wider font-semibold mb-2">Il punteggio opportunità (es. 7.5/10)</p>
@@ -543,7 +571,7 @@ function CompetitiveIntelligenceSection({ m }) {
                 {m.analisi_competitiva?.competitive_landscape && (
                   <div className="mb-3">
                     <div className="flex items-center gap-2 mb-2">
-                      <span className="text-[10px] text-slate-500 uppercase tracking-wider">Concentrazione mercato</span>
+                      <span className="text-[10px] text-white/60 uppercase tracking-wider">Concentrazione mercato</span>
                       <span className={`text-[10px] font-bold px-1.5 py-0.5 rounded ${
                         m.analisi_competitiva.competitive_landscape.market_concentration === 'High' ? 'bg-red-500/15 text-red-400' :
                         m.analisi_competitiva.competitive_landscape.market_concentration === 'Medium' ? 'bg-amber-500/15 text-amber-400' : 'bg-green-500/15 text-green-400'
@@ -577,7 +605,12 @@ function CompetitiveIntelligenceSection({ m }) {
                 {/* Pricing Intelligence */}
                 {m.analisi_competitiva?.pricing_intelligence && (
                   <div className="bg-indigo-500/5 border border-indigo-500/10 rounded-lg p-2.5 mb-3">
-                    <p className="text-indigo-400 text-[10px] font-bold uppercase tracking-wider mb-1.5">Pricing Intelligence</p>
+                    <p className="text-indigo-400 text-[10px] font-bold uppercase tracking-wider mb-1.5 flex items-center gap-1.5">
+                      Analisi Prezzi
+                      <InfoTooltip title="Analisi Prezzi (Pricing Intelligence)">
+                        <p>Mostra il range di prezzi a cui prodotti simili vengono venduti nel mercato target. Ti serve per capire se il tuo prezzo è competitivo o troppo alto rispetto a quello che i compratori locali sono abituati a pagare.</p>
+                      </InfoTooltip>
+                    </p>
                     <div className="flex items-center gap-3 mb-1">
                       {m.analisi_competitiva.pricing_intelligence.local_price_range_min && (
                         <span className="text-white text-xs font-medium">
@@ -606,7 +639,12 @@ function CompetitiveIntelligenceSection({ m }) {
                 {/* Distribution Channels */}
                 {m.analisi_competitiva?.distribution_channels && (
                   <div className="mb-3">
-                    <p className="text-slate-500 text-[10px] font-bold uppercase tracking-wider mb-1.5">Canali Distributivi</p>
+                    <p className="text-white/60 text-[10px] font-bold uppercase tracking-wider mb-1.5 flex items-center gap-1.5">
+                      Canali Distributivi
+                      <InfoTooltip title="Canali Distributivi">
+                        <p>I canali distributivi sono i modi in cui i prodotti arrivano ai clienti finali: online (e-commerce), tramite distributori, in negozi fisici, o con vendita diretta. Capire i canali dominanti ti aiuta a scegliere come entrare nel mercato.</p>
+                      </InfoTooltip>
+                    </p>
                     {m.analisi_competitiva.distribution_channels.online_share && (
                       <DataRow label="Quota online" value={m.analisi_competitiva.distribution_channels.online_share} />
                     )}
@@ -632,7 +670,12 @@ function CompetitiveIntelligenceSection({ m }) {
                 {/* Differentiation Factors */}
                 {m.analisi_competitiva?.differentiation_factors?.length > 0 && (
                   <div className="mb-3">
-                    <p className="text-slate-500 text-[10px] font-bold uppercase tracking-wider mb-1.5">Leve Competitive</p>
+                    <p className="text-white/60 text-[10px] font-bold uppercase tracking-wider mb-1.5 flex items-center gap-1.5">
+                      Leve Competitive
+                      <InfoTooltip title="Leve Competitive (Differentiation Factors)">
+                        <p>Sono i fattori che puoi usare per distinguerti dai concorrenti: qualità superiore, Made in Italy, design, prezzo competitivo, servizio post-vendita, certificazioni specifiche. Sono i tuoi punti di forza per convincere i compratori.</p>
+                      </InfoTooltip>
+                    </p>
                     <div className="flex flex-wrap gap-1">
                       {m.analisi_competitiva.differentiation_factors.map((f, i) => (
                         <span key={i} className="bg-lime-500/10 text-lime-400 px-2 py-0.5 rounded-md text-[10px] border border-lime-500/20">{f}</span>
