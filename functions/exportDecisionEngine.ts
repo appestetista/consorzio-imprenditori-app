@@ -482,15 +482,18 @@ Deno.serve(async (req) => {
         margine = (prezzoPerCalcolo - costoTotale) / prezzoPerCalcolo;
       }
 
-      // 7. DIFFICOLTA'
+      // 9. DIFFICOLTA'
       const difficolta = calcolaDifficolta(dazioInfo, partnerData);
 
-      // 8. DECISIONE
+      // 10. DECISIONE
       let decisione = "DATI INSUFFICIENTI";
       if (margine !== null) {
         if (margine > 0.30) decisione = "CONVIENE";
         else if (margine >= 0.15) decisione = "TEST";
         else decisione = "NON CONVIENE";
+      } else if (costoTotale === null && dazioInfo.dazio !== null && prezzoPerCalcolo !== null) {
+        // Abbiamo prezzo e dazio ma manca il trasporto — segnaliamo parziale
+        decisione = "CALCOLO PARZIALE (manca trasporto)";
       }
 
       // 9. Dati di supporto
