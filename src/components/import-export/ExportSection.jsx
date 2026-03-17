@@ -38,7 +38,7 @@ export default function ExportSection({ user, exportManagers, selectedMapCountry
       posizionamento: '', prezzo_medio: '', certificazioni: '', business_model: '', canale_preferito: '', margine_disponibile: '', costo_industriale: '',
       peso_kg: '', lunghezza_cm: '', larghezza_cm: '', altezza_cm: '',
       shelf_life_valore: '', shelf_life_unita: '',
-      esperienza_export: ''
+      esperienza_export: '', obiettivo_export: ''
     }
   );
   const [showHSClassifier, setShowHSClassifier] = useState(false);
@@ -164,7 +164,7 @@ export default function ExportSection({ user, exportManagers, selectedMapCountry
   const resetAnalysis = () => {
     setAnalysisResult(null); setConfirmedExportHS(null); setTradeData(null); setTradeMetrics(null);
     setMacroData({});
-    setExportForm({ settore: '', prodotto: '', capacita_produttiva: '', unita_capacita: '', posizionamento: '', prezzo_medio: '', certificazioni: '', business_model: '', canale_preferito: '', margine_disponibile: '', costo_industriale: '', peso_kg: '', lunghezza_cm: '', larghezza_cm: '', altezza_cm: '', shelf_life_valore: '', shelf_life_unita: '', esperienza_export: '' });
+    setExportForm({ settore: '', prodotto: '', capacita_produttiva: '', unita_capacita: '', posizionamento: '', prezzo_medio: '', certificazioni: '', business_model: '', canale_preferito: '', margine_disponibile: '', costo_industriale: '', peso_kg: '', lunghezza_cm: '', larghezza_cm: '', altezza_cm: '', shelf_life_valore: '', shelf_life_unita: '', esperienza_export: '', obiettivo_export: '' });
     setSelectedMapCountry(null); setShowHSClassifier(false); setExportValidationErrors({});
     if (onClearSnapshot) onClearSnapshot();
   };
@@ -435,6 +435,26 @@ export default function ExportSection({ user, exportManagers, selectedMapCountry
                 ].map(opt => (
                   <button key={opt.value} onClick={() => setExportForm({ ...exportForm, esperienza_export: exportForm.esperienza_export === opt.value ? '' : opt.value })}
                     className={`px-2 py-2.5 rounded-xl text-xs font-medium transition-all border text-center ${exportForm.esperienza_export === opt.value ? 'bg-blue-600 text-white border-blue-600 shadow-lg shadow-blue-600/20' : 'bg-white text-black border-black/15 hover:border-black/30'}`}>
+                    {opt.label}
+                  </button>
+                ))}
+              </div>
+            </div>
+
+            <div>
+              <label className="text-black text-xs font-medium mb-1.5 block">Obiettivo Export</label>
+              <p className="text-slate-400 text-[10px] mb-2 leading-relaxed">
+                Perché vuoi esportare? L'obiettivo influenza la strategia consigliata: un test di mercato richiede un approccio diverso rispetto a una distribuzione stabile o allo smaltimento di stock in eccesso.
+              </p>
+              <div className="grid grid-cols-2 gap-2">
+                {[
+                  { label: 'Test mercato', value: 'test_mercato' },
+                  { label: 'Crescita', value: 'crescita' },
+                  { label: 'Distribuzione stabile', value: 'distribuzione_stabile' },
+                  { label: 'Smaltire stock', value: 'smaltire_stock' },
+                ].map(opt => (
+                  <button key={opt.value} onClick={() => setExportForm({ ...exportForm, obiettivo_export: exportForm.obiettivo_export === opt.value ? '' : opt.value })}
+                    className={`px-2 py-2.5 rounded-xl text-xs font-medium transition-all border text-center ${exportForm.obiettivo_export === opt.value ? 'bg-blue-600 text-white border-blue-600 shadow-lg shadow-blue-600/20' : 'bg-white text-black border-black/15 hover:border-black/30'}`}>
                     {opt.label}
                   </button>
                 ))}
