@@ -396,18 +396,18 @@ export default function ExportSection({ user, exportManagers, selectedMapCountry
                 <p className="text-slate-400 text-[10px] mb-2 leading-relaxed">
                   È il tempo massimo entro cui il prodotto resta vendibile dalla data di produzione. Serve a determinare quali mercati puoi raggiungere: una shelf life breve limita l'export a paesi vicini o richiede trasporto aereo (più costoso).
                 </p>
-                <div className="grid grid-cols-2 gap-2">
-                  <Input type="number" min="1" placeholder="Es. 12" value={exportForm.shelf_life_valore}
-                    onChange={(e) => setExportForm({ ...exportForm, shelf_life_valore: e.target.value })}
-                    className="bg-slate-800/60 border-white/10 text-white h-11 rounded-xl placeholder:text-white/50" />
-                  <Select value={exportForm.shelf_life_unita || undefined} onValueChange={(v) => setExportForm({ ...exportForm, shelf_life_unita: v })}>
-                    <SelectTrigger className="bg-slate-800/60 border-white/10 text-white h-11 rounded-xl text-xs"><SelectValue placeholder="Unità" /></SelectTrigger>
-                    <SelectContent>
-                      <SelectItem value="giorni">Giorni</SelectItem>
-                      <SelectItem value="mesi">Mesi</SelectItem>
-                      <SelectItem value="anni">Anni</SelectItem>
-                    </SelectContent>
-                  </Select>
+                <div className="grid grid-cols-5 gap-2">
+                  <div className="col-span-2">
+                    <Input type="number" min="1" placeholder="Es. 12" value={exportForm.shelf_life_valore}
+                      onChange={(e) => setExportForm({ ...exportForm, shelf_life_valore: e.target.value })}
+                      className="h-11 rounded-xl text-center font-bold" style={{ background: 'var(--app-bg-input)', border: '1px solid var(--app-border)', color: 'var(--app-text-primary)' }} />
+                  </div>
+                  {['giorni', 'mesi', 'anni'].map(u => (
+                    <button key={u} onClick={() => setExportForm({ ...exportForm, shelf_life_unita: u })}
+                      className={`h-11 rounded-xl text-xs font-bold transition-all border text-center capitalize ${exportForm.shelf_life_unita === u ? 'bg-blue-600 text-white border-blue-600 shadow-lg shadow-blue-600/20' : 'bg-white text-black border-black/15 hover:border-black/30'}`}>
+                      {u}
+                    </button>
+                  ))}
                 </div>
                 {exportForm.shelf_life_valore && exportForm.shelf_life_unita && (() => {
                   const giorni = exportForm.shelf_life_unita === 'giorni' ? Number(exportForm.shelf_life_valore) : exportForm.shelf_life_unita === 'mesi' ? Number(exportForm.shelf_life_valore) * 30 : Number(exportForm.shelf_life_valore) * 365;
