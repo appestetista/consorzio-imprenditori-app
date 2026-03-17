@@ -35,7 +35,8 @@ export default function ExportSection({ user, exportManagers, selectedMapCountry
   const [exportForm, setExportForm] = useState(
     initialSnapshot?.exportForm || {
       settore: '', prodotto: '', capacita_produttiva: '', unita_capacita: '',
-      posizionamento: '', prezzo_medio: '', certificazioni: '', business_model: '', canale_preferito: '', margine_disponibile: '', costo_industriale: ''
+      posizionamento: '', prezzo_medio: '', certificazioni: '', business_model: '', canale_preferito: '', margine_disponibile: '', costo_industriale: '',
+      peso_kg: '', lunghezza_cm: '', larghezza_cm: '', altezza_cm: ''
     }
   );
   const [showHSClassifier, setShowHSClassifier] = useState(false);
@@ -161,7 +162,7 @@ export default function ExportSection({ user, exportManagers, selectedMapCountry
   const resetAnalysis = () => {
     setAnalysisResult(null); setConfirmedExportHS(null); setTradeData(null); setTradeMetrics(null);
     setMacroData({});
-    setExportForm({ settore: '', prodotto: '', capacita_produttiva: '', unita_capacita: '', posizionamento: '', prezzo_medio: '', certificazioni: '', business_model: '', canale_preferito: '', margine_disponibile: '', costo_industriale: '' });
+    setExportForm({ settore: '', prodotto: '', capacita_produttiva: '', unita_capacita: '', posizionamento: '', prezzo_medio: '', certificazioni: '', business_model: '', canale_preferito: '', margine_disponibile: '', costo_industriale: '', peso_kg: '', lunghezza_cm: '', larghezza_cm: '', altezza_cm: '' });
     setSelectedMapCountry(null); setShowHSClassifier(false); setExportValidationErrors({});
     if (onClearSnapshot) onClearSnapshot();
   };
@@ -341,6 +342,46 @@ export default function ExportSection({ user, exportManagers, selectedMapCountry
               <Input type="number" step="1" min="0" max="100" placeholder="Es. 30%" value={exportForm.margine_disponibile}
                 onChange={(e) => setExportForm({ ...exportForm, margine_disponibile: e.target.value })}
                 className="bg-slate-800/60 border-white/10 text-white h-11 rounded-xl placeholder:text-white/50" />
+            </div>
+
+            <div>
+              <label className="text-black text-xs font-medium mb-1.5 block">Peso e dimensioni prodotto</label>
+              <p className="text-slate-400 text-[10px] mb-2 leading-relaxed">
+                Servono per stimare i costi di trasporto e logistica. Il volume viene calcolato automaticamente dalle dimensioni. Più il prodotto è pesante o voluminoso, più incidono i costi di spedizione — utile per capire se mercati lontani sono sostenibili.
+              </p>
+              <div className="grid grid-cols-2 gap-2 mb-2">
+                <div>
+                  <Input type="number" step="0.01" min="0" placeholder="Peso (kg)" value={exportForm.peso_kg}
+                    onChange={(e) => setExportForm({ ...exportForm, peso_kg: e.target.value })}
+                    className="bg-slate-800/60 border-white/10 text-white h-11 rounded-xl placeholder:text-white/50" />
+                </div>
+                <div>
+                  <Input type="number" step="0.1" min="0" placeholder="Lunghezza (cm)" value={exportForm.lunghezza_cm}
+                    onChange={(e) => setExportForm({ ...exportForm, lunghezza_cm: e.target.value })}
+                    className="bg-slate-800/60 border-white/10 text-white h-11 rounded-xl placeholder:text-white/50" />
+                </div>
+                <div>
+                  <Input type="number" step="0.1" min="0" placeholder="Larghezza (cm)" value={exportForm.larghezza_cm}
+                    onChange={(e) => setExportForm({ ...exportForm, larghezza_cm: e.target.value })}
+                    className="bg-slate-800/60 border-white/10 text-white h-11 rounded-xl placeholder:text-white/50" />
+                </div>
+                <div>
+                  <Input type="number" step="0.1" min="0" placeholder="Altezza (cm)" value={exportForm.altezza_cm}
+                    onChange={(e) => setExportForm({ ...exportForm, altezza_cm: e.target.value })}
+                    className="bg-slate-800/60 border-white/10 text-white h-11 rounded-xl placeholder:text-white/50" />
+                </div>
+              </div>
+              {exportForm.lunghezza_cm && exportForm.larghezza_cm && exportForm.altezza_cm && (
+                <div className="bg-slate-800/40 border border-white/10 rounded-xl px-3 py-2 flex items-center gap-2">
+                  <span className="text-slate-400 text-[10px]">Volume calcolato:</span>
+                  <span className="text-white font-bold text-xs">
+                    {(parseFloat(exportForm.lunghezza_cm) * parseFloat(exportForm.larghezza_cm) * parseFloat(exportForm.altezza_cm)).toLocaleString('it-IT')} cm³
+                  </span>
+                  <span className="text-slate-500 text-[10px]">
+                    ({((parseFloat(exportForm.lunghezza_cm) * parseFloat(exportForm.larghezza_cm) * parseFloat(exportForm.altezza_cm)) / 1000000).toFixed(4)} m³)
+                  </span>
+                </div>
+              )}
             </div>
 
             <div>
