@@ -35,25 +35,57 @@ function extractPrezzo(partnerData) {
   return { prezzo_medio: null, anno: null, valore: null, quantita: null };
 }
 
+function parseNumericDuty(val) {
+  // Estrae il valore numerico da stringhe tipo "5.2%", "5,2%", "5.2", ecc.
+  if (val === null || val === undefined) return null;
+  if (typeof val === 'number') return val;
+  const str = String(val).replace(',', '.').replace('%', '').trim();
+  const num = parseFloat(str);
+  return (!isNaN(num) && num >= 0) ? num : null;
+}
+
 function extractDazio(partnerData) {
   const tariffs = partnerData?.tariffs;
-  if (!tariffs) return { dazio: null, tipo: null };
+  const we = partnerData?.web_enrichment;
 
-  // Priorità: preferenziale > MFN
-  if (tariffs.preferential_duty !== undefined && tariffs.preferential_duty !== null) {
-    return { dazio: tariffs.preferential_duty, tipo: "preferenziale" };
-  }
-  if (tariffs.mfn_duty !== undefined && tariffs.mfn_duty !== null) {
-    return { dazio: tariffs.mfn_duty, tipo: "MFN" };
-  }
-  if (tariffs.wto_mfn_applied !== undefined && tariffs.wto_mfn_applied !== null) {
-    return { dazio: tariffs.wto_mfn_applied, tipo: "MFN (WTO)" };
-  }
-  if (tariffs.wto_mfn_bound !== undefined && tariffs.wto_mfn_bound !== null) {
-    return { dazio: tariffs.wto_mfn_bound, tipo: "MFN bound (WTO)" };
+  // === LIVELLO 1: Dazi da API strutturate (WITS, WTO) ===
+  if (tariffs) {
+    // Preferenziale da WITS
+    const prefWits = parseNumericDuty(tariffs.dazio_preferenziale);
+    if (prefWits !== null) return { dazio: prefWits, tipo: "preferenziale (WITS/TRAINS)", fonte: "WITS/TRAINS" };
+
+    // MFN da WITS
+    const mfnWits = parseNumericDuty(tariffs.dazio_mfn);
+    if (mfnWits !== null) return { dazio: mfnWits, tipo: "MFN (WITS/TRAINS)", fonte: "WITS/TRAINS" };
+
+    // MFN Applied da WTO
+    const mfnWto = parseNumericDuty(tariffs.dazio_mfn_wto);
+    if (mfnWto !== null) return { dazio: mfnWto, tipo: "MFN applied (WTO)", fonte: "WTO Timeseries" };
+
+    // MFN Bound da WTO
+    const boundWto = parseNumericDuty(tariffs.dazio_bound_wto);
+    if (boundWto !== null) return { dazio: boundWto, tipo: "MFN bound (WTO)", fonte: "WTO Timeseries" };
   }
 
-  return { dazio: null, tipo: null };
+  // === LIVELLO 2: Dazi dal LLM web enrichment (Access2Markets) ===
+  if (we?.access2markets) {
+    const a2m = we.access2markets;
+    // Valore numerico strutturato (campo dedicato)
+    const prefA2m = typeof a2m.dazio_preferenziale_valore === 'number' ? a2m.dazio_preferenziale_valore : parseNumericDuty(a2m.dazio_preferenziale_valore);
+    if (prefA2m !== null && prefA2m >= 0) return { dazio: prefA2m, tipo: "preferenziale (Access2Markets)", fonte: "Access2Markets via web" };
+
+    const convA2m = typeof a2m.dazio_convenzionale_valore === 'number' ? a2m.dazio_convenzionale_valore : parseNumericDuty(a2m.dazio_convenzionale_valore);
+    if (convA2m !== null && convA2m >= 0) return { dazio: convA2m, tipo: "convenzionale (Access2Markets)", fonte: "Access2Markets via web" };
+
+    // Fallback: parse dalla stringa testuale
+    const prefStr = parseNumericDuty(a2m.dazio_preferenziale);
+    if (prefStr !== null) return { dazio: prefStr, tipo: "preferenziale (Access2Markets)", fonte: "Access2Markets via web" };
+
+    const convStr = parseNumericDuty(a2m.dazio_convenzionale);
+    if (convStr !== null) return { dazio: convStr, tipo: "convenzionale (Access2Markets)", fonte: "Access2Markets via web" };
+  }
+
+  return { dazio: null, tipo: null, fonte: null };
 }
 
 function extractTrasporto(partnerData) {
