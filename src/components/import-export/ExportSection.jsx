@@ -35,7 +35,7 @@ export default function ExportSection({ user, exportManagers, selectedMapCountry
   const [exportForm, setExportForm] = useState(
     initialSnapshot?.exportForm || {
       settore: '', prodotto: '', capacita_produttiva: '', unita_capacita: '',
-      posizionamento: '', prezzo_medio: '', certificazioni: '', business_model: '', canale_preferito: '', margine_disponibile: ''
+      posizionamento: '', prezzo_medio: '', certificazioni: '', business_model: '', canale_preferito: '', margine_disponibile: '', costo_industriale: ''
     }
   );
   const [showHSClassifier, setShowHSClassifier] = useState(false);
@@ -161,7 +161,7 @@ export default function ExportSection({ user, exportManagers, selectedMapCountry
   const resetAnalysis = () => {
     setAnalysisResult(null); setConfirmedExportHS(null); setTradeData(null); setTradeMetrics(null);
     setMacroData({});
-    setExportForm({ settore: '', prodotto: '', capacita_produttiva: '', unita_capacita: '', posizionamento: '', prezzo_medio: '', certificazioni: '', business_model: '', canale_preferito: '', margine_disponibile: '' });
+    setExportForm({ settore: '', prodotto: '', capacita_produttiva: '', unita_capacita: '', posizionamento: '', prezzo_medio: '', certificazioni: '', business_model: '', canale_preferito: '', margine_disponibile: '', costo_industriale: '' });
     setSelectedMapCountry(null); setShowHSClassifier(false); setExportValidationErrors({});
     if (onClearSnapshot) onClearSnapshot();
   };
@@ -308,6 +308,16 @@ export default function ExportSection({ user, exportManagers, selectedMapCountry
                   </SelectContent>
                 </Select>
               </div>
+            </div>
+
+            <div>
+              <label className="text-black text-xs font-medium mb-1.5 block">Costo industriale per unità – COGS (€)</label>
+              <p className="text-slate-400 text-[10px] mb-2 leading-relaxed">
+                È il costo reale per produrre una singola unità del tuo prodotto. Include: materie prime, manodopera, lavorazione e confezionamento. Esempio: se produci una sedia e spendi 50 € tra materiali, lavoro e packaging → il tuo COGS è 50 €. È il punto di partenza per calcolare il margine reale sull'export.
+              </p>
+              <Input type="number" step="0.01" min="0" placeholder="Costo per unità (es. 5.00 €)" value={exportForm.costo_industriale}
+                onChange={(e) => setExportForm({ ...exportForm, costo_industriale: e.target.value })}
+                className="bg-slate-800/60 border-white/10 text-white h-11 rounded-xl placeholder:text-white/50" />
             </div>
 
             <div>
