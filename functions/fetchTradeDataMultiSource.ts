@@ -886,7 +886,7 @@ Deno.serve(async (req) => {
 
   const results = {};
   const errors = [];
-  const sourceStatus = { oec: 'pending', comtrade: 'pending', wits: 'pending', eurostat: 'pending', wits_tariff: 'pending', wto_tariff: 'pending', llm_web: 'pending' };
+  const sourceStatus = { oec: 'pending', comtrade: 'pending', wits: 'pending', eurostat: 'pending', wits_tariff: 'pending', wto_tariff: 'pending', llm_web: 'pending', freightos: 'pending', llm_prices: 'pending' };
   const include_web_enrichment = payload.include_web_enrichment !== false; // default true
 
   // Process each partner
