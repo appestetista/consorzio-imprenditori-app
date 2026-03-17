@@ -288,13 +288,13 @@ function VociCostoTable({ calcolo }) {
   
   return (
     <div className="space-y-1.5">
-      <p className="text-white/60 text-[10px] font-semibold uppercase tracking-wider">Il conto — quanto ti costa esportare 1 unità</p>
+      <p className="text-white text-[10px] font-semibold uppercase tracking-wider">Il conto — quanto ti costa esportare 1 unità</p>
       
       {calcolo.vociCosto.map((v, i) => (
         <div key={i} className="flex items-center justify-between py-1.5 border-b border-white/5 last:border-0">
           <div className="flex items-center gap-2">
-            <span className="text-slate-300 text-xs">{v.voce}</span>
-            <span className="text-slate-600 text-[9px]">({v.fonte})</span>
+            <span className="text-white text-xs">{v.voce}</span>
+            <span className="text-white/40 text-[9px]">({v.fonte})</span>
           </div>
           <span className="text-white font-mono text-sm font-semibold">{formatMoney(v.valore)}</span>
         </div>
@@ -331,7 +331,7 @@ function VociCostoTable({ calcolo }) {
               <li key={i}>• {v}</li>
             ))}
           </ul>
-          <p className="text-amber-400/60 text-[9px] mt-1.5 italic">
+          <p className="text-amber-300/80 text-[9px] mt-1.5 italic">
             Il margine reale sarà inferiore a quello mostrato. Chiedi un preventivo di trasporto per un calcolo preciso.
           </p>
         </div>
@@ -349,7 +349,7 @@ function MercatoContextSection({ data }) {
           <TrendingUp className="w-4 h-4 text-cyan-400 flex-shrink-0 mt-0.5" />
           <div>
             <p className="text-white text-xs font-medium">Questo mercato importa {formatBigMoney(data.importTotaleUsd)} di questo prodotto</p>
-            <p className="text-slate-500 text-[10px]">Più il numero è grande, più c'è domanda</p>
+            <p className="text-white/60 text-[10px]">Più il numero è grande, più c'è domanda</p>
           </div>
         </div>
       )}
@@ -363,7 +363,7 @@ function MercatoContextSection({ data }) {
               L'Italia è il fornitore {data.posizioneItalia} 
               {data.quotaItalia ? ` con il ${data.quotaItalia} del mercato` : ''}
             </p>
-            <p className="text-slate-500 text-[10px]">Significa che i prodotti italiani sono già conosciuti qui</p>
+            <p className="text-white/60 text-[10px]">Significa che i prodotti italiani sono già conosciuti qui</p>
           </div>
         </div>
       )}
@@ -376,7 +376,7 @@ function MercatoContextSection({ data }) {
             <p className="text-white text-xs font-medium">I tuoi principali concorrenti:</p>
             <div className="flex flex-wrap gap-1 mt-1">
               {data.topFornitori.map((f, i) => (
-                <span key={i} className="bg-white/5 text-slate-300 px-2 py-0.5 rounded text-[10px]">
+                <span key={i} className="bg-white/5 text-white px-2 py-0.5 rounded text-[10px]">
                   {f.paese} {f.quota_percentuale}
                 </span>
               ))}
@@ -396,13 +396,13 @@ function MercatoContextSection({ data }) {
             }
           </p>
           {data.dazioPerc !== null && (
-            <p className="text-slate-500 text-[10px]">
+            <p className="text-white/60 text-[10px]">
               È la "tassa di ingresso" che il paese applica ai prodotti importati
               {data.dazioFonte ? ` — fonte: ${data.dazioFonte}` : ''}
             </p>
           )}
           {data.ivaPerc !== null && (
-            <p className="text-slate-400 text-[10px] mt-0.5">
+            <p className="text-white/60 text-[10px] mt-0.5">
               IVA locale: {data.ivaPerc}% {data.ivaFonte ? `(${data.ivaFonte})` : ''}
             </p>
           )}
@@ -525,7 +525,7 @@ function SingleMarketVerdict({ mercatoAnalisi, tradeData, exportForm, macroData 
           {data.conclusioneOperativa && (
             <div className="bg-white/[0.03] border border-white/5 rounded-lg p-3 mt-2">
               <p className="text-lime-400 text-[10px] font-bold uppercase tracking-wider mb-1">💡 Cosa fare concretamente</p>
-              <p className="text-slate-300 text-xs leading-relaxed">{data.conclusioneOperativa}</p>
+              <p className="text-white/80 text-xs leading-relaxed">{data.conclusioneOperativa}</p>
             </div>
           )}
         </CardContent>
@@ -544,7 +544,7 @@ export default function ExportVerdictCard({ analysisResult, tradeData, exportFor
         <DollarSign className="w-5 h-5 text-lime-400" />
         <div>
           <h2 className="text-white font-bold text-base">Il verdetto — ti conviene esportare?</h2>
-          <p className="text-slate-500 text-[10px]">Calcoli reali basati sui tuoi dati e le fonti ufficiali</p>
+          <p className="text-white/60 text-[10px]">Calcoli reali basati sui tuoi dati e le fonti ufficiali</p>
         </div>
       </div>
       
