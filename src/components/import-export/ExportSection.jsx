@@ -370,12 +370,12 @@ export default function ExportSection({ user, exportManagers, selectedMapCountry
           )}
 
           {confirmedExportHS && (
-            <div className="flex items-center gap-3 bg-amber-500/10 border border-amber-500/20 rounded-xl px-4 py-3">
-              <div className="w-9 h-9 rounded-lg bg-amber-500/20 flex items-center justify-center"><Package className="w-4 h-4 text-amber-400" /></div>
+            <div className="flex items-center gap-3 bg-[#5a4410] border border-[#8b6914]/40 rounded-xl px-4 py-3">
+              <div className="w-9 h-9 rounded-lg bg-[#8b6914]/30 flex items-center justify-center"><Package className="w-4 h-4 text-amber-300" /></div>
               <div className="flex-1 min-w-0">
-                <p className="text-amber-400 text-[10px] font-semibold uppercase tracking-wider">Codice HS</p>
+                <p className="text-amber-300 text-[10px] font-semibold uppercase tracking-wider">Codice HS</p>
                 <p className="text-white font-mono font-bold text-sm">{confirmedExportHS.hs_code}</p>
-                <p className="text-slate-400 text-[10px] truncate">{confirmedExportHS.descrizione_ufficiale}</p>
+                <p className="text-white/70 text-[10px] truncate">{confirmedExportHS.descrizione_ufficiale}</p>
               </div>
             </div>
           )}
