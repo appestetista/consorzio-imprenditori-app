@@ -36,7 +36,8 @@ export default function ExportSection({ user, exportManagers, selectedMapCountry
     initialSnapshot?.exportForm || {
       settore: '', prodotto: '', capacita_produttiva: '', unita_capacita: '',
       posizionamento: '', prezzo_medio: '', certificazioni: '', business_model: '', canale_preferito: '', margine_disponibile: '', costo_industriale: '',
-      peso_kg: '', lunghezza_cm: '', larghezza_cm: '', altezza_cm: ''
+      peso_kg: '', lunghezza_cm: '', larghezza_cm: '', altezza_cm: '',
+      shelf_life_valore: '', shelf_life_unita: ''
     }
   );
   const [showHSClassifier, setShowHSClassifier] = useState(false);
@@ -162,7 +163,7 @@ export default function ExportSection({ user, exportManagers, selectedMapCountry
   const resetAnalysis = () => {
     setAnalysisResult(null); setConfirmedExportHS(null); setTradeData(null); setTradeMetrics(null);
     setMacroData({});
-    setExportForm({ settore: '', prodotto: '', capacita_produttiva: '', unita_capacita: '', posizionamento: '', prezzo_medio: '', certificazioni: '', business_model: '', canale_preferito: '', margine_disponibile: '', costo_industriale: '', peso_kg: '', lunghezza_cm: '', larghezza_cm: '', altezza_cm: '' });
+    setExportForm({ settore: '', prodotto: '', capacita_produttiva: '', unita_capacita: '', posizionamento: '', prezzo_medio: '', certificazioni: '', business_model: '', canale_preferito: '', margine_disponibile: '', costo_industriale: '', peso_kg: '', lunghezza_cm: '', larghezza_cm: '', altezza_cm: '', shelf_life_valore: '', shelf_life_unita: '' });
     setSelectedMapCountry(null); setShowHSClassifier(false); setExportValidationErrors({});
     if (onClearSnapshot) onClearSnapshot();
   };
@@ -383,6 +384,42 @@ export default function ExportSection({ user, exportManagers, selectedMapCountry
                 </div>
               )}
             </div>
+
+            {(exportForm.settore === 'Alimentare e bevande' || exportForm.settore === 'Agricoltura e agroalimentare') && (
+              <div>
+                <label className="text-black text-xs font-medium mb-1.5 block">Shelf Life (durata del prodotto)</label>
+                <p className="text-slate-400 text-[10px] mb-2 leading-relaxed">
+                  È il tempo massimo entro cui il prodotto resta vendibile dalla data di produzione. Serve a determinare quali mercati puoi raggiungere: una shelf life breve limita l'export a paesi vicini o richiede trasporto aereo (più costoso).
+                </p>
+                <div className="grid grid-cols-2 gap-2">
+                  <Input type="number" min="1" placeholder="Es. 12" value={exportForm.shelf_life_valore}
+                    onChange={(e) => setExportForm({ ...exportForm, shelf_life_valore: e.target.value })}
+                    className="bg-slate-800/60 border-white/10 text-white h-11 rounded-xl placeholder:text-white/50" />
+                  <Select value={exportForm.shelf_life_unita || undefined} onValueChange={(v) => setExportForm({ ...exportForm, shelf_life_unita: v })}>
+                    <SelectTrigger className="bg-slate-800/60 border-white/10 text-white h-11 rounded-xl text-xs"><SelectValue placeholder="Unità" /></SelectTrigger>
+                    <SelectContent>
+                      <SelectItem value="giorni">Giorni</SelectItem>
+                      <SelectItem value="mesi">Mesi</SelectItem>
+                      <SelectItem value="anni">Anni</SelectItem>
+                    </SelectContent>
+                  </Select>
+                </div>
+                {exportForm.shelf_life_valore && exportForm.shelf_life_unita && (() => {
+                  const giorni = exportForm.shelf_life_unita === 'giorni' ? Number(exportForm.shelf_life_valore) : exportForm.shelf_life_unita === 'mesi' ? Number(exportForm.shelf_life_valore) * 30 : Number(exportForm.shelf_life_valore) * 365;
+                  if (giorni < 30) return (
+                    <div className="mt-2 bg-red-500/15 border border-red-500/30 rounded-xl px-3 py-2">
+                      <p className="text-red-400 text-[10px] font-semibold">⚠️ Shelf life molto breve (&lt;30 giorni): l'export è limitato a mercati vicini o richiede trasporto aereo con costi elevati.</p>
+                    </div>
+                  );
+                  if (giorni < 90) return (
+                    <div className="mt-2 bg-yellow-500/15 border border-yellow-500/30 rounded-xl px-3 py-2">
+                      <p className="text-yellow-400 text-[10px] font-semibold">⚡ Shelf life breve (&lt;90 giorni): valuta attentamente i tempi di trasporto e sdoganamento.</p>
+                    </div>
+                  );
+                  return null;
+                })()}
+              </div>
+            )}
 
             <div>
               <label className="text-black text-xs font-medium mb-1.5 block">Certificazioni possedute</label>
