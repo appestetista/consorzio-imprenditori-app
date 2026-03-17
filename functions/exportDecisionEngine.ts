@@ -458,17 +458,24 @@ Deno.serve(async (req) => {
         costoTotale = costoComponentiDisponibili;
       }
 
-      // 6. MARGINE REALE
+      // 8. MARGINE REALE
       let margine = null;
-      // Usiamo il prezzo medio in EUR per il calcolo. Se non disponibile in EUR, usiamo USD.
       let prezzoPerCalcolo = null;
+      let fontePrezzoCalcolo = null;
 
-      if (prezzoMedioEur !== null && userInputs.peso_prodotto) {
-        // Prezzo medio per unità (non per kg)
+      // Priorità: 1) Prezzo utente, 2) Prezzo medio Comtrade, 3) Prezzo medio B2B Alibaba
+      if (userInputs.prezzo_attuale) {
+        prezzoPerCalcolo = userInputs.prezzo_attuale;
+        fontePrezzoCalcolo = "dato utente";
+      } else if (prezzoMedioEur !== null && userInputs.peso_prodotto) {
         prezzoPerCalcolo = prezzoMedioEur * userInputs.peso_prodotto;
+        fontePrezzoCalcolo = "Comtrade (EUR)";
       } else if (prezzoInfo.prezzo_medio !== null && userInputs.peso_prodotto) {
-        // Fallback: prezzo in USD (senza conversione)
         prezzoPerCalcolo = prezzoInfo.prezzo_medio * userInputs.peso_prodotto;
+        fontePrezzoCalcolo = "Comtrade (USD)";
+      } else if (prezziB2B && prezziB2B.media_fob_usd && userInputs.peso_prodotto) {
+        prezzoPerCalcolo = prezziB2B.media_fob_usd * userInputs.peso_prodotto;
+        fontePrezzoCalcolo = "Media FOB B2B (Alibaba/web)";
       }
 
       if (prezzoPerCalcolo !== null && costoTotale !== null && prezzoPerCalcolo > 0) {
