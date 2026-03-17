@@ -582,22 +582,22 @@ async function fetchLLMPriceSearch(base44, hsCode, productDesc, destCountryISO2,
 
   try {
     const result = await base44.asServiceRole.integrations.Core.InvokeLLM({
-      prompt: `Cerca PREZZI REALI B2B/wholesale attuali per prodotti con codice HS ${hs6} (heading ${hs4}).
-Cerca su:
-1. Alibaba.com: cerca "HS ${hs4}" o la descrizione del prodotto, trova prezzi FOB reali
-2. Amazon (mercato ${destCountryName}): cerca il prodotto, trova prezzi al consumo reali
-3. Made-in-China.com: prezzi FOB export
-4. TradeIndia, GlobalSources se rilevanti
+      prompt: `Cerca PREZZI REALI B2B/wholesale attuali per questi prodotti:
+- Codice doganale HS: ${hs6} (heading ${hs4})
+${productDesc ? `- Descrizione prodotto: ${productDesc}` : ''}
 
-Per ogni prezzo trovato, riporta:
-- Il prezzo ESATTO come appare sul sito
-- La valuta
-- Se è FOB, CIF, o retail
-- Il nome del prodotto/listato
-- L'URL o nome del venditore
+ISTRUZIONI DI RICERCA:
+1. Alibaba.com: cerca "${productDesc || `HS ${hs4}`}" — trova prezzi FOB reali con MOQ
+2. Made-in-China.com: cerca lo stesso prodotto — prezzi FOB export
+3. GlobalSources.com: cerca il prodotto
+4. Amazon ${destCountryName}: cerca il prodotto — prezzi al consumo nel mercato di destinazione
+5. IndiaMart, TradeIndia: se rilevanti per il settore
 
-NON inventare prezzi. Se non trovi nulla, scrivi "Nessun prezzo trovato".
-Cerca il più possibile, almeno 5-10 listati se disponibili.`,
+REGOLE:
+- Riporta SOLO prezzi che hai effettivamente trovato online
+- Per ogni prezzo: fonte esatta, nome prodotto, prezzo esatto, venditore
+- NON inventare prezzi — se non trovi nulla scrivi "Nessun prezzo trovato"
+- Cerca almeno 5-10 listati su ogni piattaforma`,
       add_context_from_internet: true,
       response_json_schema: {
         type: "object",
