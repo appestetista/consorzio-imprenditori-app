@@ -590,23 +590,9 @@ async function fetchLLMPriceSearch(base44, hsCode, productDesc, destCountryISO2,
 
   try {
     const result = await base44.asServiceRole.integrations.Core.InvokeLLM({
-      prompt: `Cerca PREZZI REALI B2B/wholesale attuali per questi prodotti:
-- Codice doganale HS: ${hs6} (heading ${hs4})
-${productDesc ? `- Descrizione prodotto: ${productDesc}` : ''}
-
-ISTRUZIONI DI RICERCA:
-1. Alibaba.com: cerca "${productDesc || `HS ${hs4}`}" — trova prezzi FOB reali con MOQ
-2. Made-in-China.com: cerca lo stesso prodotto — prezzi FOB export
-3. GlobalSources.com: cerca il prodotto
-4. Amazon ${destCountryName}: cerca il prodotto — prezzi al consumo nel mercato di destinazione
-5. IndiaMart, TradeIndia: se rilevanti per il settore
-
-REGOLE:
-- Riporta SOLO prezzi che hai effettivamente trovato online
-- Per ogni prezzo: fonte esatta, nome prodotto, prezzo esatto, venditore
-- NON inventare prezzi — se non trovi nulla scrivi "Nessun prezzo trovato"
-- Cerca almeno 5-10 listati su ogni piattaforma`,
+      prompt: `Find REAL B2B/wholesale prices for: HS ${hs6}${productDesc ? ` (${productDesc})` : ''}. Search Alibaba.com, Made-in-China.com, GlobalSources. Report exact prices found with source, product name, price, seller. Do NOT invent prices.`,
       add_context_from_internet: true,
+      model: 'gemini_3_flash',
       response_json_schema: {
         type: "object",
         properties: {
