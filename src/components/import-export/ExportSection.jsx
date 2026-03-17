@@ -257,7 +257,7 @@ export default function ExportSection({ user, exportManagers, selectedMapCountry
         ) : (
           <div className="space-y-4">
             <div>
-              <label className="text-black text-xs font-medium mb-1.5 block">Capacità produttiva per export</label>
+              <label className="text-xs font-medium mb-1.5 block" style={{ color: 'var(--app-text-primary)' }}>Capacità produttiva per export</label>
               <div className="grid grid-cols-2 gap-2">
                 <Input placeholder="Es. 1000/mese" value={exportForm.capacita_produttiva}
                   onChange={(e) => setExportForm({ ...exportForm, capacita_produttiva: e.target.value })}
