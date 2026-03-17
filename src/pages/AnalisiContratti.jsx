@@ -476,14 +476,16 @@ Accedi all'app per visualizzare gli allegati e rispondere direttamente al client
         <div className="flex gap-2 mb-6">
           <Button
             onClick={() => setActiveTab('analisi')}
-            className={`flex-1 h-11 ${activeTab === 'analisi' ? 'bg-lime-400 text-slate-900 font-bold hover:bg-lime-500' : 'bg-slate-800 text-white border border-slate-600 hover:bg-slate-700'}`}
+            className={`flex-1 h-11 ${activeTab === 'analisi' ? 'font-bold' : 'bg-slate-800 text-white border border-slate-600 hover:bg-slate-700'}`}
+            style={activeTab === 'analisi' ? { backgroundColor: '#b8860b', color: '#fff' } : {}}
           >
             <FileSearch className="w-4 h-4 mr-2" />
             Nuova Analisi
           </Button>
           <Button
             onClick={() => setActiveTab('storico')}
-            className={`flex-1 h-11 ${activeTab === 'storico' ? 'bg-lime-400 text-slate-900 font-bold hover:bg-lime-500' : 'bg-slate-800 text-white border border-slate-600 hover:bg-slate-700'}`}
+            className={`flex-1 h-11 ${activeTab === 'storico' ? 'font-bold' : 'bg-slate-800 text-white border border-slate-600 hover:bg-slate-700'}`}
+            style={activeTab === 'storico' ? { backgroundColor: '#b8860b', color: '#fff' } : {}}
           >
             <History className="w-4 h-4 mr-2" />
             Storico
