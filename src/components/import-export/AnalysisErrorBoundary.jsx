@@ -12,7 +12,7 @@ export default class AnalysisErrorBoundary extends React.Component {
   }
 
   componentDidCatch(error, info) {
-    console.error('[AnalysisErrorBoundary] Caught:', error, info?.componentStack);
+    console.error('[AnalysisErrorBoundary] Caught:', error?.message, error?.stack, info?.componentStack);
   }
 
   render() {
@@ -24,6 +24,7 @@ export default class AnalysisErrorBoundary extends React.Component {
             <p className="text-red-400 font-bold text-sm">Errore nel rendering dei risultati</p>
           </div>
           <p className="text-slate-400 text-xs">{this.state.error?.message || 'Si è verificato un errore imprevisto.'}</p>
+          <p className="text-slate-600 text-[10px] mt-1 font-mono break-all">{this.state.error?.stack?.split('\n')?.[0]}</p>
           <button
             onClick={() => this.setState({ hasError: false, error: null })}
             className="mt-3 text-xs text-blue-400 hover:text-blue-300 underline"
