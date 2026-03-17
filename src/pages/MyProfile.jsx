@@ -892,6 +892,7 @@ export default function MyProfile() {
           export_certificazioni: effectiveUser.export_certificazioni || '',
           export_paese_esportatore: effectiveUser.export_paese_esportatore || 'IT',
           export_mercati_target: effectiveUser.export_mercati_target || [],
+          export_prodotti: effectiveUser.export_prodotti || [],
           settore: effectiveUser.settore || '',
           forma_giuridica: effectiveUser.forma_giuridica || '',
           fatturato_annuo: effectiveUser.fatturato_annuo || '',

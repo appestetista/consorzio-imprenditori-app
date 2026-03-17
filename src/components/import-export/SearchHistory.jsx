@@ -3,7 +3,9 @@ import { useQuery } from '@tanstack/react-query';
 import { base44 } from '@/api/base44Client';
 import { Card, CardContent } from '@/components/ui/card';
 import { Badge } from '@/components/ui/badge';
-import { TrendingUp, Ship, Loader2, Clock, Package, MapPin } from 'lucide-react';
+import { TrendingUp, Ship, Loader2, Clock, Package, MapPin, Settings } from 'lucide-react';
+import { Link } from 'react-router-dom';
+import { createPageUrl } from '@/utils';
 
 export default function SearchHistory({ userEmail, onOpenAnalysis }) {
   const { data: logs = [], isLoading } = useQuery({
@@ -38,6 +40,16 @@ export default function SearchHistory({ userEmail, onOpenAnalysis }) {
 
   return (
     <div className="space-y-3">
+      <Link to={createPageUrl('MyProfile') + '?tab=profilo&scrollTo=export'}>
+        <div className="flex items-center gap-3 bg-slate-800/60 border border-lime-400/20 rounded-xl px-4 py-3 hover:border-lime-400/40 transition-colors cursor-pointer mb-2">
+          <Settings className="w-5 h-5 text-lime-400" />
+          <div className="flex-1">
+            <p className="text-white text-sm font-medium">Gestisci prodotti export</p>
+            <p className="text-slate-400 text-[10px]">Aggiungi, modifica o rimuovi i tuoi prodotti nel profilo</p>
+          </div>
+          <span className="text-lime-400 text-xs">→</span>
+        </div>
+      </Link>
       {logs.map((log) => {
         const isExport = log.action_type === 'export_analysis';
         const meta = log.search_meta || {};
