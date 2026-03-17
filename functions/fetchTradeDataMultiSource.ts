@@ -18,6 +18,12 @@ import { createClientFromRequest } from 'npm:@base44/sdk@0.8.20';
  *   skip_cache: boolean (default false)
  *   include_tariffs: boolean (default true)
  *   include_eurostat: boolean (default true)
+ *   include_freight: boolean (default true) — stima trasporto Freightos
+ *   include_prices: boolean (default true) — ricerca prezzi B2B via LLM
+ *   origin_city: string (es. "Milan") — città origine per stima trasporto
+ *   dest_cities: object (es. {"FR":"Paris","US":"New York"}) — città dest per trasporto
+ *   product_description: string — descrizione prodotto per ricerca prezzi
+ *   shipment_weight_kg: number — peso spedizione per stima trasporto
  */
 
 // ===== COUNTRY CODE MAPPINGS =====
