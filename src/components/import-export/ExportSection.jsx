@@ -261,7 +261,7 @@ export default function ExportSection({ user, exportManagers, selectedMapCountry
               <div className="grid grid-cols-2 gap-2">
                 <Input placeholder="Es. 1000/mese" value={exportForm.capacita_produttiva}
                   onChange={(e) => setExportForm({ ...exportForm, capacita_produttiva: e.target.value })}
-                  className="bg-slate-800/60 border-white/10 text-white h-11 rounded-xl" />
+                  className="h-11 rounded-xl" style={{ background: 'var(--app-bg-input)', color: 'var(--app-text-primary)', border: '1px solid var(--app-border)' }} />
                 <Select value={exportForm.unita_capacita || undefined} onValueChange={(v) => setExportForm({ ...exportForm, unita_capacita: v })}>
                   <SelectTrigger className="bg-slate-800/60 border-white/10 text-white h-11 rounded-xl text-xs"><SelectValue placeholder="Unità di misura" /></SelectTrigger>
                   <SelectContent>
