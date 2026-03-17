@@ -528,30 +528,9 @@ export default function ExportSection({ user, exportManagers, selectedMapCountry
         )
       ) : (analyzing || analysisResult) && !analysisResult?._api_error ? (
         <div className="space-y-4" ref={el => { if (el && !analyzing) el.scrollIntoView({ behavior: 'smooth', block: 'start' }); }}>
-          {/* Progress inline durante l'analisi */}
+          {/* Progress animato durante l'analisi */}
           {analyzing && (
-            <div className="bg-slate-800/60 border border-lime-400/20 rounded-2xl p-5">
-              <div className="flex items-center gap-3 mb-3">
-                <Loader2 className="w-6 h-6 animate-spin text-lime-400" />
-                <div>
-                  <p className="text-white font-bold text-sm">Analisi in corso...</p>
-                  <p className="text-slate-400 text-[10px]">Recupero e analisi dati reali</p>
-                </div>
-              </div>
-              <div className="space-y-1.5">
-                {['fetching', 'computing', 'interpreting'].map((step, i) => {
-                  const labels = { fetching: 'Recupero dati ufficiali', computing: 'Calcolo metriche', interpreting: 'Elaborazione analisi' };
-                  const isActive = exportStep === step;
-                  const isDone = ['fetching', 'computing', 'interpreting'].indexOf(exportStep) > i;
-                  return (
-                    <div key={step} className={`flex items-center gap-2 text-xs px-3 py-2 rounded-lg ${isActive ? 'bg-lime-400/10 text-lime-400' : isDone ? 'bg-green-500/10 text-green-400' : 'text-slate-500'}`}>
-                      {isActive ? <Loader2 className="w-3.5 h-3.5 animate-spin flex-shrink-0" /> : isDone ? <CheckCircle className="w-3.5 h-3.5 flex-shrink-0" /> : <span className="w-3.5 h-3.5 rounded-full border border-slate-600 block flex-shrink-0" />}
-                      {labels[step]}
-                    </div>
-                  );
-                })}
-              </div>
-            </div>
+            <ExportAnalysisProgress exportStep={exportStep} countryName={selectedMapCountry?.name} />
           )}
 
           {confirmedExportHS && (
