@@ -998,6 +998,8 @@ Deno.serve(async (req) => {
     if (tariffData) sourceStatus.wits_tariff = 'ok';
     if (wtoTariffData) sourceStatus.wto_tariff = 'ok';
     if (llmWebData) sourceStatus.llm_web = 'ok';
+    if (freightData) sourceStatus.freightos = 'ok';
+    if (priceData) sourceStatus.llm_prices = 'ok';
 
     // Merge all sources
     const merged = deduplicateAndMerge(oecData, comtradeData, witsData, eurostatData);
