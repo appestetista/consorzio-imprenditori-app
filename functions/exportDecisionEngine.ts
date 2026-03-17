@@ -113,16 +113,73 @@ function extractTrasporto(partnerData) {
   return null;
 }
 
-function extractCommissioni(partnerData) {
-  // Cerchiamo dati reali sulle commissioni dal web enrichment
-  const we = partnerData?.web_enrichment;
-  if (!we) return null;
+function extractCommissioni(userInputs) {
+  // Le commissioni sono un dato dell'utente (agente, banca, ecc.)
+  // Se l'utente le ha fornite, le usiamo. Altrimenti null.
+  if (userInputs.commissione_agente !== null && userInputs.commissione_agente !== undefined) {
+    return { valore: Number(userInputs.commissione_agente), tipo: "dato utente" };
+  }
+  return null;
+}
 
-  if (we.access2markets?.commission !== undefined && we.access2markets?.commission !== null) {
-    return we.access2markets.commission;
+function extractIVA(partnerData) {
+  // Cerca IVA dal web enrichment Access2Markets
+  const we = partnerData?.web_enrichment;
+  if (!we?.access2markets) return null;
+
+  const a2m = we.access2markets;
+  const ivaNum = typeof a2m.iva_locale_valore === 'number' ? a2m.iva_locale_valore : parseNumericDuty(a2m.iva_locale_valore);
+  if (ivaNum !== null && ivaNum >= 0) {
+    return { percentuale: ivaNum, testo: a2m.iva_locale || `${ivaNum}%`, fonte: "Access2Markets" };
   }
 
+  // Fallback: parse dalla stringa
+  const ivaStr = parseNumericDuty(a2m.iva_locale);
+  if (ivaStr !== null) return { percentuale: ivaStr, testo: a2m.iva_locale, fonte: "Access2Markets" };
+
   return null;
+}
+
+function extractPrezziB2B(partnerData) {
+  const prices = partnerData?.market_prices;
+  if (!prices) return null;
+
+  const result = {
+    prezzi_fob: [],
+    prezzi_retail: [],
+    range_fob: null,
+    range_retail: null,
+    affidabilita: prices?.riepilogo?.affidabilita || null
+  };
+
+  // Prezzi B2B/FOB
+  if (prices.prezzi_b2b && Array.isArray(prices.prezzi_b2b)) {
+    result.prezzi_fob = prices.prezzi_b2b.filter(p => p.prezzo_min_usd > 0 || p.prezzo_max_usd > 0);
+  }
+
+  // Prezzi retail
+  if (prices.prezzi_retail && Array.isArray(prices.prezzi_retail)) {
+    result.prezzi_retail = prices.prezzi_retail.filter(p => p.prezzo_usd > 0);
+  }
+
+  // Range riassuntivo
+  if (prices.riepilogo) {
+    result.range_fob = prices.riepilogo.range_fob_usd || null;
+    result.range_retail = prices.riepilogo.range_retail_usd || null;
+  }
+
+  // Calcola media FOB se abbiamo dati numerici
+  if (result.prezzi_fob.length > 0) {
+    let sum = 0, count = 0;
+    for (const p of result.prezzi_fob) {
+      const avg = (p.prezzo_min_usd || 0) + (p.prezzo_max_usd || 0);
+      const divisor = ((p.prezzo_min_usd > 0 ? 1 : 0) + (p.prezzo_max_usd > 0 ? 1 : 0));
+      if (divisor > 0) { sum += avg / divisor; count++; }
+    }
+    if (count > 0) result.media_fob_usd = Math.round((sum / count) * 100) / 100;
+  }
+
+  return (result.prezzi_fob.length > 0 || result.prezzi_retail.length > 0) ? result : null;
 }
 
 function extractTopFornitori(partnerData) {
