@@ -35,13 +35,14 @@ function LinkRow({ label, url, note }) {
 }
 
 function DatoTrovato({ label, valore, fonte, warning }) {
-  const nonDisponibile = !valore || valore === 'null' || valore.toLowerCase().includes('non reperito') || valore.toLowerCase().includes('consultare');
+  const valStr = valore != null ? String(valore) : '';
+  const nonDisponibile = !valore || valStr === 'null' || valStr.toLowerCase().includes('non reperito') || valStr.toLowerCase().includes('consultare');
   return (
     <div className="flex items-start justify-between py-1.5 border-b border-white/5 last:border-0 gap-2">
       <span className="text-slate-400 text-[10px] flex-shrink-0">{label}</span>
       <div className="text-right">
         <span className={`text-[10px] font-semibold ${nonDisponibile ? 'text-slate-500 italic' : warning ? 'text-amber-400' : 'text-white'}`}>
-          {valore || 'Non disponibile'}
+          {valStr || 'Non disponibile'}
         </span>
         {fonte && <p className="text-slate-600 text-[8px] mt-0.5">{fonte}</p>}
       </div>
