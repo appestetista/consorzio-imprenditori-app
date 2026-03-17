@@ -278,7 +278,7 @@ export default function ExportSection({ user, exportManagers, selectedMapCountry
               <label className="text-black text-xs font-medium mb-1.5 block">Prezzo medio dei prodotti (€)</label>
               <Input type="number" step="0.01" min="0" placeholder="Es. 15.00" value={exportForm.prezzo_medio}
                 onChange={(e) => setExportForm({ ...exportForm, prezzo_medio: e.target.value })}
-                className="bg-slate-800/60 border-white/10 text-white h-11 rounded-xl placeholder:text-slate-500" />
+                className="bg-slate-800/60 border-white/10 text-white h-11 rounded-xl placeholder:text-white/50" />
             </div>
 
             <div className="grid grid-cols-2 gap-3">
@@ -309,7 +309,7 @@ export default function ExportSection({ user, exportManagers, selectedMapCountry
               <label className="text-black text-xs font-medium mb-1.5 block">Certificazioni possedute</label>
               <Input placeholder="Es. CE, ISO 9001, BIO, FDA, HACCP..." value={exportForm.certificazioni}
                 onChange={(e) => setExportForm({ ...exportForm, certificazioni: e.target.value })}
-                className="bg-slate-800/60 border-white/10 text-white h-11 rounded-xl placeholder:text-slate-500" />
+                className="bg-slate-800/60 border-white/10 text-white h-11 rounded-xl placeholder:text-white/50" />
             </div>
 
             {!exportLimitReached && !analyzing && !confirmedExportHS && !showHSClassifier && (
