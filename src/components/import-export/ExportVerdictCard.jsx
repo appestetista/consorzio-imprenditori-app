@@ -129,7 +129,7 @@ function buildContoServa(mercatoAnalisi, tradeData, exportForm, macroData) {
   
   // === 8. CERTIFICAZIONI OBBLIGATORIE ===
   const certObbligatorie = a2m?.certificazioni_obbligatorie || 
-    mercatoAnalisi.verifica_normativa?.autorizzazioni_necessarie?.filter(a => a.tipo === 'obbligatorio').map(a => a.requisito) || [];
+    mercatoAnalisi.verifica_normativa?.autorizzazioni_necessarie?.filter(a => a?.tipo === 'obbligatorio').map(a => a?.requisito).filter(Boolean) || [];
   
   // === 9. CALCOLO CONTO DELLA SERVA ===
   let calcolo = null;
