@@ -291,7 +291,7 @@ export default function ExportSection({ user, exportManagers, selectedMapCountry
               <label className="text-xs font-medium mb-1.5 block">Prezzo medio dei prodotti (€)</label>
               <Input type="number" step="0.01" min="0" placeholder="Es. 15.00" value={exportForm.prezzo_medio}
                 onChange={(e) => setExportForm({ ...exportForm, prezzo_medio: e.target.value })}
-                className="bg-slate-800/60 border-white/10 text-white h-11 rounded-xl placeholder:text-white/50" />
+                className="h-11 rounded-xl" />
             </div>
 
             <div className="grid grid-cols-2 gap-3">
@@ -325,7 +325,7 @@ export default function ExportSection({ user, exportManagers, selectedMapCountry
               </p>
               <Input type="number" step="0.01" min="0" placeholder="Costo per unità (es. 5.00 €)" value={exportForm.costo_industriale}
                 onChange={(e) => setExportForm({ ...exportForm, costo_industriale: e.target.value })}
-                className="bg-slate-800/60 border-white/10 text-white h-11 rounded-xl placeholder:text-white/50" />
+                className="h-11 rounded-xl" />
             </div>
 
             <div>
@@ -348,7 +348,7 @@ export default function ExportSection({ user, exportManagers, selectedMapCountry
               </div>
               <Input type="number" step="1" min="0" max="100" placeholder="Es. 30%" value={exportForm.margine_disponibile}
                 onChange={(e) => setExportForm({ ...exportForm, margine_disponibile: e.target.value })}
-                className="bg-slate-800/60 border-white/10 text-white h-11 rounded-xl placeholder:text-white/50" />
+                className="h-11 rounded-xl" />
             </div>
 
             <div>
@@ -360,22 +360,22 @@ export default function ExportSection({ user, exportManagers, selectedMapCountry
                 <div>
                   <Input type="number" step="0.01" min="0" placeholder="Peso (kg)" value={exportForm.peso_kg}
                     onChange={(e) => setExportForm({ ...exportForm, peso_kg: e.target.value })}
-                    className="bg-slate-800/60 border-white/10 text-white h-11 rounded-xl placeholder:text-white/50" />
+                    className="h-11 rounded-xl" />
                 </div>
                 <div>
                   <Input type="number" step="0.1" min="0" placeholder="Lunghezza (cm)" value={exportForm.lunghezza_cm}
                     onChange={(e) => setExportForm({ ...exportForm, lunghezza_cm: e.target.value })}
-                    className="bg-slate-800/60 border-white/10 text-white h-11 rounded-xl placeholder:text-white/50" />
+                    className="h-11 rounded-xl" />
                 </div>
                 <div>
                   <Input type="number" step="0.1" min="0" placeholder="Larghezza (cm)" value={exportForm.larghezza_cm}
                     onChange={(e) => setExportForm({ ...exportForm, larghezza_cm: e.target.value })}
-                    className="bg-slate-800/60 border-white/10 text-white h-11 rounded-xl placeholder:text-white/50" />
+                    className="h-11 rounded-xl" />
                 </div>
                 <div>
                   <Input type="number" step="0.1" min="0" placeholder="Altezza (cm)" value={exportForm.altezza_cm}
                     onChange={(e) => setExportForm({ ...exportForm, altezza_cm: e.target.value })}
-                    className="bg-slate-800/60 border-white/10 text-white h-11 rounded-xl placeholder:text-white/50" />
+                    className="h-11 rounded-xl" />
                 </div>
               </div>
               {exportForm.lunghezza_cm && exportForm.larghezza_cm && exportForm.altezza_cm && (
