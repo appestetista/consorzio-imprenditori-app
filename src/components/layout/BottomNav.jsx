@@ -84,9 +84,9 @@ export default function BottomNav({ currentPage, bgColor = null }) {
                 }}>
                   <div className="relative w-full h-full rounded-[14px] flex flex-col items-center justify-center overflow-hidden" style={{
                     background: isHighlighted
-                      ? (isDark ? 'linear-gradient(160deg, #2a2a2a 0%, #152040 50%, #1a2850 100%)' : 'linear-gradient(160deg, #e8e0d0 0%, #f5f0e5 50%, #ede5d5 100%)')
-                      : 'var(--app-gradient-card)',
-                    boxShadow: isDark ? 'inset 0 2px 4px rgba(0,0,0,0.5), inset 0 -1px 2px rgba(255,255,255,0.05)' : 'inset 0 2px 4px rgba(0,0,0,0.06), inset 0 -1px 2px rgba(255,255,255,0.5)'
+                      ? (isDark ? 'linear-gradient(160deg, #1a1a1a 0%, #0d1525 50%, #101c38 100%)' : 'linear-gradient(160deg, #c8b888 0%, #d4c89a 50%, #c0b480 100%)')
+                      : (isDark ? 'linear-gradient(160deg, #111111 0%, #001020 50%, #000d1e 100%)' : 'linear-gradient(160deg, #b8a868 0%, #c4b87a 50%, #b0a060 100%)'),
+                    boxShadow: isDark ? 'inset 0 2px 4px rgba(0,0,0,0.6), inset 0 -1px 2px rgba(255,255,255,0.03)' : 'inset 0 2px 4px rgba(0,0,0,0.12), inset 0 -1px 2px rgba(255,255,255,0.3)'
                   }}>
                     <item.icon
                       className="w-8 h-8 mb-0.5 relative z-10 transition-all duration-200"
