@@ -966,7 +966,27 @@ Deno.serve(async (req) => {
       fetchPromises.push(Promise.resolve(null));
     }
 
-    const [oecData, comtradePublicData, comtradePremiumData, witsData, eurostatData, tariffData, topSuppliersData, wtoTariffData, llmWebData] = await Promise.allSettled(fetchPromises).then(r => r.map(p => p.status === 'fulfilled' ? p.value : null));
+    // Add Freightos freight estimate
+    if (include_freight) {
+      const destCity = dest_cities[partnerCode] || null;
+      const reporterName = ISO2_TO_NAME[reporter_code] || reporter_code;
+      fetchPromises.push(
+        fetchFreightosEstimate(origin_city, reporter_code, destCity, partnerCode, shipment_weight_kg, null).catch(e => { console.log(`[Freightos] Error: ${e.message}`); return null; })
+      );
+    } else {
+      fetchPromises.push(Promise.resolve(null));
+    }
+
+    // Add LLM B2B Price Search
+    if (include_prices) {
+      fetchPromises.push(
+        fetchLLMPriceSearch(base44, hs_code, product_description, partnerCode, partnerName).catch(e => { console.log(`[LLM-Prices] Error: ${e.message}`); return null; })
+      );
+    } else {
+      fetchPromises.push(Promise.resolve(null));
+    }
+
+    const [oecData, comtradePublicData, comtradePremiumData, witsData, eurostatData, tariffData, topSuppliersData, wtoTariffData, llmWebData, freightData, priceData] = await Promise.allSettled(fetchPromises).then(r => r.map(p => p.status === 'fulfilled' ? p.value : null));
 
     // Update source status
     if (oecData) sourceStatus.oec = 'ok';
