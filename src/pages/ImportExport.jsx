@@ -97,11 +97,16 @@ export default function ImportExport() {
           <div className="mb-6">
             <button
               onClick={() => setActiveTab('history')}
-              className="w-full flex items-center justify-between rounded-xl bg-blue-600 border border-blue-700 px-4 py-3 text-sm hover:bg-blue-700 transition-colors"
+              className="w-full flex items-center justify-between rounded-xl px-4 py-3 text-sm transition-all duration-100 active:translate-y-[2px]"
+              style={{
+                background: 'linear-gradient(180deg, #8b6914 0%, #6b4f0e 60%, #4a3609 100%)',
+                border: '1px solid #a07a18',
+                boxShadow: '0 4px 0 #3a2a07, 0 6px 12px rgba(0,0,0,0.35), inset 0 1px 1px rgba(255,220,130,0.25)',
+              }}
             >
               <div className="flex items-center gap-2">
                 <History className="w-4 h-4 text-white" />
-                <span className="text-white">Storico ricerche</span>
+                <span className="text-white font-medium">Storico ricerche</span>
               </div>
               <span className="text-white/80 text-xs">Vedi tutto →</span>
             </button>
