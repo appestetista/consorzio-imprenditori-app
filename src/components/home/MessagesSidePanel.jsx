@@ -123,7 +123,7 @@ export default function MessagesSidePanel({ open, onClose, userEmail }) {
         style={{ top: 0 }}
       >
         <div
-          className="w-full max-w-md bg-slate-900 flex flex-col pointer-events-auto shadow-2xl rounded-t-2xl transition-transform duration-300 ease-out"
+          className="w-full max-w-md flex flex-col pointer-events-auto shadow-2xl rounded-t-2xl transition-transform duration-300 ease-out"
           style={{
             position: 'absolute',
             bottom: 0,
@@ -131,6 +131,7 @@ export default function MessagesSidePanel({ open, onClose, userEmail }) {
             transform: open ? 'translateX(-50%) translateY(0)' : 'translateX(-50%) translateY(100%)',
             top: '56px',
             height: 'auto',
+            backgroundColor: '#1a1a2e',
           }}
         >
           {/* Header */}
@@ -151,7 +152,7 @@ export default function MessagesSidePanel({ open, onClose, userEmail }) {
           <div className="flex gap-2 flex-1 min-h-0 p-2">
             {/* Left: Filters */}
             <div
-              className="flex-shrink-0 overflow-y-auto overflow-x-hidden bg-slate-800/50 rounded-xl p-2 transition-all duration-300 ease-in-out cursor-pointer"
+              className="flex-shrink-0 overflow-y-auto overflow-x-hidden bg-white/10 rounded-xl p-2 transition-all duration-300 ease-in-out cursor-pointer"
               style={{ width: filtersCollapsed ? '52px' : '176px' }}
               onClick={() => filtersCollapsed && setFiltersCollapsed(false)}
             >
@@ -172,13 +173,13 @@ export default function MessagesSidePanel({ open, onClose, userEmail }) {
                     }
                   }}
                   className={`flex items-center px-3 py-3 rounded-lg text-xs font-semibold transition-colors whitespace-nowrap ${
-                    activeFilter === 'all' ? 'bg-lime-400 text-slate-900' : 'bg-slate-700 text-slate-400 hover:bg-slate-600'
+                    activeFilter === 'all' ? 'bg-lime-400 text-black font-bold' : 'bg-white/10 text-white hover:bg-white/20'
                   }`}
                 >
                   <Filter className="w-4 h-4 flex-shrink-0 mr-2" />
                   <span className="w-[80px] text-left truncate">Tutti</span>
                   <span className={`w-6 h-5 flex items-center justify-center rounded-full text-[10px] ${
-                    activeFilter === 'all' ? 'bg-slate-900 text-lime-400' : unreadBySource.all > 0 ? 'bg-red-500 text-white' : 'bg-slate-600 text-slate-400'
+                    activeFilter === 'all' ? 'bg-black text-lime-400' : unreadBySource.all > 0 ? 'bg-red-500 text-white' : 'bg-white/10 text-white'
                   }`}>
                     {unreadBySource.all || 0}
                   </span>
@@ -199,13 +200,13 @@ export default function MessagesSidePanel({ open, onClose, userEmail }) {
                         }
                       }}
                       className={`flex items-center px-3 py-3 rounded-lg text-xs font-semibold transition-colors whitespace-nowrap ${
-                        activeFilter === source.key ? `${source.color} text-white` : 'bg-slate-700 text-slate-400 hover:bg-slate-600'
+                        activeFilter === source.key ? `${source.color} text-white` : 'bg-white/10 text-white hover:bg-white/20'
                       }`}
                     >
                       <SourceIcon className="w-4 h-4 flex-shrink-0 mr-2" />
                       <span className="w-[80px] text-left truncate">{source.label}</span>
                       <span className={`w-6 h-5 flex items-center justify-center rounded-full text-[10px] ${
-                        activeFilter === source.key ? 'bg-white/20 text-white' : count > 0 ? 'bg-red-500 text-white' : 'bg-slate-600 text-slate-400'
+                        activeFilter === source.key ? 'bg-white/20 text-white' : count > 0 ? 'bg-red-500 text-white' : 'bg-white/10 text-white'
                       }`}>
                         {count}
                       </span>
@@ -223,8 +224,8 @@ export default function MessagesSidePanel({ open, onClose, userEmail }) {
                 </div>
               ) : Object.keys(filteredConversations).length === 0 ? (
                 <div className="flex flex-col items-center justify-center h-full text-center px-4">
-                  <User className="w-10 h-10 text-slate-600 mb-2" />
-                  <p className="text-slate-400 text-xs">
+                  <User className="w-10 h-10 text-white/30 mb-2" />
+                  <p className="text-white text-xs font-medium">
                     {activeFilter === 'all' ? 'Nessuna conversazione' : 'Nessun messaggio'}
                   </p>
                 </div>
@@ -250,7 +251,7 @@ export default function MessagesSidePanel({ open, onClose, userEmail }) {
                           to={createPageUrl(`Messaggi?contact=${encodeURIComponent(conv.email)}`)}
                           onClick={onClose}
                         >
-                          <Card className="bg-slate-800 border-slate-700 p-3 cursor-pointer hover:bg-slate-700 transition-colors">
+                          <Card className="bg-white/10 border-white/10 p-3 cursor-pointer hover:bg-white/15 transition-colors">
                             <div className="flex items-center gap-2">
                               <div className="w-9 h-9 bg-lime-400/20 rounded-full flex items-center justify-center flex-shrink-0">
                                 <User className="w-4 h-4 text-lime-400" />
@@ -267,13 +268,13 @@ export default function MessagesSidePanel({ open, onClose, userEmail }) {
                                     </span>
                                   )}
                                 </div>
-                                <p className="text-white font-medium text-sm truncate">
+                                <p className="text-white font-bold text-sm truncate">
                                   {otherUser?.company_name || otherUser?.full_name || conv.email}
                                 </p>
-                                <p className="text-slate-400 text-xs truncate">
+                                <p className="text-white/80 text-xs truncate">
                                   {lastMessage?.content ? lastMessage.content.charAt(0).toUpperCase() + lastMessage.content.slice(1).toLowerCase() : ''}
                                 </p>
-                                <p className="text-slate-500 text-[10px]">
+                                <p className="text-white/60 text-[10px]">
                                   {format(new Date(lastMessage?.created_date), 'd MMM, HH:mm', { locale: it })}
                                 </p>
                               </div>

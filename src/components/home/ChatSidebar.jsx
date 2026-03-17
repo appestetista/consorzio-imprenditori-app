@@ -172,18 +172,18 @@ export default function ChatSidebar({ open, onClose, userEmail, activeConversati
         </div>
 
         <div className="px-4 pb-1">
-          <span className="text-[11px] text-black/60 font-medium">{totalFiltered} analisi</span>
+          <span className="text-[11px] text-black font-bold">{totalFiltered} analisi</span>
         </div>
 
         {/* Ricerca */}
         <div className="px-3 pb-1.5">
           <div className="flex items-center gap-2 bg-black/10 rounded-lg px-3 py-2">
-            <Search className="w-4 h-4 text-black/50" />
+            <Search className="w-4 h-4 text-black" />
             <input
               value={search}
               onChange={(e) => setSearch(e.target.value)}
               placeholder="Cerca nelle conversazioni..."
-              className="flex-1 bg-transparent text-sm text-black outline-none placeholder:text-black/40"
+              className="flex-1 bg-transparent text-sm text-black font-medium outline-none placeholder:text-black/60"
             />
             {search && (
               <button onClick={() => setSearch('')} className="w-4 h-4 flex items-center justify-center">
@@ -197,11 +197,11 @@ export default function ChatSidebar({ open, onClose, userEmail, activeConversati
         {availableCategories.length > 0 && (
           <div className="px-3 pb-2">
             <div className="flex items-center gap-2 bg-black/10 rounded-lg px-3 py-1.5">
-              <Filter className="w-3.5 h-3.5 text-black/50 flex-shrink-0" />
+              <Filter className="w-3.5 h-3.5 text-black flex-shrink-0" />
               <select
                 value={categoryFilter}
                 onChange={(e) => setCategoryFilter(e.target.value)}
-                className="flex-1 bg-transparent text-xs text-black outline-none appearance-none cursor-pointer"
+                className="flex-1 bg-transparent text-xs text-black font-semibold outline-none appearance-none cursor-pointer"
               >
                 <option value="all" className="bg-yellow-200">Tutte le categorie</option>
                 {availableCategories.map(cat => (
@@ -240,7 +240,7 @@ export default function ChatSidebar({ open, onClose, userEmail, activeConversati
               onChange={(e) => setNewFolderName(e.target.value)}
               onKeyDown={(e) => { if (e.key === 'Enter') handleCreateFolder(); if (e.key === 'Escape') { setNewFolderMode(false); setNewFolderName(''); } }}
               placeholder="Nome cartella"
-              className="flex-1 bg-transparent text-sm text-black outline-none placeholder:text-black/40"
+              className="flex-1 bg-transparent text-sm text-black font-medium outline-none placeholder:text-black/60"
             />
             <button onClick={handleCreateFolder} className="w-6 h-6 rounded flex items-center justify-center hover:bg-black/10">
               <Check className="w-3.5 h-3.5 text-black" />
@@ -269,7 +269,7 @@ export default function ChatSidebar({ open, onClose, userEmail, activeConversati
                     onClick={() => toggleFolder(folder.id)}
                     className="flex-1 flex items-center gap-2.5 px-3 py-2 rounded-lg hover:bg-black/10 transition-colors"
                   >
-                    <ChevronRight className={cn("w-3.5 h-3.5 text-black/50 transition-transform", isExpanded && "rotate-90")} />
+                    <ChevronRight className={cn("w-3.5 h-3.5 text-black transition-transform", isExpanded && "rotate-90")} />
                     <Folder className="w-4 h-4 text-black" />
                     {isEditing ? (
                       <input
@@ -284,7 +284,7 @@ export default function ChatSidebar({ open, onClose, userEmail, activeConversati
                       <span className="text-sm text-black truncate">{folder.nome}</span>
                     )}
                     {folderConvs.length > 0 && !isEditing && (
-                      <span className="text-[10px] text-black/50 ml-auto">{folderConvs.length}</span>
+                      <span className="text-[10px] text-black font-bold ml-auto">{folderConvs.length}</span>
                     )}
                   </button>
                   
@@ -330,7 +330,7 @@ export default function ChatSidebar({ open, onClose, userEmail, activeConversati
           ))}
 
           {filteredFolders.length === 0 && filteredLoose.length === 0 && (
-            <div className="px-4 py-8 text-center text-sm text-black/40">
+            <div className="px-4 py-8 text-center text-sm text-black font-medium">
               {search ? 'Nessun risultato' : 'Nessuna conversazione'}
             </div>
           )}
@@ -394,7 +394,7 @@ function ConversationItem({ conv, isActive, onSelect, onOpenMenu, indent }) {
         onClick={onSelect}
         className="flex-1 flex items-start gap-2 px-3 py-2 min-w-0"
       >
-        <MessageSquare className="w-4 h-4 text-black/40 flex-shrink-0 mt-0.5" />
+        <MessageSquare className="w-4 h-4 text-black flex-shrink-0 mt-0.5" />
         <div className="flex-1 min-w-0">
           <div className="flex items-center gap-1.5">
             {conv.is_pinned && <Pin className="w-3 h-3 text-black flex-shrink-0" />}
@@ -411,7 +411,7 @@ function ConversationItem({ conv, isActive, onSelect, onOpenMenu, indent }) {
                 <ListChecks className="w-2.5 h-2.5" />Piano
               </span>
             )}
-            <span className="text-[10px] text-black/50 ml-auto">{formatConvDate(conv.created_date)}</span>
+            <span className="text-[10px] text-black font-medium ml-auto">{formatConvDate(conv.created_date)}</span>
           </div>
         </div>
       </button>
@@ -419,7 +419,7 @@ function ConversationItem({ conv, isActive, onSelect, onOpenMenu, indent }) {
         onClick={(e) => { e.stopPropagation(); onOpenMenu(); }}
         className="mr-2 mt-2 w-6 h-6 rounded flex items-center justify-center opacity-0 group-hover:opacity-100 hover:bg-black/10 transition-all flex-shrink-0"
       >
-        <MoreVertical className="w-3.5 h-3.5 text-black/50" />
+        <MoreVertical className="w-3.5 h-3.5 text-black" />
       </button>
     </div>
   );

@@ -367,7 +367,7 @@ export default function ToolsDrawer() {
       >
         {/* Header */}
         <div className="flex items-center justify-between px-3 pt-16 pb-2 border-b border-[#d4af37]/15">
-          <span className="text-xs font-bold tracking-wider text-black">STRUMENTI</span>
+          <span className="text-xs font-bold tracking-wider" style={{ color: 'var(--app-text-primary)' }}>STRUMENTI</span>
           <button 
             onClick={() => setIsOpen(false)}
             className="w-9 h-9 rounded-full flex items-center justify-center bg-slate-800 hover:bg-slate-700 active:scale-95 transition-transform"
@@ -376,7 +376,7 @@ export default function ToolsDrawer() {
           </button>
         </div>
 
-        <p className="text-slate-500 text-[9px] px-3 py-1">Tieni premuto 1 sec. per riordinare</p>
+        <p className="text-[9px] px-3 py-1" style={{ color: 'var(--app-text-secondary)' }}>Tieni premuto 1 sec. per riordinare</p>
 
         {/* Lista strumenti scrollabile — pulsanti grandi 3D verticali */}
         <div ref={listRef} className="flex-1 overflow-y-auto py-2 px-2 pb-40">

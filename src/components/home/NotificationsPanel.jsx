@@ -50,7 +50,7 @@ function NotificationItem({ notif, onMarkRead, onDelete, expanded, onToggleExpan
     <div 
       className={cn(
         "px-4 py-3 border-b border-black/10 last:border-b-0 transition-colors cursor-pointer hover:bg-black/10",
-        !notif.is_read ? "bg-black/5" : ""
+        !notif.is_read ? "bg-black/10" : ""
       )}
       onClick={handleClick}
     >
@@ -58,14 +58,14 @@ function NotificationItem({ notif, onMarkRead, onDelete, expanded, onToggleExpan
         <div className="flex-1 min-w-0">
           <div className="flex items-center gap-1.5">
             {!notif.is_read && <span className="w-2 h-2 rounded-full bg-black flex-shrink-0" />}
-            <p className="text-xs font-medium text-black truncate">{notif.title}</p>
+            <p className="text-xs font-bold text-black truncate">{notif.title}</p>
           </div>
           {notif.content && (
-            <p className={cn("text-[11px] text-black/60 mt-0.5", expanded ? "whitespace-pre-wrap" : "line-clamp-2")}>
+            <p className={cn("text-[11px] text-black mt-0.5", expanded ? "whitespace-pre-wrap" : "line-clamp-2")}>
               {notif.content}
             </p>
           )}
-          <p className="text-[10px] text-black/50 mt-1">
+          <p className="text-[10px] text-black/70 font-medium mt-1">
             {notif.created_date ? new Date(notif.created_date).toLocaleDateString('it-IT', { day: 'numeric', month: 'short', hour: '2-digit', minute: '2-digit' }) : ''}
           </p>
         </div>
@@ -93,21 +93,21 @@ function ScadenzaItem({ scadenza }) {
     : { label: 'In programma', bg: 'bg-emerald-500/20', text: 'text-emerald-400', border: 'border-emerald-500/30' };
 
   return (
-    <div className="px-4 py-3 border-b border-black/10 last:border-b-0">
+    <div className="px-4 py-3 border-b border-black/15 last:border-b-0">
       <div className="flex items-start justify-between gap-2">
         <div className="flex-1 min-w-0">
           <div className="flex items-center gap-2">
-            <p className="text-xs font-medium text-black truncate">{scadenza.titolo}</p>
+            <p className="text-xs font-bold text-black truncate">{scadenza.titolo}</p>
             <span className={cn("flex-shrink-0 px-1.5 py-0.5 rounded text-[9px] font-bold border", badgeConfig.bg, badgeConfig.text, badgeConfig.border)}>
               {badgeConfig.label}
             </span>
           </div>
           <div className="flex items-center gap-1.5 mt-1">
-            <Calendar className="w-3 h-3 text-black/50" />
-            <span className="text-[10px] text-black/50">{dateStr} — {scadenza.daysLeft === 0 ? 'oggi' : scadenza.daysLeft === 1 ? 'domani' : `tra ${scadenza.daysLeft} giorni`}</span>
+            <Calendar className="w-3 h-3 text-black" />
+            <span className="text-[10px] text-black font-medium">{dateStr} — {scadenza.daysLeft === 0 ? 'oggi' : scadenza.daysLeft === 1 ? 'domani' : `tra ${scadenza.daysLeft} giorni`}</span>
           </div>
           {scadenza.sanzione_ritardo && (
-            <p className="text-[10px] text-red-400/70 mt-1 leading-snug">⚠ {scadenza.sanzione_ritardo}</p>
+            <p className="text-[10px] text-red-700 font-semibold mt-1 leading-snug">⚠ {scadenza.sanzione_ritardo}</p>
           )}
         </div>
       </div>
@@ -230,13 +230,13 @@ export default function NotificationsPanel({ open, onClose, userEmail, userRegim
             <>
               {unreadNotifs > 0 && (
                 <div className="px-4 py-2 flex justify-end">
-                  <button onClick={markAllRead} className="text-[10px] text-black font-medium hover:underline">Segna tutte come lette</button>
+                  <button onClick={markAllRead} className="text-[10px] text-black font-bold hover:underline">Segna tutte come lette</button>
                 </div>
               )}
               {allNotifications.length === 0 ? (
                 <div className="flex flex-col items-center justify-center py-16">
-                  <Bell className="w-8 h-8 text-black/30 mb-3" />
-                  <p className="text-black/50 text-xs">Nessuna notifica</p>
+                  <Bell className="w-8 h-8 text-black/40 mb-3" />
+                  <p className="text-black text-xs font-medium">Nessuna notifica</p>
                 </div>
               ) : (
                 allNotifications.map(n => (
@@ -258,7 +258,7 @@ export default function NotificationsPanel({ open, onClose, userEmail, userRegim
                   <div className="flex items-start gap-2">
                     <UserIcon className="w-4 h-4 text-black mt-0.5 flex-shrink-0" />
                     <div>
-                      <p className="text-[11px] text-black font-medium">Completa il profilo per vedere tutte le scadenze</p>
+                      <p className="text-[11px] text-black font-bold">Completa il profilo per vedere tutte le scadenze</p>
                       <Link
                         to={createPageUrl('ProfiloUtente')}
                         onClick={onClose}
@@ -273,8 +273,8 @@ export default function NotificationsPanel({ open, onClose, userEmail, userRegim
 
               {upcomingScadenze.length === 0 ? (
                 <div className="flex flex-col items-center justify-center py-16">
-                  <CheckCircle2 className="w-8 h-8 text-black/30 mb-3" />
-                  <p className="text-black/50 text-xs">Nessuna scadenza nei prossimi 90 giorni</p>
+                  <CheckCircle2 className="w-8 h-8 text-black/40 mb-3" />
+                  <p className="text-black text-xs font-medium">Nessuna scadenza nei prossimi 90 giorni</p>
                 </div>
               ) : (
                 <div className="mt-1">
