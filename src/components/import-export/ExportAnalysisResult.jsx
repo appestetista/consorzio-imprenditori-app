@@ -86,7 +86,7 @@ function EntryBarriersSection({ entryBarriers }) {
       {/* Certificazioni con tag obbligatorie/facoltative */}
       {entryBarriers.required_certifications?.length > 0 && (
         <div className="mt-1.5">
-          <p className="text-slate-500 text-[10px] mb-1">Certificazioni richieste</p>
+          <p className="text-white/60 text-[10px] mb-1">Certificazioni richieste</p>
           <div className="flex flex-wrap gap-1">
             {entryBarriers.required_certifications.map((c, i) => (
               <span key={i} className="bg-red-500/10 text-red-300 px-2 py-0.5 rounded-md text-[10px] border border-red-500/20 flex items-center gap-1">
@@ -100,7 +100,7 @@ function EntryBarriersSection({ entryBarriers }) {
 
       {entryBarriers.recommended_certifications?.length > 0 && (
         <div className="mt-1.5">
-          <p className="text-slate-500 text-[10px] mb-1">Certificazioni consigliate</p>
+          <p className="text-white/60 text-[10px] mb-1">Certificazioni consigliate</p>
           <div className="flex flex-wrap gap-1">
             {entryBarriers.recommended_certifications.map((c, i) => (
               <span key={i} className="bg-amber-500/10 text-amber-300 px-2 py-0.5 rounded-md text-[10px] border border-amber-500/20 flex items-center gap-1">
@@ -113,14 +113,14 @@ function EntryBarriersSection({ entryBarriers }) {
       )}
 
       {entryBarriers.notes && (
-        <p className="text-slate-500 text-[10px] mt-1.5 italic">{entryBarriers.notes}</p>
+        <p className="text-white/50 text-[10px] mt-1.5 italic">{entryBarriers.notes}</p>
       )}
 
       {/* Confronto rispetto ai competitor */}
       {entryBarriers.competitor_comparison && (
         <div className="mt-2 pt-2 border-t border-white/5">
-          <p className="text-slate-500 text-[10px] font-bold uppercase tracking-wider mb-1">Rispetto ai competitor</p>
-          <p className="text-slate-300 text-[10px] leading-relaxed">{entryBarriers.competitor_comparison}</p>
+          <p className="text-white/50 text-[10px] font-bold uppercase tracking-wider mb-1">Rispetto ai competitor</p>
+          <p className="text-white/80 text-[10px] leading-relaxed">{entryBarriers.competitor_comparison}</p>
         </div>
       )}
     </div>
@@ -281,10 +281,10 @@ export default function ExportAnalysisResult({ analysisResult, tradeMetrics, mac
                 <DataRow label="Quota Italia" value={m.flussi_commerciali.quota_italia} />
                 {m.flussi_commerciali.principali_fornitori?.length > 0 && (
                   <div className="mt-2 pt-2 border-t border-white/5">
-                    <p className="text-slate-500 text-[10px] mb-1.5">Top fornitori</p>
+                    <p className="text-white/60 text-[10px] mb-1.5">Top fornitori</p>
                     <div className="flex flex-wrap gap-1">
                       {m.flussi_commerciali.principali_fornitori.slice(0, 5).map((f, i) => (
-                        <span key={i} className="bg-white/5 text-slate-300 px-2 py-0.5 rounded-md text-[10px]">
+                        <span key={i} className="bg-white/5 text-white px-2 py-0.5 rounded-md text-[10px]">
                           {f.paese} {f.quota_percentuale}
                         </span>
                       ))}
@@ -324,10 +324,10 @@ export default function ExportAnalysisResult({ analysisResult, tradeMetrics, mac
                   <DataRow label="Trend" value={m.domanda_locale.trend} />
                   {m.domanda_locale.canali_distributivi?.length > 0 && (
                     <div className="mt-2">
-                      <p className="text-slate-500 text-[10px] mb-1">Canali distributivi</p>
+                      <p className="text-white/60 text-[10px] mb-1">Canali distributivi</p>
                       <div className="flex flex-wrap gap-1">
                         {m.domanda_locale.canali_distributivi.map((c, i) => (
-                          <span key={i} className="bg-white/5 text-slate-300 px-2 py-0.5 rounded-md text-[10px]">{c}</span>
+                          <span key={i} className="bg-white/5 text-white px-2 py-0.5 rounded-md text-[10px]">{c}</span>
                         ))}
                       </div>
                     </div>
@@ -363,8 +363,8 @@ export default function ExportAnalysisResult({ analysisResult, tradeMetrics, mac
 
             {m.canali_ingresso?.strategic_recommendations?.length > 0 && (
               <OpenSection title="Raccomandazioni Strategiche" icon={CheckCircle} iconColor="text-lime-400">
-                <ul className="text-slate-300 text-[10px] space-y-1">
-                  {m.canali_ingresso.strategic_recommendations.map((r, i) => <li key={i}>• {r}</li>)}
+                <ul className="text-white/80 text-[10px] space-y-1">
+                {m.canali_ingresso.strategic_recommendations.map((r, i) => <li key={i}>• {r}</li>)}
                 </ul>
               </OpenSection>
             )}
@@ -375,7 +375,7 @@ export default function ExportAnalysisResult({ analysisResult, tradeMetrics, mac
                   {m.opportunita?.length > 0 && (
                     <div className="bg-green-500/5 rounded-lg p-2 border border-green-500/10">
                       <p className="text-green-400 text-[10px] font-bold uppercase mb-1">Opportunità</p>
-                      <ul className="text-slate-300 text-[10px] space-y-0.5">
+                      <ul className="text-white/80 text-[10px] space-y-0.5">
                         {m.opportunita.map((o, i) => <li key={i}>• {o}</li>)}
                       </ul>
                     </div>
@@ -383,7 +383,7 @@ export default function ExportAnalysisResult({ analysisResult, tradeMetrics, mac
                   {m.sfide?.length > 0 && (
                     <div className="bg-orange-500/5 rounded-lg p-2 border border-orange-500/10">
                       <p className="text-orange-400 text-[10px] font-bold uppercase mb-1">Sfide</p>
-                      <ul className="text-slate-300 text-[10px] space-y-0.5">
+                      <ul className="text-white/80 text-[10px] space-y-0.5">
                         {m.sfide.map((s, i) => <li key={i}>• {s}</li>)}
                       </ul>
                     </div>
@@ -395,7 +395,7 @@ export default function ExportAnalysisResult({ analysisResult, tradeMetrics, mac
             {m.conclusione_operativa && (
               <div className="px-4 py-3 bg-white/[0.02] border-t border-white/5">
                 <p className="text-lime-400 text-[10px] font-bold uppercase tracking-wider mb-1">Conclusione Operativa</p>
-                <p className="text-slate-300 text-xs leading-relaxed">{m.conclusione_operativa}</p>
+                <p className="text-white/80 text-xs leading-relaxed">{m.conclusione_operativa}</p>
               </div>
             )}
           </CardContent>
@@ -417,7 +417,7 @@ export default function ExportAnalysisResult({ analysisResult, tradeMetrics, mac
           <DataRow label="Break even" value={analysisResult.analisi_economica.break_even} />
           <DataRow label="Investimento iniziale" value={analysisResult.analisi_economica.investimento_iniziale} />
           {analysisResult.analisi_economica.note && (
-            <p className="text-slate-500 text-[10px] mt-2 italic">{analysisResult.analisi_economica.note}</p>
+            <p className="text-white/50 text-[10px] mt-2 italic">{analysisResult.analisi_economica.note}</p>
           )}
         </OpenSection>
       )}
@@ -432,8 +432,8 @@ export default function ExportAnalysisResult({ analysisResult, tradeMetrics, mac
                 </div>
                 <div className="flex-1">
                   <p className="text-white text-xs font-medium">{step.attivita}</p>
-                  {step.kpi && <p className="text-slate-500 text-[10px]">KPI: {step.kpi}</p>}
-                  {step.budget_stimato && <p className="text-slate-500 text-[10px]">Budget: {step.budget_stimato}</p>}
+                  {step.kpi && <p className="text-white/60 text-[10px]">KPI: {step.kpi}</p>}
+                  {step.budget_stimato && <p className="text-white/60 text-[10px]">Budget: {step.budget_stimato}</p>}
                 </div>
               </div>
             ))}
@@ -480,7 +480,7 @@ export default function ExportAnalysisResult({ analysisResult, tradeMetrics, mac
       {analysisResult.timeline_consigliata && (
         <div className="bg-slate-800/60 border border-white/5 rounded-2xl p-4">
           <p className="text-white font-bold text-sm mb-2 flex items-center gap-2"><ArrowRight className="w-4 h-4 text-blue-400" />Timeline Consigliata</p>
-          <p className="text-slate-300 text-sm leading-relaxed">{analysisResult.timeline_consigliata}</p>
+          <p className="text-white/80 text-sm leading-relaxed">{analysisResult.timeline_consigliata}</p>
         </div>
       )}
 
@@ -591,9 +591,9 @@ function CompetitiveIntelligenceSection({ m }) {
                                 }`}>{c.positioning}</span>
                               </div>
                             </div>
-                            {c.value_proposition && <p className="text-slate-400 text-[10px]">{c.value_proposition}</p>}
+                            {c.value_proposition && <p className="text-white/70 text-[10px]">{c.value_proposition}</p>}
                             {c.estimated_market_share && c.estimated_market_share !== 'N/D' && (
-                              <p className="text-slate-500 text-[10px] mt-0.5">Quota: {c.estimated_market_share}</p>
+                              <p className="text-white/50 text-[10px] mt-0.5">Quota: {c.estimated_market_share}</p>
                             )}
                           </div>
                         ))}
@@ -616,22 +616,22 @@ function CompetitiveIntelligenceSection({ m }) {
                         <span className="text-white text-xs font-medium">
                           {m.analisi_competitiva.pricing_intelligence.local_price_range_min} — {m.analisi_competitiva.pricing_intelligence.local_price_range_max}
                           {m.analisi_competitiva.pricing_intelligence.price_unit && (
-                            <span className="text-slate-400 text-[10px] font-normal ml-1">/{m.analisi_competitiva.pricing_intelligence.price_unit}</span>
+                            <span className="text-white/50 text-[10px] font-normal ml-1">/{m.analisi_competitiva.pricing_intelligence.price_unit}</span>
                           )}
                           {m.analisi_competitiva.pricing_intelligence.currency && (
-                            <span className="text-slate-400 text-[10px] font-normal ml-1">({m.analisi_competitiva.pricing_intelligence.currency})</span>
+                            <span className="text-white/50 text-[10px] font-normal ml-1">({m.analisi_competitiva.pricing_intelligence.currency})</span>
                           )}
                         </span>
                       )}
                     </div>
                     {m.analisi_competitiva.pricing_intelligence.price_unit && (
-                      <p className="text-slate-500 text-[10px]">Unità di misura: {m.analisi_competitiva.pricing_intelligence.price_unit}</p>
+                      <p className="text-white/50 text-[10px]">Unità di misura: {m.analisi_competitiva.pricing_intelligence.price_unit}</p>
                     )}
                     {m.analisi_competitiva.pricing_intelligence.benchmark_product && (
-                      <p className="text-slate-400 text-[10px]">Rif: {m.analisi_competitiva.pricing_intelligence.benchmark_product}</p>
+                      <p className="text-white/60 text-[10px]">Rif: {m.analisi_competitiva.pricing_intelligence.benchmark_product}</p>
                     )}
                     {m.analisi_competitiva.pricing_intelligence.notes && (
-                      <p className="text-slate-500 text-[10px] mt-1 italic">{m.analisi_competitiva.pricing_intelligence.notes}</p>
+                      <p className="text-white/50 text-[10px] mt-1 italic">{m.analisi_competitiva.pricing_intelligence.notes}</p>
                     )}
                   </div>
                 )}
@@ -656,10 +656,10 @@ function CompetitiveIntelligenceSection({ m }) {
                     )}
                     {m.analisi_competitiva.distribution_channels.offline_key_players?.length > 0 && (
                       <div className="mt-1.5">
-                        <p className="text-slate-500 text-[10px] mb-1">Player offline</p>
+                        <p className="text-white/60 text-[10px] mb-1">Player offline</p>
                         <div className="flex flex-wrap gap-1">
                           {m.analisi_competitiva.distribution_channels.offline_key_players.map((p, i) => (
-                            <span key={i} className="bg-white/5 text-slate-300 px-2 py-0.5 rounded-md text-[10px]">{p}</span>
+                            <span key={i} className="bg-white/5 text-white px-2 py-0.5 rounded-md text-[10px]">{p}</span>
                           ))}
                         </div>
                       </div>
@@ -716,10 +716,10 @@ function CompetitiveIntelligenceSection({ m }) {
                 {/* Fonti */}
                 {m.analisi_competitiva?.sources?.length > 0 && (
                   <div className="mt-2 pt-2 border-t border-white/5">
-                    <p className="text-slate-600 text-[10px] mb-1">Fonti:</p>
+                    <p className="text-white/40 text-[10px] mb-1">Fonti:</p>
                     <div className="space-y-0.5">
                       {m.analisi_competitiva.sources.map((s, i) => (
-                        <p key={i} className="text-slate-500 text-[10px] truncate">{s}</p>
+                        <p key={i} className="text-white/40 text-[10px] truncate">{s}</p>
                       ))}
                     </div>
                   </div>
