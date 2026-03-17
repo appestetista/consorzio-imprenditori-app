@@ -307,7 +307,7 @@ export default function ExportSection({ user, exportManagers, selectedMapCountry
               <div>
                 <label className="text-xs font-medium mb-1.5 block">Canale preferito</label>
                 <Select value={exportForm.canale_preferito} onValueChange={(v) => setExportForm({ ...exportForm, canale_preferito: v })}>
-                  <SelectTrigger className="bg-slate-800/60 border-white/10 text-white h-10 rounded-xl text-xs"><SelectValue placeholder="Seleziona" /></SelectTrigger>
+                  <SelectTrigger className="h-10 rounded-xl text-xs"><SelectValue placeholder="Seleziona" /></SelectTrigger>
                   <SelectContent>
                     <SelectItem value="Online">Online / Marketplace</SelectItem>
                     <SelectItem value="Distributore">Distributore / Agente</SelectItem>
