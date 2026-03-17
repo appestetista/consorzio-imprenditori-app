@@ -557,12 +557,20 @@ async function fetchFreightosEstimate(originCity, originCountryISO2, destCity, d
 
     if (results.length === 0) return null;
 
+    // Preferisci LTL/FCL/LCL per B2B, non express (più costoso)
+    const preferredOrder = ['FCL', 'LCL', 'LTL', 'express', 'air'];
+    const sorted = [...results].sort((a, b) => {
+      const aIdx = preferredOrder.findIndex(m => a.modalita.toLowerCase().includes(m.toLowerCase()));
+      const bIdx = preferredOrder.findIndex(m => b.modalita.toLowerCase().includes(m.toLowerCase()));
+      return (aIdx === -1 ? 99 : aIdx) - (bIdx === -1 ? 99 : bIdx);
+    });
+
     return {
       origine: origin,
       destinazione: dest,
       peso_kg: weight,
       stime: results,
-      stima_migliore: results[0],
+      stima_migliore: sorted[0],
       fonte: 'Freightos Freight Estimator',
       nota: 'Stime indicative basate su tariffe reali di mercato'
     };
