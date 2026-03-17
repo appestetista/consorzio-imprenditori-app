@@ -192,7 +192,7 @@ export default function ExportSection({ user, exportManagers, selectedMapCountry
       {/* Ricerca rapida export */}
       {!analysisResult && !analyzing && (
         <div className="mb-5 space-y-3">
-          <p className="text-black font-semibold text-sm">Cosa vuoi esportare?</p>
+          <p className="font-semibold text-sm" style={{ color: 'var(--app-text-primary)' }}>Cosa vuoi esportare?</p>
           <div>
             <Input placeholder="Es. Olio d'oliva, macchine tessili, vino..." value={exportForm.prodotto}
               onChange={(e) => { setExportForm({ ...exportForm, prodotto: e.target.value }); setExportValidationErrors(prev => ({ ...prev, prodotto: '' })); }}
