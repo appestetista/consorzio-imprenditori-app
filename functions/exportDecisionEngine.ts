@@ -89,13 +89,25 @@ function extractDazio(partnerData) {
 }
 
 function extractTrasporto(partnerData) {
-  // Cerchiamo dati reali di trasporto dal web enrichment
-  const we = partnerData?.web_enrichment;
-  if (!we) return null;
-
-  // Access2Markets potrebbe avere costi di trasporto reali
-  if (we.access2markets?.transport_cost !== undefined && we.access2markets?.transport_cost !== null) {
-    return we.access2markets.transport_cost;
+  // === LIVELLO 1: Freightos (API reale, dati di mercato) ===
+  const freight = partnerData?.freight;
+  if (freight && freight.stima_migliore) {
+    const best = freight.stima_migliore;
+    return {
+      costo_usd: best.prezzo_medio,
+      costo_min_usd: best.prezzo_min,
+      costo_max_usd: best.prezzo_max,
+      valuta: best.valuta || 'USD',
+      modalita: best.modalita,
+      transito_giorni: best.transito_giorni_min && best.transito_giorni_max
+        ? `${best.transito_giorni_min}-${best.transito_giorni_max}`
+        : null,
+      origine: freight.origine,
+      destinazione: freight.destinazione,
+      peso_kg: freight.peso_kg,
+      fonte: 'Freightos Freight Estimator',
+      tutte_stime: freight.stime || []
+    };
   }
 
   return null;
