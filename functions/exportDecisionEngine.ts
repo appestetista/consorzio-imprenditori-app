@@ -364,7 +364,8 @@ Deno.serve(async (req) => {
       prezzo_attuale: prezzo_attuale ? Number(prezzo_attuale) : null,
       peso_prodotto: peso_prodotto ? Number(peso_prodotto) : null,
       settore: settore || null,
-      esperienza_export: esperienza_export || null
+      esperienza_export: esperienza_export || null,
+      commissione_agente: commissione_agente !== undefined && commissione_agente !== null ? Number(commissione_agente) : null
     };
 
     // === ELABORAZIONE PER OGNI PAESE ===
