@@ -443,6 +443,7 @@ Se un dato NON è trovabile, scrivi "Non trovato" — NON inventare dati.
 
 IMPORTANTE: cerca dati il più recenti possibile (2024-2025).`,
       add_context_from_internet: true,
+      model: 'gemini_3_flash',
       response_json_schema: {
         type: "object",
         properties: {
