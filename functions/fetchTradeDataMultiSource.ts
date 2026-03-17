@@ -1039,7 +1039,7 @@ Deno.serve(async (req) => {
       mergedTariffs.fonte_wto = wtoTariffData.fonte;
     }
 
-    return { partnerCode, data: merged, from_cache: false, tariffs: mergedTariffs, top_suppliers: topSuppliersData, web_enrichment: llmWebData || null };
+    return { partnerCode, data: merged, from_cache: false, tariffs: mergedTariffs, top_suppliers: topSuppliersData, web_enrichment: llmWebData || null, freight: freightData || null, market_prices: priceData || null };
   });
 
   const partnerResults = await Promise.allSettled(partnerPromises);
@@ -1053,7 +1053,9 @@ Deno.serve(async (req) => {
         records_count: v.data.length,
         tariffs: v.tariffs,
         top_suppliers: v.top_suppliers,
-        web_enrichment: v.web_enrichment || null
+        web_enrichment: v.web_enrichment || null,
+        freight: v.freight || null,
+        market_prices: v.market_prices || null
       };
     } else if (pr.status === 'rejected') {
       errors.push(`Partner error: ${pr.reason}`);
