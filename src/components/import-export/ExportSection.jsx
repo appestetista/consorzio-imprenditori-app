@@ -221,7 +221,7 @@ export default function ExportSection({ user, exportManagers, selectedMapCountry
           <div className="grid grid-cols-2 gap-2">
             {SETTORI.map((s) => (
               <button key={s} onClick={() => { setExportForm({ ...exportForm, settore: exportForm.settore === s ? '' : s }); setExportValidationErrors(prev => ({ ...prev, settore: '' })); }}
-                className={`px-3 py-2 rounded-xl text-xs font-medium transition-all border text-center ${exportForm.settore === s ? 'bg-blue-600 text-white border-blue-600 shadow-lg shadow-blue-600/20' : 'bg-white text-black border-black/15 hover:border-black/30'}`}>
+                className={`px-3 py-2 rounded-xl text-xs font-medium transition-all border text-center ${exportForm.settore === s ? 'bg-gradient-to-b from-blue-500 to-blue-700 text-white border-blue-800 shadow-[0_4px_0_0_#1e40af] active:shadow-[0_1px_0_0_#1e40af] active:translate-y-[3px]' : 'bg-gradient-to-b from-white to-gray-100 text-black border-gray-300 shadow-[0_4px_0_0_#9ca3af] active:shadow-[0_1px_0_0_#9ca3af] active:translate-y-[3px] hover:from-gray-50 hover:to-gray-200'}`}>
                 {s}
               </button>
             ))}
