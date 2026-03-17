@@ -379,12 +379,12 @@ export default function ExportSection({ user, exportManagers, selectedMapCountry
                 </div>
               </div>
               {exportForm.lunghezza_cm && exportForm.larghezza_cm && exportForm.altezza_cm && (
-                <div className="bg-slate-800/40 border border-white/10 rounded-xl px-3 py-2 flex items-center gap-2">
-                  <span className="text-slate-400 text-[10px]">Volume calcolato:</span>
-                  <span className="text-white font-bold text-xs">
+                <div className="rounded-xl px-3 py-2 flex items-center gap-2" style={{ background: 'var(--app-bg-input)', border: '1px solid var(--app-border)' }}>
+                  <span className="text-[10px]" style={{ color: 'var(--app-text-secondary)' }}>Volume calcolato:</span>
+                  <span className="font-bold text-xs" style={{ color: 'var(--app-text-primary)' }}>
                     {(parseFloat(exportForm.lunghezza_cm) * parseFloat(exportForm.larghezza_cm) * parseFloat(exportForm.altezza_cm)).toLocaleString('it-IT')} cm³
                   </span>
-                  <span className="text-slate-500 text-[10px]">
+                  <span className="text-[10px]" style={{ color: 'var(--app-text-muted)' }}>
                     ({((parseFloat(exportForm.lunghezza_cm) * parseFloat(exportForm.larghezza_cm) * parseFloat(exportForm.altezza_cm)) / 1000000).toFixed(4)} m³)
                   </span>
                 </div>
