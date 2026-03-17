@@ -321,7 +321,7 @@ export default function ExportSection({ user, exportManagers, selectedMapCountry
                 setExportValidationErrors(errors);
                 if (Object.keys(errors).length > 0) return;
                 setShowHSClassifier(true);
-              }} className="w-full bg-blue-600 hover:bg-blue-700 text-white font-bold h-12 rounded-xl shadow-lg shadow-blue-600/20 hover:shadow-blue-600/30">
+              }} className="w-full bg-gradient-to-b from-[#8b6914] to-[#4a3609] hover:from-[#9a7518] hover:to-[#5a4410] text-white font-bold h-12 rounded-xl shadow-[0_5px_0_0_#2e2205] active:shadow-[0_1px_0_0_#2e2205] active:translate-y-[4px] transition-all">
                 <TrendingUp className="w-5 h-5 mr-2" /> Avvia Analisi Export
               </Button>
             )}
