@@ -278,7 +278,7 @@ export default function ExportSection({ user, exportManagers, selectedMapCountry
             </div>
 
             <div>
-              <label className="text-black text-xs font-medium mb-1.5 block">Posizionamento di prezzo</label>
+              <label className="text-xs font-medium mb-1.5 block">Posizionamento di prezzo</label>
               <div className="grid grid-cols-4 gap-2">
                 {['Entry Level', 'Mid-range', 'Premium', 'Luxury'].map(p => (
                   <button key={p} onClick={() => setExportForm({ ...exportForm, posizionamento: exportForm.posizionamento === p ? '' : p })}
@@ -288,7 +288,7 @@ export default function ExportSection({ user, exportManagers, selectedMapCountry
             </div>
 
             <div>
-              <label className="text-black text-xs font-medium mb-1.5 block">Prezzo medio dei prodotti (€)</label>
+              <label className="text-xs font-medium mb-1.5 block">Prezzo medio dei prodotti (€)</label>
               <Input type="number" step="0.01" min="0" placeholder="Es. 15.00" value={exportForm.prezzo_medio}
                 onChange={(e) => setExportForm({ ...exportForm, prezzo_medio: e.target.value })}
                 className="bg-slate-800/60 border-white/10 text-white h-11 rounded-xl placeholder:text-white/50" />
@@ -296,7 +296,7 @@ export default function ExportSection({ user, exportManagers, selectedMapCountry
 
             <div className="grid grid-cols-2 gap-3">
               <div>
-                <label className="text-black text-xs font-medium mb-1.5 block">Business Model</label>
+                <label className="text-xs font-medium mb-1.5 block">Business Model</label>
                 <div className="grid grid-cols-2 gap-2">
                   {['B2B', 'B2C'].map(bm => (
                     <button key={bm} onClick={() => setExportForm({ ...exportForm, business_model: exportForm.business_model === bm ? '' : bm })}
@@ -305,7 +305,7 @@ export default function ExportSection({ user, exportManagers, selectedMapCountry
                 </div>
               </div>
               <div>
-                <label className="text-black text-xs font-medium mb-1.5 block">Canale preferito</label>
+                <label className="text-xs font-medium mb-1.5 block">Canale preferito</label>
                 <Select value={exportForm.canale_preferito} onValueChange={(v) => setExportForm({ ...exportForm, canale_preferito: v })}>
                   <SelectTrigger className="bg-slate-800/60 border-white/10 text-white h-10 rounded-xl text-xs"><SelectValue placeholder="Seleziona" /></SelectTrigger>
                   <SelectContent>
@@ -319,7 +319,7 @@ export default function ExportSection({ user, exportManagers, selectedMapCountry
             </div>
 
             <div>
-              <label className="text-black text-xs font-medium mb-1.5 block">Costo industriale per unità – COGS (€)</label>
+              <label className="text-xs font-medium mb-1.5 block">Costo industriale per unità – COGS (€)</label>
               <p className="text-slate-400 text-[10px] mb-2 leading-relaxed">
                 È il costo reale per produrre una singola unità del tuo prodotto. Include: materie prime, manodopera, lavorazione e confezionamento. Esempio: se produci una sedia e spendi 50 € tra materiali, lavoro e packaging → il tuo COGS è 50 €. È il punto di partenza per calcolare il margine reale sull'export.
               </p>
@@ -329,7 +329,7 @@ export default function ExportSection({ user, exportManagers, selectedMapCountry
             </div>
 
             <div>
-              <label className="text-black text-xs font-medium mb-1.5 block">Margine disponibile (%)</label>
+              <label className="text-xs font-medium mb-1.5 block">Margine disponibile (%)</label>
               <p className="text-slate-400 text-[10px] mb-2 leading-relaxed">
                 È la differenza tra il tuo prezzo di vendita e il costo di produzione, espressa in percentuale sul prezzo. Formula: (Prezzo − Costo) / Prezzo × 100. Serve a capire quanto spazio hai per assorbire i costi di esportazione (logistica, dazi, intermediari) senza andare in perdita.
               </p>
@@ -352,7 +352,7 @@ export default function ExportSection({ user, exportManagers, selectedMapCountry
             </div>
 
             <div>
-              <label className="text-black text-xs font-medium mb-1.5 block">Peso e dimensioni prodotto</label>
+              <label className="text-xs font-medium mb-1.5 block">Peso e dimensioni prodotto</label>
               <p className="text-slate-400 text-[10px] mb-2 leading-relaxed">
                 Servono per stimare i costi di trasporto e logistica. Il volume viene calcolato automaticamente dalle dimensioni. Più il prodotto è pesante o voluminoso, più incidono i costi di spedizione — utile per capire se mercati lontani sono sostenibili.
               </p>
@@ -393,7 +393,7 @@ export default function ExportSection({ user, exportManagers, selectedMapCountry
 
             {(exportForm.settore === 'Alimentare e bevande' || exportForm.settore === 'Agricoltura e agroalimentare') && (
               <div>
-                <label className="text-black text-xs font-medium mb-1.5 block">Shelf Life (durata del prodotto)</label>
+                <label className="text-xs font-medium mb-1.5 block">Shelf Life (durata del prodotto)</label>
                 <p className="text-slate-400 text-[10px] mb-2 leading-relaxed">
                   È il tempo massimo entro cui il prodotto resta vendibile dalla data di produzione. Serve a determinare quali mercati puoi raggiungere: una shelf life breve limita l'export a paesi vicini o richiede trasporto aereo (più costoso).
                 </p>
@@ -428,7 +428,7 @@ export default function ExportSection({ user, exportManagers, selectedMapCountry
             )}
 
             <div>
-              <label className="text-black text-xs font-medium mb-1.5 block">Esperienza Export</label>
+              <label className="text-xs font-medium mb-1.5 block">Esperienza Export</label>
               <p className="text-slate-400 text-[10px] mb-2 leading-relaxed">
                 Il livello di esperienza della tua azienda nell'export. Serve ad adattare la strategia: se non hai mai esportato ti verranno suggeriti mercati più accessibili, se hai esperienza Extra UE potrai valutare mercati più complessi.
               </p>
@@ -447,7 +447,7 @@ export default function ExportSection({ user, exportManagers, selectedMapCountry
             </div>
 
             <div>
-              <label className="text-black text-xs font-medium mb-1.5 block">Obiettivo Export</label>
+              <label className="text-xs font-medium mb-1.5 block">Obiettivo Export</label>
               <p className="text-slate-400 text-[10px] mb-2 leading-relaxed">
                 Perché vuoi esportare? L'obiettivo influenza la strategia consigliata: un test di mercato richiede un approccio diverso rispetto a una distribuzione stabile o allo smaltimento di stock in eccesso.
               </p>
@@ -467,7 +467,7 @@ export default function ExportSection({ user, exportManagers, selectedMapCountry
             </div>
 
             <div>
-              <label className="text-black text-xs font-medium mb-1.5 block">Certificazioni possedute</label>
+              <label className="text-xs font-medium mb-1.5 block">Certificazioni possedute</label>
               <p className="text-slate-400 text-[10px] mb-2 leading-relaxed">
                 Seleziona le certificazioni che la tua azienda possiede. Influenzano i mercati raggiungibili e i requisiti normativi.
               </p>
