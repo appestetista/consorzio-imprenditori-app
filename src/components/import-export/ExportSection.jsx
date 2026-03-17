@@ -566,7 +566,25 @@ export default function ExportSection({ user, exportManagers, selectedMapCountry
               <ExportContactCard contactForm={contactForm} setContactForm={setContactForm} contactSent={contactSent} setContactSent={setContactSent} sendContactMutation={sendContactMutation} uploadingAttachment={uploadingAttachment} handleAttachmentUpload={handleAttachmentUpload} removeAttachment={removeAttachment} exportManagers={exportManagers} />
             </AnalysisErrorBoundary>
           )}
-          <Button onClick={resetAnalysis} variant="outline" className="w-full bg-blue-600 hover:bg-blue-700 text-white border-blue-600">Nuova Analisi</Button>
+
+          {/* Pulsante Nuova Analisi — appare solo dopo i risultati */}
+          {analysisResult && !analyzing && (
+            <div className="pt-6 pb-4">
+              <button
+                onClick={resetAnalysis}
+                className="w-full py-4 rounded-2xl font-bold text-base tracking-wide transition-all active:translate-y-1"
+                style={{
+                  background: 'linear-gradient(180deg, #d4af37 0%, #8b6914 100%)',
+                  color: '#fff',
+                  boxShadow: '0 6px 0 0 #4a3609, 0 8px 20px rgba(212,175,55,0.3)',
+                  border: 'none',
+                  textShadow: '0 1px 2px rgba(0,0,0,0.3)',
+                }}
+              >
+                🔄 Nuova Analisi
+              </button>
+            </div>
+          )}
         </div>
       ) : analysisResult?._api_error ? (
         <div className="space-y-4">
