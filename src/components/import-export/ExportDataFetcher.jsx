@@ -738,7 +738,11 @@ export async function interpretData(tradeData, metricsResult, hsCode, hsDescrizi
             paese_code: { type: "string" }, paese_nome: { type: "string" },
             market_screening: { type: "object", properties: { import_totale: { type: "string" }, cagr: { type: "string" }, dazi: { type: "string" }, barriere_non_tariffarie: { type: "string" }, ranking_motivazione: { type: "string" } } },
             domanda_locale: { type: "object", properties: { consumo_apparente: { type: "string" }, produzione_locale: { type: "string" }, import_value: { type: "string" }, export_value: { type: "string" }, dipendenza_import: { type: "string" }, import_pro_capite: { type: "string" }, demand_score: { type: "string", enum: ["Low","Medium","High"] }, validazione_coerenza: { type: "string" }, segmentazione: { type: "string" }, volumi_consumo: { type: "string" }, canali_distributivi: { type: "array", items: { type: "string" } }, trend: { type: "string" } } },
-            flussi_commerciali: { type: "object", properties: { valore_import_annuo: { type: "string" }, export_italia_verso_paese: { type: "string" }, trend_yoy_percentuale: { type: "string" }, crescita_o_calo: { type: "string", enum: ["crescita","calo","stabile"] }, quota_italia: { type: "string" }, principali_fornitori: { type: "array", items: { type: "object", properties: { paese: { type: "string" }, quota_percentuale: { type: "string" } } } } } }
+            flussi_commerciali: { type: "object", properties: { valore_import_annuo: { type: "string" }, export_italia_verso_paese: { type: "string" }, trend_yoy_percentuale: { type: "string" }, crescita_o_calo: { type: "string", enum: ["crescita","calo","stabile"] }, quota_italia: { type: "string" }, principali_fornitori: { type: "array", items: { type: "object", properties: { paese: { type: "string" }, quota_percentuale: { type: "string" } } } } } },
+            confronto_import_globale: { type: "object", properties: {
+              paese_importa_di_piu: { type: "object", properties: { nome: { type: "string" }, valore_usd: { type: "string" }, anno: { type: "string" }, fonte: { type: "string" } } },
+              paese_importa_di_meno: { type: "object", properties: { nome: { type: "string" }, valore_usd: { type: "string" }, anno: { type: "string" }, fonte: { type: "string" } } }
+            } }
           }
         }
       }
