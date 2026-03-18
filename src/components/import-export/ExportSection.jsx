@@ -422,22 +422,26 @@ export default function ExportSection({ user, exportManagers, selectedMapCountry
 
               <div className="grid grid-cols-2 gap-2 mb-2">
                 <div>
-                  <Input type="number" step="0.01" min="0" placeholder="Peso (kg)" value={exportForm.peso_kg}
+                  <label className="text-xs font-medium mb-1 block" style={{ color: 'var(--app-text-primary)' }}>Peso</label>
+                  <Input type="number" step="0.01" min="0" placeholder="kg" value={exportForm.peso_kg}
                     onChange={(e) => setExportForm({ ...exportForm, peso_kg: e.target.value })}
                     className="h-11 rounded-xl" style={{ background: 'var(--app-bg-input)', color: 'var(--app-text-primary)', border: '1px solid var(--app-border)' }} />
                 </div>
                 <div>
-                  <Input type="number" step="0.1" min="0" placeholder="Lunghezza (cm)" value={exportForm.lunghezza_cm}
+                  <label className="text-xs font-medium mb-1 block" style={{ color: 'var(--app-text-primary)' }}>Lunghezza</label>
+                  <Input type="number" step="0.1" min="0" placeholder="cm" value={exportForm.lunghezza_cm}
                     onChange={(e) => setExportForm({ ...exportForm, lunghezza_cm: e.target.value })}
                     className="h-11 rounded-xl" style={{ background: 'var(--app-bg-input)', color: 'var(--app-text-primary)', border: '1px solid var(--app-border)' }} />
                 </div>
                 <div>
-                  <Input type="number" step="0.1" min="0" placeholder="Larghezza (cm)" value={exportForm.larghezza_cm}
+                  <label className="text-xs font-medium mb-1 block" style={{ color: 'var(--app-text-primary)' }}>Larghezza</label>
+                  <Input type="number" step="0.1" min="0" placeholder="cm" value={exportForm.larghezza_cm}
                     onChange={(e) => setExportForm({ ...exportForm, larghezza_cm: e.target.value })}
                     className="h-11 rounded-xl" style={{ background: 'var(--app-bg-input)', color: 'var(--app-text-primary)', border: '1px solid var(--app-border)' }} />
                 </div>
                 <div>
-                  <Input type="number" step="0.1" min="0" placeholder="Altezza (cm)" value={exportForm.altezza_cm}
+                  <label className="text-xs font-medium mb-1 block" style={{ color: 'var(--app-text-primary)' }}>Altezza</label>
+                  <Input type="number" step="0.1" min="0" placeholder="cm" value={exportForm.altezza_cm}
                     onChange={(e) => setExportForm({ ...exportForm, altezza_cm: e.target.value })}
                     className="h-11 rounded-xl" style={{ background: 'var(--app-bg-input)', color: 'var(--app-text-primary)', border: '1px solid var(--app-border)' }} />
                 </div>
