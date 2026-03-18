@@ -288,10 +288,10 @@ export default function ExportSection({ user, exportManagers, selectedMapCountry
             </div>
 
             <div>
-              <label className="text-xs font-medium mb-1.5 block" style={{ color: 'var(--app-text-primary)' }}>Prezzo medio dei prodotti (€)</label>
+              <label className="text-xs font-medium mb-1.5 block" style={{ color: 'var(--app-text-primary)' }}>Prezzo medio di vendita (€)</label>
               <Input type="number" step="0.01" min="0" placeholder="Es. 15.00" value={exportForm.prezzo_medio}
                 onChange={(e) => setExportForm({ ...exportForm, prezzo_medio: e.target.value })}
-                className="h-11 rounded-xl" />
+                className="h-11 rounded-xl" style={{ background: 'var(--app-bg-input)', color: 'var(--app-text-primary)', border: '1px solid var(--app-border)' }} />
             </div>
 
             <div className="grid grid-cols-2 gap-3">
@@ -328,28 +328,67 @@ export default function ExportSection({ user, exportManagers, selectedMapCountry
                 className="h-11 rounded-xl" style={{ background: 'var(--app-bg-input)', color: 'var(--app-text-primary)', border: '1px solid var(--app-border)' }} />
             </div>
 
-            <div>
-              <label className="text-xs font-medium mb-1.5 block" style={{ color: 'var(--app-text-primary)' }}>Margine disponibile (%)</label>
-              <p className="text-[10px] mb-2 leading-relaxed">
-                È la differenza tra il tuo prezzo di vendita e il costo di produzione, espressa in percentuale sul prezzo. Formula: (Prezzo − Costo) / Prezzo × 100. Serve a capire quanto spazio hai per assorbire i costi di esportazione (logistica, dazi, intermediari) senza andare in perdita.
-              </p>
-              <div className="flex gap-2 mb-2">
-                {[
-                  { label: 'Basso', sublabel: '10–20%', value: '15' },
-                  { label: 'Medio', sublabel: '20–40%', value: '30' },
-                  { label: 'Alto', sublabel: '40%+', value: '50' },
-                ].map(opt => (
-                  <button key={opt.value} onClick={() => setExportForm({ ...exportForm, margine_disponibile: opt.value })}
-                    className={`flex-1 px-2 py-2 rounded-xl text-center transition-all border ${exportForm.margine_disponibile === opt.value ? 'bg-blue-600 text-white border-blue-600 shadow-lg shadow-blue-600/20' : 'bg-white text-black border-black/15 hover:border-black/30'}`}>
-                    <span className="text-xs font-bold block">{opt.label}</span>
-                    <span className="text-[10px] opacity-70">{opt.sublabel}</span>
-                  </button>
-                ))}
-              </div>
-              <Input type="number" step="1" min="0" max="100" placeholder="Es. 30%" value={exportForm.margine_disponibile}
-                onChange={(e) => setExportForm({ ...exportForm, margine_disponibile: e.target.value })}
-                className="h-11 rounded-xl" />
-            </div>
+            {/* Margine disponibile — calcolato automaticamente */}
+            {(() => {
+              const prezzo = parseFloat(exportForm.prezzo_medio);
+              const costo = parseFloat(exportForm.costo_industriale);
+              const hasData = prezzo > 0 && costo > 0;
+              const margine = hasData ? ((prezzo - costo) / prezzo * 100) : null;
+              const margineEuro = hasData ? (prezzo - costo) : null;
+              const isNegative = margine !== null && margine < 0;
+              const barColor = margine === null ? 'bg-slate-400' : margine >= 40 ? 'bg-green-500' : margine >= 20 ? 'bg-amber-500' : margine >= 0 ? 'bg-orange-500' : 'bg-red-500';
+              const labelColor = margine === null ? 'var(--app-text-muted)' : margine >= 40 ? '#22c55e' : margine >= 20 ? '#f59e0b' : margine >= 0 ? '#f97316' : '#ef4444';
+
+              // Sincronizza il valore nel form
+              if (hasData && String(Math.round(margine * 10) / 10) !== exportForm.margine_disponibile) {
+                setTimeout(() => setExportForm(prev => ({ ...prev, margine_disponibile: String(Math.round(margine * 10) / 10) })), 0);
+              }
+
+              return (
+                <div>
+                  <label className="text-xs font-medium mb-1.5 block" style={{ color: 'var(--app-text-primary)' }}>Margine disponibile</label>
+                  <p className="text-[10px] mb-2 leading-relaxed" style={{ color: 'var(--app-text-secondary)' }}>
+                    Calcolato automaticamente: (Prezzo di vendita − Costo industriale) / Prezzo × 100. È lo spazio che hai per assorbire dazi, logistica e intermediari.
+                  </p>
+                  {hasData ? (
+                    <div className="rounded-xl p-3 space-y-2" style={{ background: 'var(--app-bg-card)', border: '1px solid var(--app-border)' }}>
+                      <div className="flex items-center justify-between">
+                        <div className="flex items-baseline gap-2">
+                          <span className="text-2xl font-black" style={{ color: labelColor }}>{margine.toFixed(1)}%</span>
+                          <span className="text-xs font-medium" style={{ color: 'var(--app-text-secondary)' }}>({margineEuro.toFixed(2)} € / unità)</span>
+                        </div>
+                        <span className={`text-[10px] font-bold px-2 py-0.5 rounded-full ${
+                          isNegative ? 'bg-red-500/15 text-red-400' : margine >= 40 ? 'bg-green-500/15 text-green-400' : margine >= 20 ? 'bg-amber-500/15 text-amber-400' : 'bg-orange-500/15 text-orange-400'
+                        }`}>
+                          {isNegative ? 'In perdita' : margine >= 40 ? 'Alto' : margine >= 20 ? 'Medio' : 'Basso'}
+                        </span>
+                      </div>
+                      {/* Barra visuale */}
+                      <div className="relative h-3 rounded-full bg-slate-700/50 overflow-hidden">
+                        <div className={`absolute inset-y-0 left-0 rounded-full transition-all duration-500 ${barColor}`}
+                          style={{ width: `${Math.max(0, Math.min(100, margine))}%` }} />
+                      </div>
+                      <div className="flex justify-between text-[9px]" style={{ color: 'var(--app-text-muted)' }}>
+                        <span>Costo: €{costo.toFixed(2)}</span>
+                        <span>Prezzo: €{prezzo.toFixed(2)}</span>
+                      </div>
+                      {isNegative && (
+                        <p className="text-red-400 text-[10px] font-semibold mt-1">⚠️ Il costo supera il prezzo di vendita. L'export non è sostenibile con questi valori.</p>
+                      )}
+                      {!isNegative && margine < 20 && (
+                        <p className="text-orange-400 text-[10px] font-semibold mt-1">⚡ Margine ridotto: dazi, trasporto e intermediari potrebbero erodere il guadagno.</p>
+                      )}
+                    </div>
+                  ) : (
+                    <div className="rounded-xl px-3 py-3 text-center" style={{ background: 'var(--app-bg-card)', border: '1px dashed var(--app-border)' }}>
+                      <p className="text-xs" style={{ color: 'var(--app-text-muted)' }}>
+                        Inserisci il <strong>prezzo medio di vendita</strong> e il <strong>costo industriale</strong> per calcolare il margine
+                      </p>
+                    </div>
+                  )}
+                </div>
+              );
+            })()}
 
             <div>
               <label className="text-xs font-medium mb-1.5 block" style={{ color: 'var(--app-text-primary)' }}>Peso e dimensioni prodotto</label>
