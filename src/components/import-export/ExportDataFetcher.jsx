@@ -234,13 +234,68 @@ export async function fetchTradeData(hsCode6, mercatiCodes, mercatiNames, export
     const webEnrichment = partnerData?.web_enrichment || null;
     const name = mercatiNames?.[i] || code;
 
-    // Ultimo anno con dati per import totale
+    // Ultimo anno con dati dalla serie storica (= export IT→paese)
     const lastYearData = serie.length > 0 ? serie[serie.length - 1] : null;
 
-    // Trova posizione e quota dell'esportatore dai top suppliers
+    // === IMPORT TOTALE del paese da TUTTO IL MONDO ===
+    // Fonte primaria: topSuppliers.import_totale_usd (Comtrade con reporter=paese, partner=0)
+    // Fallback: web_enrichment.trade_map.import_totale_usd
+    // MAI usare lastYearData che è export IT→paese
+    let importTotaleVal = null;
+    let importTotaleAnno = null;
+    let importTotaleFonte = null;
+
+    if (topSuppliers?.import_totale_usd && topSuppliers.import_totale_usd > 0) {
+      importTotaleVal = `$${topSuppliers.import_totale_usd.toLocaleString('en-US')}`;
+      importTotaleAnno = String(topSuppliers.anno || '');
+      importTotaleFonte = topSuppliers.fonte || 'UN Comtrade';
+    } else if (webEnrichment?.trade_map?.import_totale_usd) {
+      importTotaleVal = webEnrichment.trade_map.import_totale_usd;
+      importTotaleAnno = webEnrichment.trade_map.anno_dati || '';
+      importTotaleFonte = webEnrichment.trade_map.fonte || 'Trade Map (web)';
+    }
+
+    // === EXPORT IT→PAESE (dalla serie storica) ===
+    let exportExporterVal = null;
+    let exportExporterAnno = null;
+    let exportExporterFonte = null;
+
+    if (lastYearData?.trade_value_usd > 0) {
+      exportExporterVal = `$${lastYearData.trade_value_usd.toLocaleString('en-US')}`;
+      exportExporterAnno = String(lastYearData.year);
+      exportExporterFonte = lastYearData.source || 'multi-source';
+    } else if (webEnrichment?.trade_map?.export_italia_usd) {
+      exportExporterVal = webEnrichment.trade_map.export_italia_usd;
+      exportExporterAnno = webEnrichment.trade_map.anno_dati || '';
+      exportExporterFonte = webEnrichment.trade_map.fonte || 'Trade Map (web)';
+    }
+
+    // === TOP FORNITORI ===
+    // Fonte primaria: topSuppliers.top_fornitori (Comtrade)
+    // Fallback: web_enrichment.trade_map.top_esportatori
+    let topFornitoriArr = [];
+    if (topSuppliers?.top_fornitori?.length > 0) {
+      topFornitoriArr = topSuppliers.top_fornitori.map(f => ({
+        paese: f.paese,
+        valore_usd: `$${f.valore_usd?.toLocaleString('en-US') || '0'}`,
+        quota_percentuale: f.quota_percentuale,
+        fonte: f.fonte || 'UN Comtrade'
+      }));
+    } else if (webEnrichment?.trade_map?.top_esportatori?.length > 0) {
+      topFornitoriArr = webEnrichment.trade_map.top_esportatori.map(f => ({
+        paese: f.paese || f.name || '',
+        valore_usd: null,
+        quota_percentuale: f.quota || f.share || 'N/D',
+        fonte: 'Trade Map (web)'
+      }));
+    }
+
+    // === QUOTA ITALIA e POSIZIONE ===
     let posizioneExporter = null;
     let quotaExporter = null;
-    if (topSuppliers?.top_fornitori) {
+
+    // Da topSuppliers Comtrade
+    if (topSuppliers?.top_fornitori?.length > 0) {
       const exporterName = exporterCode === 'IT' ? 'Italy' : exporterCode;
       const idx = topSuppliers.top_fornitori.findIndex(f =>
         f.paese?.toLowerCase().includes(exporterName.toLowerCase()) ||
@@ -252,22 +307,26 @@ export async function fetchTradeData(hsCode6, mercatiCodes, mercatiNames, export
       }
     }
 
+    // Fallback: calcola quota da export_IT / import_totale
+    if (!quotaExporter && lastYearData?.trade_value_usd > 0 && topSuppliers?.import_totale_usd > 0) {
+      const quotaPct = (lastYearData.trade_value_usd / topSuppliers.import_totale_usd * 100);
+      if (quotaPct > 0 && quotaPct <= 100) {
+        quotaExporter = `${quotaPct.toFixed(1)}%`;
+      }
+    }
+
     return {
       paese_code: code,
       paese_nome: name,
-      import_totale: topSuppliers ? {
-        valore_usd: topSuppliers.import_totale_usd ? `$${topSuppliers.import_totale_usd.toLocaleString('en-US')}` : (lastYearData ? `$${lastYearData.trade_value_usd.toLocaleString('en-US')}` : null),
-        anno: String(topSuppliers.anno || (lastYearData?.year)),
-        fonte: topSuppliers.fonte || lastYearData?.source || 'N/D'
-      } : (lastYearData ? {
-        valore_usd: `$${lastYearData.trade_value_usd.toLocaleString('en-US')}`,
-        anno: String(lastYearData.year),
-        fonte: lastYearData.source || 'N/D'
-      } : { valore_usd: null, anno: null, fonte: null }),
+      import_totale: {
+        valore_usd: importTotaleVal,
+        anno: importTotaleAnno,
+        fonte: importTotaleFonte
+      },
       export_from_exporter: {
-        valore_usd: lastYearData ? `$${lastYearData.trade_value_usd.toLocaleString('en-US')}` : null,
-        anno: lastYearData ? String(lastYearData.year) : null,
-        fonte: lastYearData?.source || 'N/D'
+        valore_usd: exportExporterVal,
+        anno: exportExporterAnno,
+        fonte: exportExporterFonte
       },
       serie_storica: serie.map(s => ({
         anno: s.year,
@@ -281,12 +340,7 @@ export async function fetchTradeData(hsCode6, mercatiCodes, mercatiNames, export
         price_per_kg_usd: s.price_per_kg_usd || null,
         discrepancy: s.discrepancy || false
       })),
-      top_fornitori: (topSuppliers?.top_fornitori || []).map(f => ({
-        paese: f.paese,
-        valore_usd: `$${f.valore_usd?.toLocaleString('en-US') || '0'}`,
-        quota_percentuale: f.quota_percentuale,
-        fonte: f.fonte || 'UN Comtrade'
-      })),
+      top_fornitori: topFornitoriArr,
       posizione_exporter: posizioneExporter,
       quota_exporter: quotaExporter,
       dazi: tariffs ? {
