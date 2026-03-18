@@ -307,7 +307,7 @@ export default function ExportSection({ user, exportManagers, selectedMapCountry
               <div>
                 <label className="text-xs font-medium mb-1.5 block" style={{ color: 'var(--app-text-primary)' }}>Canale preferito</label>
                 <Select value={exportForm.canale_preferito} onValueChange={(v) => setExportForm({ ...exportForm, canale_preferito: v })}>
-                  <SelectTrigger className="h-10 rounded-xl text-xs"><SelectValue placeholder="Seleziona" /></SelectTrigger>
+                  <SelectTrigger className="h-10 rounded-xl text-xs" style={{ background: 'var(--app-bg-input)', color: 'var(--app-text-primary)', border: '1px solid var(--app-border)' }}><SelectValue placeholder="Seleziona" /></SelectTrigger>
                   <SelectContent>
                     <SelectItem value="Online">Online / Marketplace</SelectItem>
                     <SelectItem value="Distributore">Distributore / Agente</SelectItem>
@@ -325,7 +325,7 @@ export default function ExportSection({ user, exportManagers, selectedMapCountry
               </p>
               <Input type="number" step="0.01" min="0" placeholder="Costo per unità (es. 5.00 €)" value={exportForm.costo_industriale}
                 onChange={(e) => setExportForm({ ...exportForm, costo_industriale: e.target.value })}
-                className="h-11 rounded-xl" />
+                className="h-11 rounded-xl" style={{ background: 'var(--app-bg-input)', color: 'var(--app-text-primary)', border: '1px solid var(--app-border)' }} />
             </div>
 
             <div>
