@@ -446,17 +446,32 @@ export default function ExportSection({ user, exportManagers, selectedMapCountry
                     className="h-11 rounded-xl" style={{ background: 'var(--app-bg-input)', color: 'var(--app-text-primary)', border: '1px solid var(--app-border)' }} />
                 </div>
               </div>
-              {exportForm.lunghezza_cm && exportForm.larghezza_cm && exportForm.altezza_cm && (
-                <div className="rounded-xl px-3 py-2 flex items-center gap-2" style={{ background: 'var(--app-bg-input)', border: '1px solid var(--app-border)' }}>
-                  <span className="text-[10px]" style={{ color: 'var(--app-text-secondary)' }}>Volume calcolato:</span>
-                  <span className="font-bold text-xs" style={{ color: 'var(--app-text-primary)' }}>
-                    {(parseFloat(exportForm.lunghezza_cm) * parseFloat(exportForm.larghezza_cm) * parseFloat(exportForm.altezza_cm)).toLocaleString('it-IT')} cm³
-                  </span>
-                  <span className="text-[10px]" style={{ color: 'var(--app-text-muted)' }}>
-                    ({((parseFloat(exportForm.lunghezza_cm) * parseFloat(exportForm.larghezza_cm) * parseFloat(exportForm.altezza_cm)) / 1000000).toFixed(4)} m³)
-                  </span>
-                </div>
-              )}
+              {exportForm.lunghezza_cm && exportForm.larghezza_cm && exportForm.altezza_cm && (() => {
+                const volUnitaCm3 = parseFloat(exportForm.lunghezza_cm) * parseFloat(exportForm.larghezza_cm) * parseFloat(exportForm.altezza_cm);
+                const volUnitaM3 = volUnitaCm3 / 1000000;
+                const nUnita = parseInt(exportForm.numero_unita_spedizione) || 0;
+                const tipoLabel = exportForm.tipo_unita_spedizione === 'bancale' ? 'bancale' : 'confezione';
+                return (
+                  <div className="rounded-xl px-3 py-2.5 space-y-1.5" style={{ background: 'var(--app-bg-input)', border: '1px solid var(--app-border)' }}>
+                    <div className="flex items-center justify-between">
+                      <span className="text-[10px]" style={{ color: 'var(--app-text-secondary)' }}>Volume per {tipoLabel}:</span>
+                      <div className="flex items-center gap-1.5">
+                        <span className="font-bold text-xs" style={{ color: 'var(--app-text-primary)' }}>{volUnitaCm3.toLocaleString('it-IT')} cm³</span>
+                        <span className="text-[10px]" style={{ color: 'var(--app-text-muted)' }}>({volUnitaM3.toFixed(4)} m³)</span>
+                      </div>
+                    </div>
+                    {nUnita > 1 && (
+                      <div className="flex items-center justify-between pt-1" style={{ borderTop: '1px dashed var(--app-border)' }}>
+                        <span className="text-[10px] font-medium" style={{ color: 'var(--app-text-secondary)' }}>Totale ({nUnita} {tipoLabel === 'bancale' ? 'bancali' : 'confezioni'}):</span>
+                        <div className="flex items-center gap-1.5">
+                          <span className="font-bold text-xs" style={{ color: 'var(--app-accent)' }}>{(volUnitaCm3 * nUnita).toLocaleString('it-IT')} cm³</span>
+                          <span className="text-[10px]" style={{ color: 'var(--app-text-muted)' }}>({(volUnitaM3 * nUnita).toFixed(4)} m³)</span>
+                        </div>
+                      </div>
+                    )}
+                  </div>
+                );
+              })()}
             </div>
 
             {(exportForm.settore === 'Alimentare e bevande' || exportForm.settore === 'Agricoltura e agroalimentare') && (
