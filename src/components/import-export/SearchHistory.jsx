@@ -1,13 +1,14 @@
 import React from 'react';
-import { useQuery } from '@tanstack/react-query';
+import { useQuery, useMutation, useQueryClient } from '@tanstack/react-query';
 import { base44 } from '@/api/base44Client';
-import { Card, CardContent } from '@/components/ui/card';
 import { Badge } from '@/components/ui/badge';
-import { TrendingUp, Ship, Loader2, Clock, Package, MapPin, Settings } from 'lucide-react';
+import { TrendingUp, Ship, Loader2, Clock, Package, MapPin, Trash2, Eye, Settings } from 'lucide-react';
 import { Link } from 'react-router-dom';
 import { createPageUrl } from '@/utils';
 
 export default function SearchHistory({ userEmail, onOpenAnalysis }) {
+  const queryClient = useQueryClient();
+
   const { data: logs = [], isLoading } = useQuery({
     queryKey: ['search-history', userEmail],
     queryFn: () => base44.entities.UsageLog.filter(
@@ -16,6 +17,13 @@ export default function SearchHistory({ userEmail, onOpenAnalysis }) {
       50
     ),
     enabled: !!userEmail,
+  });
+
+  const deleteMutation = useMutation({
+    mutationFn: (logId) => base44.entities.UsageLog.delete(logId),
+    onSuccess: () => {
+      queryClient.invalidateQueries({ queryKey: ['search-history', userEmail] });
+    },
   });
 
   if (isLoading) {
@@ -28,93 +36,117 @@ export default function SearchHistory({ userEmail, onOpenAnalysis }) {
 
   if (logs.length === 0) {
     return (
-      <Card className="bg-slate-800/50 border-white/5">
-        <CardContent className="p-6 text-center">
-          <Clock className="w-8 h-8 text-slate-600 mx-auto mb-3" />
-          <p className="text-slate-400 text-sm">Nessuna ricerca effettuata</p>
-          <p className="text-slate-500 text-xs mt-1">Le tue analisi Export e Import appariranno qui</p>
-        </CardContent>
-      </Card>
+      <div className="rounded-xl p-6 text-center" style={{ background: 'rgba(10, 15, 26, 0.95)', border: '1px solid rgba(255,255,255,0.08)' }}>
+        <Clock className="w-8 h-8 text-slate-600 mx-auto mb-3" />
+        <p className="text-white/70 text-sm">Nessuna ricerca effettuata</p>
+        <p className="text-white/40 text-xs mt-1">Le tue analisi Export e Import appariranno qui</p>
+      </div>
     );
   }
 
   return (
     <div className="space-y-3">
       <Link to={createPageUrl('MyProfile') + '?tab=profilo&scrollTo=export'}>
-        <div className="flex items-center gap-3 bg-slate-800/60 border border-lime-400/20 rounded-xl px-4 py-3 hover:border-lime-400/40 transition-colors cursor-pointer mb-2">
+        <div className="flex items-center gap-3 rounded-xl px-4 py-3 hover:border-lime-400/40 transition-colors cursor-pointer mb-2"
+          style={{ background: 'rgba(10, 15, 26, 0.95)', border: '1px solid rgba(132, 255, 0, 0.15)' }}>
           <Settings className="w-5 h-5 text-lime-400" />
           <div className="flex-1">
             <p className="text-white text-sm font-medium">Gestisci prodotti export</p>
-            <p className="text-slate-400 text-[10px]">Aggiungi, modifica o rimuovi i tuoi prodotti nel profilo</p>
+            <p className="text-white/40 text-[10px]">Aggiungi, modifica o rimuovi i tuoi prodotti nel profilo</p>
           </div>
           <span className="text-lime-400 text-xs">→</span>
         </div>
       </Link>
+
       {logs.map((log) => {
         const isExport = log.action_type === 'export_analysis';
         const meta = log.search_meta || {};
         const date = new Date(log.created_date);
         const formattedDate = date.toLocaleDateString('it-IT', { day: '2-digit', month: 'short', year: 'numeric' });
         const formattedTime = date.toLocaleTimeString('it-IT', { hour: '2-digit', minute: '2-digit' });
-
         const hasSnapshot = !!log.analysis_snapshot?.analysisResult;
 
         return (
-          <div key={log.id} 
-            className="rounded-xl border border-white/10 hover:border-white/20 transition-all cursor-pointer active:scale-[0.98]"
-            style={{ background: 'rgba(10, 15, 26, 0.95)' }}
-            onClick={() => { if (onOpenAnalysis) onOpenAnalysis(log); }}>
+          <div key={log.id}
+            className="rounded-xl overflow-hidden transition-all"
+            style={{ background: 'rgba(10, 15, 26, 0.95)', border: '1px solid rgba(255,255,255,0.08)' }}>
+
+            {/* Riga principale */}
             <div className="p-4">
-              <div className="flex items-start gap-3">
-                <div className={`w-9 h-9 rounded-xl flex items-center justify-center flex-shrink-0 ${
+              {/* Titolo prodotto */}
+              <div className="flex items-center gap-2 mb-2">
+                <div className={`w-7 h-7 rounded-lg flex items-center justify-center flex-shrink-0 ${
                   isExport ? 'bg-lime-500/15' : 'bg-red-500/15'
                 }`}>
-                  {isExport 
-                    ? <TrendingUp className="w-4 h-4 text-lime-400" />
-                    : <Ship className="w-4 h-4 text-red-400" />
+                  {isExport
+                    ? <TrendingUp className="w-3.5 h-3.5 text-lime-400" />
+                    : <Ship className="w-3.5 h-3.5 text-red-400" />
                   }
                 </div>
-                <div className="flex-1 min-w-0">
-                  <div className="flex items-center gap-2 mb-1">
-                    <Badge variant="outline" className={`text-[10px] px-1.5 py-0 ${
-                      isExport ? 'text-lime-400 border-lime-400/30' : 'text-red-400 border-red-400/30'
-                    }`}>
-                      {isExport ? 'EXPORT' : 'IMPORT'}
-                    </Badge>
-                    <span className="text-slate-400 text-[10px]">{formattedDate} · {formattedTime}</span>
-                    {hasSnapshot && (
-                      <Badge variant="outline" className="text-[10px] px-1.5 py-0 text-emerald-400 border-emerald-400/30">
-                        Rivedi
-                      </Badge>
-                    )}
-                  </div>
-                  
-                  <p className="text-white text-sm font-semibold truncate">
-                    {log.search_label || meta.prodotto || '—'}
-                  </p>
+                <p className="text-white font-semibold text-sm flex-1 truncate">
+                  {log.search_label || meta.prodotto || '—'}
+                </p>
+                <Badge variant="outline" className={`text-[10px] px-1.5 py-0 flex-shrink-0 ${
+                  isExport ? 'text-lime-400 border-lime-400/30' : 'text-red-400 border-red-400/30'
+                }`}>
+                  {isExport ? 'EXPORT' : 'IMPORT'}
+                </Badge>
+              </div>
 
-                  <div className="flex flex-wrap gap-1.5 mt-2">
-                    {meta.hs_code && (
-                      <span className="inline-flex items-center gap-1 text-[10px] text-white/70 bg-white/5 px-2 py-0.5 rounded-full">
-                        <Package className="w-3 h-3" /> HS {meta.hs_code}
-                      </span>
-                    )}
-                    {meta.mercati?.length > 0 && (
-                      <span className="inline-flex items-center gap-1 text-[10px] text-white/70 bg-white/5 px-2 py-0.5 rounded-full">
-                        <MapPin className="w-3 h-3" /> {meta.mercati.slice(0, 3).join(', ')}{meta.mercati.length > 3 ? ` +${meta.mercati.length - 3}` : ''}
-                      </span>
-                    )}
-                    {meta.settore && (
-                      <span className="text-[10px] text-white/60 bg-white/5 px-2 py-0.5 rounded-full">
-                        {meta.settore}
-                      </span>
-                    )}
-                    {meta.tipo_richiesta && (
-                      <span className="text-[10px] text-white/60 bg-white/5 px-2 py-0.5 rounded-full">
-                        {meta.tipo_richiesta}
-                      </span>
-                    )}
-                  </div>
+              {/* Info chips: HS code, settore, mercati */}
+              <div className="flex flex-wrap gap-1.5 mb-2.5">
+                {meta.hs_code && (
+                  <span className="inline-flex items-center gap-1 text-[10px] text-white/70 bg-white/8 px-2 py-0.5 rounded-full">
+                    <Package className="w-3 h-3" /> HS {meta.hs_code}
+                  </span>
+                )}
+                {meta.settore && (
+                  <span className="text-[10px] text-white/60 bg-white/8 px-2 py-0.5 rounded-full">
+                    {meta.settore}
+                  </span>
+                )}
+                {meta.mercati?.length > 0 && (
+                  <span className="inline-flex items-center gap-1 text-[10px] text-white/70 bg-white/8 px-2 py-0.5 rounded-full">
+                    <MapPin className="w-3 h-3" /> {meta.mercati.slice(0, 3).join(', ')}{meta.mercati.length > 3 ? ` +${meta.mercati.length - 3}` : ''}
+                  </span>
+                )}
+                {meta.tipo_richiesta && (
+                  <span className="text-[10px] text-white/60 bg-white/8 px-2 py-0.5 rounded-full">
+                    {meta.tipo_richiesta}
+                  </span>
+                )}
+              </div>
+
+              {/* Riga: data/ora + azioni */}
+              <div className="flex items-center justify-between">
+                <span className="text-white/40 text-[10px]">{formattedDate} · {formattedTime}</span>
+
+                <div className="flex items-center gap-2">
+                  {hasSnapshot && (
+                    <button
+                      onClick={(e) => {
+                        e.stopPropagation();
+                        if (onOpenAnalysis) onOpenAnalysis(log);
+                      }}
+                      className="flex items-center gap-1.5 px-3 py-1.5 rounded-lg text-[11px] font-semibold transition-all active:scale-95"
+                      style={{ background: 'rgba(132, 255, 0, 0.15)', color: '#84ff00' }}
+                    >
+                      <Eye className="w-3.5 h-3.5" />
+                      Rivedi
+                    </button>
+                  )}
+                  <button
+                    onClick={(e) => {
+                      e.stopPropagation();
+                      if (confirm('Eliminare questa ricerca dallo storico?')) {
+                        deleteMutation.mutate(log.id);
+                      }
+                    }}
+                    className="flex items-center gap-1 px-2.5 py-1.5 rounded-lg text-[11px] font-medium transition-all active:scale-95"
+                    style={{ background: 'rgba(239, 68, 68, 0.12)', color: '#f87171' }}
+                  >
+                    <Trash2 className="w-3.5 h-3.5" />
+                  </button>
                 </div>
               </div>
             </div>
