@@ -65,14 +65,26 @@ export default function SearchHistory({ userEmail, onOpenAnalysis }) {
         const formattedDate = date.toLocaleDateString('it-IT', { day: '2-digit', month: 'short', year: 'numeric' });
         const formattedTime = date.toLocaleTimeString('it-IT', { hour: '2-digit', minute: '2-digit' });
         const hasSnapshot = !!log.analysis_snapshot?.analysisResult;
+        const title = log.search_label || meta.prodotto || 'Analisi senza titolo';
 
         return (
           <div key={log.id}
-            className="rounded-xl overflow-hidden transition-all"
-            style={{ background: 'rgba(10, 15, 26, 0.95)', border: '1px solid rgba(255,255,255,0.08)' }}>
+            onClick={() => { if (hasSnapshot && onOpenAnalysis) onOpenAnalysis(log); }}
+            className={`rounded-xl overflow-hidden transition-all ${hasSnapshot ? 'cursor-pointer active:scale-[0.98]' : ''}`}
+            style={{ background: 'rgba(10, 15, 26, 0.95)', border: hasSnapshot ? '1px solid rgba(132, 255, 0, 0.15)' : '1px solid rgba(255,255,255,0.08)' }}>
+
+            {/* Data in alto */}
+            <div className="flex items-center justify-between px-4 pt-3 pb-1">
+              <span className="text-white/50 text-[10px] font-medium">{formattedDate} · {formattedTime}</span>
+              <Badge variant="outline" className={`text-[10px] px-1.5 py-0 flex-shrink-0 ${
+                isExport ? 'text-lime-400 border-lime-400/30' : 'text-red-400 border-red-400/30'
+              }`}>
+                {isExport ? 'EXPORT' : 'IMPORT'}
+              </Badge>
+            </div>
 
             {/* Riga principale */}
-            <div className="p-4">
+            <div className="px-4 pb-3">
               {/* Titolo prodotto */}
               <div className="flex items-center gap-2 mb-2">
                 <div className={`w-7 h-7 rounded-lg flex items-center justify-center flex-shrink-0 ${
@@ -83,14 +95,9 @@ export default function SearchHistory({ userEmail, onOpenAnalysis }) {
                     : <Ship className="w-3.5 h-3.5 text-red-400" />
                   }
                 </div>
-                <p className="text-white font-semibold text-sm flex-1 truncate">
-                  {log.search_label || meta.prodotto || '—'}
+                <p className="text-white font-semibold text-sm flex-1">
+                  {title}
                 </p>
-                <Badge variant="outline" className={`text-[10px] px-1.5 py-0 flex-shrink-0 ${
-                  isExport ? 'text-lime-400 border-lime-400/30' : 'text-red-400 border-red-400/30'
-                }`}>
-                  {isExport ? 'EXPORT' : 'IMPORT'}
-                </Badge>
               </div>
 
               {/* Info chips: HS code, settore, mercati */}
@@ -117,37 +124,27 @@ export default function SearchHistory({ userEmail, onOpenAnalysis }) {
                 )}
               </div>
 
-              {/* Riga: data/ora + azioni */}
+              {/* Azioni */}
               <div className="flex items-center justify-between">
-                <span className="text-white/40 text-[10px]">{formattedDate} · {formattedTime}</span>
-
-                <div className="flex items-center gap-2">
-                  {hasSnapshot && (
-                    <button
-                      onClick={(e) => {
-                        e.stopPropagation();
-                        if (onOpenAnalysis) onOpenAnalysis(log);
-                      }}
-                      className="flex items-center gap-1.5 px-3 py-1.5 rounded-lg text-[11px] font-semibold transition-all active:scale-95"
-                      style={{ background: 'rgba(132, 255, 0, 0.15)', color: '#84ff00' }}
-                    >
-                      <Eye className="w-3.5 h-3.5" />
-                      Rivedi
-                    </button>
-                  )}
-                  <button
-                    onClick={(e) => {
-                      e.stopPropagation();
-                      if (confirm('Eliminare questa ricerca dallo storico?')) {
-                        deleteMutation.mutate(log.id);
-                      }
-                    }}
-                    className="flex items-center gap-1 px-2.5 py-1.5 rounded-lg text-[11px] font-medium transition-all active:scale-95"
-                    style={{ background: 'rgba(239, 68, 68, 0.12)', color: '#f87171' }}
-                  >
-                    <Trash2 className="w-3.5 h-3.5" />
-                  </button>
-                </div>
+                {hasSnapshot ? (
+                  <span className="text-lime-400 text-[11px] font-semibold flex items-center gap-1">
+                    <Eye className="w-3.5 h-3.5" /> Tocca per rivedere
+                  </span>
+                ) : (
+                  <span className="text-white/30 text-[10px]">Nessuno snapshot disponibile</span>
+                )}
+                <button
+                  onClick={(e) => {
+                    e.stopPropagation();
+                    if (confirm('Eliminare questa ricerca dallo storico?')) {
+                      deleteMutation.mutate(log.id);
+                    }
+                  }}
+                  className="flex items-center gap-1 px-2.5 py-1.5 rounded-lg text-[11px] font-medium transition-all active:scale-95"
+                  style={{ background: 'rgba(239, 68, 68, 0.12)', color: '#f87171' }}
+                >
+                  <Trash2 className="w-3.5 h-3.5" />
+                </button>
               </div>
             </div>
           </div>
