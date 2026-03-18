@@ -248,6 +248,32 @@ export default function ShippingComparator({ formData }) {
             ))}
           </div>
 
+          {/* AI Source info */}
+          {result.ai_source && (
+            <div className="bg-purple-500/10 border border-purple-500/20 rounded-xl p-3 space-y-1.5">
+              <div className="flex items-center gap-2">
+                <Brain className="w-4 h-4 text-purple-400" />
+                <span className="text-purple-300 text-xs font-bold">Stime basate su dati di mercato</span>
+                <span className={`ml-auto text-[9px] font-bold px-2 py-0.5 rounded-full ${
+                  result.ai_source.confidence === 'high' ? 'bg-green-500/20 text-green-400' :
+                  result.ai_source.confidence === 'medium' ? 'bg-amber-500/20 text-amber-400' :
+                  'bg-red-500/20 text-red-400'
+                }`}>
+                  {result.ai_source.confidence === 'high' ? 'Alta affidabilità' :
+                   result.ai_source.confidence === 'medium' ? 'Media affidabilità' : 'Bassa affidabilità'}
+                </span>
+              </div>
+              {result.ai_source.sources_used && (
+                <p className="text-purple-200/70 text-[10px] flex items-center gap-1">
+                  <Globe className="w-3 h-3" /> {result.ai_source.sources_used}
+                </p>
+              )}
+              {result.ai_source.notes && (
+                <p className="text-slate-400 text-[10px]">{result.ai_source.notes}</p>
+              )}
+            </div>
+          )}
+
           {/* Disclaimer */}
           {result.disclaimer && (
             <div className="bg-blue-500/5 border border-blue-500/15 rounded-xl p-3 flex items-start gap-2">
