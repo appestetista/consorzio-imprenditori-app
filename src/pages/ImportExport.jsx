@@ -65,21 +65,22 @@ export default function ImportExport() {
 
   return (
     <div className="min-h-screen pb-64" style={{ backgroundColor: 'var(--app-bg)' }}>
+      {/* Zona superiore con gradiente scuro → giallo */}
+      <div style={{
+        background: 'linear-gradient(180deg, #1a1400 0%, #3d2e00 18%, #6b5500 35%, #9a7d00 50%, #c9a800 65%, #e2c800 78%, #f0e000 88%, var(--app-bg) 100%)',
+      }}>
       <main className="px-4 py-6 max-w-md mx-auto">
         {/* Header */}
         <div className="flex items-center justify-between mb-6">
           <div className="flex items-center gap-3">
-            <Link to={createPageUrl('Esplora?tab=strumenti')} className="text-black p-3 -m-3 rounded-full back-arrow-tap hover:text-black/70 transition-colors">
+            <Link to={createPageUrl('Esplora?tab=strumenti')} className="text-white p-3 -m-3 rounded-full back-arrow-tap hover:text-white/70 transition-colors">
               <ArrowLeft className="w-6 h-6" />
             </Link>
-            <h1 className="text-black text-xl font-bold">
+            <h1 className="text-white text-xl font-bold">
               {isExport || activeTab === 'history' ? 'Export' : 'Import'}
             </h1>
           </div>
-          {/* Icone gestite dal GlobalHeader */}
         </div>
-
-
 
         {/* Usage Counter */}
         {user && !isLimitReached && activeTab !== 'history' && (
@@ -113,7 +114,10 @@ export default function ImportExport() {
             </button>
           </div>
         )}
+      </main>
+      </div>
 
+      <main className="px-4 max-w-md mx-auto">
         {/* Contenuto per tab */}
         <AnalysisErrorBoundary>
         {activeTab === 'messages' ? (
