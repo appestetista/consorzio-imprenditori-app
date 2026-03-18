@@ -193,7 +193,7 @@ export default function ShippingComparator({ formData }) {
       </div>
 
       <p className="text-slate-400 text-[10px] mb-3">
-        Calcola automaticamente quanti container/camion servono e confronta i prezzi reali da Freightos Marketplace.
+        Calcola ingombri e confronta prezzi di mercato reali (Freightos + indici Xeneta/Drewry via AI).
       </p>
 
       <Button
@@ -202,7 +202,7 @@ export default function ShippingComparator({ formData }) {
         className="w-full bg-gradient-to-r from-cyan-500 to-blue-500 text-white font-bold h-11 rounded-xl shadow-lg shadow-cyan-500/20 hover:shadow-cyan-500/30 disabled:opacity-50 mb-4"
       >
         {loading ? (
-          <><Loader2 className="w-5 h-5 mr-2 animate-spin" /> Interrogazione Freightos API...</>
+          <><Loader2 className="w-5 h-5 mr-2 animate-spin" /> Analisi prezzi di mercato...</>
         ) : (
           <><Ship className="w-5 h-5 mr-2" /> Calcola Ingombri e Confronta Prezzi</>
         )}
