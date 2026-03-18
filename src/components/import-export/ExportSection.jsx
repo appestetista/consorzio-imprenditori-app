@@ -320,8 +320,8 @@ export default function ExportSection({ user, exportManagers, selectedMapCountry
 
             <div>
               <label className="text-xs font-medium mb-1.5 block" style={{ color: 'var(--app-text-primary)' }}>Costo industriale per unità – COGS (€)</label>
-              <p className="text-[10px] mb-2 leading-relaxed">
-                È il costo reale per produrre una singola unità del tuo prodotto. Include: materie prime, manodopera, lavorazione e confezionamento. Esempio: se produci una sedia e spendi 50 € tra materiali, lavoro e packaging → il tuo COGS è 50 €. È il punto di partenza per calcolare il margine reale sull'export.
+              <p className="text-xs mb-2 leading-relaxed" style={{ color: 'var(--app-text-secondary)' }}>
+                È il costo reale per produrre una singola unità del tuo prodotto. Include: materie prime, manodopera, lavorazione e confezionamento. Esempio: se produci una sedia e spendi 50 € tra materiali, lavoro e packaging → il tuo COGS è 50 €.
               </p>
               <Input type="number" step="0.01" min="0" placeholder="Costo per unità (es. 5.00 €)" value={exportForm.costo_industriale}
                 onChange={(e) => setExportForm({ ...exportForm, costo_industriale: e.target.value })}
@@ -457,7 +457,7 @@ export default function ExportSection({ user, exportManagers, selectedMapCountry
             {(exportForm.settore === 'Alimentare e bevande' || exportForm.settore === 'Agricoltura e agroalimentare') && (
               <div>
                 <label className="text-xs font-medium mb-1.5 block" style={{ color: 'var(--app-text-primary)' }}>Shelf Life (durata del prodotto)</label>
-                <p className="text-[10px] mb-2 leading-relaxed">
+                <p className="text-xs mb-2 leading-relaxed" style={{ color: 'var(--app-text-secondary)' }}>
                   È il tempo massimo entro cui il prodotto resta vendibile dalla data di produzione. Serve a determinare quali mercati puoi raggiungere: una shelf life breve limita l'export a paesi vicini o richiede trasporto aereo (più costoso).
                 </p>
                 <div className="grid grid-cols-5 gap-2">
@@ -492,7 +492,7 @@ export default function ExportSection({ user, exportManagers, selectedMapCountry
 
             <div>
               <label className="text-xs font-medium mb-1.5 block" style={{ color: 'var(--app-text-primary)' }}>Esperienza Export</label>
-              <p className="text-[10px] mb-2 leading-relaxed">
+              <p className="text-xs mb-2 leading-relaxed" style={{ color: 'var(--app-text-secondary)' }}>
                 Il livello di esperienza della tua azienda nell'export. Serve ad adattare la strategia: se non hai mai esportato ti verranno suggeriti mercati più accessibili, se hai esperienza Extra UE potrai valutare mercati più complessi.
               </p>
               <div className="grid grid-cols-3 gap-2">
@@ -511,7 +511,7 @@ export default function ExportSection({ user, exportManagers, selectedMapCountry
 
             <div>
               <label className="text-xs font-medium mb-1.5 block" style={{ color: 'var(--app-text-primary)' }}>Obiettivo Export</label>
-              <p className="text-[10px] mb-2 leading-relaxed">
+              <p className="text-xs mb-2 leading-relaxed" style={{ color: 'var(--app-text-secondary)' }}>
                 Perché vuoi esportare? L'obiettivo influenza la strategia consigliata: un test di mercato richiede un approccio diverso rispetto a una distribuzione stabile o allo smaltimento di stock in eccesso.
               </p>
               <div className="grid grid-cols-2 gap-2">
@@ -531,7 +531,7 @@ export default function ExportSection({ user, exportManagers, selectedMapCountry
 
             <div>
               <label className="text-xs font-medium mb-1.5 block" style={{ color: 'var(--app-text-primary)' }}>Certificazioni possedute</label>
-              <p className="text-[10px] mb-2 leading-relaxed">
+              <p className="text-xs mb-2 leading-relaxed" style={{ color: 'var(--app-text-secondary)' }}>
                 Seleziona le certificazioni che la tua azienda possiede. Influenzano i mercati raggiungibili e i requisiti normativi.
               </p>
               <div className="grid grid-cols-2 gap-2">
