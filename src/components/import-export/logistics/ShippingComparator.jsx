@@ -1,6 +1,6 @@
 import React, { useState } from 'react';
 import { base44 } from '@/api/base44Client';
-import { Loader2, Ship, Truck, Package, Trophy, AlertTriangle, ArrowRight, Scale, Box, Clock, DollarSign, Check } from 'lucide-react';
+import { Loader2, Ship, Truck, Package, Trophy, AlertTriangle, ArrowRight, Scale, Box, Clock, DollarSign, Check, Brain, Globe } from 'lucide-react';
 import { Button } from '@/components/ui/button';
 
 function ScenarioCard({ scenario, isBest }) {
