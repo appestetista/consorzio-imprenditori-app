@@ -24,7 +24,8 @@ const EMPTY_PRODUCT = {
   costo_industriale: '', margine_disponibile: '',
   peso_kg: '', lunghezza_cm: '', larghezza_cm: '', altezza_cm: '',
   shelf_life_valore: '', shelf_life_unita: '',
-  esperienza_export: '', obiettivo_export: '', certificazioni: []
+  esperienza_export: '', obiettivo_export: '', certificazioni: [],
+  data_inserimento: ''
 };
 
 export default function ExportProfileSection({ formData, setFormData }) {
