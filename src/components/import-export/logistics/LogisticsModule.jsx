@@ -3,15 +3,18 @@ import { Ship, Plane, ChevronDown, ChevronUp, X } from 'lucide-react';
 import { base44 } from '@/api/base44Client';
 import LogisticsForm from './LogisticsForm';
 import LogisticsResults from './LogisticsResults';
+import Cargo3DVisualizer from './Cargo3DVisualizer';
 
 export default function LogisticsModule({ countryOrigin, countryDest, hsCode, productDescription }) {
   const [open, setOpen] = useState(false);
   const [loading, setLoading] = useState(false);
   const [results, setResults] = useState(null);
+  const [lastFormData, setLastFormData] = useState(null);
 
   const handleSubmit = async (formData) => {
     setLoading(true);
     setResults(null);
+    setLastFormData(formData);
     try {
       const response = await base44.functions.invoke('logisticsQuote', formData);
       setResults(response.data);
@@ -69,6 +72,9 @@ export default function LogisticsModule({ countryOrigin, countryDest, hsCode, pr
             productDescription={productDescription}
           />
           <LogisticsResults results={results} />
+          {lastFormData?.volume_m3 && parseFloat(lastFormData.volume_m3) > 0 && (
+            <Cargo3DVisualizer volumeM3={lastFormData.volume_m3} weightKg={lastFormData.weight_kg} />
+          )}
         </div>
       )}
     </div>
