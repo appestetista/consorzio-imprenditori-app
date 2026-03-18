@@ -395,7 +395,6 @@ export default function ExportAnalysisResult({ analysisResult, tradeMetrics, mac
                 {/* Indicatori domanda */}
                 <DataRow label="Demand Score" value={m.domanda_locale.demand_score} />
                 <DataRow label="Import pro capite" value={m.domanda_locale.import_pro_capite} />
-                <DataRow label="Validazione coerenza" value={m.domanda_locale.validazione_coerenza} warning={m.domanda_locale.validazione_coerenza?.toLowerCase()?.includes('anomal')} />
                 {/* Analisi qualitativa */}
                 <div className="mt-2 pt-2 border-t border-white/5">
                   <DataRow label="Segmentazione" value={m.domanda_locale.segmentazione} />
