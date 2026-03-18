@@ -36,18 +36,24 @@ export default function ExportContactCard({
           </div>
         ) : (
           <div className="space-y-3">
-            <Select value={contactForm.exportManagerId} onValueChange={(value) => setContactForm({ ...contactForm, exportManagerId: value })}>
-              <SelectTrigger className="bg-slate-900 border-slate-700 text-white">
-                <SelectValue placeholder="Seleziona un Export Manager" />
-              </SelectTrigger>
-              <SelectContent>
-                {exportManagers.map((em) => (
-                  <SelectItem key={em.id} value={em.id}>
-                    {em.name} {em.city ? `- ${em.city}` : ''}
-                  </SelectItem>
-                ))}
-              </SelectContent>
-            </Select>
+            <div>
+              <label className="text-amber-400 text-xs font-bold mb-1.5 block">⭐ Seleziona Export Manager</label>
+              <Select value={contactForm.exportManagerId} onValueChange={(value) => setContactForm({ ...contactForm, exportManagerId: value })}>
+                <SelectTrigger className="bg-slate-900 border-2 border-amber-500/60 text-white ring-amber-500/30 ring-2 h-12 text-sm font-medium">
+                  <SelectValue placeholder="Scegli un Export Manager..." />
+                </SelectTrigger>
+                <SelectContent className="bg-slate-800 border-slate-600 z-[9999]">
+                  {exportManagers && exportManagers.length > 0 ? exportManagers.map((em) => (
+                    <SelectItem key={em.id} value={em.id} className="text-white hover:bg-slate-700 focus:bg-slate-700 focus:text-white cursor-pointer py-3">
+                      <span className="font-semibold">{em.name}</span>
+                      {em.city ? <span className="text-slate-400 ml-1">— {em.city}</span> : ''}
+                    </SelectItem>
+                  )) : (
+                    <div className="px-3 py-2 text-slate-400 text-sm">Nessun Export Manager disponibile</div>
+                  )}
+                </SelectContent>
+              </Select>
+            </div>
             <Input placeholder="Oggetto (es. Valutazione export USA)" value={contactForm.subject} onChange={(e) => setContactForm({ ...contactForm, subject: e.target.value })} className="bg-slate-900 border-slate-700 text-white" />
             <Textarea placeholder="Descrivi la tua richiesta, mercati di interesse, prodotti..." value={contactForm.message} onChange={(e) => setContactForm({ ...contactForm, message: e.target.value })} className="bg-slate-900 border-slate-700 text-white min-h-[100px]" />
             
