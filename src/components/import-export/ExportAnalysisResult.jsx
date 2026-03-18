@@ -281,13 +281,30 @@ export default function ExportAnalysisResult({ analysisResult, tradeMetrics, mac
                 <DataRow label="Quota Italia" value={m.flussi_commerciali.quota_italia} />
                 {m.flussi_commerciali.principali_fornitori?.length > 0 && (
                   <div className="mt-2 pt-2 border-t border-white/5">
-                    <p className="text-white/60 text-[10px] mb-1.5">Top fornitori</p>
-                    <div className="flex flex-wrap gap-1">
-                      {m.flussi_commerciali.principali_fornitori.slice(0, 5).map((f, i) => (
-                        <span key={i} className="bg-white/5 text-white px-2 py-0.5 rounded-md text-[10px]">
-                          {typeof f === 'string' ? f : `${f.paese || ''} ${f.quota_percentuale || ''}`}
-                        </span>
-                      ))}
+                    <p className="text-white/60 text-[10px] mb-1.5 flex items-center gap-1">
+                      Top fornitori
+                      <InfoTooltip title="Principali Fornitori">
+                        <p>I paesi che esportano di più verso questo mercato per questo prodotto. La quota indica la percentuale sul totale delle importazioni del paese.</p>
+                      </InfoTooltip>
+                    </p>
+                    <div className="space-y-1">
+                      {m.flussi_commerciali.principali_fornitori.slice(0, 8).map((f, i) => {
+                        const paese = typeof f === 'string' ? f : (f.paese || '');
+                        const quota = typeof f === 'string' ? '' : (f.quota_percentuale || '');
+                        const valore = typeof f === 'string' ? '' : (f.valore_usd || '');
+                        return (
+                          <div key={i} className="flex items-center justify-between bg-white/[0.03] rounded-lg px-2.5 py-1.5">
+                            <div className="flex items-center gap-2">
+                              <span className="text-white/40 text-[9px] font-bold w-4">#{i + 1}</span>
+                              <span className="text-white text-[11px] font-medium">{paese}</span>
+                            </div>
+                            <div className="flex items-center gap-2">
+                              {valore && <span className="text-white/50 text-[10px]">{valore}</span>}
+                              {quota && <span className="text-cyan-400 text-[10px] font-bold">{quota}</span>}
+                            </div>
+                          </div>
+                        );
+                      })}
                     </div>
                   </div>
                 )}
