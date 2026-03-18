@@ -45,7 +45,7 @@ export default function ImportExport() {
 
   const { data: exportManagers = [] } = useQuery({
     queryKey: ['export-managers'],
-    queryFn: () => base44.entities.Consultant.filter({ category: 'Internazionalizzazione/Export' }),
+    queryFn: () => base44.entities.Consultant.filter({ category: 'Export' }),
   });
 
   const { data: importUnreadCount = 0 } = useQuery({
