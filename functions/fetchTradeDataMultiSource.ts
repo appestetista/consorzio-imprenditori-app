@@ -208,40 +208,52 @@ async function fetchComtradeTopSuppliers(importerISO2, hsCode, year) {
   if (!importerM49) return null;
 
   const hs4 = String(hsCode).replace(/\D/g, '').substring(0, 4);
-  // Get all exporters to this importer for this HS code
-  const url = `https://comtradeapi.un.org/public/v1/preview/C/A/HS?reporterCode=${importerM49}&partnerCode=0&cmdCode=${hs4}&flowCode=M&period=${year}`;
-  console.log(`[Comtrade-TopSuppliers] Fetching top suppliers for ${importerISO2} HS${hs4} year=${year}`);
 
-  const resp = await fetch(url, { headers: { 'Accept': 'application/json' }, signal: AbortSignal.timeout(15000) });
-  if (!resp.ok) return null;
+  // Try the target year first, then fall back to year-1
+  for (const tryYear of [year, year - 1]) {
+    const url = `https://comtradeapi.un.org/public/v1/preview/C/A/HS?reporterCode=${importerM49}&partnerCode=0&cmdCode=${hs4}&flowCode=M&period=${tryYear}`;
+    console.log(`[Comtrade-TopSuppliers] Fetching top suppliers for ${importerISO2} HS${hs4} year=${tryYear}`);
 
-  const json = await resp.json();
-  const records = json?.data || [];
-  if (records.length === 0) return null;
+    try {
+      const resp = await fetch(url, { headers: { 'Accept': 'application/json' }, signal: AbortSignal.timeout(15000) });
+      if (!resp.ok) { console.log(`[Comtrade-TopSuppliers] HTTP ${resp.status} for year ${tryYear}`); continue; }
 
-  // Aggregate by partner
-  const byPartner = {};
-  let totalImport = 0;
-  for (const r of records) {
-    const partnerCode = r.partnerCode;
-    const partnerDesc = r.partnerDesc || r.partner || `M49:${partnerCode}`;
-    if (partnerCode === 0) continue; // Skip "World" aggregate
-    const val = r.primaryValue || 0;
-    if (val <= 0) continue;
-    if (!byPartner[partnerCode]) byPartner[partnerCode] = { name: partnerDesc, value: 0 };
-    byPartner[partnerCode].value += val;
-    totalImport += val;
+      const json = await resp.json();
+      const records = json?.data || [];
+      if (records.length === 0) { console.log(`[Comtrade-TopSuppliers] No data for year ${tryYear}`); continue; }
+
+      // Aggregate by partner
+      const byPartner = {};
+      let totalImport = 0;
+      for (const r of records) {
+        const partnerCode = r.partnerCode;
+        const partnerDesc = r.partnerDesc || r.partner || `M49:${partnerCode}`;
+        if (partnerCode === 0) continue; // Skip "World" aggregate
+        const val = r.primaryValue || 0;
+        if (val <= 0) continue;
+        if (!byPartner[partnerCode]) byPartner[partnerCode] = { name: partnerDesc, value: 0 };
+        byPartner[partnerCode].value += val;
+        totalImport += val;
+      }
+
+      if (totalImport <= 0) continue;
+
+      const sorted = Object.values(byPartner).sort((a, b) => b.value - a.value);
+      const top10 = sorted.slice(0, 10).map(s => ({
+        paese: s.name,
+        valore_usd: Math.round(s.value),
+        quota_percentuale: totalImport > 0 ? ((s.value / totalImport) * 100).toFixed(1) + '%' : 'N/D',
+        fonte: 'UN Comtrade'
+      }));
+
+      return { top_fornitori: top10, import_totale_usd: Math.round(totalImport), fonte: 'UN Comtrade', anno: tryYear };
+    } catch (e) {
+      console.log(`[Comtrade-TopSuppliers] Error year ${tryYear}: ${e.message}`);
+      continue;
+    }
   }
 
-  const sorted = Object.values(byPartner).sort((a, b) => b.value - a.value);
-  const top10 = sorted.slice(0, 10).map(s => ({
-    paese: s.name,
-    valore_usd: Math.round(s.value),
-    quota_percentuale: totalImport > 0 ? ((s.value / totalImport) * 100).toFixed(1) + '%' : 'N/D',
-    fonte: 'UN Comtrade'
-  }));
-
-  return { top_fornitori: top10, import_totale_usd: Math.round(totalImport), fonte: 'UN Comtrade', anno: year };
+  return null;
 }
 
 // ===== SOURCE 3: UN Comtrade Premium =====
