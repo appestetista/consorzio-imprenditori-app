@@ -94,25 +94,27 @@ export default function ExportProfileSection({ formData, setFormData }) {
       </Card>
 
       {/* Prodotti export */}
-      <div className="flex items-center justify-between">
-        <h3 className="text-white font-semibold text-sm flex items-center gap-2">
-          Prodotti Export ({prodotti.length})
-        </h3>
-        <Button onClick={addProduct} size="sm" className="bg-lime-400 hover:bg-lime-500 text-slate-900 text-xs">
-          <Plus className="w-3.5 h-3.5 mr-1" /> Aggiungi prodotto
+      <div className="space-y-2">
+        <Button onClick={addProduct} className="w-full bg-lime-400 hover:bg-lime-500 text-slate-900 text-sm font-bold h-11 rounded-xl">
+          <Plus className="w-4 h-4 mr-2" /> Aggiungi prodotto
         </Button>
+        <p className="text-slate-400 text-xs text-center">{prodotti.length} prodott{prodotti.length === 1 ? 'o' : 'i'} inserit{prodotti.length === 1 ? 'o' : 'i'}</p>
       </div>
 
-      {prodotti.map((product, i) => (
-        <ExportProductCard
-          key={i}
-          product={product}
-          index={i}
-          onChange={updateProduct}
-          onRemove={removeProduct}
-          canRemove={prodotti.length > 1}
-        />
-      ))}
+      {[...prodotti].map((product, _revIdx) => {
+        const originalIndex = prodotti.length - 1 - _revIdx;
+        const p = prodotti[originalIndex];
+        return (
+          <ExportProductCard
+            key={originalIndex}
+            product={p}
+            index={originalIndex}
+            onChange={updateProduct}
+            onRemove={removeProduct}
+            canRemove={prodotti.length > 1}
+          />
+        );
+      })}
     </div>
   );
 }
