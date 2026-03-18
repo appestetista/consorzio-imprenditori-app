@@ -781,7 +781,21 @@ export async function interpretData(tradeData, metricsResult, hsCode, hsDescrizi
   const rules = `${antiInventionRules}\nRegole formato: ogni numero con fonte e anno. Se N/D scrivi "Non disponibile". No frasi generiche. Rispondi per OGNI Paese: ${ctx.paeseNames}`;
 
   // === MODULO A: Market Screening + Domanda Locale + Flussi Commerciali ===
-  const modA = callModule('MarketScreening+Domanda', `${rules}\n${ctx.header}\n\nAnalizza per ogni Paese:\n1) MARKET SCREENING: import totale, CAGR, dazi, barriere non tariffarie DETTAGLIATE (elenca specificamente: certificazioni obbligatorie, standard SPS/TBT, requisiti etichettatura, licenze import, quote, registrazioni prodotto — NON frasi generiche), accessibilità del mercato (valutazione complessiva: Bassa/Media/Alta difficoltà di ingresso con motivazione concreta)\n2) DOMANDA LOCALE: consumo apparente C=(P+M)-X, produzione locale, dipendenza import, demand score, segmentazione, canali distributivi, trend con %\n3) FLUSSI COMMERCIALI: import annuo, export IT→paese, trend YoY, quota Italia, principali fornitori\n4) CONFRONTO GLOBALE: indica UN paese che importa SIGNIFICATIVAMENTE DI PIÙ dello stesso prodotto HS e UN paese che importa MENO. Usa dati REALI da UN Comtrade o fonti ufficiali. Indica nome paese, valore import in USD e anno/fonte. NON INVENTARE.`, {
+  const modA = callModule('MarketScreening+Domanda', `${rules}\n${ctx.header}\n\nATTENZIONE CRITICA: I dati forniti distinguono CHIARAMENTE due valori DIVERSI:
+- "Import totale del PAESE da tutto il mondo": quanto il paese target importa in TOTALE da TUTTI i fornitori mondiali
+- "Export ITALIA→Paese (bilaterale)": quanto l'Italia esporta SPECIFICAMENTE verso quel paese
+Questi DUE valori sono QUASI SEMPRE DIVERSI. L'export Italia è una FRAZIONE dell'import totale. NON COPIARE lo stesso numero per entrambi.
+
+Analizza per ogni Paese:
+1) MARKET SCREENING: import totale (del paese da tutto il mondo), CAGR, dazi, barriere non tariffarie DETTAGLIATE (elenca specificamente: certificazioni obbligatorie, standard SPS/TBT, requisiti etichettatura, licenze import, quote, registrazioni prodotto — NON frasi generiche), accessibilità del mercato (valutazione complessiva: Bassa/Media/Alta difficoltà di ingresso con motivazione concreta)
+2) DOMANDA LOCALE: consumo apparente C=(P+M)-X, produzione locale, dipendenza import, demand score, segmentazione, canali distributivi, trend con %
+3) FLUSSI COMMERCIALI:
+   - valore_import_annuo: import TOTALE del paese da TUTTO il mondo per questo HS (NON l'export bilaterale Italia)
+   - export_italia_verso_paese: export BILATERALE dell'Italia verso questo paese (è una PARTE dell'import totale)
+   - trend_yoy_percentuale: variazione % anno su anno
+   - quota_italia: percentuale = (export Italia / import totale) × 100. Se hai i due valori, CALCOLA il rapporto. Se non disponibili, cerca su Trade Map o fonti web.
+   - principali_fornitori: i TOP 5-10 paesi che esportano di più verso questo mercato per questo HS. Cerca su Trade Map, UN Comtrade, fonti ufficiali. Per ogni fornitore indica paese e quota %.
+4) CONFRONTO GLOBALE: indica UN paese che importa SIGNIFICATIVAMENTE DI PIÙ dello stesso prodotto HS e UN paese che importa MENO. Usa dati REALI da UN Comtrade o fonti ufficiali. Indica nome paese, valore import in USD e anno/fonte. NON INVENTARE.`, {
     type: "object",
     properties: {
       mercati: {
