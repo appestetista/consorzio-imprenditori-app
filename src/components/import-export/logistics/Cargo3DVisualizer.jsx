@@ -8,9 +8,9 @@ const VEHICLES = [
     id: 'container20',
     label: "Container 20'",
     image: 'https://media.base44.com/images/public/695e2f74bb7d2636b5606a98/c4d80d96e_images-removebg-preview1.png',
-    internal: { l: 5.9, w: 2.35, h: 2.39 },
-    volume: 33.2,
-    maxWeight: 21770,
+    internal: { l: 5.90, w: 2.35, h: 2.39 },
+    volume: 33,
+    maxWeight: 25000,
     color: '#22c55e',
   },
   {
