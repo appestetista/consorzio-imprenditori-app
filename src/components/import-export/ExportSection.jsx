@@ -392,29 +392,53 @@ export default function ExportSection({ user, exportManagers, selectedMapCountry
 
             <div>
               <label className="text-xs font-medium mb-1.5 block" style={{ color: 'var(--app-text-primary)' }}>Peso e dimensioni prodotto</label>
-              <p className="text-[10px] mb-2 leading-relaxed">
-                Servono per stimare i costi di trasporto e logistica. Il volume viene calcolato automaticamente dalle dimensioni. Più il prodotto è pesante o voluminoso, più incidono i costi di spedizione — utile per capire se mercati lontani sono sostenibili.
+              <p className="text-xs mb-3 leading-relaxed" style={{ color: 'var(--app-text-secondary)' }}>
+                Servono per stimare i costi di trasporto e logistica. Il volume viene calcolato automaticamente dalle dimensioni. Più il prodotto è pesante o voluminoso, più incidono i costi di spedizione.
               </p>
+
+              <div className="grid grid-cols-2 gap-2 mb-3">
+                <div>
+                  <label className="text-xs font-medium mb-1 block" style={{ color: 'var(--app-text-primary)' }}>Tipo unità</label>
+                  <Select value={exportForm.tipo_unita_spedizione || undefined} onValueChange={(v) => setExportForm({ ...exportForm, tipo_unita_spedizione: v })}>
+                    <SelectTrigger className="h-11 rounded-xl text-xs" style={{ background: 'var(--app-bg-input)', color: 'var(--app-text-primary)', border: '1px solid var(--app-border)' }}>
+                      <SelectValue placeholder="Seleziona" />
+                    </SelectTrigger>
+                    <SelectContent>
+                      <SelectItem value="confezione">Singola confezione</SelectItem>
+                      <SelectItem value="bancale">Bancale</SelectItem>
+                    </SelectContent>
+                  </Select>
+                </div>
+                <div>
+                  <label className="text-xs font-medium mb-1 block" style={{ color: 'var(--app-text-primary)' }}>
+                    {exportForm.tipo_unita_spedizione === 'bancale' ? 'N° bancali' : 'N° confezioni'}
+                  </label>
+                  <Input type="number" min="1" step="1" placeholder="Es. 10" value={exportForm.numero_unita_spedizione}
+                    onChange={(e) => setExportForm({ ...exportForm, numero_unita_spedizione: e.target.value })}
+                    className="h-11 rounded-xl" style={{ background: 'var(--app-bg-input)', color: 'var(--app-text-primary)', border: '1px solid var(--app-border)' }} />
+                </div>
+              </div>
+
               <div className="grid grid-cols-2 gap-2 mb-2">
                 <div>
                   <Input type="number" step="0.01" min="0" placeholder="Peso (kg)" value={exportForm.peso_kg}
                     onChange={(e) => setExportForm({ ...exportForm, peso_kg: e.target.value })}
-                    className="h-11 rounded-xl" />
+                    className="h-11 rounded-xl" style={{ background: 'var(--app-bg-input)', color: 'var(--app-text-primary)', border: '1px solid var(--app-border)' }} />
                 </div>
                 <div>
                   <Input type="number" step="0.1" min="0" placeholder="Lunghezza (cm)" value={exportForm.lunghezza_cm}
                     onChange={(e) => setExportForm({ ...exportForm, lunghezza_cm: e.target.value })}
-                    className="h-11 rounded-xl" />
+                    className="h-11 rounded-xl" style={{ background: 'var(--app-bg-input)', color: 'var(--app-text-primary)', border: '1px solid var(--app-border)' }} />
                 </div>
                 <div>
                   <Input type="number" step="0.1" min="0" placeholder="Larghezza (cm)" value={exportForm.larghezza_cm}
                     onChange={(e) => setExportForm({ ...exportForm, larghezza_cm: e.target.value })}
-                    className="h-11 rounded-xl" />
+                    className="h-11 rounded-xl" style={{ background: 'var(--app-bg-input)', color: 'var(--app-text-primary)', border: '1px solid var(--app-border)' }} />
                 </div>
                 <div>
                   <Input type="number" step="0.1" min="0" placeholder="Altezza (cm)" value={exportForm.altezza_cm}
                     onChange={(e) => setExportForm({ ...exportForm, altezza_cm: e.target.value })}
-                    className="h-11 rounded-xl" />
+                    className="h-11 rounded-xl" style={{ background: 'var(--app-bg-input)', color: 'var(--app-text-primary)', border: '1px solid var(--app-border)' }} />
                 </div>
               </div>
               {exportForm.lunghezza_cm && exportForm.larghezza_cm && exportForm.altezza_cm && (
