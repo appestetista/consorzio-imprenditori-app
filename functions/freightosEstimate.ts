@@ -128,9 +128,10 @@ Deno.serve(async (req) => {
     } = body;
 
     // Costruisci stringhe per Freightos
-    // Preferisci LOCODE se disponibile (es. ITGOA, CNSHA), altrimenti "City,Country"
-    const originStr = origin_locode || `${origin_city},${origin_country}`;
-    const destStr = dest_locode || `${dest_city},${dest_country}`;
+    // Freightos funziona meglio con "City,Country" che con LOCODE
+    // Usiamo LOCODE solo come fallback
+    const originStr = origin_city ? `${origin_city},${origin_country}` : (origin_locode || origin_country);
+    const destStr = dest_city ? `${dest_city},${dest_country}` : (dest_locode || dest_country);
 
     const wt = parseFloat(weight_kg) || 1000;
     const vol = parseFloat(volume_m3) || 0;
