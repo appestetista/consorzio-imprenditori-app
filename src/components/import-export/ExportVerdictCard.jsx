@@ -229,6 +229,7 @@ function buildContoServa(mercatoAnalisi, tradeData, exportForm, macroData) {
     punteggioOpportunita: mercatoAnalisi.punteggio_opportunita,
     conclusioneOperativa: mercatoAnalisi.conclusione_operativa,
     difficoltaIngresso: mercatoAnalisi.canali_ingresso?.entry_strategy?.estimated_entry_complexity,
+    confrontoImportGlobale: mercatoAnalisi.confronto_import_globale || null,
   };
 }
 
