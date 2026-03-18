@@ -727,7 +727,7 @@ export async function interpretData(tradeData, metricsResult, hsCode, hsDescrizi
   const rules = `${antiInventionRules}\nRegole formato: ogni numero con fonte e anno. Se N/D scrivi "Non disponibile". No frasi generiche. Rispondi per OGNI Paese: ${ctx.paeseNames}`;
 
   // === MODULO A: Market Screening + Domanda Locale + Flussi Commerciali ===
-  const modA = callModule('MarketScreening+Domanda', `${rules}\n${ctx.header}\n\nAnalizza per ogni Paese:\n1) MARKET SCREENING: import totale, CAGR, dazi, barriere non tariffarie, ranking motivato\n2) DOMANDA LOCALE: consumo apparente C=(P+M)-X, produzione locale, dipendenza import, demand score, segmentazione, canali distributivi, trend con %\n3) FLUSSI COMMERCIALI: import annuo, export IT→paese, trend YoY, quota Italia, principali fornitori`, {
+  const modA = callModule('MarketScreening+Domanda', `${rules}\n${ctx.header}\n\nAnalizza per ogni Paese:\n1) MARKET SCREENING: import totale, CAGR, dazi, barriere non tariffarie, ranking motivato\n2) DOMANDA LOCALE: consumo apparente C=(P+M)-X, produzione locale, dipendenza import, demand score, segmentazione, canali distributivi, trend con %\n3) FLUSSI COMMERCIALI: import annuo, export IT→paese, trend YoY, quota Italia, principali fornitori\n4) CONFRONTO GLOBALE: indica UN paese che importa SIGNIFICATIVAMENTE DI PIÙ dello stesso prodotto HS e UN paese che importa MENO. Usa dati REALI da UN Comtrade o fonti ufficiali. Indica nome paese, valore import in USD e anno/fonte. NON INVENTARE.`, {
     type: "object",
     properties: {
       mercati: {
