@@ -317,19 +317,26 @@ export default function ExportAnalysisResult({ analysisResult, tradeMetrics, mac
                 <span className="flex items-center gap-1.5">
                   Domanda Locale e Dimensione del Mercato
                   <InfoTooltip title="Domanda Locale e Dimensione del Mercato">
-                    <p>Questa sezione calcola quanto il mercato consuma realmente del tuo prodotto. Usa la formula C = P + M − X (Consumo = Produzione + Import − Export). Ti dice se il paese ha davvero bisogno di importare o se produce già abbastanza da solo.</p>
+                    <p>Questa sezione analizza quanto il mercato consuma realmente del tuo prodotto. Usa la formula C = P + M − X (Consumo = Produzione + Import − Export). Alcuni dati (come la produzione locale per singolo codice HS) non sono disponibili da API pubbliche e vengono stimati dall'AI con fonti settoriali.</p>
                   </InfoTooltip>
                 </span>
               } icon={Target} iconColor="text-purple-400">
                 {/* Market Sizing quantitativo */}
                 <div className="bg-purple-500/5 border border-purple-500/10 rounded-lg p-2.5 mb-3">
                   <p className="text-purple-400 text-[10px] font-bold uppercase tracking-wider mb-1.5">Dimensione del Mercato (C = P + M − X)</p>
-                  <DataRow label="Consumo Apparente (C)" value={m.domanda_locale.consumo_apparente} />
-                  <DataRow label="Produzione Locale (P)" value={m.domanda_locale.produzione_locale} />
-                  <DataRow label="Import (M)" value={m.domanda_locale.import_value} />
-                  <DataRow label="Export (X)" value={m.domanda_locale.export_value} />
-                  <DataRow label="Dipendenza Import" value={m.domanda_locale.dipendenza_import} />
+                  <DetailedDataRow label="Consumo Apparente (C)" value={m.domanda_locale.consumo_apparente} spiegazioneKey="Consumo Apparente (C)" />
+                  <DetailedDataRow label="Produzione Locale (P)" value={m.domanda_locale.produzione_locale} spiegazioneKey="Produzione Locale (P)" />
+                  <DetailedDataRow label="Import (M)" value={m.domanda_locale.import_value} spiegazioneKey="Import (M)" />
+                  <DetailedDataRow label="Export (X)" value={m.domanda_locale.export_value} spiegazioneKey="Export (X)" />
+                  <DetailedDataRow label="Dipendenza Import" value={m.domanda_locale.dipendenza_import} spiegazioneKey="Dipendenza Import" />
                 </div>
+                {/* Nota metodologica — spiega le fonti e i limiti */}
+                {m.domanda_locale.nota_metodologica && (
+                  <div className="bg-slate-700/30 border border-white/5 rounded-lg px-3 py-2 mb-3">
+                    <p className="text-white/40 text-[9px] font-bold uppercase tracking-wider mb-1">Nota metodologica</p>
+                    <p className="text-white/60 text-[10px] leading-relaxed">{m.domanda_locale.nota_metodologica}</p>
+                  </div>
+                )}
                 {/* Indicatori domanda */}
                 <DataRow label="Demand Score" value={m.domanda_locale.demand_score} />
                 <DataRow label="Import pro capite" value={m.domanda_locale.import_pro_capite} />
