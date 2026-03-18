@@ -39,6 +39,7 @@ export default function ExportSection({ user, exportManagers, selectedMapCountry
     initialSnapshot?.exportForm || {
       settore: '', prodotto: '', capacita_produttiva: '', unita_capacita: '',
       posizionamento: '', prezzo_medio: '', certificazioni: [], business_model: '', canale_preferito: '', margine_disponibile: '', costo_industriale: '',
+      tipo_unita_spedizione: '', numero_unita_spedizione: '',
       peso_kg: '', lunghezza_cm: '', larghezza_cm: '', altezza_cm: '',
       shelf_life_valore: '', shelf_life_unita: '',
       esperienza_export: '', obiettivo_export: ''
@@ -167,7 +168,7 @@ export default function ExportSection({ user, exportManagers, selectedMapCountry
   const resetAnalysis = () => {
     setAnalysisResult(null); setConfirmedExportHS(null); setTradeData(null); setTradeMetrics(null);
     setMacroData({});
-    setExportForm({ settore: '', prodotto: '', capacita_produttiva: '', unita_capacita: '', posizionamento: '', prezzo_medio: '', certificazioni: [], business_model: '', canale_preferito: '', margine_disponibile: '', costo_industriale: '', peso_kg: '', lunghezza_cm: '', larghezza_cm: '', altezza_cm: '', shelf_life_valore: '', shelf_life_unita: '', esperienza_export: '', obiettivo_export: '' });
+    setExportForm({ settore: '', prodotto: '', capacita_produttiva: '', unita_capacita: '', posizionamento: '', prezzo_medio: '', certificazioni: [], business_model: '', canale_preferito: '', margine_disponibile: '', costo_industriale: '', tipo_unita_spedizione: '', numero_unita_spedizione: '', peso_kg: '', lunghezza_cm: '', larghezza_cm: '', altezza_cm: '', shelf_life_valore: '', shelf_life_unita: '', esperienza_export: '', obiettivo_export: '' });
     setSelectedMapCountry(null); setShowHSClassifier(false); setExportValidationErrors({});
     if (onClearSnapshot) onClearSnapshot();
   };
