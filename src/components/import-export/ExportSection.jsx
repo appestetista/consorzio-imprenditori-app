@@ -611,7 +611,14 @@ export default function ExportSection({ user, exportManagers, selectedMapCountry
           </div>
         )
       ) : (analyzing || analysisResult) && !analysisResult?._api_error ? (
-        <div className="space-y-4 rounded-2xl p-4 -mx-4" style={{ background: '#0a0f1a' }} ref={el => { if (el && !analyzing) el.scrollIntoView({ behavior: 'smooth', block: 'start' }); }}>
+        <div className="space-y-4 rounded-2xl p-4 -mx-4" style={{
+          background: '#0a0f1a',
+          '--card': '215 28% 8%',
+          '--card-foreground': '0 0% 98%',
+          '--border': '215 20% 15%',
+          '--popover': '215 28% 8%',
+          '--popover-foreground': '0 0% 98%',
+        }} ref={el => { if (el && !analyzing) el.scrollIntoView({ behavior: 'smooth', block: 'start' }); }}>
           {/* Progress animato durante l'analisi */}
           {analyzing && (
             <ExportAnalysisProgress exportStep={exportStep} countryName={selectedMapCountry?.name} />
