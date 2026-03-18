@@ -73,8 +73,13 @@ export default function LogisticsModule({ countryOrigin, countryDest, hsCode, pr
             productDescription={productDescription}
           />
           <LogisticsResults results={results} />
-          {lastFormData?.volume_m3 && parseFloat(lastFormData.volume_m3) > 0 && (
-            <Cargo3DVisualizer volumeM3={lastFormData.volume_m3} weightKg={lastFormData.weight_kg} />
+          {lastFormData && (lastFormData.volume_m3 || lastFormData.weight_kg) && (
+            <>
+              <ShippingComparator formData={lastFormData} />
+              {parseFloat(lastFormData.volume_m3) > 0 && (
+                <Cargo3DVisualizer volumeM3={lastFormData.volume_m3} weightKg={lastFormData.weight_kg} />
+              )}
+            </>
           )}
         </div>
       )}
