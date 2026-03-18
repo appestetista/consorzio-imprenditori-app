@@ -261,7 +261,7 @@ export default function ExportAnalysisResult({ analysisResult, tradeMetrics, mac
                 <DataRow label="CAGR" value={m.market_screening.cagr} />
                 <DataRow label="Dazi" value={m.market_screening.dazi} />
                 <DataRow label="Barriere non tariffarie" value={m.market_screening.barriere_non_tariffarie} />
-                <DataRow label="Ranking" value={m.market_screening.ranking_motivazione} />
+                <DataRow label="Accessibilità mercato" value={m.market_screening.accessibilita_mercato} />
               </OpenSection>
             )}
 
