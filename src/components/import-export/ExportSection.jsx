@@ -283,7 +283,7 @@ export default function ExportSection({ user, exportManagers, selectedMapCountry
               <div className="grid grid-cols-4 gap-2">
                 {['Entry Level', 'Mid-range', 'Premium', 'Luxury'].map(p => (
                   <button key={p} onClick={() => setExportForm({ ...exportForm, posizionamento: exportForm.posizionamento === p ? '' : p })}
-                    className={`px-2 py-2 rounded-xl text-[11px] font-medium transition-all border text-center ${exportForm.posizionamento === p ? 'bg-blue-600 text-white border-blue-600 shadow-lg shadow-blue-600/20' : 'bg-white text-black border-black/15 hover:border-black/30'}`}>{p}</button>
+                    className={`px-2 py-2 rounded-xl text-[11px] font-medium transition-all border text-center ${exportForm.posizionamento === p ? 'bg-gradient-to-b from-blue-500 to-blue-700 text-white border-blue-800 shadow-[0_4px_0_0_#1e40af] active:shadow-[0_1px_0_0_#1e40af] active:translate-y-[3px]' : 'bg-gradient-to-b from-white to-gray-100 text-black border-gray-300 shadow-[0_4px_0_0_#9ca3af] active:shadow-[0_1px_0_0_#9ca3af] active:translate-y-[3px] hover:from-gray-50 hover:to-gray-200'}`}>{p}</button>
                 ))}
               </div>
             </div>
@@ -301,7 +301,7 @@ export default function ExportSection({ user, exportManagers, selectedMapCountry
                 <div className="grid grid-cols-2 gap-2">
                   {['B2B', 'B2C'].map(bm => (
                     <button key={bm} onClick={() => setExportForm({ ...exportForm, business_model: exportForm.business_model === bm ? '' : bm })}
-                      className={`px-2 py-2 rounded-xl text-xs font-bold transition-all border text-center ${exportForm.business_model === bm ? 'bg-blue-600 text-white border-blue-600' : 'bg-white text-black border-black/15 hover:border-black/30'}`}>{bm}</button>
+                      className={`px-2 py-2 rounded-xl text-xs font-bold transition-all border text-center ${exportForm.business_model === bm ? 'bg-gradient-to-b from-blue-500 to-blue-700 text-white border-blue-800 shadow-[0_4px_0_0_#1e40af] active:shadow-[0_1px_0_0_#1e40af] active:translate-y-[3px]' : 'bg-gradient-to-b from-white to-gray-100 text-black border-gray-300 shadow-[0_4px_0_0_#9ca3af] active:shadow-[0_1px_0_0_#9ca3af] active:translate-y-[3px] hover:from-gray-50 hover:to-gray-200'}`}>{bm}</button>
                   ))}
                 </div>
               </div>
@@ -469,7 +469,7 @@ export default function ExportSection({ user, exportManagers, selectedMapCountry
                   </div>
                   {['giorni', 'mesi', 'anni'].map(u => (
                     <button key={u} onClick={() => setExportForm({ ...exportForm, shelf_life_unita: u })}
-                      className={`h-11 rounded-xl text-xs font-bold transition-all border text-center capitalize ${exportForm.shelf_life_unita === u ? 'bg-blue-600 text-white border-blue-600 shadow-lg shadow-blue-600/20' : 'bg-white text-black border-black/15 hover:border-black/30'}`}>
+                      className={`h-11 rounded-xl text-xs font-bold transition-all border text-center capitalize ${exportForm.shelf_life_unita === u ? 'bg-gradient-to-b from-blue-500 to-blue-700 text-white border-blue-800 shadow-[0_4px_0_0_#1e40af] active:shadow-[0_1px_0_0_#1e40af] active:translate-y-[3px]' : 'bg-gradient-to-b from-white to-gray-100 text-black border-gray-300 shadow-[0_4px_0_0_#9ca3af] active:shadow-[0_1px_0_0_#9ca3af] active:translate-y-[3px] hover:from-gray-50 hover:to-gray-200'}`}>
                       {u}
                     </button>
                   ))}
@@ -503,7 +503,7 @@ export default function ExportSection({ user, exportManagers, selectedMapCountry
                   { label: 'Extra UE', value: 'extra_ue' },
                 ].map(opt => (
                   <button key={opt.value} onClick={() => setExportForm({ ...exportForm, esperienza_export: exportForm.esperienza_export === opt.value ? '' : opt.value })}
-                    className={`px-2 py-2.5 rounded-xl text-xs font-medium transition-all border text-center ${exportForm.esperienza_export === opt.value ? 'bg-blue-600 text-white border-blue-600 shadow-lg shadow-blue-600/20' : 'bg-white text-black border-black/15 hover:border-black/30'}`}>
+                    className={`px-2 py-2.5 rounded-xl text-xs font-medium transition-all border text-center ${exportForm.esperienza_export === opt.value ? 'bg-gradient-to-b from-blue-500 to-blue-700 text-white border-blue-800 shadow-[0_4px_0_0_#1e40af] active:shadow-[0_1px_0_0_#1e40af] active:translate-y-[3px]' : 'bg-gradient-to-b from-white to-gray-100 text-black border-gray-300 shadow-[0_4px_0_0_#9ca3af] active:shadow-[0_1px_0_0_#9ca3af] active:translate-y-[3px] hover:from-gray-50 hover:to-gray-200'}`}>
                     {opt.label}
                   </button>
                 ))}
@@ -523,7 +523,7 @@ export default function ExportSection({ user, exportManagers, selectedMapCountry
                   { label: 'Smaltire stock', value: 'smaltire_stock' },
                 ].map(opt => (
                   <button key={opt.value} onClick={() => setExportForm({ ...exportForm, obiettivo_export: exportForm.obiettivo_export === opt.value ? '' : opt.value })}
-                    className={`px-2 py-2.5 rounded-xl text-xs font-medium transition-all border text-center ${exportForm.obiettivo_export === opt.value ? 'bg-blue-600 text-white border-blue-600 shadow-lg shadow-blue-600/20' : 'bg-white text-black border-black/15 hover:border-black/30'}`}>
+                    className={`px-2 py-2.5 rounded-xl text-xs font-medium transition-all border text-center ${exportForm.obiettivo_export === opt.value ? 'bg-gradient-to-b from-blue-500 to-blue-700 text-white border-blue-800 shadow-[0_4px_0_0_#1e40af] active:shadow-[0_1px_0_0_#1e40af] active:translate-y-[3px]' : 'bg-gradient-to-b from-white to-gray-100 text-black border-gray-300 shadow-[0_4px_0_0_#9ca3af] active:shadow-[0_1px_0_0_#9ca3af] active:translate-y-[3px] hover:from-gray-50 hover:to-gray-200'}`}>
                     {opt.label}
                   </button>
                 ))}
@@ -553,7 +553,7 @@ export default function ExportSection({ user, exportManagers, selectedMapCountry
                       const updated = isSelected ? certs.filter(c => c !== cert.value) : [...certs, cert.value];
                       setExportForm({ ...exportForm, certificazioni: updated });
                     }}
-                      className={`px-3 py-2 rounded-xl text-left transition-all border ${isSelected ? 'bg-blue-600 text-white border-blue-600 shadow-lg shadow-blue-600/20' : 'bg-white text-black border-black/15 hover:border-black/30'}`}>
+                      className={`px-3 py-2 rounded-xl text-left transition-all border ${isSelected ? 'bg-gradient-to-b from-blue-500 to-blue-700 text-white border-blue-800 shadow-[0_4px_0_0_#1e40af] active:shadow-[0_1px_0_0_#1e40af] active:translate-y-[3px]' : 'bg-gradient-to-b from-white to-gray-100 text-black border-gray-300 shadow-[0_4px_0_0_#9ca3af] active:shadow-[0_1px_0_0_#9ca3af] active:translate-y-[3px] hover:from-gray-50 hover:to-gray-200'}`}>
                       <span className="text-xs font-bold block">{cert.label}</span>
                       <span className={`text-[10px] ${isSelected ? 'text-blue-100' : 'text-slate-500'}`}>{cert.desc}</span>
                     </button>
