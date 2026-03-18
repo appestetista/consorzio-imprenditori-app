@@ -4,6 +4,7 @@ import { base44 } from '@/api/base44Client';
 import LogisticsForm from './LogisticsForm';
 import LogisticsResults from './LogisticsResults';
 import Cargo3DVisualizer from './Cargo3DVisualizer';
+import ShippingComparator from './ShippingComparator';
 
 export default function LogisticsModule({ countryOrigin, countryDest, hsCode, productDescription }) {
   const [open, setOpen] = useState(false);
