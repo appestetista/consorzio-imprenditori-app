@@ -40,7 +40,7 @@ export default function ExportProfileSection({ formData, setFormData }) {
   };
 
   const addProduct = () => {
-    setFormData({ ...formData, export_prodotti: [...prodotti, { ...EMPTY_PRODUCT }] });
+    setFormData({ ...formData, export_prodotti: [...prodotti, { ...EMPTY_PRODUCT, data_inserimento: new Date().toISOString() }] });
   };
 
   const removeProduct = (index) => {
