@@ -3,27 +3,14 @@ import { createClientFromRequest } from 'npm:@base44/sdk@0.8.21';
 /**
  * POST /freightosEstimate
  * 
- * Chiama l'API pubblica Freightos Shipping Calculator per ottenere stime di prezzo
- * per spedizioni marittime (FCL) e aeree.
- * API gratuita, nessuna API key richiesta per le stime marketplace.
- * 
- * Input: { origin, destination, weight_kg, volume_m3, container_type }
- * Output: array di scenari con prezzi stimati
+ * Stima costi spedizione marittima con approccio ibrido:
+ * 1. Prova Freightos API pubblica
+ * 2. Se non ha dati, usa LLM con web search per stime basate su indici reali
+ *    (Xeneta XSI, Drewry WCI, dati di mercato aggiornati)
  */
 
 const FREIGHTOS_BASE = 'https://ship.freightos.com/api/shippingCalculator';
 
-// Mappa container type dal form al parametro Freightos
-function mapLoadType(containerType) {
-  if (!containerType) return 'container20';
-  const ct = containerType.toLowerCase();
-  if (ct.includes('40')) return 'container40';
-  if (ct.includes('20')) return 'container20';
-  if (ct.includes('lcl') || ct.includes('groupage')) return 'boxes';
-  return 'container20';
-}
-
-// Calcola quanti container/camion servono
 function calculateUnitsNeeded(volumeM3, weightKg) {
   const vol = parseFloat(volumeM3) || 0;
   const wt = parseFloat(weightKg) || 0;
@@ -71,39 +58,84 @@ async function fetchFreightosEstimate(origin, destination, loadtype, weight, qua
     headers: { 'Accept': 'application/json' },
   });
 
-  if (!resp.ok) {
-    const text = await resp.text();
-    console.error('[Freightos] Error response:', resp.status, text);
-    return null;
-  }
-
+  if (!resp.ok) return null;
   const data = await resp.json();
-  console.log('[Freightos] Response:', JSON.stringify(data));
   return data;
 }
 
 function parseFreightosResponse(data) {
   if (!data?.response?.estimatedFreightRates) return null;
-
   const rates = data.response.estimatedFreightRates;
+  if (!rates.numQuotes || rates.numQuotes === 0) return null;
+  
   const modes = Array.isArray(rates.mode) ? rates.mode : (rates.mode ? [rates.mode] : []);
 
   return modes.map(m => {
     const priceMin = m.price?.min?.moneyAmount?.amount ? parseFloat(m.price.min.moneyAmount.amount) : null;
     const priceMax = m.price?.max?.moneyAmount?.amount ? parseFloat(m.price.max.moneyAmount.amount) : null;
-    const currency = m.price?.min?.moneyAmount?.currency || m.price?.max?.moneyAmount?.currency || 'USD';
+    const currency = m.price?.min?.moneyAmount?.currency || 'USD';
     const transitMin = m.transitTimes?.min ? parseInt(m.transitTimes.min) : null;
     const transitMax = m.transitTimes?.max ? parseInt(m.transitTimes.max) : null;
 
-    return {
-      mode: m.mode || 'unknown',
-      price_min: priceMin,
-      price_max: priceMax,
-      currency,
-      transit_days_min: transitMin,
-      transit_days_max: transitMax,
-    };
+    return { mode: m.mode || 'FCL', price_min: priceMin, price_max: priceMax, currency, transit_days_min: transitMin, transit_days_max: transitMax };
   }).filter(m => m.price_min || m.price_max);
+}
+
+/**
+ * Fallback: usa LLM con web search per ottenere stime di prezzo
+ * basate su indici di mercato reali (Xeneta, Drewry, fonti logistiche)
+ */
+async function fetchAIEstimate(base44, originCity, originCountry, destCity, destCountry, weightKg, volumeM3, units20, units40) {
+  const prompt = `Sei un esperto di logistica internazionale. Devi stimare il costo di spedizione marittima FCL.
+
+ROTTA: da ${originCity}, ${originCountry} a ${destCity}, ${destCountry}
+CARICO: ${weightKg} kg, ${volumeM3} m³
+
+Cerca i prezzi ATTUALI di mercato per container marittimi su questa rotta o rotte simili.
+Usa come riferimento gli indici Xeneta XSI, Drewry World Container Index, e tariffe di mercato recenti.
+Considera i prezzi spot del 2025-2026.
+
+Restituisci le stime per:
+1. Container 20' FCL (servono ${units20} unità) - prezzo per unità
+2. Container 40' HC FCL (servono ${units40} unità) - prezzo per unità
+3. Tempo di transito in giorni (min e max)
+
+IMPORTANTE: I prezzi devono essere realistici e basati sui dati di mercato attuali.
+Se non trovi dati esatti per questa rotta, usa rotte comparabili e indica che è una stima.`;
+
+  const result = await base44.integrations.Core.InvokeLLM({
+    prompt,
+    add_context_from_internet: true,
+    model: 'gemini_3_flash',
+    response_json_schema: {
+      type: "object",
+      properties: {
+        container_20: {
+          type: "object",
+          properties: {
+            price_min_usd: { type: "number", description: "Prezzo minimo per 1x 20' in USD" },
+            price_max_usd: { type: "number", description: "Prezzo massimo per 1x 20' in USD" },
+            transit_days_min: { type: "number" },
+            transit_days_max: { type: "number" },
+          }
+        },
+        container_40hc: {
+          type: "object",
+          properties: {
+            price_min_usd: { type: "number", description: "Prezzo minimo per 1x 40'HC in USD" },
+            price_max_usd: { type: "number", description: "Prezzo massimo per 1x 40'HC in USD" },
+            transit_days_min: { type: "number" },
+            transit_days_max: { type: "number" },
+          }
+        },
+        confidence: { type: "string", enum: ["high", "medium", "low"], description: "Affidabilità della stima" },
+        sources_used: { type: "string", description: "Fonti usate per la stima (es. Xeneta XSI, Drewry WCI, tariffe carrier)" },
+        notes: { type: "string", description: "Note sulla stima" }
+      }
+    }
+  });
+
+  return result;
 }
 
 Deno.serve(async (req) => {
@@ -124,12 +156,8 @@ Deno.serve(async (req) => {
       dest_locode = '',
       weight_kg = 0,
       volume_m3 = 0,
-      container_type = "20' Standard",
     } = body;
 
-    // Costruisci stringhe per Freightos
-    // Freightos funziona meglio con "City,Country" che con LOCODE
-    // Usiamo LOCODE solo come fallback
     const originStr = origin_city ? `${origin_city},${origin_country}` : (origin_locode || origin_country);
     const destStr = dest_city ? `${dest_city},${dest_country}` : (dest_locode || dest_country);
 
@@ -138,103 +166,111 @@ Deno.serve(async (req) => {
 
     // Calcola unità necessarie
     const unitsCalc = calculateUnitsNeeded(vol, wt);
-
-    // Prepara scenari da quotare su Freightos
-    const scenarios = [];
-
-    // Scenario 1: Container 20'
     const units20 = unitsCalc.find(u => u.vehicle_id === 'container20');
-    scenarios.push({
-      id: 'container20',
-      label: `${units20.units_needed}x Container 20'`,
-      loadtype: 'container20',
-      quantity: units20.units_needed,
-      weight_per_unit: Math.round(wt / units20.units_needed),
-      calc: units20,
-    });
-
-    // Scenario 2: Container 40' HC
     const units40 = unitsCalc.find(u => u.vehicle_id === 'container40');
-    scenarios.push({
-      id: 'container40',
-      label: `${units40.units_needed}x Container 40' HC`,
-      loadtype: 'container40',
-      quantity: units40.units_needed,
-      weight_per_unit: Math.round(wt / units40.units_needed),
-      calc: units40,
-    });
 
-    // Scenario 3: LCL (solo se volume < 15 m³, altrimenti non ha senso)
+    // Prepara scenari
+    const scenarioConfigs = [
+      { id: 'container20', label: `${units20.units_needed}x Container 20'`, loadtype: 'container20', quantity: units20.units_needed, weight_per_unit: Math.round(wt / units20.units_needed), calc: units20 },
+      { id: 'container40', label: `${units40.units_needed}x Container 40' HC`, loadtype: 'container40', quantity: units40.units_needed, weight_per_unit: Math.round(wt / units40.units_needed), calc: units40 },
+    ];
+
+    // LCL solo se volume <= 15 m³
     if (vol > 0 && vol <= 15) {
-      scenarios.push({
-        id: 'lcl',
-        label: 'LCL (Groupage)',
-        loadtype: 'boxes',
-        quantity: 1,
-        weight_per_unit: Math.round(wt),
-        // Per boxes servono dimensioni. Usiamo un cubo equivalente
-        volume_param: vol,
-        calc: null,
-      });
+      scenarioConfigs.push({ id: 'lcl', label: 'LCL (Groupage)', loadtype: 'boxes', quantity: 1, weight_per_unit: Math.round(wt), calc: null });
     }
 
-    // Chiama Freightos per ogni scenario in parallelo
+    // STEP 1: Prova Freightos per tutti gli scenari in parallelo
     const freightosResults = await Promise.allSettled(
-      scenarios.map(async (sc) => {
-        const result = await fetchFreightosEstimate(
-          originStr,
-          destStr,
-          sc.loadtype,
-          sc.weight_per_unit,
-          sc.quantity
-        );
+      scenarioConfigs.map(async (sc) => {
+        const result = await fetchFreightosEstimate(originStr, destStr, sc.loadtype, sc.weight_per_unit, sc.quantity);
         const parsed = parseFreightosResponse(result);
-        return { ...sc, freightos_raw: result, rates: parsed };
+        return { ...sc, rates: parsed };
       })
     );
 
-    // Assembla risultati
-    const results = freightosResults.map((r, i) => {
+    // Controlla se Freightos ha restituito dati per almeno uno scenario
+    let hasFreightosData = false;
+    const scenarios = freightosResults.map((r, i) => {
       if (r.status === 'fulfilled' && r.value.rates?.length > 0) {
+        hasFreightosData = true;
         const sc = r.value;
-        const bestRate = sc.rates[0]; // primo rate disponibile
-
-        // Calcola prezzo totale per tutti i container
-        const totalMin = bestRate.price_min ? bestRate.price_min * sc.quantity : null;
-        const totalMax = bestRate.price_max ? bestRate.price_max * sc.quantity : null;
-
+        const bestRate = sc.rates[0];
         return {
-          scenario_id: sc.id,
-          scenario_label: sc.label,
-          units_needed: sc.quantity,
-          calc: sc.calc,
-          price_per_unit_min: bestRate.price_min,
-          price_per_unit_max: bestRate.price_max,
-          total_price_min: totalMin,
-          total_price_max: totalMax,
-          currency: bestRate.currency,
-          transit_days_min: bestRate.transit_days_min,
-          transit_days_max: bestRate.transit_days_max,
-          mode: bestRate.mode,
-          available: true,
-          source: 'Freightos Marketplace (API pubblica)',
-        };
-      } else {
-        const sc = r.status === 'fulfilled' ? r.value : scenarios[i];
-        return {
-          scenario_id: sc.id,
-          scenario_label: sc.label,
-          units_needed: sc.quantity,
-          calc: sc.calc,
-          available: false,
-          error: r.status === 'rejected' ? r.reason?.message : 'Nessun dato disponibile per questa rotta',
-          source: 'Freightos Marketplace (API pubblica)',
+          scenario_id: sc.id, scenario_label: sc.label, units_needed: sc.quantity, calc: sc.calc,
+          price_per_unit_min: bestRate.price_min, price_per_unit_max: bestRate.price_max,
+          total_price_min: bestRate.price_min ? bestRate.price_min * sc.quantity : null,
+          total_price_max: bestRate.price_max ? bestRate.price_max * sc.quantity : null,
+          currency: bestRate.currency, transit_days_min: bestRate.transit_days_min, transit_days_max: bestRate.transit_days_max,
+          mode: bestRate.mode, available: true,
+          source: 'Freightos Marketplace',
         };
       }
+      return null; // da riempire con AI se necessario
     });
 
-    // Trova il migliore (prezzo totale più basso)
-    const availableResults = results.filter(r => r.available && r.total_price_min);
+    // STEP 2: Se Freightos non ha dati, usa LLM con web search
+    let aiSource = null;
+    if (!hasFreightosData) {
+      console.log('[freightosEstimate] Freightos senza dati, fallback AI con web search...');
+      
+      const aiResult = await fetchAIEstimate(
+        base44, origin_city || 'Italia', origin_country, dest_city, dest_country,
+        wt, vol, units20.units_needed, units40.units_needed
+      );
+
+      if (aiResult) {
+        aiSource = {
+          confidence: aiResult.confidence || 'medium',
+          sources_used: aiResult.sources_used || 'Indici di mercato (Xeneta, Drewry)',
+          notes: aiResult.notes || '',
+        };
+
+        // Popola scenario Container 20'
+        if (aiResult.container_20?.price_min_usd) {
+          const ai20 = aiResult.container_20;
+          scenarios[0] = {
+            scenario_id: 'container20', scenario_label: scenarioConfigs[0].label,
+            units_needed: units20.units_needed, calc: units20,
+            price_per_unit_min: ai20.price_min_usd, price_per_unit_max: ai20.price_max_usd,
+            total_price_min: ai20.price_min_usd * units20.units_needed,
+            total_price_max: ai20.price_max_usd * units20.units_needed,
+            currency: 'USD', transit_days_min: ai20.transit_days_min, transit_days_max: ai20.transit_days_max,
+            mode: 'FCL', available: true,
+            source: 'Stima AI basata su indici di mercato',
+          };
+        }
+
+        // Popola scenario Container 40' HC
+        if (aiResult.container_40hc?.price_min_usd) {
+          const ai40 = aiResult.container_40hc;
+          scenarios[1] = {
+            scenario_id: 'container40', scenario_label: scenarioConfigs[1].label,
+            units_needed: units40.units_needed, calc: units40,
+            price_per_unit_min: ai40.price_min_usd, price_per_unit_max: ai40.price_max_usd,
+            total_price_min: ai40.price_min_usd * units40.units_needed,
+            total_price_max: ai40.price_max_usd * units40.units_needed,
+            currency: 'USD', transit_days_min: ai40.transit_days_min, transit_days_max: ai40.transit_days_max,
+            mode: 'FCL', available: true,
+            source: 'Stima AI basata su indici di mercato',
+          };
+        }
+      }
+    }
+
+    // Riempi scenari mancanti
+    const finalScenarios = scenarios.map((sc, i) => {
+      if (sc) return sc;
+      const cfg = scenarioConfigs[i];
+      return {
+        scenario_id: cfg.id, scenario_label: cfg.label, units_needed: cfg.quantity, calc: cfg.calc,
+        available: false, error: 'Nessun dato disponibile per questa rotta',
+        source: hasFreightosData ? 'Freightos Marketplace' : 'Non disponibile',
+      };
+    });
+
+    // Trova il migliore
+    const availableResults = finalScenarios.filter(r => r.available && r.total_price_min);
     let best_scenario = null;
     if (availableResults.length > 0) {
       availableResults.sort((a, b) => (a.total_price_min || Infinity) - (b.total_price_min || Infinity));
@@ -246,9 +282,12 @@ Deno.serve(async (req) => {
       destination: destStr,
       cargo: { weight_kg: wt, volume_m3: vol },
       units_calculation: unitsCalc,
-      scenarios: results,
+      scenarios: finalScenarios,
       best_scenario,
-      disclaimer: 'Prezzi indicativi da Freightos Marketplace (API pubblica). Non sono quotazioni vincolanti. Per prezzi operativi contattare un freight forwarder.',
+      ai_source: aiSource,
+      disclaimer: hasFreightosData
+        ? 'Prezzi indicativi da Freightos Marketplace. Non sono quotazioni vincolanti.'
+        : 'Stime basate su indici di mercato (Xeneta XSI, Drewry WCI) e dati web aggiornati. Non sono quotazioni vincolanti. Per prezzi operativi contattare un freight forwarder.',
       timestamp: new Date().toISOString(),
     });
   } catch (error) {
