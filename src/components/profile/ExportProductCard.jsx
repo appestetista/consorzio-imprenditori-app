@@ -46,7 +46,14 @@ export default function ExportProductCard({ product, index, onChange, onRemove, 
       <CardHeader className="pb-2 cursor-pointer" onClick={() => setExpanded(!expanded)}>
         <CardTitle className="text-white flex items-center gap-2 text-sm">
           <Package className="w-4 h-4 text-lime-400" />
-          <span className="flex-1">{product.prodotto || `Prodotto ${index + 1}`}</span>
+          <div className="flex-1 min-w-0">
+            <span className="block truncate">{product.prodotto || `Prodotto ${index + 1}`}</span>
+            {product.data_inserimento && (
+              <span className="text-[10px] text-slate-500 font-normal">
+                Inserito il {new Date(product.data_inserimento).toLocaleDateString('it-IT', { day: '2-digit', month: 'short', year: 'numeric' })}
+              </span>
+            )}
+          </div>
           {canRemove && (
             <button onClick={(e) => { e.stopPropagation(); onRemove(index); }} className="text-red-400 hover:text-red-300 p-1">
               <Trash2 className="w-4 h-4" />
