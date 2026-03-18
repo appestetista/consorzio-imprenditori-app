@@ -381,9 +381,9 @@ export function computeMetrics(tradeData) {
       }
     }
 
-    // Trend medio annuo (CAGR) — solo se dataset completo
+    // Trend medio annuo (CAGR) — calcolabile con almeno 2 valori
     let cagr = null;
-    if (datasetCompleto && valori.length >= 2) {
+    if (valori.length >= 2) {
       const primo = valori[0];
       const ultimo = valori[valori.length - 1];
       const anni = valori.length - 1;
