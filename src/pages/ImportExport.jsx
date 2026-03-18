@@ -126,7 +126,8 @@ export default function ImportExport() {
           <>
             <button
               onClick={() => setActiveTab('export')}
-              className="flex items-center gap-2 text-black hover:text-black/70 mb-4 text-sm transition-colors"
+              className="flex items-center gap-2 mb-4 text-sm transition-colors"
+              style={{ color: 'var(--app-text-primary)' }}
             >
               <ArrowLeft className="w-4 h-4" />
               Torna all'analisi
