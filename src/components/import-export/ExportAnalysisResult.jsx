@@ -427,14 +427,12 @@ export default function ExportAnalysisResult({ analysisResult, tradeMetrics, mac
 
             <LogisticaDoganeGTMCard data={m.logistica_dogane_gtm} />
 
-            {confirmedExportHS?.hs_code && (
-              <CustomsDutyGuideCard
-                countryCode={m.paese_code}
-                countryName={m.paese_nome || m.mercato}
-                hsCode={confirmedExportHS.hs_code}
-                productDescription={exportForm?.prodotto || confirmedExportHS?.description}
-              />
-            )}
+            <CustomsDutyGuideCard
+              countryCode={m.paese_code}
+              countryName={m.paese_nome || m.mercato}
+              hsCode={confirmedExportHS?.hs_code || ''}
+              productDescription={exportForm?.prodotto || confirmedExportHS?.description || ''}
+            />
 
             <ValidazioneCommercialeCard data={m.validazione_commerciale} />
             <DatiMancantiCard data={m.dati_mancanti} />
