@@ -1031,6 +1031,7 @@ GLOBALE:
       mercatiMap[key].market_screening = m.market_screening;
       mercatiMap[key].domanda_locale = m.domanda_locale;
       mercatiMap[key].flussi_commerciali = m.flussi_commerciali;
+      mercatiMap[key].confronto_import_globale = m.confronto_import_globale;
     }
   });
 
