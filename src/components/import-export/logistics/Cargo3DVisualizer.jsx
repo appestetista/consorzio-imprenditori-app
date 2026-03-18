@@ -18,7 +18,7 @@ const VEHICLES = [
     label: "Container 40' HC",
     image: 'https://media.base44.com/images/public/695e2f74bb7d2636b5606a98/5b89e95f5_40-hc-removebg-preview.png',
     internal: { l: 12.03, w: 2.35, h: 2.69 },
-    volume: 76.3,
+    volume: 76,
     maxWeight: 26480,
     color: '#3b82f6',
   },
