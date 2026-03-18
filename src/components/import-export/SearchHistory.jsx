@@ -60,12 +60,14 @@ export default function SearchHistory({ userEmail, onOpenAnalysis }) {
         const hasSnapshot = !!log.analysis_snapshot?.analysisResult;
 
         return (
-          <Card key={log.id} className={`bg-slate-800/50 border-white/5 hover:border-white/10 transition-colors ${hasSnapshot ? 'cursor-pointer' : ''}`}
-            onClick={() => { if (hasSnapshot && onOpenAnalysis) onOpenAnalysis(log); }}>
-            <CardContent className="p-4">
+          <div key={log.id} 
+            className="rounded-xl border border-white/10 hover:border-white/20 transition-all cursor-pointer active:scale-[0.98]"
+            style={{ background: 'rgba(10, 15, 26, 0.95)' }}
+            onClick={() => { if (onOpenAnalysis) onOpenAnalysis(log); }}>
+            <div className="p-4">
               <div className="flex items-start gap-3">
                 <div className={`w-9 h-9 rounded-xl flex items-center justify-center flex-shrink-0 ${
-                  isExport ? 'bg-lime-500/10' : 'bg-red-500/10'
+                  isExport ? 'bg-lime-500/15' : 'bg-red-500/15'
                 }`}>
                   {isExport 
                     ? <TrendingUp className="w-4 h-4 text-lime-400" />
@@ -79,7 +81,7 @@ export default function SearchHistory({ userEmail, onOpenAnalysis }) {
                     }`}>
                       {isExport ? 'EXPORT' : 'IMPORT'}
                     </Badge>
-                    <span className="text-slate-500 text-[10px]">{formattedDate} · {formattedTime}</span>
+                    <span className="text-slate-400 text-[10px]">{formattedDate} · {formattedTime}</span>
                     {hasSnapshot && (
                       <Badge variant="outline" className="text-[10px] px-1.5 py-0 text-emerald-400 border-emerald-400/30">
                         Rivedi
@@ -87,36 +89,36 @@ export default function SearchHistory({ userEmail, onOpenAnalysis }) {
                     )}
                   </div>
                   
-                  <p className="text-white text-sm font-medium truncate">
+                  <p className="text-white text-sm font-semibold truncate">
                     {log.search_label || meta.prodotto || '—'}
                   </p>
 
                   <div className="flex flex-wrap gap-1.5 mt-2">
                     {meta.hs_code && (
-                      <span className="inline-flex items-center gap-1 text-[10px] text-slate-400 bg-slate-700/50 px-2 py-0.5 rounded-full">
+                      <span className="inline-flex items-center gap-1 text-[10px] text-white/70 bg-white/5 px-2 py-0.5 rounded-full">
                         <Package className="w-3 h-3" /> HS {meta.hs_code}
                       </span>
                     )}
                     {meta.mercati?.length > 0 && (
-                      <span className="inline-flex items-center gap-1 text-[10px] text-slate-400 bg-slate-700/50 px-2 py-0.5 rounded-full">
+                      <span className="inline-flex items-center gap-1 text-[10px] text-white/70 bg-white/5 px-2 py-0.5 rounded-full">
                         <MapPin className="w-3 h-3" /> {meta.mercati.slice(0, 3).join(', ')}{meta.mercati.length > 3 ? ` +${meta.mercati.length - 3}` : ''}
                       </span>
                     )}
                     {meta.settore && (
-                      <span className="text-[10px] text-slate-500 bg-slate-700/50 px-2 py-0.5 rounded-full">
+                      <span className="text-[10px] text-white/60 bg-white/5 px-2 py-0.5 rounded-full">
                         {meta.settore}
                       </span>
                     )}
                     {meta.tipo_richiesta && (
-                      <span className="text-[10px] text-slate-500 bg-slate-700/50 px-2 py-0.5 rounded-full">
+                      <span className="text-[10px] text-white/60 bg-white/5 px-2 py-0.5 rounded-full">
                         {meta.tipo_richiesta}
                       </span>
                     )}
                   </div>
                 </div>
               </div>
-            </CardContent>
-          </Card>
+            </div>
+          </div>
         );
       })}
     </div>
