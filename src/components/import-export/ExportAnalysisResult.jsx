@@ -171,10 +171,16 @@ const SPIEGAZIONI = {
   "Posizionamento rispetto ai competitor italiani": { title: "Posizionamento Italia", body: "Come si posizionano i prodotti italiani rispetto ai concorrenti in questo mercato: se sono percepiti come premium, di nicchia, o in diretta competizione con produttori locali." },
 };
 
+function isNDValue(value) {
+  if (!value) return true;
+  const v = String(value).trim().toLowerCase();
+  return v === 'n/d' || v === 'non disponibile' || v === 'dato non disponibile da fonti ufficiali verificabili' || v === 'n/a' || v === 'nd';
+}
+
 function DataRow({ label, value, warning }) {
   const spiegazione = SPIEGAZIONI[label];
 
-  if (!value || value === 'N/D' || value === 'Dato non disponibile da fonti ufficiali verificabili') {
+  if (isNDValue(value)) {
     return (
       <div className="flex justify-between items-start py-1.5 border-b border-white/5 last:border-0">
         <span className="text-white/60 text-xs flex items-center gap-1">
@@ -192,6 +198,55 @@ function DataRow({ label, value, warning }) {
         {spiegazione && <InfoTooltip title={spiegazione.title}><p>{spiegazione.body}</p></InfoTooltip>}
       </span>
       <span className={`text-xs text-right font-medium ${warning ? 'text-amber-400' : 'text-white'}`}>{value}</span>
+    </div>
+  );
+}
+
+/**
+ * Versione avanzata di DataRow per la sezione Domanda Locale.
+ * Se il valore è lungo (>60 chars) lo mostra come blocco sotto la label.
+ * Se il valore contiene indicatori di stima, mostra un badge "Stima".
+ */
+function DetailedDataRow({ label, value, spiegazioneKey }) {
+  const spiegazione = SPIEGAZIONI[spiegazioneKey || label];
+  const isEstimate = value && /stima|proxy|approssim|circa|indicativ/i.test(String(value));
+  const isLong = value && String(value).length > 60;
+
+  if (isNDValue(value)) {
+    return (
+      <div className="py-1.5 border-b border-white/5 last:border-0">
+        <div className="flex justify-between items-start">
+          <span className="text-white/60 text-xs flex items-center gap-1">
+            {label}
+            {spiegazione && <InfoTooltip title={spiegazione.title}><p>{spiegazione.body}</p></InfoTooltip>}
+          </span>
+          <span className="text-amber-400/60 text-[10px] italic">Dato non reperibile da fonti pubbliche</span>
+        </div>
+      </div>
+    );
+  }
+
+  if (isLong) {
+    return (
+      <div className="py-1.5 border-b border-white/5 last:border-0">
+        <div className="flex items-center gap-1 mb-1">
+          <span className="text-white/60 text-xs font-medium">{label}</span>
+          {spiegazione && <InfoTooltip title={spiegazione.title}><p>{spiegazione.body}</p></InfoTooltip>}
+          {isEstimate && <span className="text-amber-400 text-[8px] font-bold bg-amber-500/10 px-1.5 py-0.5 rounded">STIMA</span>}
+        </div>
+        <p className="text-white/80 text-[11px] leading-relaxed pl-1">{value}</p>
+      </div>
+    );
+  }
+
+  return (
+    <div className="flex justify-between items-start py-1.5 border-b border-white/5 last:border-0 gap-4">
+      <span className="text-white/70 text-xs flex-shrink-0 flex items-center gap-1">
+        {label}
+        {spiegazione && <InfoTooltip title={spiegazione.title}><p>{spiegazione.body}</p></InfoTooltip>}
+        {isEstimate && <span className="text-amber-400 text-[8px] font-bold bg-amber-500/10 px-1.5 py-0.5 rounded">STIMA</span>}
+      </span>
+      <span className="text-xs text-right font-medium text-white">{value}</span>
     </div>
   );
 }
