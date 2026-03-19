@@ -709,25 +709,63 @@ VERIFICA:
           </CardContent>
         </Card>
 
-        {/* Pulsante Aggiungi primo ramo */}
+        {/* Hero spiegazione sezione + Pulsante */}
         {branches.length === 0 && (
-          <button
-            onClick={() => setShowBranchManager(true)}
-            className="w-full mb-6 py-4 px-4 rounded-xl border active:scale-[0.98] transition-all flex items-center gap-3"
-            style={{ backgroundColor: '#0040ff', borderColor: '#3366ff' }}
-          >
-            <div className="flex items-center gap-3 flex-1">
+          <div className="mb-6 space-y-4">
+            {/* Immagine poliziotto grande */}
+            <div className="flex justify-center -mb-2">
+              <img 
+                src="https://media.base44.com/images/public/695e2f74bb7d2636b5606a98/22d2f500e_ChatGPT_Image_19_mar_2026__12_32_18-removebg-preview.png" 
+                alt="Evita sanzioni" 
+                className="w-64 h-64 object-contain drop-shadow-2xl"
+              />
+            </div>
+
+            {/* Spiegazione dettagliata */}
+            <Card className="bg-slate-800/80 border-slate-700">
+              <CardContent className="p-5 space-y-3">
+                <h2 className="text-white font-bold text-lg text-center">Non farti cogliere impreparato</h2>
+                <p className="text-slate-300 text-sm leading-relaxed">
+                  Ogni azienda italiana è soggetta a <span className="text-lime-400 font-semibold">decine di adempimenti obbligatori</span> in base al proprio codice ATECO, al numero di dipendenti e ai rischi presenti. Ignorarli può costare <span className="text-red-400 font-semibold">migliaia di euro in sanzioni</span>, fino alla sospensione dell'attività.
+                </p>
+                
+                <div className="space-y-2 pt-1">
+                  <div className="flex items-start gap-2">
+                    <Shield className="w-4 h-4 text-lime-400 mt-0.5 flex-shrink-0" />
+                    <p className="text-slate-400 text-xs"><span className="text-white font-medium">Analisi automatica</span> — L'AI analizza il tuo codice ATECO e genera tutti gli adempimenti obbligatori: sicurezza, privacy, ambiente, antincendio, formazione.</p>
+                  </div>
+                  <div className="flex items-start gap-2">
+                    <FileText className="w-4 h-4 text-blue-400 mt-0.5 flex-shrink-0" />
+                    <p className="text-slate-400 text-xs"><span className="text-white font-medium">Verifica documenti</span> — Carica i tuoi documenti (DVR, certificati, attestati) e l'AI li analizza in tempo reale, verificando conformità, scadenze e coerenza con la tua azienda.</p>
+                  </div>
+                  <div className="flex items-start gap-2">
+                    <Clock className="w-4 h-4 text-orange-400 mt-0.5 flex-shrink-0" />
+                    <p className="text-slate-400 text-xs"><span className="text-white font-medium">Scadenze sotto controllo</span> — Ogni adempimento ha una timeline visiva che ti avvisa prima della scadenza, così non perdi mai una data importante.</p>
+                  </div>
+                  <div className="flex items-start gap-2">
+                    <CheckCircle className="w-4 h-4 text-green-400 mt-0.5 flex-shrink-0" />
+                    <p className="text-slate-400 text-xs"><span className="text-white font-medium">Fonti verificate</span> — Ogni adempimento indica se la fonte normativa è verificata (con riferimento di legge) o se necessita conferma da un professionista.</p>
+                  </div>
+                  <div className="flex items-start gap-2">
+                    <AlertTriangle className="w-4 h-4 text-red-400 mt-0.5 flex-shrink-0" />
+                    <p className="text-slate-400 text-xs"><span className="text-white font-medium">Sanzioni visibili</span> — Per ogni obbligo vedi la sanzione prevista, l'ente che controlla (ASL, ARPA, Vigili del Fuoco, Garante Privacy) e la priorità.</p>
+                  </div>
+                </div>
+              </CardContent>
+            </Card>
+
+            {/* Pulsante Aggiungi primo ramo */}
+            <button
+              onClick={() => setShowBranchManager(true)}
+              className="w-full py-4 px-4 rounded-xl border active:scale-[0.98] transition-all flex items-center justify-center gap-3"
+              style={{ backgroundColor: '#0040ff', borderColor: '#3366ff' }}
+            >
               <div className="w-10 h-10 rounded-full flex items-center justify-center flex-shrink-0" style={{ backgroundColor: 'rgba(255,255,255,0.2)' }}>
                 <Plus className="w-6 h-6 text-white" />
               </div>
-              <span className="text-white font-semibold text-base text-left">Aggiungi primo ramo</span>
-            </div>
-            <img 
-              src="https://media.base44.com/images/public/695e2f74bb7d2636b5606a98/22d2f500e_ChatGPT_Image_19_mar_2026__12_32_18-removebg-preview.png" 
-              alt="Evita sanzioni" 
-              className="w-20 h-20 object-contain flex-shrink-0"
-            />
-          </button>
+              <span className="text-white font-semibold text-base">Inizia — Aggiungi il tuo primo ramo</span>
+            </button>
+          </div>
         )}
 
         {/* Selezione Ramo con bottoni */}
