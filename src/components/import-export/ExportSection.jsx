@@ -202,7 +202,6 @@ export default function ExportSection({ user, exportManagers, selectedMapCountry
           removeAttachment={removeAttachment}
           exportManagers={exportManagers}
         />
-      )}
 
       {/* Progress bar inline analisi in corso — non blocca la pagina */}
 
