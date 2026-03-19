@@ -62,20 +62,49 @@ REGOLE:
       }
     });
 
-    setExtracting(false);
-
     if (result.dati_non_leggibili) {
+      setExtracting(false);
       setError(result.note || "L'immagine non è leggibile. Riprova con una foto più nitida.");
       return;
     }
 
-    // Filtra solo campi con valore
     const hasData = result.ragione_sociale || result.partita_iva || result.codice_fiscale;
     if (!hasData) {
+      setExtracting(false);
       setError("Non sono riuscito a trovare dati aziendali nel timbro. Assicurati che la foto sia nitida e il timbro ben visibile.");
       return;
     }
 
+    // Se abbiamo la P.IVA ma non il codice ATECO, lo cerchiamo online
+    if (result.partita_iva && !result.codice_ateco) {
+      const atecoResult = await base44.integrations.Core.InvokeLLM({
+        prompt: `Cerca il codice ATECO principale dell'azienda italiana con Partita IVA: ${result.partita_iva}${result.ragione_sociale ? ', ragione sociale: ' + result.ragione_sociale : ''}.
+
+Cerca su registroimprese.it, openapi.it, o altre fonti ufficiali italiane.
+
+REGOLE:
+- Restituisci SOLO il codice ATECO se lo trovi con certezza da una fonte ufficiale
+- Se NON lo trovi, restituisci stringa vuota
+- NON inventare codici ATECO
+- Il formato deve essere XX.XX.XX (es: 56.10.11, 43.21.01)`,
+        add_context_from_internet: true,
+        response_json_schema: {
+          type: "object",
+          properties: {
+            codice_ateco: { type: "string", description: "Codice ATECO trovato (vuoto se non trovato)" },
+            descrizione_ateco: { type: "string", description: "Descrizione dell'attività ATECO" },
+            fonte: { type: "string", description: "Fonte da cui è stato trovato" }
+          }
+        }
+      });
+
+      if (atecoResult.codice_ateco) {
+        result.codice_ateco = atecoResult.codice_ateco;
+        result.descrizione_ateco = atecoResult.descrizione_ateco || '';
+      }
+    }
+
+    setExtracting(false);
     setExtractedData(result);
   };
 
