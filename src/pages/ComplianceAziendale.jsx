@@ -1873,7 +1873,6 @@ VERIFICA:
                       </Button>
                     )}
                   </div>
-                </div>
               )}
               
 
