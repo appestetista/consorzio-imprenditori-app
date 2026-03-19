@@ -16,6 +16,9 @@ export function ThemeProvider({ children }) {
   useEffect(() => {
     document.body.classList.remove('theme-light', 'theme-dark');
     document.body.classList.add(`theme-${mode}`);
+    // Rimuovi il flash-guard iniziale — ora React gestisce il tema
+    const guard = document.getElementById('theme-flash-guard');
+    if (guard) guard.remove();
     try { localStorage.setItem(STORAGE_KEY, mode); } catch {}
   }, [mode]);
 
