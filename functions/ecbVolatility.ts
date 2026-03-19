@@ -193,19 +193,8 @@ Deno.serve(async (req) => {
     }
 
     // Controlla se la valuta è disponibile nell'API BCE
-    if (!BCE_CURRENCIES.has(currency)) {
-      return Response.json({
-        error: `La valuta ${currency} non è disponibile nell'API BCE`,
-        currency,
-        volatilita_annualizzata_pct: null,
-        volatilita_recente_pct: null,
-        livello: 'non_disponibile',
-        livello_recente: 'non_disponibile',
-        trend: 'non_disponibile',
-        fonte: null,
-        nota: `La BCE pubblica tassi solo per ~30 valute principali. ${currency} non è tra queste.`
-      });
-    }
+    // Se non disponibile, prova Frankfurter API (mirror BCE con più valute)
+    const useFrankfurter = !BCE_CURRENCIES.has(currency);
 
     // Date
     const now = new Date();
