@@ -143,6 +143,43 @@ function computeAnnualizedVolatility(rates) {
   return parseFloat(annualizedVol.toFixed(1));
 }
 
+/**
+ * Fallback: Frankfurter API — mirror gratuito dei tassi BCE.
+ * Supporta le stesse valute della BCE ma con API più semplice.
+ * https://www.frankfurter.app/docs/
+ */
+async function fetchFrankfurterRates(currency, startDate, endDate) {
+  // Frankfurter restituisce tassi giornalieri in formato JSON
+  const url = `https://api.frankfurter.app/${startDate}..${endDate}?to=${currency}`;
+  console.log(`[Frankfurter] Fetching ${currency} from ${startDate} to ${endDate}`);
+  
+  try {
+    const resp = await fetch(url, { signal: AbortSignal.timeout(15000) });
+    if (!resp.ok) {
+      console.error(`[Frankfurter] HTTP ${resp.status}`);
+      return [];
+    }
+    
+    const json = await resp.json();
+    const ratesObj = json.rates;
+    if (!ratesObj || typeof ratesObj !== 'object') return [];
+    
+    const rates = [];
+    for (const [date, values] of Object.entries(ratesObj)) {
+      const value = values[currency];
+      if (value && !isNaN(value) && value > 0) {
+        rates.push({ date, value });
+      }
+    }
+    
+    console.log(`[Frankfurter] Got ${rates.length} rates for ${currency}`);
+    return rates.sort((a, b) => a.date.localeCompare(b.date));
+  } catch (e) {
+    console.error(`[Frankfurter] Error: ${e.message}`);
+    return [];
+  }
+}
+
 Deno.serve(async (req) => {
   try {
     const base44 = createClientFromRequest(req);
