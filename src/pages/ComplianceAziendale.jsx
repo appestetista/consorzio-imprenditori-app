@@ -1592,10 +1592,16 @@ VERIFICA:
               {!showStampScanner && (
                 <button
                   onClick={() => setShowStampScanner(true)}
-                  className="w-full mb-3 py-3 px-4 rounded-xl border border-blue-500/30 bg-blue-500/10 flex items-center justify-center gap-2 hover:bg-blue-500/20 transition-colors"
+                  className="w-full mb-3 py-3.5 px-4 rounded-xl flex items-center justify-center gap-2.5 transition-all duration-150 active:translate-y-0.5 active:shadow-none"
+                  style={{
+                    background: 'linear-gradient(180deg, #60a5fa 0%, #3b82f6 50%, #2563eb 100%)',
+                    boxShadow: '0 6px 0 #1d4ed8, 0 8px 16px rgba(37, 99, 235, 0.4), inset 0 1px 0 rgba(255,255,255,0.25)',
+                    border: '1px solid rgba(96, 165, 250, 0.5)',
+                    textShadow: '0 1px 2px rgba(0,0,0,0.3)'
+                  }}
                 >
-                  <Camera className="w-5 h-5 text-blue-400" />
-                  <span className="text-blue-300 text-sm font-medium">📸 Scatta foto al timbro — compila automatico</span>
+                  <Camera className="w-5 h-5 text-white drop-shadow" />
+                  <span className="text-white text-sm font-bold drop-shadow">📸 Scatta foto al timbro — compila automatico</span>
                 </button>
               )}
 
