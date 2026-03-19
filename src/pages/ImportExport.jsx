@@ -89,7 +89,7 @@ export default function ImportExport() {
         {activeTab !== 'history' && user && (
           <div className="mb-6">
             <button
-              onClick={() => setActiveTab('history')}
+              onClick={() => { setHistoryFromTab(activeTab); setActiveTab('history'); }}
               className="w-full flex items-center justify-between rounded-xl px-4 py-3 text-sm transition-all duration-100 active:translate-y-[2px]"
               style={{
                 background: 'linear-gradient(180deg, #8b6914 0%, #6b4f0e 60%, #4a3609 100%)',
