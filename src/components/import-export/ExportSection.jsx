@@ -189,6 +189,19 @@ export default function ExportSection({ user, exportManagers, selectedMapCountry
 
   return (
     <>
+      {/* Bubble consulente floating — visibile durante e dopo l'analisi */}
+      {(analyzing || analysisResult) && (
+        <ExportConsultantBubble
+          contactForm={contactForm} setContactForm={setContactForm}
+          contactSent={contactSent} setContactSent={setContactSent}
+          sendContactMutation={sendContactMutation}
+          uploadingAttachment={uploadingAttachment}
+          handleAttachmentUpload={handleAttachmentUpload}
+          removeAttachment={removeAttachment}
+          exportManagers={exportManagers}
+        />
+      )}
+
       {/* Progress bar inline analisi in corso — non blocca la pagina */}
 
       {/* Ricerca rapida export */}
