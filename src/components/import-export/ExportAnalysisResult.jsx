@@ -683,39 +683,45 @@ function CompetitiveIntelligenceSection({ m }) {
                   </div>
                 )}
 
-                {/* Pricing Intelligence */}
-                {m.analisi_competitiva?.pricing_intelligence && (
-                  <div className="bg-indigo-500/5 border border-indigo-500/10 rounded-lg p-2.5 mb-3">
-                    <p className="text-indigo-400 text-[10px] font-bold uppercase tracking-wider mb-1.5 flex items-center gap-1.5">
-                      Analisi Prezzi
-                      <InfoTooltip title="Analisi Prezzi (Pricing Intelligence)">
-                        <p>Mostra il range di prezzi a cui prodotti simili vengono venduti nel mercato target. Ti serve per capire se il tuo prezzo è competitivo o troppo alto rispetto a quello che i compratori locali sono abituati a pagare.</p>
-                      </InfoTooltip>
-                    </p>
-                    <div className="flex items-center gap-3 mb-1">
-                      {m.analisi_competitiva.pricing_intelligence.local_price_range_min && (
+                {/* Pricing Intelligence — mostra solo se ci sono prezzi reali */}
+                {m.analisi_competitiva?.pricing_intelligence && (() => {
+                  const pi = m.analisi_competitiva.pricing_intelligence;
+                  const hasMin = pi.local_price_range_min && !isNDValue(pi.local_price_range_min);
+                  const hasMax = pi.local_price_range_max && !isNDValue(pi.local_price_range_max);
+                  const hasPrice = hasMin || hasMax;
+                  if (!hasPrice) return null;
+                  return (
+                    <div className="bg-indigo-500/5 border border-indigo-500/10 rounded-lg p-2.5 mb-3">
+                      <p className="text-indigo-400 text-[10px] font-bold uppercase tracking-wider mb-1.5 flex items-center gap-1.5">
+                        Analisi Prezzi
+                        <InfoTooltip title="Analisi Prezzi (Pricing Intelligence)">
+                          <p>Mostra il range di prezzi a cui prodotti simili vengono venduti nel mercato target. Ti serve per capire se il tuo prezzo è competitivo o troppo alto rispetto a quello che i compratori locali sono abituati a pagare.</p>
+                        </InfoTooltip>
+                      </p>
+                      <div className="flex items-center gap-3 mb-1">
                         <span className="text-white text-xs font-medium">
-                          {m.analisi_competitiva.pricing_intelligence.local_price_range_min} — {m.analisi_competitiva.pricing_intelligence.local_price_range_max}
-                          {m.analisi_competitiva.pricing_intelligence.price_unit && (
-                            <span className="text-white/50 text-[10px] font-normal ml-1">/{m.analisi_competitiva.pricing_intelligence.price_unit}</span>
-                          )}
-                          {m.analisi_competitiva.pricing_intelligence.currency && (
-                            <span className="text-white/50 text-[10px] font-normal ml-1">({m.analisi_competitiva.pricing_intelligence.currency})</span>
-                          )}
+                          {hasMin && hasMax ? `${pi.local_price_range_min} — ${pi.local_price_range_max}` : hasMin ? `da ${pi.local_price_range_min}` : `fino a ${pi.local_price_range_max}`}
+                          {pi.price_unit && <span className="text-white/50 text-[10px] font-normal ml-1">/{pi.price_unit}</span>}
+                          {pi.currency && <span className="text-white/50 text-[10px] font-normal ml-1">({pi.currency})</span>}
                         </span>
+                      </div>
+                      {/* Fonte e data di riferimento */}
+                      {(pi.source || pi.reference_date) && (
+                        <p className="text-indigo-300/70 text-[10px] mt-0.5">
+                          {pi.source && <span>Fonte: {pi.source}</span>}
+                          {pi.source && pi.reference_date && <span> · </span>}
+                          {pi.reference_date && <span>{pi.reference_date}</span>}
+                        </p>
+                      )}
+                      {pi.benchmark_product && !isNDValue(pi.benchmark_product) && (
+                        <p className="text-white/60 text-[10px]">Rif: {pi.benchmark_product}</p>
+                      )}
+                      {pi.notes && !isNDValue(pi.notes) && (
+                        <p className="text-white/50 text-[10px] mt-1 italic">{pi.notes}</p>
                       )}
                     </div>
-                    {m.analisi_competitiva.pricing_intelligence.price_unit && (
-                      <p className="text-white/50 text-[10px]">Unità di misura: {m.analisi_competitiva.pricing_intelligence.price_unit}</p>
-                    )}
-                    {m.analisi_competitiva.pricing_intelligence.benchmark_product && (
-                      <p className="text-white/60 text-[10px]">Rif: {m.analisi_competitiva.pricing_intelligence.benchmark_product}</p>
-                    )}
-                    {m.analisi_competitiva.pricing_intelligence.notes && (
-                      <p className="text-white/50 text-[10px] mt-1 italic">{m.analisi_competitiva.pricing_intelligence.notes}</p>
-                    )}
-                  </div>
-                )}
+                  );
+                })()}
 
                 {/* Distribution Channels */}
                 {m.analisi_competitiva?.distribution_channels && (
