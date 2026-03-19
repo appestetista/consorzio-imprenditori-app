@@ -3,7 +3,8 @@ import { Shield, Building2, ShoppingBag, Percent, Truck, Search, AlertTriangle, 
 import LogisticsModule from './logistics/LogisticsModule';
 
 function DataRow({ label, value, warning }) {
-  if (!value || value === 'N/D' || value === 'Non disponibile') {
+  const safeValue = (value != null && typeof value === 'object') ? JSON.stringify(value) : value;
+  if (!safeValue || safeValue === 'N/D' || safeValue === 'Non disponibile') {
     return (
       <div className="flex justify-between items-start py-1.5 border-b border-white/5 last:border-0">
         <span className="text-slate-500 text-xs">{label}</span>
@@ -14,7 +15,7 @@ function DataRow({ label, value, warning }) {
   return (
     <div className="flex justify-between items-start py-1.5 border-b border-white/5 last:border-0 gap-4">
       <span className="text-slate-400 text-xs flex-shrink-0">{label}</span>
-      <span className={`text-xs text-right ${warning ? 'text-amber-400' : 'text-white'}`}>{value}</span>
+      <span className={`text-xs text-right ${warning ? 'text-amber-400' : 'text-white'}`}>{safeValue}</span>
     </div>
   );
 }
