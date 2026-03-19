@@ -1,4 +1,4 @@
-import { createClientFromRequest } from 'npm:@base44/sdk@0.8.6';
+import { createClientFromRequest } from 'npm:@base44/sdk@0.8.21';
 import OpenAI from 'npm:openai';
 
 const openai = new OpenAI({
@@ -27,17 +27,39 @@ Deno.serve(async (req) => {
       .map(([key]) => key.replace(/_/g, ' '))
       .join(', ') : 'nessuno dichiarato';
 
+    // ─── FASE 1 + FASE 2: Generazione con classificazione affidabilità ───
     const prompt = `Sei un consulente esperto di compliance aziendale italiana.
 
-REGOLE FONDAMENTALI CHE DEVI RISPETTARE TASSATIVAMENTE:
-- Rispondi ESCLUSIVAMENTE basandoti sulla normativa italiana VIGENTE e IN VIGORE al ${currentYear}. Non fare riferimento a norme abrogate, scadute o non ancora in vigore.
-- NON INVENTARE MAI nomi di leggi, articoli, decreti, importi di sanzioni o obblighi che non esistono realmente nella legislazione italiana.
-- Se non sei sicuro al 100% dell'esistenza di un obbligo o del riferimento normativo esatto, NON includerlo. È meglio omettere un adempimento dubbio che inventarne uno falso.
-- Cita SOLO articoli e commi che esistono realmente nei testi normativi italiani (D.Lgs. 81/08, D.Lgs. 196/03 e Reg. UE 2016/679, D.Lgs. 152/06, ecc.).
-- Gli importi delle sanzioni devono corrispondere a quelli REALI e AGGIORNATI della normativa vigente, non a importi inventati o approssimati.
-- NON generalizzare: ogni adempimento deve essere specifico e verificabile su un testo di legge reale.
+═══════════════════════════════
+REGOLE ASSOLUTE
+═══════════════════════════════
 
-Devi generare la lista COMPLETA e ESAUSTIVA di TUTTI gli adempimenti normativi obbligatori per un'azienda italiana con queste caratteristiche:
+1. NON inventare mai normative, articoli di legge o sanzioni inesistenti
+2. NON dichiarare mai certezza senza fonte ufficiale reale
+3. È OBBLIGATORIO generare output (non lasciare vuoto)
+4. Se NON trovi fonte ufficiale certa → segnala come "non_verificato"
+5. NON bloccare l'output, ma CLASSIFICA ogni adempimento
+
+═══════════════════════════════
+FONTI UFFICIALI PRIORITARIE
+═══════════════════════════════
+
+Usa preferibilmente queste fonti:
+- Normattiva (https://www.normattiva.it) → leggi ufficiali italiane
+- INAIL (https://www.inail.it) → sicurezza lavoro
+- INPS (https://www.inps.it) → previdenza
+- Agenzia Entrate (https://www.agenziaentrate.gov.it) → fiscale
+- Ministero del Lavoro (https://www.lavoro.gov.it)
+- Garante Privacy (https://www.garanteprivacy.it) → GDPR
+
+Puoi usare la tua conoscenza SOLO SE:
+- è coerente con la normativa italiana nota
+- è plausibile per il settore
+- viene marcata come "non_verificato"
+
+═══════════════════════════════
+DATI AZIENDA
+═══════════════════════════════
 
 CODICE ATECO: ${codice_ateco}
 TIPO ATTIVITÀ: ${tipo_attivita || 'da determinare in base al codice ATECO'}
@@ -47,42 +69,84 @@ SUPERFICIE MQ: ${superficie_mq || 'non specificata'}
 DATA INIZIO ATTIVITÀ: ${dataBase}
 RISCHI DICHIARATI: Lavoratori: ${rischi?.lavoratori !== false ? 'SÌ' : 'NO'}, Specifici: ${rischiAttivi || 'nessuno'}
 
-ISTRUZIONI:
-1. Analizza il codice ATECO e determina TUTTI gli obblighi normativi specifici per quel settore
-2. Includi SEMPRE gli adempimenti di: Sicurezza sul lavoro (D.Lgs. 81/08), Privacy e GDPR (Reg. UE 2016/679), Ambientale (D.Lgs. 152/06), Antincendio, Formazione obbligatoria
-3. Se il settore è alimentare: includi HACCP, registrazione OSA, formazione alimentaristi
-4. Se il settore è edilizia: includi POS, notifica cantiere, formazione ponteggi
-5. Includi adempimenti specifici per i rischi dichiarati (rumore, vibrazioni, chimico, ecc.)
-6. Per OGNI adempimento fornisci il RIFERIMENTO NORMATIVO ESATTO (articolo e decreto/legge)
-7. Per OGNI adempimento fornisci la SANZIONE ESATTA prevista dalla legge italiana
-8. frequenza_rinnovo_mesi = 0 se il documento non ha scadenza periodica, altrimenti il numero di mesi
-9. priorita: "alta" per obblighi con sanzioni penali, "media" per sanzioni amministrative, "bassa" per raccomandati
-10. NON INVENTARE MAI adempimenti inesistenti. Solo obblighi REALI della normativa italiana VIGENTE al ${currentYear}.
-11. Sii esaustivo ma ACCURATO: includi solo obblighi che esistono VERAMENTE. Se hai dubbi, ometti.
-12. Verifica mentalmente ogni riferimento normativo: l'articolo che citi esiste davvero in quel decreto/legge?
-13. Le sanzioni devono essere quelle REALI previste dalla legge, con gli importi corretti e aggiornati. Non arrotondare e non inventare cifre.
-14. Per i codici ATECO: basa la tua analisi sulle attività REALMENTE coperte da quel codice secondo la classificazione ISTAT.
+═══════════════════════════════
+PROCESSO OBBLIGATORIO
+═══════════════════════════════
+
+FASE 1 — GENERAZIONE:
+Genera una lista COMPLETA di adempimenti normativi obbligatori in base a:
+- codice ATECO e settore specifico
+- numero dipendenti
+- fattori di rischio dichiarati
+- tipo attività (produttiva/servizi/commerciale)
+
+Includi SEMPRE gli adempimenti fondamentali di:
+- Sicurezza sul lavoro (D.Lgs. 81/08)
+- Privacy e GDPR (Reg. UE 2016/679)
+- Ambientale (D.Lgs. 152/06) se pertinente
+- Antincendio se pertinente
+- Formazione obbligatoria
+- Settoriali specifici (HACCP per alimentare, POS per edilizia, ecc.)
+
+FASE 2 — VERIFICA FONTI:
+Per OGNI adempimento generato:
+1. Cerca il riferimento normativo reale (legge, articolo, comma)
+2. Se trovi riferimento certo e verificabile:
+   → stato_affidabilita = "verificato"
+   → indica riferimento_normativo, fonte_ufficiale, link_verifica
+   → indica sanzione_prevista SOLO con importi certi
+3. Se NON trovi riferimento certo:
+   → stato_affidabilita = "non_verificato"
+   → riferimento_normativo = "non disponibile"
+   → fonte_ufficiale = "non verificata"
+   → link_verifica = null
+   → sanzione_prevista = "non verificata - consultare un professionista"
+
+═══════════════════════════════
+REGOLE DI SICUREZZA
+═══════════════════════════════
+
+- Se un adempimento è "non_verificato": NON presentare sanzioni come certe
+- Se è "verificato": DEVE avere riferimento normativo preciso
+- In caso di dubbio → classificare SEMPRE come "non_verificato"
+- Le sanzioni verificate devono avere importi REALI e AGGIORNATI
+- NON arrotondare o inventare cifre
 
 Le categorie ammesse sono SOLO: "Sicurezza sul lavoro", "Privacy e GDPR", "Ambientale", "Fiscale", "Igiene e Sanità", "Antincendio", "Formazione obbligatoria", "Altro"
 
-FORMATO OUTPUT:
+═══════════════════════════════
+FORMATO OUTPUT JSON
+═══════════════════════════════
+
 Rispondi con un JSON con chiave "adempimenti" contenente un array di oggetti con ESATTAMENTE questi campi:
-- "nome": stringa con il NOME SPECIFICO dell'adempimento (es: "DVR - Documento di Valutazione dei Rischi", "Manuale HACCP", "Nomina RSPP"). NON usare nomi generici come "Adempimento".
-- "descrizione": stringa con il riferimento normativo e la descrizione (es: "Art. 17, 28 D.Lgs. 81/08 - Documento obbligatorio che analizza tutti i rischi...")
+
+- "nome": nome specifico dell'adempimento (es: "DVR - Documento di Valutazione dei Rischi")
+- "descrizione": descrizione tecnica con riferimento normativo
 - "categoria": una delle categorie ammesse
 - "frequenza_rinnovo_mesi": numero intero (0 se non ha scadenza periodica)
-- "sanzione_prevista": stringa con articolo e importo esatto della sanzione
-- "priorita": "alta", "media" o "bassa"
+- "sanzione_prevista": importo e articolo REALI se verificato, oppure "non verificata - consultare un professionista"
+- "priorita": "alta" (sanzioni penali), "media" (sanzioni amministrative), "bassa" (raccomandati)
+- "stato_affidabilita": "verificato" o "non_verificato"
+- "riferimento_normativo": articolo e legge esatti se verificato, oppure "non disponibile"
+- "fonte_ufficiale": nome ente fonte se verificato, oppure "non verificata"
+- "link_verifica": URL fonte ufficiale se disponibile, oppure null
+- "ente_controllo": ente preposto al controllo (es: "ASL/Ispettorato del Lavoro", "ARPA", "Vigili del Fuoco", "Garante Privacy")
 
-ESEMPIO di un elemento:
-{"nome": "DVR - Documento di Valutazione dei Rischi", "descrizione": "Art. 17, 28 D.Lgs. 81/08 - Documento obbligatorio che analizza tutti i rischi presenti in azienda", "categoria": "Sicurezza sul lavoro", "frequenza_rinnovo_mesi": 0, "sanzione_prevista": "Art. 55 D.Lgs. 81/08: Arresto da 3 a 6 mesi o ammenda da €3.071 a €7.862", "priorita": "alta"}`;
+ESEMPIO verificato:
+{"nome": "DVR - Documento di Valutazione dei Rischi", "descrizione": "Documento obbligatorio che analizza tutti i rischi presenti in azienda e le misure di prevenzione", "categoria": "Sicurezza sul lavoro", "frequenza_rinnovo_mesi": 0, "sanzione_prevista": "Art. 55 D.Lgs. 81/08: Arresto da 3 a 6 mesi o ammenda da €3.071,27 a €7.862,44", "priorita": "alta", "stato_affidabilita": "verificato", "riferimento_normativo": "Art. 17, 28, 29 D.Lgs. 81/2008", "fonte_ufficiale": "Normattiva", "link_verifica": "https://www.normattiva.it/uri-res/N2Ls?urn:nir:stato:decreto.legislativo:2008-04-09;81", "ente_controllo": "ASL / Ispettorato del Lavoro"}
+
+ESEMPIO non verificato:
+{"nome": "Registro carico/scarico sostanze", "descrizione": "Possibile obbligo di tenuta registro per sostanze pericolose specifiche del settore", "categoria": "Ambientale", "frequenza_rinnovo_mesi": 12, "sanzione_prevista": "non verificata - consultare un professionista", "priorita": "media", "stato_affidabilita": "non_verificato", "riferimento_normativo": "non disponibile", "fonte_ufficiale": "non verificata", "link_verifica": null, "ente_controllo": "ARPA / Provincia"}`;
 
     const response = await openai.chat.completions.create({
       model: "gpt-4o",
       messages: [
         {
           role: "system",
-          content: "Sei un consulente di compliance aziendale italiano esperto in normativa vigente al " + currentYear + ". Rispondi SOLO in formato JSON valido con la chiave 'adempimenti'. Non aggiungere testo fuori dal JSON. NON INVENTARE MAI riferimenti normativi, articoli di legge o importi di sanzioni. Cita solo norme reali e verificabili. Se non sei certo di un dato, omettilo."
+          content: `Sei un consulente di compliance aziendale italiano esperto in normativa vigente al ${currentYear}. 
+Rispondi SOLO in formato JSON valido con la chiave 'adempimenti'. Non aggiungere testo fuori dal JSON.
+
+REGOLA FONDAMENTALE: Per ogni adempimento DEVI classificare lo stato_affidabilita come "verificato" (se hai certezza del riferimento normativo) o "non_verificato" (se hai dubbi). NON inventare MAI riferimenti normativi falsi. È meglio classificare come "non_verificato" che inventare.`
         },
         { role: "user", content: prompt }
       ],
@@ -136,14 +200,34 @@ ESEMPIO di un elemento:
         dataScadenza = data.toISOString().split('T')[0];
       }
 
+      // Determina stato affidabilità
+      const statoAffidabilita = a.stato_affidabilita === 'verificato' ? 'verificato' : 'non_verificato';
+      
+      // Se non verificato, forza sanzione come non verificata
+      let sanzione = a.sanzione_prevista || a.sanzione || '';
+      if (statoAffidabilita === 'non_verificato' && sanzione && !sanzione.toLowerCase().includes('non verificata')) {
+        sanzione = 'non verificata - consultare un professionista';
+      }
+
       return {
         nome: a.nome || a.name || a.titolo || a.descrizione?.substring(0, 80) || 'Adempimento',
         descrizione: a.descrizione || a.description || '',
         categoria,
         frequenza_rinnovo_mesi: frequenza,
-        sanzione_prevista: a.sanzione_prevista || a.sanzione || '',
+        sanzione_prevista: sanzione,
         priorita: a.priorita || a.priority || 'media',
         data_scadenza: dataScadenza,
+        stato_affidabilita: statoAffidabilita,
+        riferimento_normativo: statoAffidabilita === 'verificato' 
+          ? (a.riferimento_normativo || 'non disponibile') 
+          : 'non disponibile',
+        fonte_ufficiale: statoAffidabilita === 'verificato' 
+          ? (a.fonte_ufficiale || 'non verificata') 
+          : 'non verificata',
+        link_verifica: statoAffidabilita === 'verificato' 
+          ? (a.link_verifica || null) 
+          : null,
+        ente_controllo: a.ente_controllo || '',
       };
     });
 
