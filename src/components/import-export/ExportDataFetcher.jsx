@@ -868,7 +868,25 @@ Analizza per ogni Paese:
   });
 
   // === MODULO C: Regulatory Compliance + Dazi ===
-  const modC = callModule('RegulatoryCompliance', `${rules}\n${ctx.header}\n\nPer ogni Paese, regulatory compliance:\n- Dazi MFN e preferenziali, IVA/GST\n- Certificazioni obbligatorie per HS ${hsCode} (confronta con cert. azienda: ${profiloAzienda.certificazioni || 'nessuna'}. Se mancano cert obbligatorie segnala ⛔ Blocco Operativo)\n- Standard tecnici, etichettatura\n- Documenti doganali, licenze import\n- SPS/TBT alerts`, {
+  const modC = callModule('RegulatoryCompliance', `${rules}\n${ctx.header}\n\nPer ogni Paese, regulatory compliance DETTAGLIATA:
+
+DAZI E IMPOSTE (SEZIONE CRITICA — sii PRECISO):
+- Dazio MFN applicato: valore esatto %, specifico o misto. Fonte: Access2Markets, MacMap, WITS
+- Dazio preferenziale: se esiste FTA/EPA con l'UE o il paese esportatore, indica valore + nome accordo
+- Anti-dumping: se esistono dazi anti-dumping per questo HS nel paese target, indica valore + regolamento
+- IVA/GST locale: aliquota standard e ridotta se applicabile
+- Altre tasse: statistical tax, port surcharge, excise, inspection fees, ODC (Other Duties and Charges)
+- DISTINGUI tra: dazi ad valorem (%), specifici (€/kg), misti (% + quota fissa)
+- Se il dato è nei DATI forniti sopra (sezione "Riepilogo costi export"), USALO come base e confermalo/corregilo
+
+CERTIFICAZIONI per HS ${hsCode}:
+- Confronta con cert. azienda: ${profiloAzienda.certificazioni || 'nessuna'}
+- Se mancano cert OBBLIGATORIE → segnala ⛔ Blocco Operativo
+- Standard tecnici, etichettatura, SPS/TBT, licenze import
+
+SPIEGAZIONE PER L'IMPRENDITORE:
+- Aggiungi una nota chiara: "Cosa significa per te: su €10.000 di merce, pagherai circa €X di dazi e €Y di IVA"
+- Spiega la differenza tra dazio MFN e preferenziale in modo semplice`, {
     type: "object",
     properties: {
       mercati: {
