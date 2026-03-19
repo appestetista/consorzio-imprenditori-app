@@ -114,3 +114,22 @@ export function validateCargoInputs(raw) {
 
   return { valid: errors.length === 0, errors, data };
 }
+
+/**
+ * Genera tutte le 6 rotazioni possibili di un collo.
+ * Ogni rotazione è { l, w, h } dove l=lunghezza base, w=larghezza base, h=altezza.
+ * @param {number} L - lunghezza_collo (cm)
+ * @param {number} W - larghezza_collo (cm)
+ * @param {number} H - altezza_collo (cm)
+ * @returns {Array<{l: number, w: number, h: number, label: string}>}
+ */
+export function generateBoxRotations(L, W, H) {
+  return [
+    { l: L, w: W, h: H, label: `${L}×${W}×${H}` },
+    { l: L, w: H, h: W, label: `${L}×${H}×${W}` },
+    { l: W, w: L, h: H, label: `${W}×${L}×${H}` },
+    { l: W, w: H, h: L, label: `${W}×${H}×${L}` },
+    { l: H, w: L, h: W, label: `${H}×${L}×${W}` },
+    { l: H, w: W, h: L, label: `${H}×${W}×${L}` },
+  ];
+}
