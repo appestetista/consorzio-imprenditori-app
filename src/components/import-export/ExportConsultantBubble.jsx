@@ -116,8 +116,8 @@ export default function ExportConsultantBubble({
 
   return (
     <>
-      {/* Bolla floating draggable */}
-      <div
+      {/* Bolla floating draggable — nascosta quando il modale è aperto */}
+      {!open && <div
         ref={bubbleRef}
         onMouseDown={onPointerDown}
         onTouchStart={onPointerDown}
