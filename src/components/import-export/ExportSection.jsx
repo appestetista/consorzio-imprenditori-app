@@ -354,9 +354,26 @@ export default function ExportSection({ user, exportManagers, selectedMapCountry
               <p className="text-xs mb-2 leading-relaxed" style={{ color: 'var(--app-text-secondary)' }}>
                 È il costo reale per produrre una singola unità del tuo prodotto. Include: materie prime, manodopera, lavorazione e confezionamento. Esempio: se produci una sedia e spendi 50 € tra materiali, lavoro e packaging → il tuo COGS è 50 €.
               </p>
-              <Input type="number" step="0.01" min="0" placeholder="Costo per unità (es. 5.00 €)" value={exportForm.costo_industriale}
-                onChange={(e) => setExportForm({ ...exportForm, costo_industriale: e.target.value })}
-                className="h-11 rounded-xl" style={{ background: 'var(--app-bg-input)', color: 'var(--app-text-primary)', border: '1px solid var(--app-border)' }} />
+              <div className="grid grid-cols-2 gap-2">
+                <Input type="number" step="0.01" min="0" placeholder="Es. 5.00 €" value={exportForm.costo_industriale}
+                  onChange={(e) => setExportForm({ ...exportForm, costo_industriale: e.target.value })}
+                  className="h-11 rounded-xl" style={{ background: 'var(--app-bg-input)', color: 'var(--app-text-primary)', border: '1px solid var(--app-border)' }} />
+                <Select value={exportForm.unita_costo || undefined} onValueChange={(v) => setExportForm({ ...exportForm, unita_costo: v })}>
+                  <SelectTrigger className="h-11 rounded-xl text-xs" style={{ background: 'var(--app-bg-input)', color: 'var(--app-text-primary)', border: '1px solid var(--app-border)' }}><SelectValue placeholder="Per unità" /></SelectTrigger>
+                  <SelectContent>
+                    <SelectItem value="pezzo">€ / pezzo</SelectItem>
+                    <SelectItem value="kg">€ / kg</SelectItem>
+                    <SelectItem value="tonnellata">€ / tonnellata</SelectItem>
+                    <SelectItem value="litro">€ / litro</SelectItem>
+                    <SelectItem value="metro">€ / metro</SelectItem>
+                    <SelectItem value="m²">€ / m²</SelectItem>
+                    <SelectItem value="m³">€ / m³</SelectItem>
+                    <SelectItem value="confezione">€ / confezione</SelectItem>
+                    <SelectItem value="macchinario">€ / macchinario</SelectItem>
+                    <SelectItem value="pallet">€ / pallet</SelectItem>
+                  </SelectContent>
+                </Select>
+              </div>
             </div>
 
             {/* Margine disponibile — calcolato automaticamente */}
