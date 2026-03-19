@@ -50,8 +50,9 @@ export default function LogisticsModule({ countryOrigin, countryDest, hsCode, pr
   };
 
   const tabs = [
+    { id: 'dimensioni', label: 'Peso & Dimensioni', icon: Package },
     { id: 'ingombri', label: 'Calcolo Ingombri', icon: Package },
-    { id: 'quotazione', label: 'Quotazione Logistica', icon: Ship },
+    { id: 'quotazione', label: 'Quotazione', icon: Ship },
   ];
 
   return (
@@ -104,6 +105,105 @@ export default function LogisticsModule({ countryOrigin, countryDest, hsCode, pr
               );
             })}
           </div>
+
+          {/* Tab: Peso & Dimensioni prodotto */}
+          {activeTab === 'dimensioni' && (
+            <div className="space-y-3">
+              <p className="text-slate-400 text-[10px] leading-relaxed">
+                Inserisci peso e dimensioni del prodotto per stimare i costi di trasporto. Il volume viene calcolato automaticamente.
+              </p>
+
+              <div className="grid grid-cols-2 gap-2">
+                <div>
+                  <label className="text-[10px] font-medium mb-1 block text-slate-300">Tipo unità</label>
+                  <Select value={dims.tipo_unita || undefined} onValueChange={(v) => setDims({ ...dims, tipo_unita: v })}>
+                    <SelectTrigger className="h-10 rounded-lg text-xs bg-slate-900 border-slate-700 text-white">
+                      <SelectValue placeholder="Seleziona" />
+                    </SelectTrigger>
+                    <SelectContent className="bg-slate-800 border-slate-600">
+                      <SelectItem value="confezione">Singola confezione</SelectItem>
+                      <SelectItem value="bancale">Bancale</SelectItem>
+                    </SelectContent>
+                  </Select>
+                </div>
+                <div>
+                  <label className="text-[10px] font-medium mb-1 block text-slate-300">
+                    {dims.tipo_unita === 'bancale' ? 'N° bancali' : 'N° confezioni'}
+                  </label>
+                  <Input type="number" min="1" step="1" placeholder="Es. 10" value={dims.numero_unita}
+                    onChange={(e) => setDims({ ...dims, numero_unita: e.target.value })}
+                    className="h-10 rounded-lg bg-slate-900 border-slate-700 text-white" />
+                </div>
+              </div>
+
+              <div className="grid grid-cols-2 gap-2">
+                <div>
+                  <label className="text-[10px] font-medium mb-1 block text-slate-300">Peso</label>
+                  <div className="relative">
+                    <Input type="number" step="0.01" min="0" placeholder="Es. 500" value={dims.peso_kg}
+                      onChange={(e) => setDims({ ...dims, peso_kg: e.target.value })}
+                      className="h-10 rounded-lg pr-10 bg-slate-900 border-slate-700 text-white" />
+                    <span className="absolute right-3 top-1/2 -translate-y-1/2 text-[10px] text-slate-500 pointer-events-none">kg</span>
+                  </div>
+                </div>
+                <div>
+                  <label className="text-[10px] font-medium mb-1 block text-slate-300">Lunghezza</label>
+                  <div className="relative">
+                    <Input type="number" step="0.1" min="0" placeholder="Es. 120" value={dims.lunghezza_cm}
+                      onChange={(e) => setDims({ ...dims, lunghezza_cm: e.target.value })}
+                      className="h-10 rounded-lg pr-10 bg-slate-900 border-slate-700 text-white" />
+                    <span className="absolute right-3 top-1/2 -translate-y-1/2 text-[10px] text-slate-500 pointer-events-none">cm</span>
+                  </div>
+                </div>
+                <div>
+                  <label className="text-[10px] font-medium mb-1 block text-slate-300">Larghezza</label>
+                  <div className="relative">
+                    <Input type="number" step="0.1" min="0" placeholder="Es. 200" value={dims.larghezza_cm}
+                      onChange={(e) => setDims({ ...dims, larghezza_cm: e.target.value })}
+                      className="h-10 rounded-lg pr-10 bg-slate-900 border-slate-700 text-white" />
+                    <span className="absolute right-3 top-1/2 -translate-y-1/2 text-[10px] text-slate-500 pointer-events-none">cm</span>
+                  </div>
+                </div>
+                <div>
+                  <label className="text-[10px] font-medium mb-1 block text-slate-300">Altezza</label>
+                  <div className="relative">
+                    <Input type="number" step="0.1" min="0" placeholder="Es. 120" value={dims.altezza_cm}
+                      onChange={(e) => setDims({ ...dims, altezza_cm: e.target.value })}
+                      className="h-10 rounded-lg pr-10 bg-slate-900 border-slate-700 text-white" />
+                    <span className="absolute right-3 top-1/2 -translate-y-1/2 text-[10px] text-slate-500 pointer-events-none">cm</span>
+                  </div>
+                </div>
+              </div>
+
+              {/* Volume calcolato */}
+              {dims.lunghezza_cm && dims.larghezza_cm && dims.altezza_cm && (() => {
+                const volCm3 = parseFloat(dims.lunghezza_cm) * parseFloat(dims.larghezza_cm) * parseFloat(dims.altezza_cm);
+                const volM3 = volCm3 / 1000000;
+                const n = parseInt(dims.numero_unita) || 0;
+                const tipoLabel = dims.tipo_unita === 'bancale' ? 'bancale' : 'confezione';
+                return (
+                  <div className="rounded-lg px-3 py-2.5 space-y-1.5 bg-slate-900/50 border border-white/5">
+                    <div className="flex items-center justify-between">
+                      <span className="text-[10px] text-slate-400">Volume per {tipoLabel}:</span>
+                      <div className="flex items-center gap-1.5">
+                        <span className="font-bold text-xs text-white">{volCm3.toLocaleString('it-IT')} cm³</span>
+                        <span className="text-[10px] text-slate-500">({volM3.toFixed(4)} m³)</span>
+                      </div>
+                    </div>
+                    {n > 1 && (
+                      <div className="flex items-center justify-between pt-1 border-t border-white/5">
+                        <span className="text-[10px] font-medium text-slate-400">Totale ({n} {tipoLabel === 'bancale' ? 'bancali' : 'confezioni'}):</span>
+                        <div className="flex items-center gap-1.5">
+                          <span className="font-bold text-xs text-blue-400">{(volCm3 * n).toLocaleString('it-IT')} cm³</span>
+                          <span className="text-[10px] text-slate-500">({(volM3 * n).toFixed(4)} m³)</span>
+                        </div>
+                      </div>
+                    )}
+                  </div>
+                );
+              })()}
+            </div>
+          )}
 
           {/* Tab: Calcolo Ingombri */}
           {activeTab === 'ingombri' && (
