@@ -2,7 +2,7 @@ import React, { useState, useEffect, useRef, useCallback } from 'react';
 import { X } from 'lucide-react';
 import ExportContactCard from './ExportContactCard';
 
-const BUBBLE_IMG = 'https://media.base44.com/images/public/695e2f74bb7d2636b5606a98/7cf493b67_generated_image.png';
+const BUBBLE_IMG = 'https://media.base44.com/images/public/695e2f74bb7d2636b5606a98/9fe54042e_ChatGPT_Image_9_mar_2026__14_59_16-removebg-preview.png';
 const LONG_PRESS_MS = 3000;
 
 export default function ExportConsultantBubble({
