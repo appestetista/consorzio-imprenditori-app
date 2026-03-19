@@ -133,3 +133,40 @@ export function generateBoxRotations(L, W, H) {
     { l: H, w: W, h: L, label: `${H}×${W}×${L}` },
   ];
 }
+
+/**
+ * Calcola quanti colli entrano su un pallet provando tutti gli orientamenti.
+ * @param {Array<{l,w,h,label}>} orientamenti - da generateBoxRotations
+ * @param {number} lunghezza_pallet - cm
+ * @param {number} larghezza_pallet - cm
+ * @param {number} altezza_max_pallet - cm (altezza utile sopra il pallet)
+ * @returns {{ capacita_pallet: number, orientamento_scelto: object|null, flag_no_pallet: boolean, dettaglio: Array }}
+ */
+export function calcPalletCapacity(orientamenti, lunghezza_pallet, larghezza_pallet, altezza_max_pallet) {
+  const dettaglio = [];
+
+  for (const o of orientamenti) {
+    const nx = Math.floor(lunghezza_pallet / o.l);
+    const ny = Math.floor(larghezza_pallet / o.w);
+    const nz = Math.floor(altezza_max_pallet / o.h);
+    const capacita = nx * ny * nz;
+
+    if (capacita > 0) {
+      dettaglio.push({ ...o, nx, ny, nz, capacita });
+    }
+  }
+
+  if (dettaglio.length === 0) {
+    return { capacita_pallet: 0, orientamento_scelto: null, flag_no_pallet: true, dettaglio: [] };
+  }
+
+  dettaglio.sort((a, b) => b.capacita - a.capacita);
+  const best = dettaglio[0];
+
+  return {
+    capacita_pallet: best.capacita,
+    orientamento_scelto: best,
+    flag_no_pallet: false,
+    dettaglio,
+  };
+}
