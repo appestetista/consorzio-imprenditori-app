@@ -375,7 +375,12 @@ export default function ComplianceAziendale() {
               data_scadenza: adempimento.data_scadenza || null,
               is_locked: true,
               documenti_urls: [],
-              documenti_nomi: []
+              documenti_nomi: [],
+              stato_affidabilita: adempimento.stato_affidabilita || 'non_verificato',
+              riferimento_normativo: adempimento.riferimento_normativo || 'non disponibile',
+              fonte_ufficiale: adempimento.fonte_ufficiale || 'non verificata',
+              link_verifica: adempimento.link_verifica || null,
+              ente_controllo: adempimento.ente_controllo || ''
             });
           }
 
@@ -925,23 +930,39 @@ VERIFICA:
                               <ChevronDown className="w-5 h-5 text-slate-400 flex-shrink-0" />
                             )}
                           </div>
-                          <p className="text-slate-400 text-sm">{norm.categoria}</p>
+                          <div className="flex items-center gap-2">
+                            <p className="text-slate-400 text-sm">{norm.categoria}</p>
+                            {norm.stato_affidabilita === 'verificato' ? (
+                              <span className="inline-flex items-center gap-1 px-1.5 py-0.5 rounded text-[10px] font-semibold bg-green-500/20 text-green-400 border border-green-500/30">
+                                <CheckCircle className="w-2.5 h-2.5" />
+                                Verificato
+                              </span>
+                            ) : (
+                              <span className="inline-flex items-center gap-1 px-1.5 py-0.5 rounded text-[10px] font-semibold bg-amber-500/20 text-amber-400 border border-amber-500/30">
+                                <AlertTriangle className="w-2.5 h-2.5" />
+                                Non verificato
+                              </span>
+                            )}
+                          </div>
 
                           {/* Preview 3 righe con spiegazione e ente accertatore */}
                           {!isExpanded && (
                             <div className="mt-2 text-xs space-y-1">
                               <p className="text-slate-300 line-clamp-2">{norm.descrizione || 'Adempimento normativo obbligatorio'}</p>
+                              {norm.riferimento_normativo && norm.riferimento_normativo !== 'non disponibile' && (
+                                <p className="text-blue-400 text-[10px]">📜 {norm.riferimento_normativo}</p>
+                              )}
                               <p className="text-amber-400 flex items-center gap-1">
                                 <AlertTriangle className="w-3 h-3" />
                                 <span className="font-medium">
-                                  Ente accertatore: {
+                                  Ente: {norm.ente_controllo || (
                                     norm.categoria === 'Sicurezza sul lavoro' ? 'ASL/Ispettorato del Lavoro' :
                                     norm.categoria === 'Ambientale' ? 'ARPA/Provincia' :
                                     norm.categoria === 'Antincendio' ? 'Vigili del Fuoco (VVF)' :
                                     norm.categoria === 'Privacy e GDPR' ? 'Garante Privacy' :
                                     norm.categoria === 'Igiene e Sanità' ? 'ASL/NAS' :
                                     'Autorità competente'
-                                  }
+                                  )}
                                 </span>
                               </p>
                             </div>
@@ -1146,13 +1167,61 @@ VERIFICA:
                                 </div>
                               )}
 
+                              {/* Badge affidabilità + riferimento normativo */}
+                              <div className={`rounded-lg p-3 ${
+                                norm.stato_affidabilita === 'verificato' 
+                                  ? 'bg-green-500/10 border border-green-500/30' 
+                                  : 'bg-amber-500/10 border border-amber-500/30'
+                              }`}>
+                                <div className="flex items-center gap-2 mb-2">
+                                  {norm.stato_affidabilita === 'verificato' ? (
+                                    <>
+                                      <CheckCircle className="w-4 h-4 text-green-400" />
+                                      <p className="text-green-400 text-xs font-semibold">Fonte verificata</p>
+                                    </>
+                                  ) : (
+                                    <>
+                                      <AlertTriangle className="w-4 h-4 text-amber-400" />
+                                      <p className="text-amber-400 text-xs font-semibold">Fonte non verificata</p>
+                                    </>
+                                  )}
+                                </div>
+                                {norm.riferimento_normativo && norm.riferimento_normativo !== 'non disponibile' && (
+                                  <p className="text-slate-300 text-xs mb-1">📜 <span className="font-medium">{norm.riferimento_normativo}</span></p>
+                                )}
+                                {norm.fonte_ufficiale && norm.fonte_ufficiale !== 'non verificata' && (
+                                  <p className="text-slate-400 text-xs mb-1">Fonte: {norm.fonte_ufficiale}</p>
+                                )}
+                                {norm.link_verifica && (
+                                  <a href={norm.link_verifica} target="_blank" rel="noopener noreferrer" className="text-blue-400 text-xs underline">
+                                    🔗 Verifica su fonte ufficiale
+                                  </a>
+                                )}
+                                {norm.ente_controllo && (
+                                  <p className="text-slate-400 text-xs mt-1">Ente controllo: {norm.ente_controllo}</p>
+                                )}
+                                {norm.stato_affidabilita !== 'verificato' && (
+                                  <p className="text-amber-300/70 text-[10px] mt-2 italic">⚠️ Adempimento basato su conoscenza AI - si consiglia verifica con un professionista</p>
+                                )}
+                              </div>
+
                               {norm.sanzione_prevista && (
-                                <div className="bg-red-500/10 border border-red-500/30 rounded-lg p-3">
+                                <div className={`rounded-lg p-3 ${
+                                  norm.sanzione_prevista.toLowerCase().includes('non verificata')
+                                    ? 'bg-amber-500/10 border border-amber-500/30'
+                                    : 'bg-red-500/10 border border-red-500/30'
+                                }`}>
                                   <div className="flex items-center gap-2 mb-1">
-                                    <AlertTriangle className="w-4 h-4 text-red-400" />
-                                    <p className="text-red-400 text-xs font-medium">Sanzione prevista</p>
+                                    <AlertTriangle className={`w-4 h-4 ${
+                                      norm.sanzione_prevista.toLowerCase().includes('non verificata') ? 'text-amber-400' : 'text-red-400'
+                                    }`} />
+                                    <p className={`text-xs font-medium ${
+                                      norm.sanzione_prevista.toLowerCase().includes('non verificata') ? 'text-amber-400' : 'text-red-400'
+                                    }`}>Sanzione prevista</p>
                                   </div>
-                                  <p className="text-red-300 text-sm">{norm.sanzione_prevista}</p>
+                                  <p className={`text-sm ${
+                                    norm.sanzione_prevista.toLowerCase().includes('non verificata') ? 'text-amber-300' : 'text-red-300'
+                                  }`}>{norm.sanzione_prevista}</p>
                                 </div>
                               )}
                             </>
