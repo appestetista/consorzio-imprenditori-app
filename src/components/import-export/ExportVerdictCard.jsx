@@ -23,58 +23,90 @@ function buildContoServa(mercatoAnalisi, tradeData, exportForm, macroData) {
   let dazioFonte = null;
   let dazioTipo = null;
   
+  // Helper per parsing dazio
+  const tryParseDazio = (v) => {
+    if (v == null) return null;
+    if (typeof v === 'number') return v >= 0 ? v : null;
+    const n = parseFloat(String(v).replace(/[%,]/g, '').trim());
+    return !isNaN(n) && n >= 0 ? n : null;
+  };
+
+  // Raccogliamo dazi da tutte le fonti, poi scegliamo il migliore
+  let dazioLivello1 = { perc: null, fonte: null, tipo: null };
+  let dazioLivello2 = { perc: null, fonte: null, tipo: null };
+  let dazioLivello3 = { perc: null, fonte: null, tipo: null };
+  // Indica se il dazio è specifico (es. $0.05/kg) e non ad valorem
+  let hasDazioSpecifico = false;
+
   // Livello 1: Dazi strutturati da API (WITS/WTO)
   const tariffs = mercatoTrade?.dazi;
   if (tariffs) {
-    const tryParse = (v) => {
-      if (v == null) return null;
-      const n = parseFloat(String(v).replace(/[%,]/g, '').trim());
-      return !isNaN(n) && n >= 0 ? n : null;
-    };
-    const pref = tryParse(tariffs.dazio_preferenziale);
-    if (pref !== null) { dazioPerc = pref; dazioFonte = 'WITS/TRAINS'; dazioTipo = 'preferenziale'; }
+    // Controlla se il dazio è specifico (non ad valorem %)
+    if (tariffs.duty_type === 'specifico' || tariffs.duty_type === 'misto' || tariffs.dazio_specifico) {
+      hasDazioSpecifico = true;
+    }
+    const pref = tryParseDazio(tariffs.dazio_preferenziale_valore ?? tariffs.dazio_preferenziale);
+    if (pref !== null) { dazioLivello1 = { perc: pref, fonte: 'WITS/TRAINS', tipo: 'preferenziale' }; }
     else {
-      const mfn = tryParse(tariffs.dazio_mfn);
-      if (mfn !== null) { dazioPerc = mfn; dazioFonte = 'WITS/TRAINS'; dazioTipo = 'MFN'; }
+      const mfn = tryParseDazio(tariffs.dazio_mfn_valore ?? tariffs.dazio_mfn);
+      if (mfn !== null) { dazioLivello1 = { perc: mfn, fonte: 'WITS/TRAINS', tipo: 'MFN' }; }
       else {
-        const wto = tryParse(tariffs.dazio_mfn_wto);
-        if (wto !== null) { dazioPerc = wto; dazioFonte = 'WTO'; dazioTipo = 'MFN applied'; }
+        const wto = tryParseDazio(tariffs.dazio_mfn_wto);
+        if (wto !== null) { dazioLivello1 = { perc: wto, fonte: 'WTO', tipo: 'MFN applied' }; }
       }
     }
   }
   
   // Livello 2: Web enrichment (Access2Markets)
-  if (dazioPerc === null) {
+  {
     const a2m = mercatoTrade?.web_enrichment?.access2markets;
     if (a2m) {
-      const tryParse = (v) => {
-        if (v == null) return null;
-        if (typeof v === 'number') return v;
-        const n = parseFloat(String(v).replace(/[%,]/g, '').trim());
-        return !isNaN(n) && n >= 0 ? n : null;
-      };
-      const prefA = tryParse(a2m.dazio_preferenziale_valore) ?? tryParse(a2m.dazio_preferenziale);
-      if (prefA !== null) { dazioPerc = prefA; dazioFonte = 'Access2Markets'; dazioTipo = 'preferenziale'; }
+      if (a2m.dazio_convenzionale_tipo === 'specifico' || a2m.dazio_convenzionale_tipo === 'misto') {
+        hasDazioSpecifico = true;
+      }
+      const prefA = tryParseDazio(a2m.dazio_preferenziale_valore) ?? tryParseDazio(a2m.dazio_preferenziale);
+      if (prefA !== null) { dazioLivello2 = { perc: prefA, fonte: 'Access2Markets', tipo: 'preferenziale' }; }
       else {
-        const convA = tryParse(a2m.dazio_convenzionale_valore) ?? tryParse(a2m.dazio_convenzionale);
-        if (convA !== null) { dazioPerc = convA; dazioFonte = 'Access2Markets'; dazioTipo = 'convenzionale'; }
+        const convA = tryParseDazio(a2m.dazio_convenzionale_valore) ?? tryParseDazio(a2m.dazio_convenzionale);
+        if (convA !== null) { dazioLivello2 = { perc: convA, fonte: 'Access2Markets', tipo: 'convenzionale' }; }
       }
     }
   }
   
   // Livello 3: Analisi AI (modulo regulatory / modulo E)
-  if (dazioPerc === null) {
+  {
     const regDazi = mercatoAnalisi.dazi_taric || mercatoAnalisi.logistica_dogane_gtm;
     if (regDazi) {
-      const tryParse = (v) => {
-        if (v == null) return null;
-        const n = parseFloat(String(v).replace(/[^0-9.]/g, ''));
-        return !isNaN(n) && n >= 0 ? n : null;
-      };
-      const d = tryParse(regDazi.dazio_mfn) ?? tryParse(regDazi.dazi_applicabili);
-      if (d !== null) { dazioPerc = d; dazioFonte = 'Analisi AI'; dazioTipo = 'stimato'; }
+      const d = tryParseDazio(regDazi.dazio_preferenziale_valore) ?? tryParseDazio(regDazi.dazio_preferenziale) ?? tryParseDazio(regDazi.dazio_mfn) ?? tryParseDazio(regDazi.dazi_applicabili);
+      if (d !== null) { dazioLivello3 = { perc: d, fonte: 'Analisi AI', tipo: 'stimato' }; }
     }
   }
+
+  // Logica di scelta: se il livello 1 dice 0% ma un livello successivo ha un valore > 0,
+  // oppure se il dazio è specifico (non esprimibile in %), preferisci la fonte più dettagliata
+  const allLivelli = [dazioLivello1, dazioLivello2, dazioLivello3];
+  const livelloConValore = allLivelli.find(l => l.perc !== null && l.perc > 0);
+  const livelloZero = allLivelli.find(l => l.perc !== null && l.perc === 0);
+  
+  if (livelloConValore) {
+    // Se un livello ha un valore > 0, usa quello (più affidabile di un 0% generico)
+    dazioPerc = livelloConValore.perc;
+    dazioFonte = livelloConValore.fonte;
+    dazioTipo = livelloConValore.tipo;
+  } else if (livelloZero) {
+    // Tutti i livelli che hanno dato un valore dicono 0% — ma controlla dazi specifici
+    if (hasDazioSpecifico) {
+      // C'è un dazio specifico (es. $0.05/kg) — 0% ad valorem è fuorviante
+      dazioPerc = 0;
+      dazioFonte = livelloZero.fonte;
+      dazioTipo = livelloZero.tipo + ' (+ dazio specifico)';
+    } else {
+      dazioPerc = 0;
+      dazioFonte = livelloZero.fonte;
+      dazioTipo = livelloZero.tipo;
+    }
+  }
+  // Se tutti null, dazioPerc resta null
   
   // === 3. IVA LOCALE ===
   let ivaPerc = null;
