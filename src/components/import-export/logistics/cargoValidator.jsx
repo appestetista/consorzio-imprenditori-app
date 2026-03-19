@@ -170,3 +170,14 @@ export function calcPalletCapacity(orientamenti, lunghezza_pallet, larghezza_pal
     dettaglio,
   };
 }
+
+/**
+ * Calcola quanti pallet servono per una data quantità di colli.
+ * @param {number} quantita - numero totale di colli
+ * @param {number} capacita_pallet - colli per pallet (da calcPalletCapacity)
+ * @returns {{ pallet_necessari: number }}
+ */
+export function calcPalletCount(quantita, capacita_pallet) {
+  if (!capacita_pallet || capacita_pallet <= 0) return { pallet_necessari: 0 };
+  return { pallet_necessari: Math.ceil(quantita / capacita_pallet) };
+}
