@@ -368,6 +368,41 @@ export default function ImportSection({ user, exportManagers }) {
           )}
 
           <Button onClick={resetImport} variant="outline" className="w-full bg-blue-600 hover:bg-blue-700 text-white border-blue-600">Nuova Valutazione</Button>
+
+          <Card className="bg-gradient-to-br from-red-600 to-orange-600 border-0 shadow-xl shadow-red-500/20">
+            <CardContent className="p-5">
+              <div className="text-center mb-3">
+                <h3 className="text-white font-bold text-lg">Vuoi procedere con l'import?</h3>
+                <p className="text-white/80 text-sm">Contattaci per avviare la pratica.</p>
+              </div>
+              {importContactSent ? (
+                <div className="bg-white/20 rounded-xl p-4 text-center">
+                  <CheckCircle className="w-8 h-8 text-white mx-auto mb-2" />
+                  <p className="text-white font-bold">Richiesta inviata!</p>
+                  <p className="text-white/80 text-xs mt-1">Verrete ricontattati entro 48 ore.</p>
+                  <Button onClick={() => setImportContactSent(false)} variant="ghost" className="mt-2 text-white/80 text-xs hover:text-white">Invia altra richiesta</Button>
+                </div>
+              ) : (
+                <div className="space-y-3">
+                  <Input placeholder="Oggetto" value={importContactForm.subject} onChange={(e) => setImportContactForm({ ...importContactForm, subject: e.target.value })} className="bg-white/10 border-white/20 text-white placeholder:text-white/50" />
+                  <Textarea placeholder="Note o dettagli aggiuntivi..." value={importContactForm.message} onChange={(e) => setImportContactForm({ ...importContactForm, message: e.target.value })} className="bg-white/10 border-white/20 text-white placeholder:text-white/50 min-h-[70px]" />
+                  <div className="flex gap-2">
+                    <label className="flex-1 cursor-pointer"><div className="flex items-center justify-center gap-2 bg-white/10 hover:bg-white/20 text-white py-2 px-3 rounded-lg transition-colors text-sm"><Paperclip className="w-4 h-4" /> Allega</div><input type="file" accept=".pdf,.doc,.docx,.jpg,.jpeg,.png,.xls,.xlsx" onChange={handleImportAttachmentUpload} className="hidden" disabled={uploadingImportAttachment} /></label>
+                    <label className="flex-1 cursor-pointer"><div className="flex items-center justify-center gap-2 bg-white/10 hover:bg-white/20 text-white py-2 px-3 rounded-lg transition-colors text-sm h-full"><Camera className="w-4 h-4" /> Foto</div><input type="file" accept="image/*" capture="environment" onChange={handleImportAttachmentUpload} className="hidden" disabled={uploadingImportAttachment} /></label>
+                  </div>
+                  {uploadingImportAttachment && <div className="flex items-center gap-2 text-white/70 text-sm"><Loader2 className="w-4 h-4 animate-spin" /> Caricamento...</div>}
+                  {importContactForm.attachments.length > 0 && (
+                    <div className="flex flex-wrap gap-2">{importContactForm.attachments.map((att, idx) => (
+                      <div key={idx} className="bg-white/10 rounded-lg px-3 py-1.5 flex items-center gap-2 text-sm"><FileText className="w-4 h-4 text-white" /><span className="text-white truncate max-w-[120px]">{att.name}</span><button onClick={() => removeImportAttachment(idx)} className="text-white/70 hover:text-white"><X className="w-4 h-4" /></button></div>
+                    ))}</div>
+                  )}
+                  <Button onClick={() => sendImportContactMutation.mutate()} disabled={!importContactForm.subject || !importContactForm.message || sendImportContactMutation.isPending || uploadingImportAttachment} className="w-full bg-white hover:bg-white/90 text-red-600 font-bold h-11">
+                    {sendImportContactMutation.isPending ? <><Loader2 className="w-4 h-4 mr-2 animate-spin" />Invio...</> : <><Send className="w-4 h-4 mr-2" />Invia Richiesta Import</>}
+                  </Button>
+                </div>
+              )}
+            </CardContent>
+          </Card>
         </div>
       )}
 
