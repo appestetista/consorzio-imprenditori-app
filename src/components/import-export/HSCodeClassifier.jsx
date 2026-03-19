@@ -27,39 +27,75 @@ export default function HSCodeClassifier({ productDescription, onConfirm, onErro
     setLastClassified(productDescription);
 
     try {
-      const result = await base44.integrations.Core.InvokeLLM({
-        prompt: `Sei un classificatore doganale esperto. Dato il seguente prodotto, restituisci fino a 3 codici HS (Harmonized System) candidati a 6 cifre.
+      // Prima chiamata: classificazione con ricerca web per codici HS reali
+      let result;
+      try {
+        result = await base44.integrations.Core.InvokeLLM({
+          prompt: `Sei un classificatore doganale esperto. Dato il seguente prodotto, restituisci fino a 3 codici HS (Harmonized System) candidati a 6 cifre.
 
 PRODOTTO: "${productDescription}"
 
 REGOLE INDEROGABILI:
 - Restituisci SOLO codici HS che esistono realmente nella nomenclatura combinata UE (Regolamento CE n. 2658/87).
 - Per ogni codice indica la descrizione UFFICIALE dalla nomenclatura combinata UE. 
-- IMPORTANTE: Ogni codice HS ha una descrizione DIVERSA e SPECIFICA. NON ripetere la stessa descrizione per codici diversi. Se due codici hanno descrizioni simili, distingui chiaramente cosa li differenzia (es. "uso generale" vs "uso speciale", "a controllo numerico" vs "manuali").
+- IMPORTANTE: Ogni codice HS ha una descrizione DIVERSA e SPECIFICA. NON ripetere la stessa descrizione per codici diversi.
 - Se NON riesci a identificare NESSUN codice con ragionevole certezza, restituisci array vuoto in "codici" e scrivi il motivo in "errore".
 - Indica per ogni codice un livello di certezza: "alto", "medio", "basso".
 - NON INVENTARE codici HS. Meglio 1 codice certo che 3 incerti.
-- Nella "nota" spiega brevemente cosa differenzia questo codice dagli altri candidati.`,
-        add_context_from_internet: true,
-        response_json_schema: {
-          type: "object",
-          properties: {
-            codici: {
-              type: "array",
-              items: {
-                type: "object",
-                properties: {
-                  hs_code: { type: "string", description: "Codice HS a 6 cifre" },
-                  descrizione_ufficiale: { type: "string", description: "Descrizione dalla nomenclatura combinata UE" },
-                  certezza: { type: "string", enum: ["alto", "medio", "basso"] },
-                  nota: { type: "string", description: "Nota aggiuntiva sulla classificazione" }
+- Nella "nota" spiega brevemente cosa differenzia questo codice dagli altri candidati.
+- DEVI SEMPRE restituire almeno 1 codice per prodotti comuni (pasta, olio, vino, macchinari, tessuti, ecc.)`,
+          add_context_from_internet: true,
+          model: 'gemini_3_flash',
+          response_json_schema: {
+            type: "object",
+            properties: {
+              codici: {
+                type: "array",
+                items: {
+                  type: "object",
+                  properties: {
+                    hs_code: { type: "string", description: "Codice HS a 6 cifre" },
+                    descrizione_ufficiale: { type: "string", description: "Descrizione dalla nomenclatura combinata UE" },
+                    certezza: { type: "string", enum: ["alto", "medio", "basso"] },
+                    nota: { type: "string", description: "Nota aggiuntiva sulla classificazione" }
+                  }
                 }
-              }
-            },
-            errore: { type: "string", description: "Motivo se nessun codice identificabile" }
+              },
+              errore: { type: "string", description: "Motivo se nessun codice identificabile" }
+            }
           }
-        }
-      });
+        });
+      } catch (firstErr) {
+        console.warn('[HSCodeClassifier] Primo tentativo fallito, retry senza web:', firstErr);
+        // Fallback senza ricerca web
+        result = await base44.integrations.Core.InvokeLLM({
+          prompt: `Sei un classificatore doganale esperto. Dato il seguente prodotto, restituisci fino a 3 codici HS (Harmonized System) candidati a 6 cifre.
+
+PRODOTTO: "${productDescription}"
+
+Esempi noti: Pasta alimentare = 190219 o 190230. Olio d'oliva = 150910. Vino = 220421.
+
+Restituisci SOLO codici HS reali a 6 cifre dalla nomenclatura combinata UE. Per ogni codice: descrizione ufficiale, certezza (alto/medio/basso), nota differenziante. DEVI restituire almeno 1 codice.`,
+          response_json_schema: {
+            type: "object",
+            properties: {
+              codici: {
+                type: "array",
+                items: {
+                  type: "object",
+                  properties: {
+                    hs_code: { type: "string", description: "Codice HS a 6 cifre" },
+                    descrizione_ufficiale: { type: "string", description: "Descrizione dalla nomenclatura combinata UE" },
+                    certezza: { type: "string", enum: ["alto", "medio", "basso"] },
+                    nota: { type: "string", description: "Nota aggiuntiva sulla classificazione" }
+                  }
+                }
+              },
+              errore: { type: "string", description: "Motivo se nessun codice identificabile" }
+            }
+          }
+        });
+      }
 
       console.log('[HSCodeClassifier] LLM result:', JSON.stringify(result));
 
