@@ -34,14 +34,21 @@ export default function RisparmioEnergetico() {
 
   const services = [
     {
-      icon: Shield,
-      title: 'Assicurazioni',
-      description: 'Polizze aziendali a condizioni vantaggiose per i membri'
-    },
-    {
       icon: Lightbulb,
       title: 'Luce',
       description: 'Tariffe energia elettrica competitive per la tua azienda'
+    },
+    {
+      icon: Euro,
+      title: 'Fiscalità Energetica',
+      description: 'Scopri le agevolazioni fiscali per l\'efficientamento',
+      isSpecial: true,
+      specialPage: 'FiscalitaEnergetica'
+    },
+    {
+      icon: Shield,
+      title: 'Assicurazioni',
+      description: 'Polizze aziendali a condizioni vantaggiose per i membri'
     },
     {
       icon: Flame,
@@ -67,13 +74,6 @@ export default function RisparmioEnergetico() {
       icon: Wifi,
       title: 'Internet',
       description: 'Connettività fibra e ADSL a tariffe dedicate'
-    },
-    {
-      icon: Euro,
-      title: 'Fiscalità Energetica',
-      description: 'Scopri le agevolazioni fiscali per l\'efficientamento',
-      isSpecial: true,
-      specialPage: 'FiscalitaEnergetica'
     }
   ];
 
