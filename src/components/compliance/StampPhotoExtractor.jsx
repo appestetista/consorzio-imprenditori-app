@@ -1,0 +1,232 @@
+import React, { useState } from 'react';
+import { base44 } from '@/api/base44Client';
+import { Camera, Upload, Loader2, CheckCircle, AlertTriangle, X } from 'lucide-react';
+import { Button } from '@/components/ui/button';
+import { Card, CardContent } from '@/components/ui/card';
+
+export default function StampPhotoExtractor({ onDataExtracted, onClose }) {
+  const [extracting, setExtracting] = useState(false);
+  const [preview, setPreview] = useState(null);
+  const [extractedData, setExtractedData] = useState(null);
+  const [error, setError] = useState(null);
+
+  const handlePhoto = async (e) => {
+    const file = e.target.files?.[0];
+    if (!file) return;
+
+    // Mostra anteprima
+    const reader = new FileReader();
+    reader.onload = (ev) => setPreview(ev.target.result);
+    reader.readAsDataURL(file);
+
+    setExtracting(true);
+    setError(null);
+    setExtractedData(null);
+
+    const { file_url } = await base44.integrations.Core.UploadFile({ file });
+
+    const result = await base44.integrations.Core.InvokeLLM({
+      prompt: `Analizza questa foto di un timbro aziendale italiano. Estrai SOLO i dati che riesci EFFETTIVAMENTE a leggere dal timbro. Non inventare nulla.
+
+I timbri aziendali italiani tipicamente contengono:
+- Ragione sociale / Nome azienda
+- Partita IVA (11 cifre)
+- Codice Fiscale (può coincidere con P.IVA o essere alfanumerico 16 caratteri)
+- Indirizzo sede legale (via, numero civico, CAP, città, provincia)
+- Eventuale codice ATECO
+- Eventuale numero REA o iscrizione CCIAA
+- Eventuale email/PEC
+
+REGOLE:
+- Se un dato NON è leggibile o NON è presente nel timbro, lascia il campo come stringa vuota ""
+- NON inventare dati
+- NON dedurre dati non presenti
+- Restituisci SOLO ciò che è scritto nel timbro`,
+      file_urls: [file_url],
+      response_json_schema: {
+        type: "object",
+        properties: {
+          ragione_sociale: { type: "string", description: "Ragione sociale/nome azienda" },
+          partita_iva: { type: "string", description: "Partita IVA (11 cifre)" },
+          codice_fiscale: { type: "string", description: "Codice fiscale" },
+          indirizzo: { type: "string", description: "Indirizzo completo" },
+          cap: { type: "string", description: "CAP" },
+          citta: { type: "string", description: "Città" },
+          provincia: { type: "string", description: "Provincia (sigla)" },
+          codice_ateco: { type: "string", description: "Codice ATECO se presente" },
+          email_pec: { type: "string", description: "Email o PEC se presente" },
+          numero_rea: { type: "string", description: "Numero REA o iscrizione CCIAA" },
+          dati_non_leggibili: { type: "boolean", description: "true se l'immagine è troppo sfocata o illeggibile" },
+          note: { type: "string", description: "Eventuali note sulla qualità dell'immagine" }
+        }
+      }
+    });
+
+    setExtracting(false);
+
+    if (result.dati_non_leggibili) {
+      setError(result.note || "L'immagine non è leggibile. Riprova con una foto più nitida.");
+      return;
+    }
+
+    // Filtra solo campi con valore
+    const hasData = result.ragione_sociale || result.partita_iva || result.codice_fiscale;
+    if (!hasData) {
+      setError("Non sono riuscito a trovare dati aziendali nel timbro. Assicurati che la foto sia nitida e il timbro ben visibile.");
+      return;
+    }
+
+    setExtractedData(result);
+  };
+
+  const handleConfirm = () => {
+    if (extractedData && onDataExtracted) {
+      onDataExtracted(extractedData);
+    }
+  };
+
+  const fields = [
+    { key: 'ragione_sociale', label: 'Ragione Sociale' },
+    { key: 'partita_iva', label: 'Partita IVA' },
+    { key: 'codice_fiscale', label: 'Codice Fiscale' },
+    { key: 'indirizzo', label: 'Indirizzo' },
+    { key: 'cap', label: 'CAP' },
+    { key: 'citta', label: 'Città' },
+    { key: 'provincia', label: 'Provincia' },
+    { key: 'codice_ateco', label: 'Codice ATECO' },
+    { key: 'email_pec', label: 'Email / PEC' },
+    { key: 'numero_rea', label: 'N° REA / CCIAA' },
+  ];
+
+  return (
+    <Card className="bg-slate-800/90 border-slate-700 mb-4">
+      <CardContent className="p-4 space-y-4">
+        <div className="flex items-center justify-between">
+          <h3 className="text-white font-semibold text-sm flex items-center gap-2">
+            <Camera className="w-4 h-4 text-lime-400" />
+            Scansiona timbro aziendale
+          </h3>
+          {onClose && (
+            <button onClick={onClose} className="text-slate-400 hover:text-white">
+              <X className="w-4 h-4" />
+            </button>
+          )}
+        </div>
+
+        <p className="text-slate-400 text-xs">
+          Scatta una foto al timbro aziendale per compilare automaticamente i dati.
+        </p>
+
+        {!extractedData && !extracting && (
+          <div className="flex gap-2">
+            <label className="flex-1 cursor-pointer">
+              <input
+                type="file"
+                accept="image/*"
+                capture="environment"
+                className="hidden"
+                onChange={handlePhoto}
+              />
+              <div className="flex items-center justify-center gap-2 bg-blue-500/20 text-blue-400 border border-blue-500/30 rounded-lg py-3 px-4 hover:bg-blue-500/30 transition-colors">
+                <Camera className="w-5 h-5" />
+                <span className="text-sm font-medium">Scatta foto</span>
+              </div>
+            </label>
+            <label className="flex-1 cursor-pointer">
+              <input
+                type="file"
+                accept="image/*"
+                className="hidden"
+                onChange={handlePhoto}
+              />
+              <div className="flex items-center justify-center gap-2 bg-slate-700/50 text-slate-300 border border-slate-600 rounded-lg py-3 px-4 hover:bg-slate-700 transition-colors">
+                <Upload className="w-5 h-5" />
+                <span className="text-sm font-medium">Galleria</span>
+              </div>
+            </label>
+          </div>
+        )}
+
+        {extracting && (
+          <div className="bg-purple-500/10 border border-purple-500/30 rounded-lg p-4 text-center space-y-3">
+            {preview && (
+              <img src={preview} alt="Timbro" className="w-24 h-24 object-cover rounded-lg mx-auto border border-slate-600" />
+            )}
+            <div className="flex items-center justify-center gap-2">
+              <Loader2 className="w-5 h-5 text-purple-400 animate-spin" />
+              <span className="text-purple-300 text-sm">Estrazione dati dal timbro...</span>
+            </div>
+          </div>
+        )}
+
+        {error && (
+          <div className="bg-red-500/10 border border-red-500/30 rounded-lg p-3 flex items-start gap-2">
+            <AlertTriangle className="w-4 h-4 text-red-400 mt-0.5 flex-shrink-0" />
+            <div>
+              <p className="text-red-300 text-sm">{error}</p>
+              <Button
+                size="sm"
+                variant="outline"
+                onClick={() => { setError(null); setPreview(null); }}
+                className="mt-2 border-red-500/50 text-red-400 hover:bg-red-500/20 text-xs"
+              >
+                Riprova
+              </Button>
+            </div>
+          </div>
+        )}
+
+        {extractedData && (
+          <div className="space-y-3">
+            {preview && (
+              <img src={preview} alt="Timbro" className="w-20 h-20 object-cover rounded-lg border border-slate-600" />
+            )}
+            
+            <div className="bg-green-500/10 border border-green-500/30 rounded-lg p-3">
+              <div className="flex items-center gap-2 mb-2">
+                <CheckCircle className="w-4 h-4 text-green-400" />
+                <span className="text-green-400 text-xs font-semibold">Dati estratti</span>
+              </div>
+              
+              <div className="space-y-1">
+                {fields.map(({ key, label }) => {
+                  const val = extractedData[key];
+                  if (!val) return null;
+                  return (
+                    <div key={key} className="flex items-center gap-2">
+                      <span className="text-slate-500 text-xs w-24 flex-shrink-0">{label}:</span>
+                      <span className="text-white text-xs font-medium">{val}</span>
+                    </div>
+                  );
+                })}
+              </div>
+
+              {extractedData.note && (
+                <p className="text-amber-400 text-[10px] mt-2 italic">⚠️ {extractedData.note}</p>
+              )}
+            </div>
+
+            <div className="flex gap-2">
+              <Button
+                size="sm"
+                onClick={handleConfirm}
+                className="flex-1 bg-lime-400 text-slate-900 hover:bg-lime-500"
+              >
+                <CheckCircle className="w-4 h-4 mr-1" />
+                Usa questi dati
+              </Button>
+              <Button
+                size="sm"
+                variant="outline"
+                onClick={() => { setExtractedData(null); setPreview(null); }}
+                className="border-slate-600 text-slate-300"
+              >
+                Rifai foto
+              </Button>
+            </div>
+          </div>
+        )}
+      </CardContent>
+    </Card>
+  );
+}
