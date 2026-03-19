@@ -230,7 +230,8 @@ export default function ImportSection({ user, exportManagers }) {
                       <><Send className="w-4 h-4 mr-2" />Invia Richiesta Import</>
                     )}
                   </Button>
-                  </div>)}
+                  </div>
+                  )}
                 </div>
               </div>
             </CardContent></Card>
