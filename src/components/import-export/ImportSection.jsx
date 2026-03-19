@@ -152,6 +152,19 @@ export default function ImportSection({ user, exportManagers }) {
               </div>
             </CardContent></Card>
 
+            <div className="rounded-xl overflow-hidden border border-slate-700">
+              <div className="relative w-full" style={{ paddingBottom: '177.78%' }}>
+                <iframe
+                  className="absolute inset-0 w-full h-full"
+                  src="https://www.youtube.com/embed/Epmg-w3dWZ8"
+                  title="Import dalla Cina"
+                  frameBorder="0"
+                  allow="accelerometer; autoplay; clipboard-write; encrypted-media; gyroscope; picture-in-picture"
+                  allowFullScreen
+                />
+              </div>
+            </div>
+
             <Card className="bg-gradient-to-br from-slate-800 to-red-900/30 border-red-500/20"><CardContent className="p-4">
               <h3 className="text-white font-semibold mb-4 flex items-center gap-2"><Target className="w-5 h-5 text-red-400" /> Richiedi il tuo Import dalla Cina</h3>
               <p className="text-slate-400 text-xs mb-4">La nostra agenzia ti segue in ogni fase fino alla consegna in Italia.</p>
