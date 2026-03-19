@@ -19,7 +19,10 @@ Deno.serve(async (req) => {
       return Response.json({ error: 'Codice ATECO obbligatorio' }, { status: 400 });
     }
 
-    const dataBase = data_attivazione || new Date().toISOString().split('T')[0];
+    // data_attivazione può essere un anno (es: "2020") o una data completa
+    const dataBase = data_attivazione 
+      ? (String(data_attivazione).length === 4 ? `${data_attivazione}-01-01` : data_attivazione)
+      : new Date().toISOString().split('T')[0];
     const currentYear = new Date().getFullYear();
 
     const rischiAttivi = rischi ? Object.entries(rischi)
