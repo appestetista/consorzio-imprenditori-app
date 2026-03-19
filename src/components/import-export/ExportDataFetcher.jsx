@@ -345,14 +345,17 @@ export async function fetchTradeData(hsCode6, mercatiCodes, mercatiNames, export
       quota_exporter: quotaExporter,
       dazi: tariffs ? {
         dazio_mfn: tariffs.dazio_mfn,
+        dazio_mfn_valore: tariffs.dazio_mfn_valore || null,
         dazio_preferenziale: tariffs.dazio_preferenziale,
+        dazio_preferenziale_valore: tariffs.dazio_preferenziale_valore || null,
         dazio_mfn_wto: tariffs.dazio_mfn_wto || null,
         dazio_bound_wto: tariffs.dazio_bound_wto || null,
         fonte_wto: tariffs.fonte_wto || null,
         anti_dumping: null,
         restrizioni: null,
         fonte: tariffs.fonte || 'WITS/TRAINS'
-      } : { dazio_mfn: null, dazio_preferenziale: null, dazio_mfn_wto: null, dazio_bound_wto: null, fonte_wto: null, anti_dumping: null, restrizioni: null, fonte: null },
+      } : { dazio_mfn: null, dazio_mfn_valore: null, dazio_preferenziale: null, dazio_preferenziale_valore: null, dazio_mfn_wto: null, dazio_bound_wto: null, fonte_wto: null, anti_dumping: null, restrizioni: null, fonte: null },
+      riepilogo_costi: webEnrichment?.riepilogo_costi_export || null,
       web_enrichment: webEnrichment,
       query_fallback_world: false
     };
