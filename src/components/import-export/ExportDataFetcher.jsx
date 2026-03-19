@@ -1047,10 +1047,14 @@ GLOBALE:
             } },
             logistica_dogane_gtm: { type: "object", properties: {
               hs_confermato: { type: "string" },
-              dazi_applicabili: { type: "string" },
+              dazi_applicabili: { type: "string", description: "Dazio MFN o preferenziale con %, tipo e fonte" },
+              dazio_preferenziale: { type: "string", description: "Dazio pref. + nome accordo FTA se esiste" },
+              anti_dumping: { type: "string", description: "Dazi anti-dumping se presenti" },
               iva_gst_locale: { type: "string" },
+              altre_tasse: { type: "string", description: "ODC, sovrattasse, accise" },
               incoterms_consigliati: { type: "string" },
-              tempi_sdoganamento: { type: "string" }
+              tempi_sdoganamento: { type: "string" },
+              costo_doganale_su_10k: { type: "string", description: "Su €10.000 FOB: totale dazi+tasse" }
             } },
             validazione_commerciale: { type: "object", properties: {
               domanda_locale: { type: "string" },
