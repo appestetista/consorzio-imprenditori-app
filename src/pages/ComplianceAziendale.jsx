@@ -720,42 +720,47 @@ VERIFICA:
         {/* Hero spiegazione sezione + Pulsante */}
         {branches.length === 0 && (
           <div className="mb-6 space-y-4">
-            {/* Immagine vigile centrata sopra */}
-            <div className="flex justify-center">
-              <img 
-                src="https://media.base44.com/images/public/695e2f74bb7d2636b5606a98/22d2f500e_ChatGPT_Image_19_mar_2026__12_32_18-removebg-preview.png" 
-                alt="Evita sanzioni" 
-                className="w-48 h-48 object-contain drop-shadow-2xl"
-              />
-            </div>
-
-            <Card className="bg-slate-800/80 border-slate-700">
-              <CardContent className="p-5 space-y-3">
-                <h2 className="text-white font-bold text-lg">Evita sanzioni e dormi tranquillo</h2>
-                <p className="text-slate-300 text-sm leading-relaxed">
-                  Scopri in automatico <span className="text-lime-400 font-semibold">tutti gli obblighi normativi</span> della tua azienda e tienili sotto controllo.
-                </p>
-                
-                <div className="space-y-1.5 pt-1">
-                  <div className="flex items-center gap-2">
-                    <Shield className="w-3.5 h-3.5 text-lime-400 flex-shrink-0" />
-                    <p className="text-slate-400 text-xs">Adempimenti generati dall'AI per il tuo ATECO</p>
-                  </div>
-                  <div className="flex items-center gap-2">
-                    <FileText className="w-3.5 h-3.5 text-blue-400 flex-shrink-0" />
-                    <p className="text-slate-400 text-xs">Carica documenti e verifica la conformità</p>
-                  </div>
-                  <div className="flex items-center gap-2">
-                    <Clock className="w-3.5 h-3.5 text-orange-400 flex-shrink-0" />
-                    <p className="text-slate-400 text-xs">Scadenze e promemoria automatici</p>
-                  </div>
-                  <div className="flex items-center gap-2">
-                    <AlertTriangle className="w-3.5 h-3.5 text-red-400 flex-shrink-0" />
-                    <p className="text-slate-400 text-xs">Sanzioni previste ed enti di controllo</p>
+            {/* Hero con immagine sovrapposta e testo a fianco */}
+            <div className="relative rounded-2xl overflow-hidden" style={{ background: 'linear-gradient(135deg, #0f172a 0%, #1a2744 50%, #0f172a 100%)' }}>
+              <div className="flex items-center">
+                {/* Testo a sinistra */}
+                <div className="flex-1 p-5 pr-0 z-10">
+                  <h2 className="text-white font-extrabold text-2xl leading-tight mb-1">Evita sanzioni</h2>
+                  <h2 className="text-lime-400 font-extrabold text-2xl leading-tight mb-3">dormi tranquillo</h2>
+                  <p className="text-slate-300 text-base leading-relaxed mb-4">
+                    Scopri in automatico <span className="text-lime-400 font-semibold">tutti gli obblighi</span> della tua azienda.
+                  </p>
+                  
+                  <div className="space-y-2">
+                    <div className="flex items-center gap-2">
+                      <Shield className="w-4 h-4 text-lime-400 flex-shrink-0" />
+                      <p className="text-slate-300 text-sm">AI per il tuo ATECO</p>
+                    </div>
+                    <div className="flex items-center gap-2">
+                      <FileText className="w-4 h-4 text-blue-400 flex-shrink-0" />
+                      <p className="text-slate-300 text-sm">Verifica conformità</p>
+                    </div>
+                    <div className="flex items-center gap-2">
+                      <Clock className="w-4 h-4 text-orange-400 flex-shrink-0" />
+                      <p className="text-slate-300 text-sm">Scadenze automatiche</p>
+                    </div>
+                    <div className="flex items-center gap-2">
+                      <AlertTriangle className="w-4 h-4 text-red-400 flex-shrink-0" />
+                      <p className="text-slate-300 text-sm">Sanzioni ed enti</p>
+                    </div>
                   </div>
                 </div>
-              </CardContent>
-            </Card>
+
+                {/* Immagine vigile grande sovrapposta a destra */}
+                <div className="relative flex-shrink-0 -mr-4 -mb-2 self-end">
+                  <img 
+                    src="https://media.base44.com/images/public/695e2f74bb7d2636b5606a98/22d2f500e_ChatGPT_Image_19_mar_2026__12_32_18-removebg-preview.png" 
+                    alt="Evita sanzioni" 
+                    className="w-52 h-52 object-contain drop-shadow-2xl"
+                  />
+                </div>
+              </div>
+            </div>
 
             {/* Pulsante Aggiungi primo ramo */}
             <button
