@@ -20,6 +20,7 @@ import SectionConsultantPanel from '../components/consulenze/SectionConsultantPa
 import PremiumAIGate from '@/components/common/PremiumAIGate';
 import ConsultantBubble from '../components/compliance/ConsultantBubble';
 import GlobalTopIcons from '../components/layout/GlobalTopIcons';
+import TipoAttivitaSelector from '../components/compliance/TipoAttivitaSelector';
 
 const CATEGORIE = [
   "Sicurezza sul lavoro",
