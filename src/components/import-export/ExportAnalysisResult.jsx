@@ -741,16 +741,20 @@ function CompetitiveIntelligenceSection({ m }) {
                     {m.analisi_competitiva.distribution_channels.primary_entry_mode && (
                       <DataRow label="Modalità ingresso" value={m.analisi_competitiva.distribution_channels.primary_entry_mode} />
                     )}
-                    {m.analisi_competitiva.distribution_channels.offline_key_players?.length > 0 && (
-                      <div className="mt-1.5">
-                        <p className="text-white/60 text-[10px] mb-1">Player offline</p>
-                        <div className="flex flex-wrap gap-1">
-                          {m.analisi_competitiva.distribution_channels.offline_key_players.map((p, i) => (
-                            <span key={i} className="bg-white/5 text-white px-2 py-0.5 rounded-md text-[10px]">{p}</span>
-                          ))}
+                    {(() => {
+                      const players = (m.analisi_competitiva.distribution_channels.offline_key_players || []).filter(p => p && !isNDValue(p));
+                      if (players.length === 0) return null;
+                      return (
+                        <div className="mt-1.5">
+                          <p className="text-white/60 text-[10px] mb-1">Player offline</p>
+                          <div className="flex flex-wrap gap-1">
+                            {players.map((p, i) => (
+                              <span key={i} className="bg-white/5 text-white px-2 py-0.5 rounded-md text-[10px]">{p}</span>
+                            ))}
+                          </div>
                         </div>
-                      </div>
-                    )}
+                      );
+                    })()}
                   </div>
                 )}
 
