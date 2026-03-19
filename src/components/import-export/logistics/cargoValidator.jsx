@@ -1,0 +1,116 @@
+/**
+ * PALLET & CARGO VALIDATOR + DATA TABLES
+ * 
+ * Tabella pallet di riferimento (dati certificati):
+ * ┌───────────────────────┬────────────┬──────────┬────────────┬────────────┬──────────────────┬──────────────────────┐
+ * │ Tipo pallet           │ Dim. (cm)  │ Alt. (cm)│ Port. din. │ Port. stat.│ Alt. max camion  │ Alt. max container   │
+ * ├───────────────────────┼────────────┼──────────┼────────────┼────────────┼──────────────────┼──────────────────────┤
+ * │ Europallet (EPAL 1)   │ 120 × 80   │ 14.4     │ 1.500 kg   │ 4.000 kg   │ 240–260 cm       │ 220–235 cm           │
+ * │ Industriale (EUR 2)   │ 120 × 100  │ ~14      │ 1.500–2.000│ 4.000 kg   │ 240–260 cm       │ 220–235 cm           │
+ * │ EUR 3                 │ 100 × 120  │ ~14      │ 1.500 kg   │ 4.000 kg   │ 240–260 cm       │ 220–235 cm           │
+ * │ Mezzo pallet          │ 80 × 60    │ ~14      │ 500–1.000  │ 2.000 kg   │ 200–240 cm       │ 200–220 cm           │
+ * │ Pallet USA (GMA)      │ 121.9×101.6│ ~14      │ 1.500 kg   │ 4.000 kg   │ 240–260 cm       │ 220–235 cm           │
+ * │ Pallet leggero        │ variabile  │ 12–15    │ 500–1.000  │ 1.500–2.500│ 180–220 cm       │ 180–220 cm           │
+ * └───────────────────────┴────────────┴──────────┴────────────┴────────────┴──────────────────┴──────────────────────┘
+ */
+
+export const PALLET_DB = [
+  { id: 'epal1', name: 'Europallet (EPAL 1)', l_cm: 120, w_cm: 80,    h_cm: 14.4, dynamic_kg: 1500, static_kg: 4000, max_h_truck_cm: 260, max_h_container_cm: 235 },
+  { id: 'eur2',  name: 'Industriale (EUR 2)', l_cm: 120, w_cm: 100,   h_cm: 14,   dynamic_kg: 2000, static_kg: 4000, max_h_truck_cm: 260, max_h_container_cm: 235 },
+  { id: 'eur3',  name: 'EUR 3',               l_cm: 100, w_cm: 120,   h_cm: 14,   dynamic_kg: 1500, static_kg: 4000, max_h_truck_cm: 260, max_h_container_cm: 235 },
+  { id: 'half',  name: 'Mezzo pallet',        l_cm: 80,  w_cm: 60,    h_cm: 14,   dynamic_kg: 1000, static_kg: 2000, max_h_truck_cm: 240, max_h_container_cm: 220 },
+  { id: 'gma',   name: 'Pallet USA (GMA)',    l_cm: 121.9, w_cm: 101.6, h_cm: 14, dynamic_kg: 1500, static_kg: 4000, max_h_truck_cm: 260, max_h_container_cm: 235 },
+  { id: 'oneway',name: 'Pallet leggero',      l_cm: 120, w_cm: 80,    h_cm: 13,   dynamic_kg: 1000, static_kg: 2500, max_h_truck_cm: 220, max_h_container_cm: 220 },
+];
+
+/** Dimensioni interne veicoli standard (cm) */
+export const VEHICLE_DB = [
+  { id: 'container20',  name: "Container 20'",    l_cm: 590,  w_cm: 235, h_cm: 239, max_kg: 25000 },
+  { id: 'container40hc',name: "Container 40' HC",  l_cm: 1203, w_cm: 235, h_cm: 269, max_kg: 26480 },
+  { id: 'truck13',      name: "Camion 13.6 m",     l_cm: 1360, w_cm: 245, h_cm: 270, max_kg: 24000 },
+];
+
+/**
+ * Valida e normalizza tutti gli input del cargo.
+ * @returns {{ valid: boolean, errors: string[], data: object }}
+ */
+export function validateCargoInputs(raw) {
+  const errors = [];
+
+  const fields = [
+    { key: 'lunghezza_collo',    label: 'Lunghezza collo (cm)' },
+    { key: 'larghezza_collo',    label: 'Larghezza collo (cm)' },
+    { key: 'altezza_collo',      label: 'Altezza collo (cm)' },
+    { key: 'peso_collo',         label: 'Peso collo (kg)' },
+    { key: 'quantita',           label: 'Quantità colli' },
+  ];
+
+  // Opzionali: pallet e mezzo (se forniti devono essere > 0)
+  const palletFields = [
+    { key: 'lunghezza_pallet',   label: 'Lunghezza pallet (cm)' },
+    { key: 'larghezza_pallet',   label: 'Larghezza pallet (cm)' },
+    { key: 'altezza_max_pallet', label: 'Altezza max pallet (cm)' },
+  ];
+
+  const mezzoFields = [
+    { key: 'lunghezza_mezzo',    label: 'Lunghezza mezzo (cm)' },
+    { key: 'larghezza_mezzo',    label: 'Larghezza mezzo (cm)' },
+    { key: 'altezza_mezzo',      label: 'Altezza mezzo (cm)' },
+    { key: 'peso_max_mezzo',     label: 'Peso max mezzo (kg)' },
+  ];
+
+  const data = {};
+
+  // Valida campi obbligatori
+  for (const f of fields) {
+    const val = parseFloat(raw[f.key]);
+    if (isNaN(val) || val <= 0) {
+      errors.push(`${f.label}: valore obbligatorio e > 0`);
+    } else {
+      data[f.key] = val;
+    }
+  }
+
+  // Quantità deve essere intero
+  if (data.quantita) {
+    data.quantita = Math.round(data.quantita);
+  }
+
+  // Valida pallet (se almeno un campo compilato, tutti obbligatori)
+  const hasPallet = palletFields.some(f => raw[f.key] && parseFloat(raw[f.key]) > 0);
+  data.has_pallet_custom = hasPallet;
+  if (hasPallet) {
+    for (const f of palletFields) {
+      const val = parseFloat(raw[f.key]);
+      if (isNaN(val) || val <= 0) {
+        errors.push(`${f.label}: obbligatorio se si specificano dimensioni pallet`);
+      } else {
+        data[f.key] = val;
+      }
+    }
+  }
+
+  // Valida mezzo (se almeno un campo compilato, tutti obbligatori)
+  const hasMezzo = mezzoFields.some(f => raw[f.key] && parseFloat(raw[f.key]) > 0);
+  data.has_mezzo_custom = hasMezzo;
+  if (hasMezzo) {
+    for (const f of mezzoFields) {
+      const val = parseFloat(raw[f.key]);
+      if (isNaN(val) || val <= 0) {
+        errors.push(`${f.label}: obbligatorio se si specificano dimensioni mezzo`);
+      } else {
+        data[f.key] = val;
+      }
+    }
+  }
+
+  // Calcoli derivati se validazione OK
+  if (errors.length === 0 && data.lunghezza_collo) {
+    const vol_collo_cm3 = data.lunghezza_collo * data.larghezza_collo * data.altezza_collo;
+    data.volume_collo_m3 = Math.round((vol_collo_cm3 / 1e6) * 10000) / 10000;
+    data.volume_totale_m3 = Math.round(data.volume_collo_m3 * data.quantita * 10000) / 10000;
+    data.peso_totale_kg = Math.round(data.peso_collo * data.quantita * 100) / 100;
+  }
+
+  return { valid: errors.length === 0, errors, data };
+}
