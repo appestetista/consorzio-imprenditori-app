@@ -185,15 +185,33 @@ function DataRow({ label, value, warning }) {
 
   if (isNDValue(safeValue)) {
     return (
-      <div className="flex justify-between items-start py-1.5 border-b border-white/5 last:border-0">
-        <span className="text-white/60 text-xs flex items-center gap-1">
-          {label}
-          {spiegazione && <InfoTooltip title={spiegazione.title}><p>{spiegazione.body}</p></InfoTooltip>}
-        </span>
-        <span className="text-white/30 text-xs italic">Non disponibile</span>
+      <div className="py-1.5 border-b border-white/5 last:border-0">
+        <div className="flex justify-between items-start">
+          <span className="text-white/60 text-xs flex items-center gap-1">
+            {label}
+            {spiegazione && <InfoTooltip title={spiegazione.title}><p>{spiegazione.body}</p></InfoTooltip>}
+          </span>
+          <span className="text-white/30 text-xs italic">Non disponibile</span>
+        </div>
       </div>
     );
   }
+
+  // Se il valore è lungo, mostralo a tutto campo sotto la label
+  const isLong = safeValue && String(safeValue).length > 50;
+
+  if (isLong) {
+    return (
+      <div className="py-1.5 border-b border-white/5 last:border-0">
+        <div className="flex items-center gap-1 mb-1">
+          <span className="text-white/70 text-xs font-medium">{label}</span>
+          {spiegazione && <InfoTooltip title={spiegazione.title}><p>{spiegazione.body}</p></InfoTooltip>}
+        </div>
+        <p className={`text-xs leading-relaxed ${warning ? 'text-amber-400' : 'text-white/90'}`}>{safeValue}</p>
+      </div>
+    );
+  }
+
   return (
     <div className="flex justify-between items-start py-1.5 border-b border-white/5 last:border-0 gap-4">
       <span className="text-white/70 text-xs flex-shrink-0 flex items-center gap-1">
