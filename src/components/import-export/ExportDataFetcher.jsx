@@ -843,8 +843,16 @@ export async function interpretData(tradeData, metricsResult, hsCode, hsDescrizi
 - Se un dato non è disponibile o non sei sicuro, scrivi "Non disponibile" o "Da verificare".
 - Usa SOLO i dati forniti nel contesto qui sotto. Non aggiungere dati che non sono presenti.
 - Per nomi di aziende, fiere, certificazioni, marketplace: inserisci SOLO quelli che sai ESISTERE REALMENTE. Se non sei sicuro, ometti.
-- Meglio un campo "Non disponibile" che un dato inventato.`;
-  const rules = `${antiInventionRules}\nRegole formato: ogni numero con fonte e anno. Se N/D scrivi "Non disponibile". No frasi generiche. Rispondi per OGNI Paese: ${ctx.paeseNames}`;
+- Meglio un campo "Non disponibile" che un dato inventato.
+
+REGOLA CITAZIONE FONTI (OBBLIGATORIA PER OGNI DATO NUMERICO):
+- OGNI dato numerico (dazi %, IVA %, valori in $, crescita %, margini %, volumi) DEVE essere accompagnato da: FONTE + ANNO di riferimento.
+- Formato obbligatorio: "valore% (fonte: NomeFonte, anno)" — es: "1.2% MFN (fonte: WITS/TRAINS, 2023)" oppure "$1.15 miliardi (fonte: UN Comtrade, 2022)"
+- Se citi un range (es. "1%-2%"), specifica COMUNQUE fonte e anno: "1%-2% ad valorem (fonte: Access2Markets, 2024)"
+- Se il dato viene dai DATI forniti sopra, riportalo con la stessa fonte e anno indicati nei dati.
+- Se il dato viene dalla tua conoscenza/ricerca web, indica chiaramente la fonte.
+- MAI scrivere percentuali o numeri "nudi" senza fonte e anno. È inaccettabile.`;
+  const rules = `${antiInventionRules}\nRegole formato: OGNI numero con fonte e anno (OBBLIGATORIO). Se N/D scrivi "Non disponibile". No frasi generiche. Rispondi per OGNI Paese: ${ctx.paeseNames}`;
 
   // === MODULO A: Market Screening + Domanda Locale + Flussi Commerciali ===
   const modA = callModule('MarketScreening+Domanda', `${rules}\n${ctx.header}\n\nATTENZIONE CRITICA: I dati forniti distinguono CHIARAMENTE due valori DIVERSI:
