@@ -210,8 +210,23 @@ Deno.serve(async (req) => {
     shortStart.setMonth(shortStart.getMonth() - 6);
     const shortStartDate = shortStart.toISOString().split('T')[0];
 
-    // Fetch tassi BCE (periodo lungo include quello breve)
-    const allRates = await fetchECBRates(currency, longStartDate, endDate);
+    // Fetch tassi: prova BCE, fallback Frankfurter API
+    let allRates = [];
+    let fonteUsata = 'BCE - Euro foreign exchange reference rates';
+    
+    if (!useFrankfurter) {
+      allRates = await fetchECBRates(currency, longStartDate, endDate);
+    }
+    
+    // Fallback: Frankfurter API (mirror gratuito dei tassi BCE, supporta più valute)
+    if (allRates.length < 20) {
+      console.log(`[ecbVolatility] BCE insufficiente (${allRates.length} rates), provo Frankfurter per ${currency}`);
+      const frankfurterRates = await fetchFrankfurterRates(currency, longStartDate, endDate);
+      if (frankfurterRates.length > allRates.length) {
+        allRates = frankfurterRates;
+        fonteUsata = 'Frankfurter API (mirror tassi BCE)';
+      }
+    }
     
     if (allRates.length < 20) {
       return Response.json({
