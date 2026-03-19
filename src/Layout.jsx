@@ -196,6 +196,115 @@ export default function Layout({ children, currentPageName }) {
             opacity: 0.2;
             transition: opacity 0s;
           }
+
+          /* ======= TEMA CHIARO — Override risultati export ======= */
+          body.theme-light .bg-slate-800\/60 {
+            background-color: rgba(254, 242, 0, 0.15) !important;
+            border-color: rgba(161, 128, 30, 0.25) !important;
+          }
+          body.theme-light .bg-slate-800\/60 .text-white,
+          body.theme-light .bg-slate-800\/60 .text-white\/80,
+          body.theme-light .bg-slate-800\/60 .text-white\/90 {
+            color: #1e293b !important;
+          }
+          body.theme-light .bg-slate-800\/60 .text-white\/60,
+          body.theme-light .bg-slate-800\/60 .text-white\/70,
+          body.theme-light .bg-slate-800\/60 .text-white\/50,
+          body.theme-light .bg-slate-800\/60 .text-white\/40,
+          body.theme-light .bg-slate-800\/60 .text-white\/30,
+          body.theme-light .bg-slate-800\/60 .text-slate-400,
+          body.theme-light .bg-slate-800\/60 .text-slate-500,
+          body.theme-light .bg-slate-800\/60 .text-slate-600,
+          body.theme-light .bg-slate-800\/60 .text-slate-300 {
+            color: #475569 !important;
+          }
+          body.theme-light .bg-slate-800\/60 .border-white\/5 {
+            border-color: rgba(161, 128, 30, 0.15) !important;
+          }
+
+          /* Cards e sezioni interne nel tema chiaro */
+          body.theme-light .bg-white\/\[0\.03\],
+          body.theme-light .bg-white\/\[0\.02\] {
+            background-color: rgba(254, 242, 0, 0.08) !important;
+          }
+          body.theme-light .bg-slate-700\/30,
+          body.theme-light .bg-slate-700\/50 {
+            background-color: rgba(254, 242, 0, 0.12) !important;
+          }
+
+          /* Modali/popup nel tema chiaro */
+          body.theme-light .bg-slate-900 {
+            background-color: #fef9e0 !important;
+            border-color: rgba(161, 128, 30, 0.3) !important;
+          }
+          body.theme-light .bg-slate-900 .text-white {
+            color: #1e293b !important;
+          }
+          body.theme-light .bg-slate-900 .text-slate-300,
+          body.theme-light .bg-slate-900 .text-slate-400,
+          body.theme-light .bg-slate-900 .text-slate-500 {
+            color: #475569 !important;
+          }
+          body.theme-light .bg-slate-900 .bg-slate-800 {
+            background-color: rgba(254, 242, 0, 0.12) !important;
+          }
+
+          /* Score badges nel tema chiaro */
+          body.theme-light .bg-emerald-500\/10 {
+            background-color: rgba(16, 185, 129, 0.12) !important;
+            border-color: rgba(16, 185, 129, 0.3) !important;
+          }
+          body.theme-light .text-emerald-100 {
+            color: #064e3b !important;
+          }
+
+          /* Sezioni colorate (mantieni colore accent ma con contrasto) */
+          body.theme-light .bg-orange-500\/10 {
+            background-color: rgba(249, 115, 22, 0.1) !important;
+          }
+          body.theme-light .text-orange-200\/90 {
+            color: #7c2d12 !important;
+          }
+          body.theme-light .bg-blue-500\/10 {
+            background-color: rgba(59, 130, 246, 0.1) !important;
+          }
+          body.theme-light .text-blue-100 {
+            color: #1e3a5f !important;
+          }
+
+          /* Info tooltip nel tema chiaro */
+          body.theme-light .bg-white\/10 {
+            background-color: rgba(161, 128, 30, 0.15) !important;
+          }
+          body.theme-light .border-white\/30 {
+            border-color: rgba(161, 128, 30, 0.3) !important;
+          }
+          body.theme-light .bg-white\/10 .text-white {
+            color: #1e293b !important;
+          }
+          body.theme-light .text-white\/90 {
+            color: #1e293b !important;
+          }
+
+          /* Testi lime nel tema chiaro */
+          body.theme-light .text-lime-400 {
+            color: #15803d !important;
+          }
+          body.theme-light .bg-lime-400\/10,
+          body.theme-light .bg-lime-500\/10 {
+            background-color: rgba(22, 163, 74, 0.1) !important;
+          }
+          body.theme-light .border-lime-400\/20,
+          body.theme-light .border-lime-500\/20 {
+            border-color: rgba(22, 163, 74, 0.2) !important;
+          }
+
+          /* Trasparenza dati footer nel tema chiaro */
+          body.theme-light .bg-white\/\[0\.02\] .text-white\/50,
+          body.theme-light .bg-white\/\[0\.02\] .text-white\/40,
+          body.theme-light .bg-white\/\[0\.02\] .text-white\/60 {
+            color: #64748b !important;
+          }
         `}</style>
         {/* Imposta --page-bg in base alla pagina corrente per il gradient dell'header */}
         <style>{`:root { --page-bg: var(--app-bg, ${
