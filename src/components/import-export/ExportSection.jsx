@@ -653,14 +653,7 @@ export default function ExportSection({ user, exportManagers, selectedMapCountry
           <Button onClick={resetAnalysis} className="w-full bg-blue-600 hover:bg-blue-700 text-white font-bold h-11 rounded-xl">Nuova Analisi</Button>
 
           {/* Modulo Logistica — disponibile anche in caso di errore */}
-          {selectedMapCountry && (
-            <LogisticsModule
-              countryOrigin="IT"
-              countryDest={selectedMapCountry.iso_a2 || ''}
-              hsCode={confirmedExportHS?.hs_code || ''}
-              productDescription={exportForm?.prodotto || ''}
-            />
-          )}
+          <LogisticsModule />
         </div>
       ) : (
         null
