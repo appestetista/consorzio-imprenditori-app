@@ -195,3 +195,24 @@ export function calcPalletsPerMezzo(lunghezza_mezzo, larghezza_mezzo, lunghezza_
   const py = Math.floor(larghezza_mezzo / larghezza_pallet);
   return { pallet_per_mezzo: px * py };
 }
+
+/**
+ * Calcola numero mezzi necessari considerando volume e peso.
+ * @param {number} pallet_necessari
+ * @param {number} pallet_per_mezzo - da calcPalletsPerMezzo
+ * @param {number} capacita_pallet - colli per pallet (da calcPalletCapacity)
+ * @param {number} peso_collo - kg
+ * @param {number} peso_max_mezzo - kg
+ * @returns {{ mezzi_volume: number, mezzi_peso: number, mezzi_finali: number }}
+ */
+export function calcMezziNeeded(pallet_necessari, pallet_per_mezzo, capacita_pallet, peso_collo, peso_max_mezzo) {
+  const mezzi_volume = pallet_per_mezzo > 0 ? Math.ceil(pallet_necessari / pallet_per_mezzo) : 0;
+
+  const peso_pallet = capacita_pallet * peso_collo;
+  const pallet_per_mezzo_peso = peso_pallet > 0 ? Math.floor(peso_max_mezzo / peso_pallet) : 0;
+  const mezzi_peso = pallet_per_mezzo_peso > 0 ? Math.ceil(pallet_necessari / pallet_per_mezzo_peso) : 0;
+
+  const mezzi_finali = Math.max(mezzi_volume, mezzi_peso);
+
+  return { mezzi_volume, mezzi_peso, mezzi_finali };
+}
