@@ -332,28 +332,112 @@ async function fetchFromWITS(reporterISO3, partnerISO3, hsCode, flowType, startY
 }
 
 // ===== SOURCE 5: WITS TRAINS — Tariffe (MFN + Preferenziali) =====
+// Usa 3 endpoint in cascata per massima affidabilità:
+// 1) WITS URL-based API (più stabile)
+// 2) WITS SDMX tradestats-tariff
+// 3) WITS SDMX TRAINS
 
 async function fetchWITSTariffs(importerISO3, hsCode, year) {
   const hs6 = String(hsCode).replace(/\D/g, '').substring(0, 6);
-  const url = `https://wits.worldbank.org/API/V1/SDMX/V21/datasource/tradestats-tariff/reporter/${importerISO3}/year/${year}/partner/000/product/${hs6}?format=JSON`;
-  console.log(`[WITS-Tariff] ${importerISO3} HS${hs6} year=${year}`);
 
-  try {
-    const resp = await fetch(url, { headers: { 'Accept': 'application/json' }, signal: AbortSignal.timeout(12000) });
-    if (!resp.ok) {
-      // Fallback: try TRAINS SDMX endpoint
-      const urlTrains = `https://wits.worldbank.org/API/V1/SDMX/V21/rest/data/DF_WITS_Tariff_TRAINS/${importerISO3}.000.${hs6}.${year}?format=JSON`;
-      const resp2 = await fetch(urlTrains, { headers: { 'Accept': 'application/json' }, signal: AbortSignal.timeout(12000) });
-      if (!resp2.ok) return null;
-      const json2 = await resp2.json();
-      return parseTariffResponse(json2, year);
-    }
-    const json = await resp.json();
-    return parseTariffResponse(json, year);
-  } catch (e) {
-    console.log(`[WITS-Tariff] Error: ${e.message}`);
-    return null;
+  // === Tentativo 1: WITS URL-based API (più stabile) ===
+  for (const tryYear of [year, year - 1]) {
+    const urlBased = `https://wits.worldbank.org/API/V1/wits/datasource/tradestats-tariff/reporter/${importerISO3}/year/${tryYear}/partner/000/product/${hs6}`;
+    console.log(`[WITS-Tariff-URL] ${importerISO3} HS${hs6} year=${tryYear}`);
+    try {
+      const resp = await fetch(urlBased, { headers: { 'Accept': 'application/json' }, signal: AbortSignal.timeout(12000) });
+      if (resp.ok) {
+        const json = await resp.json();
+        const parsed = parseWITSUrlResponse(json, tryYear);
+        if (parsed) { console.log(`[WITS-Tariff-URL] OK: MFN=${parsed.dazio_mfn}`); return parsed; }
+      }
+    } catch (e) { console.log(`[WITS-Tariff-URL] Error y${tryYear}: ${e.message}`); }
   }
+
+  // === Tentativo 2: SDMX tradestats-tariff ===
+  for (const tryYear of [year, year - 1]) {
+    const url = `https://wits.worldbank.org/API/V1/SDMX/V21/datasource/tradestats-tariff/reporter/${importerISO3}/year/${tryYear}/partner/000/product/${hs6}?format=JSON`;
+    console.log(`[WITS-Tariff-SDMX] ${importerISO3} HS${hs6} year=${tryYear}`);
+    try {
+      const resp = await fetch(url, { headers: { 'Accept': 'application/json' }, signal: AbortSignal.timeout(12000) });
+      if (resp.ok) {
+        const json = await resp.json();
+        const parsed = parseTariffResponse(json, tryYear);
+        if (parsed) { console.log(`[WITS-Tariff-SDMX] OK: MFN=${parsed.dazio_mfn}`); return parsed; }
+      }
+    } catch (e) { console.log(`[WITS-Tariff-SDMX] Error y${tryYear}: ${e.message}`); }
+  }
+
+  // === Tentativo 3: SDMX TRAINS ===
+  for (const tryYear of [year, year - 1]) {
+    const urlTrains = `https://wits.worldbank.org/API/V1/SDMX/V21/rest/data/DF_WITS_Tariff_TRAINS/${importerISO3}.000.${hs6}.${tryYear}?format=JSON`;
+    console.log(`[WITS-Tariff-TRAINS] ${importerISO3} HS${hs6} year=${tryYear}`);
+    try {
+      const resp = await fetch(urlTrains, { headers: { 'Accept': 'application/json' }, signal: AbortSignal.timeout(12000) });
+      if (resp.ok) {
+        const json = await resp.json();
+        const parsed = parseTariffResponse(json, tryYear);
+        if (parsed) { console.log(`[WITS-Tariff-TRAINS] OK: MFN=${parsed.dazio_mfn}`); return parsed; }
+      }
+    } catch (e) { console.log(`[WITS-Tariff-TRAINS] Error y${tryYear}: ${e.message}`); }
+  }
+
+  console.log(`[WITS-Tariff] All attempts failed for ${importerISO3} HS${hs6}`);
+  return null;
+}
+
+function parseWITSUrlResponse(json, year) {
+  try {
+    // L'API URL-based restituisce un array di oggetti con SimpleAverage, etc.
+    const records = Array.isArray(json) ? json : json?.data || json?.dataSets?.[0]?.observations || [];
+    if (!records || (Array.isArray(records) && records.length === 0)) return null;
+
+    let mfnRate = null, prefRate = null, mfnMin = null, mfnMax = null;
+
+    const extractFromArray = (arr) => {
+      for (const rec of arr) {
+        const tariffType = rec.TariffType || rec.TARIFFTYPE || rec.tariff_type || '';
+        const avg = parseFloat(rec.SimpleAverage ?? rec.OBS_VALUE ?? rec.Value ?? rec.simpleAverage ?? NaN);
+        const min = parseFloat(rec.MIN_RATE ?? rec.MinRate ?? NaN);
+        const max = parseFloat(rec.MAX_RATE ?? rec.MaxRate ?? NaN);
+        if (isNaN(avg)) continue;
+        if (tariffType === 'MFN' || tariffType === '' || !tariffType) {
+          if (mfnRate === null) { mfnRate = avg; mfnMin = isNaN(min) ? null : min; mfnMax = isNaN(max) ? null : max; }
+        }
+        if (tariffType === 'PREF' || tariffType === 'Preferential') {
+          if (prefRate === null) prefRate = avg;
+        }
+      }
+    };
+
+    if (Array.isArray(records)) { extractFromArray(records); }
+    else if (typeof records === 'object') {
+      // SDMX-like nested structure
+      for (const key of Object.keys(records)) {
+        const obs = records[key]?.observations || records[key];
+        if (obs && typeof obs === 'object') {
+          const vals = Object.values(obs);
+          if (vals.length > 0) {
+            const v = Array.isArray(vals[0]) ? vals[0][0] : vals[0];
+            if (v != null && !isNaN(v)) { if (mfnRate === null) mfnRate = v; else if (prefRate === null) prefRate = v; }
+          }
+        }
+      }
+    }
+
+    if (mfnRate === null && prefRate === null) return null;
+
+    return {
+      dazio_mfn: mfnRate !== null ? `${mfnRate}%` : null,
+      dazio_mfn_valore: mfnRate,
+      dazio_mfn_min: mfnMin !== null ? `${mfnMin}%` : null,
+      dazio_mfn_max: mfnMax !== null ? `${mfnMax}%` : null,
+      dazio_preferenziale: prefRate !== null ? `${prefRate}%` : null,
+      dazio_preferenziale_valore: prefRate,
+      anno: year,
+      fonte: 'WITS/TRAINS'
+    };
+  } catch (e) { return null; }
 }
 
 function parseTariffResponse(json, year) {
@@ -362,7 +446,6 @@ function parseTariffResponse(json, year) {
     if (!series) return null;
 
     let mfnRate = null, prefRate = null;
-    // Try to extract from SDMX structure
     for (const key of Object.keys(series)) {
       const obs = series[key]?.observations || series[key];
       if (!obs) continue;
@@ -376,9 +459,13 @@ function parseTariffResponse(json, year) {
       }
     }
 
+    if (mfnRate === null && prefRate === null) return null;
+
     return {
       dazio_mfn: mfnRate !== null ? `${mfnRate}%` : null,
+      dazio_mfn_valore: mfnRate,
       dazio_preferenziale: prefRate !== null ? `${prefRate}%` : null,
+      dazio_preferenziale_valore: prefRate,
       anno: year,
       fonte: 'WITS/TRAINS'
     };
