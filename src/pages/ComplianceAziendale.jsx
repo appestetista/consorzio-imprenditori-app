@@ -1629,15 +1629,18 @@ VERIFICA:
                                       />
 
                                       <div>
-                                          <Label className="text-slate-400 text-xs mb-1 block">Data di attivazione attività *</Label>
+                                          <Label className="text-slate-400 text-xs mb-1 block">Anno di attivazione attività *</Label>
                                           <Input
-                                            type="date"
+                                            type="number"
                                             value={newBranch.data_attivazione}
                                             onChange={(e) => setNewBranch({...newBranch, data_attivazione: e.target.value})}
                                             className="bg-slate-900 border-slate-700 text-slate-900"
+                                            placeholder="es: 2020"
+                                            min="1900"
+                                            max={new Date().getFullYear()}
                                             required
                                           />
-                                          <p className="text-slate-500 text-xs mt-1">Data in cui è iniziata l'attività (per calcolare le scadenze)</p>
+                                          <p className="text-slate-500 text-xs mt-1">Anno in cui è iniziata l'attività</p>
                                         </div>
 
                                         {/* Tipo attività */}
