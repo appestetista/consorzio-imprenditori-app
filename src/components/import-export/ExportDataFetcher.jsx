@@ -903,7 +903,23 @@ Analizza per ogni Paese:
   });
 
   // === MODULO B: Competitive Intelligence ===
-  const modB = callModule('CompetitiveIntelligence', `${rules}\n${ctx.header}\n\nPer ogni Paese, analisi competitiva:\n- Competitor mapping (3-5 player, origine Local/International, posizionamento Premium/Value/Mass Market)\n- Pricing benchmark (range min-max con valuta locale, specificando price_unit e currency)\n- Distribution channels (online share %, offline key players, trade margin)\n- Differentiation factors\n- Entry barriers: brand loyalty (High/Medium/Low), certificazioni OBBLIGATORIE (senza le quali non si può operare), certificazioni FACOLTATIVE (consigliate per competitività), confronto rispetto ai competitor già presenti (sono avvantaggiati? perché?)\n- SWOT dell'azienda nel contesto\nFiltra per posizionamento azienda: ${profiloAzienda.posizionamento || 'generico'}`, {
+  const modB = callModule('CompetitiveIntelligence', `${rules}\n${ctx.header}\n\nPer ogni Paese, analisi competitiva:
+- Competitor mapping (3-5 player, origine Local/International, posizionamento Premium/Value/Mass Market)
+
+- PRICING INTELLIGENCE (SEZIONE CRITICA — OBBLIGATORIA):
+  Cerca prezzi REALI e VERIFICABILI per prodotti comparabili nel mercato target. Procedura:
+  1. Cerca su fonti web: supermarket online del paese, marketplace locali, Trade Map unit value, FAOSTAT prezzi, Eurostat, report settoriali
+  2. Se trovi prezzi: indica range min-max, valuta, unità di misura, FONTE ESATTA (nome sito/report) e DATA di rilevamento (mese/anno)
+  3. Se hai i dati dai DATI forniti sopra (es. unit value da Comtrade), usali come base
+  4. Se NON trovi prezzi verificabili: lascia i campi local_price_range_min e local_price_range_max VUOTI (stringa vuota ""), NON scrivere "Non disponibile" nei campi prezzo
+  5. Nel campo "notes" puoi indicare dove cercare manualmente (es. "Verificare su sito GDO locale XYZ" o "Consultare report ITC Price Review 2024")
+  6. MAI inventare range di prezzi. Meglio nessun prezzo che un prezzo falso.
+
+- Distribution channels (online share %, offline key players VERIFICATI, trade margin)
+- Differentiation factors
+- Entry barriers: brand loyalty (High/Medium/Low), certificazioni OBBLIGATORIE (senza le quali non si può operare), certificazioni FACOLTATIVE (consigliate per competitività), confronto rispetto ai competitor già presenti (sono avvantaggiati? perché?)
+- SWOT dell'azienda nel contesto
+Filtra per posizionamento azienda: ${profiloAzienda.posizionamento || 'generico'}`, {
     type: "object",
     properties: {
       mercati: {
@@ -914,7 +930,7 @@ Analizza per ogni Paese:
             paese_code: { type: "string" }, paese_nome: { type: "string" },
             analisi_competitiva: { type: "object", properties: {
               competitive_landscape: { type: "object", properties: { market_concentration: { type: "string", enum: ["High","Medium","Low"] }, top_competitors: { type: "array", items: { type: "object", properties: { name: { type: "string" }, origin: { type: "string", enum: ["Local","International"] }, positioning: { type: "string", enum: ["Premium","Value","Mass Market"] }, value_proposition: { type: "string" }, estimated_market_share: { type: "string" } } } } } },
-              pricing_intelligence: { type: "object", properties: { local_price_range_min: { type: "string" }, local_price_range_max: { type: "string" }, price_unit: { type: "string", description: "Unità di misura del prezzo, es: kg, L, pezzo, 100g, bottiglia, confezione" }, currency: { type: "string", description: "Valuta locale, es: EUR, USD, GBP, JPY" }, benchmark_product: { type: "string" }, notes: { type: "string" } } },
+              pricing_intelligence: { type: "object", properties: { local_price_range_min: { type: "string", description: "Prezzo minimo REALE trovato. Stringa VUOTA se non verificabile." }, local_price_range_max: { type: "string", description: "Prezzo massimo REALE trovato. Stringa VUOTA se non verificabile." }, price_unit: { type: "string", description: "Unità di misura del prezzo, es: kg, L, pezzo, 100g, bottiglia, confezione" }, currency: { type: "string", description: "Valuta locale, es: EUR, USD, GBP, JPY" }, benchmark_product: { type: "string" }, source: { type: "string", description: "Fonte ESATTA del dato prezzo: nome sito, report, database. Es: 'Walmart.com US', 'ITC Trade Map unit value', 'ISMEA report 2024'" }, reference_date: { type: "string", description: "Data/periodo di riferimento del prezzo: es. 'febbraio 2025', 'Q4 2024', '2023'" }, notes: { type: "string", description: "Note aggiuntive o indicazione di dove cercare se il dato non è stato trovato" } } },
               distribution_channels: { type: "object", properties: { online_share: { type: "string" }, offline_key_players: { type: "array", items: { type: "string" } }, standard_trade_margin: { type: "string" }, primary_entry_mode: { type: "string" } } },
               differentiation_factors: { type: "array", items: { type: "string" } },
               entry_barriers: { type: "object", properties: { brand_loyalty_level: { type: "string", enum: ["High","Medium","Low"] }, required_certifications: { type: "array", items: { type: "string" }, description: "Certificazioni OBBLIGATORIE per operare nel mercato" }, recommended_certifications: { type: "array", items: { type: "string" }, description: "Certificazioni FACOLTATIVE ma consigliate per competitività" }, competitor_comparison: { type: "string", description: "Confronto barriere rispetto ai competitor già presenti: sono avvantaggiati? Perché?" }, notes: { type: "string" } } },
