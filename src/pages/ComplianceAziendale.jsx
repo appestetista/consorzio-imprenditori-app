@@ -291,6 +291,7 @@ export default function ComplianceAziendale() {
       setShowBranchManager(false);
       setShowBranchForm(false);
       setShowStampScanner(false);
+      setStampDataUsed(false);
       // Seleziona automaticamente il ramo appena creato per mostrare gli adempimenti
       setSelectedBranch(createdBranch.id);
     } catch (error) {
@@ -1470,7 +1471,7 @@ VERIFICA:
       </main>
 
       {/* Dialog Gestione Rami Aziendali */}
-      <Dialog open={showBranchManager} onOpenChange={(open) => { setShowBranchManager(open); if (!open) { setShowBranchForm(false); setShowStampScanner(false); } }}>
+      <Dialog open={showBranchManager} onOpenChange={(open) => { setShowBranchManager(open); if (!open) { setShowBranchForm(false); setShowStampScanner(false); setStampDataUsed(false); } }}>
         <DialogContent className="bg-slate-800 border-slate-700 max-w-lg max-h-[90vh] overflow-y-auto">
           <DialogHeader>
             <DialogTitle className="text-white flex items-center gap-2">
