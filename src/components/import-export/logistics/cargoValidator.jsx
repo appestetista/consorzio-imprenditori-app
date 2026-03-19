@@ -236,3 +236,54 @@ export function calcMezziNeeded(pallet_necessari, pallet_per_mezzo, capacita_pal
 
   return { mezzi_volume, mezzi_peso, mezzi_finali };
 }
+
+/**
+ * Pipeline completa: da input grezzi a risultato strutturato pronto per UI/API.
+ *
+ * @param {object} input - output di validateCargoInputs().data + pallet/mezzo scelti
+ *   Richiesti: lunghezza_collo, larghezza_collo, altezza_collo, peso_collo, quantita,
+ *              lunghezza_pallet, larghezza_pallet, altezza_max_pallet,
+ *              lunghezza_mezzo, larghezza_mezzo, altezza_mezzo, peso_max_mezzo
+ * @returns {object} risultato strutturato
+ */
+export function calcFullLogistics(input) {
+  const {
+    lunghezza_collo, larghezza_collo, altezza_collo, peso_collo, quantita,
+    lunghezza_pallet, larghezza_pallet, altezza_max_pallet,
+    lunghezza_mezzo, larghezza_mezzo, altezza_mezzo, peso_max_mezzo,
+  } = input;
+
+  // 1 — Orientamenti e capacità pallet
+  const orientamenti = generateBoxRotations(lunghezza_collo, larghezza_collo, altezza_collo);
+  const palletResult = calcPalletCapacity(orientamenti, lunghezza_pallet, larghezza_pallet, altezza_max_pallet);
+
+  // 2 — Ramo "no pallet": collo sfuso nel mezzo
+  if (palletResult.flag_no_pallet) {
+    const noPallet = calcMezziNoPallet(
+      lunghezza_mezzo, larghezza_mezzo, altezza_mezzo,
+      lunghezza_collo, larghezza_collo, altezza_collo,
+      quantita
+    );
+    return {
+      flag_no_pallet: true,
+      capacita_mezzo: noPallet.capacita_mezzo,
+      mezzi_finali: noPallet.mezzi_finali,
+    };
+  }
+
+  // 3 — Ramo normale: pallet → mezzo
+  const { pallet_necessari } = calcPalletCount(quantita, palletResult.capacita_pallet);
+  const { pallet_per_mezzo } = calcPalletsPerMezzo(lunghezza_mezzo, larghezza_mezzo, lunghezza_pallet, larghezza_pallet);
+  const mezzi = calcMezziNeeded(pallet_necessari, pallet_per_mezzo, palletResult.capacita_pallet, peso_collo, peso_max_mezzo);
+
+  return {
+    flag_no_pallet: false,
+    orientamento_scelto: palletResult.orientamento_scelto,
+    capacita_pallet: palletResult.capacita_pallet,
+    pallet_necessari,
+    pallet_per_mezzo,
+    mezzi_volume: mezzi.mezzi_volume,
+    mezzi_peso: mezzi.mezzi_peso,
+    mezzi_finali: mezzi.mezzi_finali,
+  };
+}
