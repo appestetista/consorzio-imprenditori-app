@@ -205,6 +205,26 @@ export function calcPalletsPerMezzo(lunghezza_mezzo, larghezza_mezzo, lunghezza_
  * @param {number} peso_max_mezzo - kg
  * @returns {{ mezzi_volume: number, mezzi_peso: number, mezzi_finali: number }}
  */
+/**
+ * Calcola mezzi quando il collo non entra nel pallet (sfuso).
+ * @param {number} lunghezza_mezzo - cm
+ * @param {number} larghezza_mezzo - cm
+ * @param {number} altezza_mezzo - cm
+ * @param {number} lunghezza_collo - cm
+ * @param {number} larghezza_collo - cm
+ * @param {number} altezza_collo - cm
+ * @param {number} quantita
+ * @returns {{ capacita_mezzo: number, mezzi_finali: number }}
+ */
+export function calcMezziNoPallet(lunghezza_mezzo, larghezza_mezzo, altezza_mezzo, lunghezza_collo, larghezza_collo, altezza_collo, quantita) {
+  const nx = Math.floor(lunghezza_mezzo / lunghezza_collo);
+  const ny = Math.floor(larghezza_mezzo / larghezza_collo);
+  const nz = Math.floor(altezza_mezzo / altezza_collo);
+  const capacita_mezzo = nx * ny * nz;
+  const mezzi_finali = capacita_mezzo > 0 ? Math.ceil(quantita / capacita_mezzo) : 0;
+  return { capacita_mezzo, mezzi_finali };
+}
+
 export function calcMezziNeeded(pallet_necessari, pallet_per_mezzo, capacita_pallet, peso_collo, peso_max_mezzo) {
   const mezzi_volume = pallet_per_mezzo > 0 ? Math.ceil(pallet_necessari / pallet_per_mezzo) : 0;
 
