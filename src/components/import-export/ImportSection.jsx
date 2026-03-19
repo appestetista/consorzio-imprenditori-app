@@ -119,9 +119,9 @@ export default function ImportSection({ user, exportManagers }) {
 
       <div className="flex justify-center">
         <img
-          src="https://media.base44.com/images/public/695e2f74bb7d2636b5606a98/cae5d216c_148074185-posizione-della-provincia-di-anhui-all-interno-della-mappa-3d-della-cina-removebg-preview.png"
-          alt="Provincia di Anhui, Cina"
-          className="w-48 h-auto object-contain"
+          src="https://media.base44.com/images/public/695e2f74bb7d2636b5606a98/b6039f2e3_generated_image.png"
+          alt="Mappa 3D della Cina"
+          className="w-52 h-auto object-contain"
         />
       </div>
 
