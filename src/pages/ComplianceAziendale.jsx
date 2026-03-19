@@ -718,7 +718,7 @@ VERIFICA:
               <img 
                 src="https://media.base44.com/images/public/695e2f74bb7d2636b5606a98/22d2f500e_ChatGPT_Image_19_mar_2026__12_32_18-removebg-preview.png" 
                 alt="Evita sanzioni" 
-                className="absolute -right-3 -top-8 w-40 h-40 object-contain drop-shadow-2xl pointer-events-none z-10 opacity-90"
+                className="absolute -right-3 -top-16 w-80 h-80 object-contain drop-shadow-2xl pointer-events-none z-10 opacity-90"
               />
               <Card className="bg-slate-800/80 border-slate-700">
                 <CardContent className="p-5 pr-20 space-y-3">
