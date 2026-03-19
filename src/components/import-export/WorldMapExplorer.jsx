@@ -466,7 +466,7 @@ function createCountryHitMesh(feature, radius) {
     }
 
     // Converti in 3D
-    const r = radius * 1.003;
+    const r = radius * 1.008;
     const verts = new Float32Array(allSubTris.length * 3 * 3);
     const indices = [];
     for (let i = 0; i < allSubTris.length; i++) {
