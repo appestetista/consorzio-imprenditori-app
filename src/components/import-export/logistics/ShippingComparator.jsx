@@ -2,6 +2,7 @@ import React, { useState } from 'react';
 import { base44 } from '@/api/base44Client';
 import { Loader2, Ship, Truck, Package, Trophy, AlertTriangle, ArrowRight, Scale, Box, Clock, DollarSign, Check, Brain, Globe } from 'lucide-react';
 import { Button } from '@/components/ui/button';
+import PalletAdvisor from './PalletAdvisor';
 
 function ScenarioCard({ scenario, isBest }) {
   const available = scenario.available;
@@ -223,6 +224,13 @@ export default function ShippingComparator({ formData }) {
             <ArrowRight className="w-4 h-4 text-slate-500" />
             <span className="text-white font-semibold">{result.destination}</span>
           </div>
+
+          {/* Consulente Pallet */}
+          <PalletAdvisor
+            volumeM3={result.cargo?.volume_m3 || 0}
+            weightKg={result.cargo?.weight_kg || 0}
+            destCountry={result.destination || ''}
+          />
 
           {/* Tabella ingombri */}
           {result.units_calculation && (
