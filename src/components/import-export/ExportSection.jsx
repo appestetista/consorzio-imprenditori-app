@@ -40,7 +40,7 @@ export default function ExportSection({ user, exportManagers, selectedMapCountry
   const [exportForm, setExportForm] = useState(
     initialSnapshot?.exportForm || {
       settore: '', prodotto: '', capacita_produttiva: '', unita_capacita: '',
-      posizionamento: '', prezzo_medio: '', unita_prezzo: '', certificazioni: [], business_model: '', canale_preferito: '', margine_disponibile: '', costo_industriale: '',
+      posizionamento: '', prezzo_medio: '', unita_prezzo: '', certificazioni: [], business_model: '', canale_preferito: '', margine_disponibile: '', costo_industriale: '', unita_costo: '',
       tipo_unita_spedizione: '', numero_unita_spedizione: '',
       peso_kg: '', lunghezza_cm: '', larghezza_cm: '', altezza_cm: '',
       shelf_life_valore: '', shelf_life_unita: '',
