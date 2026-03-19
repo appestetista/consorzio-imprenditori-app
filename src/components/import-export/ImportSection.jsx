@@ -152,8 +152,9 @@ export default function ImportSection({ user, exportManagers }) {
               </div>
             </CardContent></Card>
 
-            <Card className="bg-slate-800 border-slate-700"><CardContent className="p-4">
-              <h3 className="text-white font-semibold mb-4 flex items-center gap-2"><Target className="w-5 h-5 text-blue-600" /> Valuta la fattibilità del tuo import</h3>
+            <Card className="bg-gradient-to-br from-slate-800 to-red-900/30 border-red-500/20"><CardContent className="p-4">
+              <h3 className="text-white font-semibold mb-4 flex items-center gap-2"><Target className="w-5 h-5 text-red-400" /> Richiedi il tuo Import dalla Cina</h3>
+              <p className="text-slate-400 text-xs mb-4">La nostra agenzia ti segue in ogni fase fino alla consegna in Italia.</p>
               <div className="space-y-4">
                 <div><label className="text-white text-sm mb-1 block">Descrizione prodotto *</label><Textarea placeholder="Descrivi il prodotto che vuoi importare/produrre..." value={importForm.descrizione_prodotto} onChange={(e) => setImportForm({ ...importForm, descrizione_prodotto: e.target.value })} className="bg-slate-900 border-slate-700 text-white min-h-[80px] placeholder:text-white/50" /></div>
                 <div className="grid grid-cols-2 gap-3">
@@ -166,6 +167,51 @@ export default function ImportSection({ user, exportManagers }) {
                 </div>
                 <div><label className="text-white text-sm mb-1 block">Hai già esperienza di import?</label><Select value={importForm.esperienza_import} onValueChange={(v) => setImportForm({ ...importForm, esperienza_import: v })}><SelectTrigger className="bg-slate-900 border-slate-700 text-white"><SelectValue placeholder="Seleziona" /></SelectTrigger><SelectContent><SelectItem value="nessuna">Nessuna esperienza</SelectItem><SelectItem value="poca">Poca (1-2 ordini)</SelectItem><SelectItem value="media">Media (3-10 ordini)</SelectItem><SelectItem value="consolidata">Consolidata (10+ ordini)</SelectItem></SelectContent></Select></div>
                 <div><label className="text-white text-sm mb-1 block">Requisiti specifici</label><Textarea placeholder="Certificazioni richieste, materiali particolari, standard di qualità..." value={importForm.requisiti} onChange={(e) => setImportForm({ ...importForm, requisiti: e.target.value })} className="bg-slate-900 border-slate-700 text-white min-h-[60px] placeholder:text-white/50" /></div>
+
+                {/* Sezione contatto integrata */}
+                <div className="border-t border-white/10 pt-4 mt-2">
+                  <p className="text-slate-300 text-sm font-medium mb-3">Messaggio per il consulente (opzionale)</p>
+                  <Input
+                    placeholder="Oggetto (es. Richiesta preventivo import gadget)"
+                    value={importContactForm.subject}
+                    onChange={(e) => setImportContactForm({ ...importContactForm, subject: e.target.value })}
+                    className="bg-slate-900 border-slate-700 text-white placeholder:text-white/50 mb-3"
+                  />
+                  <Textarea
+                    placeholder="Note aggiuntive, dettagli specifici..."
+                    value={importContactForm.message}
+                    onChange={(e) => setImportContactForm({ ...importContactForm, message: e.target.value })}
+                    className="bg-slate-900 border-slate-700 text-white placeholder:text-white/50 min-h-[70px]"
+                  />
+                  <div className="flex gap-2 mt-3">
+                    <label className="flex-1 cursor-pointer">
+                      <div className="flex items-center justify-center gap-2 bg-white/10 hover:bg-white/15 text-white py-2 px-3 rounded-lg transition-colors text-sm">
+                        <Paperclip className="w-4 h-4" /> Allega documento
+                      </div>
+                      <input type="file" accept=".pdf,.doc,.docx,.jpg,.jpeg,.png,.xls,.xlsx" onChange={handleImportAttachmentUpload} className="hidden" disabled={uploadingImportAttachment} />
+                    </label>
+                    <label className="flex-1 cursor-pointer">
+                      <div className="flex items-center justify-center gap-2 bg-white/10 hover:bg-white/15 text-white py-2 px-3 rounded-lg transition-colors text-sm h-full">
+                        <Camera className="w-4 h-4" /> Scatta foto
+                      </div>
+                      <input type="file" accept="image/*" capture="environment" onChange={handleImportAttachmentUpload} className="hidden" disabled={uploadingImportAttachment} />
+                    </label>
+                  </div>
+                  {uploadingImportAttachment && (
+                    <div className="flex items-center gap-2 text-white/70 text-sm mt-2"><Loader2 className="w-4 h-4 animate-spin" /> Caricamento...</div>
+                  )}
+                  {importContactForm.attachments.length > 0 && (
+                    <div className="flex flex-wrap gap-2 mt-2">
+                      {importContactForm.attachments.map((att, idx) => (
+                        <div key={idx} className="bg-white/10 rounded-lg px-3 py-1.5 flex items-center gap-2 text-sm">
+                          <FileText className="w-4 h-4 text-white" />
+                          <span className="text-white truncate max-w-[120px]">{att.name}</span>
+                          <button onClick={() => removeImportAttachment(idx)} className="text-white/70 hover:text-white"><X className="w-4 h-4" /></button>
+                        </div>
+                      ))}
+                    </div>
+                  )}
+                </div>
               </div>
             </CardContent></Card>
 
