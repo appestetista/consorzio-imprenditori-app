@@ -181,3 +181,17 @@ export function calcPalletCount(quantita, capacita_pallet) {
   if (!capacita_pallet || capacita_pallet <= 0) return { pallet_necessari: 0 };
   return { pallet_necessari: Math.ceil(quantita / capacita_pallet) };
 }
+
+/**
+ * Calcola quanti pallet entrano nel mezzo (piano singolo).
+ * @param {number} lunghezza_mezzo - cm
+ * @param {number} larghezza_mezzo - cm
+ * @param {number} lunghezza_pallet - cm
+ * @param {number} larghezza_pallet - cm
+ * @returns {{ pallet_per_mezzo: number }}
+ */
+export function calcPalletsPerMezzo(lunghezza_mezzo, larghezza_mezzo, lunghezza_pallet, larghezza_pallet) {
+  const px = Math.floor(lunghezza_mezzo / lunghezza_pallet);
+  const py = Math.floor(larghezza_mezzo / larghezza_pallet);
+  return { pallet_per_mezzo: px * py };
+}
