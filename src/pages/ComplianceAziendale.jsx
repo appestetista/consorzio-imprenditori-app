@@ -21,6 +21,7 @@ import PremiumAIGate from '@/components/common/PremiumAIGate';
 import ConsultantBubble from '../components/compliance/ConsultantBubble';
 import GlobalTopIcons from '../components/layout/GlobalTopIcons';
 import TipoAttivitaSelector from '../components/compliance/TipoAttivitaSelector';
+import StampPhotoExtractor from '../components/compliance/StampPhotoExtractor';
 
 const CATEGORIE = [
   "Sicurezza sul lavoro",
@@ -65,6 +66,7 @@ export default function ComplianceAziendale() {
   const [editingBranch, setEditingBranch] = useState(null);
   const [selectedBranch, setSelectedBranch] = useState('all');
   const [editingNorm, setEditingNorm] = useState(null);
+  const [showStampScanner, setShowStampScanner] = useState(false);
   
 
   const [newBranch, setNewBranch] = useState({ 
@@ -1585,6 +1587,32 @@ VERIFICA:
             <div className="border-t border-slate-700 pt-4">
               <Label className="text-slate-300 mb-2 block">Aggiungi nuovo ramo ({branches.length}/5)</Label>
               
+              {/* Pulsante per scansione timbro */}
+              {!showStampScanner && (
+                <button
+                  onClick={() => setShowStampScanner(true)}
+                  className="w-full mb-3 py-3 px-4 rounded-xl border border-blue-500/30 bg-blue-500/10 flex items-center justify-center gap-2 hover:bg-blue-500/20 transition-colors"
+                >
+                  <Camera className="w-5 h-5 text-blue-400" />
+                  <span className="text-blue-300 text-sm font-medium">📸 Scatta foto al timbro — compila automatico</span>
+                </button>
+              )}
+
+              {showStampScanner && (
+                <StampPhotoExtractor
+                  onClose={() => setShowStampScanner(false)}
+                  onDataExtracted={(data) => {
+                    setNewBranch(prev => ({
+                      ...prev,
+                      nome: data.ragione_sociale || prev.nome,
+                      indirizzo: [data.indirizzo, data.cap, data.citta, data.provincia].filter(Boolean).join(', ') || prev.indirizzo,
+                      codice_ateco: data.codice_ateco || prev.codice_ateco,
+                    }));
+                    setShowStampScanner(false);
+                  }}
+                />
+              )}
+
               <div className="space-y-3">
                 <Input
                   value={newBranch.nome}
