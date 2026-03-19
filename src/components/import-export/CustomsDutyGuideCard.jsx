@@ -115,6 +115,74 @@ export default function CustomsDutyGuideCard({ countryCode, countryName, hsCode,
 
       {expanded && data && (
         <div className="border-t border-white/5">
+          {/* BLOCCO 0 — Spiegazione Semplice per l'imprenditore */}
+          {data.spiegazione_semplice && (
+            <div className="px-4 py-3 border-b border-white/5">
+              <div className="bg-gradient-to-r from-amber-500/10 to-orange-500/10 border border-amber-500/20 rounded-xl p-3.5">
+                <div className="flex items-center gap-2 mb-2.5">
+                  <div className="w-6 h-6 rounded-full bg-amber-500/20 flex items-center justify-center">
+                    <span className="text-sm">💡</span>
+                  </div>
+                  <span className="text-amber-400 text-xs font-bold">In parole semplici</span>
+                  {data.spiegazione_semplice.livello_difficolta && (
+                    <span className={`text-[9px] font-bold px-1.5 py-0.5 rounded border ${
+                      data.spiegazione_semplice.livello_difficolta === 'facile' ? 'bg-green-500/15 text-green-400 border-green-500/30' :
+                      data.spiegazione_semplice.livello_difficolta === 'medio' ? 'bg-yellow-500/15 text-yellow-400 border-yellow-500/30' :
+                      'bg-red-500/15 text-red-400 border-red-500/30'
+                    }`}>
+                      {data.spiegazione_semplice.livello_difficolta === 'facile' ? '✅ Facile' :
+                       data.spiegazione_semplice.livello_difficolta === 'medio' ? '⚠️ Medio' : '🔴 Complesso'}
+                    </span>
+                  )}
+                </div>
+                {data.spiegazione_semplice.cosa_significa && (
+                  <p className="text-white text-[11px] leading-relaxed mb-2">{data.spiegazione_semplice.cosa_significa}</p>
+                )}
+                {data.spiegazione_semplice.quanto_costa && (
+                  <p className="text-lime-400 text-[11px] font-semibold mb-2">💰 {data.spiegazione_semplice.quanto_costa}</p>
+                )}
+                {data.spiegazione_semplice.cosa_fare && (
+                  <p className="text-cyan-400 text-[11px] mb-2">👉 {data.spiegazione_semplice.cosa_fare}</p>
+                )}
+                {data.spiegazione_semplice.attenzione && (
+                  <p className="text-orange-400/90 text-[10px] italic mt-1">⚠ {data.spiegazione_semplice.attenzione}</p>
+                )}
+              </div>
+            </div>
+          )}
+
+          {/* BLOCCO 0b — Esempio Calcolo su €10.000 */}
+          {data.esempio_calcolo && data.esempio_calcolo.totale_tasse_eur && (
+            <div className="px-4 py-3 border-b border-white/5">
+              <div className="bg-slate-700/50 rounded-xl p-3.5">
+                <div className="flex items-center gap-1.5 mb-2.5">
+                  <span className="text-sm">📊</span>
+                  <span className="text-lime-400 text-[10px] font-bold uppercase tracking-wider">Esempio su €10.000 FOB</span>
+                </div>
+                <div className="space-y-1.5">
+                  <CalcRow label="Valore merce (FOB)" value="€10.000,00" />
+                  {data.esempio_calcolo.dazio_importazione_eur > 0 && (
+                    <CalcRow label="+ Dazio importazione" value={`€${Number(data.esempio_calcolo.dazio_importazione_eur).toLocaleString('it-IT', {minimumFractionDigits: 2})}`} />
+                  )}
+                  {data.esempio_calcolo.anti_dumping_eur > 0 && (
+                    <CalcRow label="+ Anti-dumping" value={`€${Number(data.esempio_calcolo.anti_dumping_eur).toLocaleString('it-IT', {minimumFractionDigits: 2})}`} warn />
+                  )}
+                  {data.esempio_calcolo.altre_tasse_eur > 0 && (
+                    <CalcRow label="+ Altre tasse" value={`€${Number(data.esempio_calcolo.altre_tasse_eur).toLocaleString('it-IT', {minimumFractionDigits: 2})}`} />
+                  )}
+                  {data.esempio_calcolo.iva_eur > 0 && (
+                    <CalcRow label={`+ IVA/GST`} value={`€${Number(data.esempio_calcolo.iva_eur).toLocaleString('it-IT', {minimumFractionDigits: 2})}`} />
+                  )}
+                  <div className="border-t border-lime-400/20 my-1" />
+                  <CalcRow label="TOTALE TASSE (escluso trasporto)" value={`€${Number(data.esempio_calcolo.totale_tasse_eur).toLocaleString('it-IT', {minimumFractionDigits: 2})}`} bold />
+                </div>
+                {data.esempio_calcolo.nota && (
+                  <p className="text-slate-400 text-[9px] mt-2 italic">{data.esempio_calcolo.nota}</p>
+                )}
+              </div>
+            </div>
+          )}
+
           {/* BLOCCO A — Fonte Ufficiale */}
           {f && (
             <div className="px-4 py-3 border-b border-white/5">
