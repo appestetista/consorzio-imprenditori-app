@@ -572,7 +572,8 @@ export default function ExportSection({ user, exportManagers, selectedMapCountry
               <HSCodeClassifier productDescription={`${exportForm.prodotto} (Settore: ${exportForm.settore})`} onConfirm={handleExportHSConfirm} onError={() => {}} autoStart={true} />
             )}
 
-
+            {/* Modulo Logistica — sempre disponibile nel form */}
+            <LogisticsModule />
 
           </div>
         )
