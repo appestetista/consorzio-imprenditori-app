@@ -183,19 +183,8 @@ function DataRow({ label, value, warning }) {
   // Proteggi da valori non-stringa (oggetti/array causano crash React)
   const safeValue = (value != null && typeof value === 'object') ? JSON.stringify(value) : value;
 
-  if (isNDValue(safeValue)) {
-    return (
-      <div className="py-1.5 border-b border-white/5 last:border-0">
-        <div className="flex justify-between items-start">
-          <span className="text-white/60 text-xs flex items-center gap-1">
-            {label}
-            {spiegazione && <InfoTooltip title={spiegazione.title}><p>{spiegazione.body}</p></InfoTooltip>}
-          </span>
-          <span className="text-white/30 text-xs italic">Non disponibile</span>
-        </div>
-      </div>
-    );
-  }
+  // Se non disponibile, non mostrare la riga
+  if (isNDValue(safeValue)) return null;
 
   // Se il valore è lungo, mostralo a tutto campo sotto la label
   const isLong = safeValue && String(safeValue).length > 50;
@@ -235,19 +224,8 @@ function DetailedDataRow({ label, value, spiegazioneKey }) {
   const isEstimate = safeVal && /stima|proxy|approssim|circa|indicativ/i.test(String(safeVal));
   const isLong = safeVal && String(safeVal).length > 60;
 
-  if (isNDValue(safeVal)) {
-    return (
-      <div className="py-1.5 border-b border-white/5 last:border-0">
-        <div className="flex justify-between items-start">
-          <span className="text-white/60 text-xs flex items-center gap-1">
-            {label}
-            {spiegazione && <InfoTooltip title={spiegazione.title}><p>{spiegazione.body}</p></InfoTooltip>}
-          </span>
-          <span className="text-amber-400/60 text-[10px] italic">Dato non reperibile da fonti pubbliche</span>
-        </div>
-      </div>
-    );
-  }
+  // Se non disponibile, non mostrare la riga
+  if (isNDValue(safeVal)) return null;
 
   if (isLong) {
     return (
