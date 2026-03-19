@@ -171,6 +171,14 @@ export default function ImportSection({ user, exportManagers }) {
                 {/* Sezione contatto integrata */}
                 <div className="border-t border-white/10 pt-4 mt-2">
                   <p className="text-slate-300 text-sm font-medium mb-3">Messaggio per il consulente (opzionale)</p>
+                  {importContactSent ? (
+                    <div className="bg-green-500/15 border border-green-500/30 rounded-xl p-4 text-center">
+                      <CheckCircle className="w-8 h-8 text-green-400 mx-auto mb-2" />
+                      <p className="text-green-400 font-bold">Richiesta inviata!</p>
+                      <p className="text-slate-400 text-xs mt-1">Verrete ricontattati entro 48 ore.</p>
+                      <Button onClick={() => setImportContactSent(false)} variant="ghost" className="mt-2 text-green-400 text-xs hover:text-green-300">Invia altra richiesta</Button>
+                    </div>
+                  ) : (<div className="space-y-3">
                   <Input
                     placeholder="Oggetto (es. Richiesta preventivo import gadget)"
                     value={importContactForm.subject}
