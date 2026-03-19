@@ -1087,7 +1087,7 @@ VERIFICA:
                                 <Input
                                   value={editingNorm.nome || ''}
                                   onChange={(e) => setEditingNorm({...editingNorm, nome: e.target.value})}
-                                  className="bg-slate-800 border-slate-600 text-white mt-1"
+                                  className="bg-slate-800 border-slate-600 text-slate-900 mt-1"
                                 />
                               </div>
                               <div>
@@ -1095,7 +1095,7 @@ VERIFICA:
                                 <Textarea
                                   value={editingNorm.descrizione || ''}
                                   onChange={(e) => setEditingNorm({...editingNorm, descrizione: e.target.value})}
-                                  className="bg-slate-800 border-slate-600 text-white mt-1"
+                                  className="bg-slate-800 border-slate-600 text-slate-900 mt-1"
                                   rows={3}
                                 />
                               </div>
@@ -1106,7 +1106,7 @@ VERIFICA:
                                     type="date"
                                     value={editingNorm.data_scadenza || ''}
                                     onChange={(e) => setEditingNorm({...editingNorm, data_scadenza: e.target.value})}
-                                    className="bg-slate-800 border-slate-600 text-white mt-1"
+                                    className="bg-slate-800 border-slate-600 text-slate-900 mt-1"
                                   />
                                 </div>
                                 <div>
@@ -1115,7 +1115,7 @@ VERIFICA:
                                     type="number"
                                     value={editingNorm.frequenza_rinnovo_mesi || ''}
                                     onChange={(e) => setEditingNorm({...editingNorm, frequenza_rinnovo_mesi: parseInt(e.target.value) || 0})}
-                                    className="bg-slate-800 border-slate-600 text-white mt-1"
+                                    className="bg-slate-800 border-slate-600 text-slate-900 mt-1"
                                     min="0"
                                   />
                                 </div>
@@ -1126,7 +1126,7 @@ VERIFICA:
                                   value={editingNorm.stato || 'non_verificato'}
                                   onValueChange={(value) => setEditingNorm({...editingNorm, stato: value})}
                                 >
-                                  <SelectTrigger className="bg-slate-800 border-slate-600 text-white mt-1">
+                                  <SelectTrigger className="bg-slate-800 border-slate-600 text-slate-900 mt-1">
                                     <SelectValue />
                                   </SelectTrigger>
                                   <SelectContent className="bg-slate-800 border-slate-700">
@@ -1142,7 +1142,7 @@ VERIFICA:
                                 <Textarea
                                   value={editingNorm.note || ''}
                                   onChange={(e) => setEditingNorm({...editingNorm, note: e.target.value})}
-                                  className="bg-slate-800 border-slate-600 text-white mt-1"
+                                  className="bg-slate-800 border-slate-600 text-slate-900 mt-1"
                                   rows={2}
                                   placeholder="Aggiungi note..."
                                 />
@@ -1485,13 +1485,13 @@ VERIFICA:
                           <Input
                             value={editingBranch.nome || ''}
                             onChange={(e) => setEditingBranch({...editingBranch, nome: e.target.value})}
-                            className="bg-slate-800 border-slate-600 text-white"
+                            className="bg-slate-800 border-slate-600 text-slate-900"
                             placeholder="Nome ramo"
                           />
                           <Textarea
                             value={editingBranch.tipo_attivita || ''}
                             onChange={(e) => setEditingBranch({...editingBranch, tipo_attivita: e.target.value})}
-                            className="bg-slate-800 border-slate-600 text-white"
+                            className="bg-slate-800 border-slate-600 text-slate-900"
                             placeholder="Tipo attività"
                             rows={2}
                           />
@@ -1499,14 +1499,14 @@ VERIFICA:
                             <Input
                               value={editingBranch.codice_ateco || ''}
                               onChange={(e) => setEditingBranch({...editingBranch, codice_ateco: e.target.value})}
-                              className="bg-slate-800 border-slate-600 text-white"
+                              className="bg-slate-800 border-slate-600 text-slate-900"
                               placeholder="Codice ATECO"
                             />
                             <Input
                               type="number"
                               value={editingBranch.numero_dipendenti || ''}
                               onChange={(e) => setEditingBranch({...editingBranch, numero_dipendenti: e.target.value ? parseInt(e.target.value) : null})}
-                              className="bg-slate-800 border-slate-600 text-white"
+                              className="bg-slate-800 border-slate-600 text-slate-900"
                               placeholder="N° dipendenti"
                               min="0"
                             />
@@ -1514,7 +1514,7 @@ VERIFICA:
                           <Input
                             value={editingBranch.indirizzo || ''}
                             onChange={(e) => setEditingBranch({...editingBranch, indirizzo: e.target.value})}
-                            className="bg-slate-800 border-slate-600 text-white"
+                            className="bg-slate-800 border-slate-600 text-slate-900"
                             placeholder="Indirizzo"
                           />
                           <div>
@@ -1523,7 +1523,7 @@ VERIFICA:
                               type="date"
                               value={editingBranch.data_attivazione || ''}
                               onChange={(e) => setEditingBranch({...editingBranch, data_attivazione: e.target.value})}
-                              className="bg-slate-800 border-slate-600 text-white"
+                              className="bg-slate-800 border-slate-600 text-slate-900"
                             />
                           </div>
                           <div className="flex gap-2">
@@ -1588,14 +1588,14 @@ VERIFICA:
                 <Input
                   value={newBranch.nome}
                   onChange={(e) => setNewBranch({...newBranch, nome: e.target.value})}
-                  className="bg-slate-900 border-slate-700 text-white"
+                  className="bg-slate-900 border-slate-700 text-slate-900"
                   placeholder="Nome ramo (es: Sede Principale, Magazzino, Filiale Roma)"
                 />
                 
                 <Textarea
                   value={newBranch.tipo_attivita}
                   onChange={(e) => setNewBranch({...newBranch, tipo_attivita: e.target.value})}
-                  className="bg-slate-900 border-slate-700 text-white"
+                  className="bg-slate-900 border-slate-700 text-slate-900"
                   placeholder="Tipo di attività (es: Ristorante, Officina meccanica, Ufficio amministrativo)"
                   rows={2}
                 />
@@ -1605,7 +1605,7 @@ VERIFICA:
                     <Input
                       value={newBranch.codice_ateco}
                       onChange={(e) => setNewBranch({...newBranch, codice_ateco: e.target.value})}
-                      className="bg-slate-900 border-slate-700 text-white"
+                      className="bg-slate-900 border-slate-700 text-slate-900"
                       placeholder="Codice ATECO *"
                       required
                     />
@@ -1615,7 +1615,7 @@ VERIFICA:
                     type="number"
                     value={newBranch.numero_dipendenti}
                     onChange={(e) => setNewBranch({...newBranch, numero_dipendenti: e.target.value})}
-                    className="bg-slate-900 border-slate-700 text-white"
+                    className="bg-slate-900 border-slate-700 text-slate-900"
                     placeholder="N° dipendenti"
                     min="0"
                   />
@@ -1624,7 +1624,7 @@ VERIFICA:
                 <Input
                                         value={newBranch.indirizzo}
                                         onChange={(e) => setNewBranch({...newBranch, indirizzo: e.target.value})}
-                                        className="bg-slate-900 border-slate-700 text-white"
+                                        className="bg-slate-900 border-slate-700 text-slate-900"
                                         placeholder="Indirizzo (opzionale)"
                                       />
 
@@ -1634,7 +1634,7 @@ VERIFICA:
                                             type="date"
                                             value={newBranch.data_attivazione}
                                             onChange={(e) => setNewBranch({...newBranch, data_attivazione: e.target.value})}
-                                            className="bg-slate-900 border-slate-700 text-white"
+                                            className="bg-slate-900 border-slate-700 text-slate-900"
                                             required
                                           />
                                           <p className="text-slate-500 text-xs mt-1">Data in cui è iniziata l'attività (per calcolare le scadenze)</p>
@@ -1734,7 +1734,7 @@ VERIFICA:
                                             type="number"
                                             value={newBranch.superficie_mq}
                                             onChange={(e) => setNewBranch({...newBranch, superficie_mq: e.target.value})}
-                                            className="bg-slate-900 border-slate-700 text-white"
+                                            className="bg-slate-900 border-slate-700 text-slate-900"
                                             placeholder="es: 500"
                                             min="0"
                                           />
