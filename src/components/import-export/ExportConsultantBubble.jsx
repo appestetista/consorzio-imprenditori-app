@@ -154,7 +154,7 @@ export default function ExportConsultantBubble({
             style={{ filter: 'drop-shadow(0 2px 6px rgba(0,0,0,0.4))' }}
           />
         </div>
-      </div>
+      </div>}
 
       {/* Popup modale */}
       {open && (
