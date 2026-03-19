@@ -525,22 +525,42 @@ async function fetchWTOTariffs(importerISO3, hsCode, year) {
 async function fetchLLMWebEnrichment(base44, importerISO2, importerName, hsCode, exporterISO2) {
   const hs4 = String(hsCode).replace(/\D/g, '').substring(0, 4);
   const hs6 = String(hsCode).replace(/\D/g, '').substring(0, 6);
+  const exporterName = ISO2_TO_NAME[exporterISO2] || exporterISO2;
+  const isEUExporter = EU_MEMBERS.includes(exporterISO2);
+  const isEUImporter = EU_MEMBERS.includes(importerISO2);
 
   console.log(`[LLM-Web] Enrichment for ${importerName} (${importerISO2}) HS${hs6} exporter=${exporterISO2}`);
 
   try {
     const result = await base44.asServiceRole.integrations.Core.InvokeLLM({
-      prompt: `Cerca dati REALI e AGGIORNATI per l'export dal paese ${exporterISO2} verso ${importerName} (${importerISO2}) per il codice HS ${hs6} (heading ${hs4}).
+      prompt: `SEI UN ESPERTO DI COMMERCIO INTERNAZIONALE. Devi trovare DATI REALI, VERIFICATI e AGGIORNATI per l'export da ${exporterName} (${exporterISO2}) verso ${importerName} (${importerISO2}) per il codice HS ${hs6} (heading HS ${hs4}).
 
-Cerca su queste fonti SPECIFICHE:
-1. Access2Markets (trade.ec.europa.eu/access-to-markets): dazi doganali EU, requisiti di prodotto, certificazioni obbligatorie, documenti necessari, regole di origine
-2. Trade Map (trademap.org): flussi commerciali, top esportatori, trend di mercato
-3. ICE - Italian Trade Agency (ice.it): opportunità per aziende italiane, guide paese, fiere settoriali
+FONTI DA CONSULTARE (in ordine di priorità per dazi):
 
-Per ogni informazione trovata, indica SEMPRE la fonte specifica (nome sito + sezione).
-Se un dato NON è trovabile, scrivi "Non trovato" — NON inventare dati.
+1. **Access2Markets** (https://trade.ec.europa.eu/access-to-markets/it/search?product=${hs6}&origin=${exporterISO2}&destination=${importerISO2}):
+   - Cerca: "Tariffs" → dazio MFN (third country duty), dazio preferenziale (se esiste FTA)
+   - Cerca: "Taxes" → IVA/GST/VAT del paese importatore
+   - Cerca: "Requirements" → certificazioni, standard, etichettatura obbligatoria
+   - Cerca: "Anti-dumping/countervailing" → dazi anti-dumping specifici
+   - Cerca: "Rules of origin" → regole per ottenere il dazio preferenziale
 
-IMPORTANTE: cerca dati il più recenti possibile (2024-2025).`,
+2. **ITC MacMap** (https://www.macmap.org/en/query/results?exporter=${exporterISO2}&importer=${importerISO2}&product=${hs6}):
+   - Dazio MFN applicato (Applied MFN), dazio bound (WTO ceiling)
+   - Dazi preferenziali per accordi specifici (nome accordo + aliquota)
+   - Other Duties and Charges (ODC): sovrattasse, tasse statistiche, diritti di licenza
+   - Trade remedies attivi: anti-dumping, misure compensative, salvaguardie
+
+3. **WTO TTD** (https://ttd.wto.org/en): profilo tariffario del paese, tariff actions recenti
+4. **Trade Map** (https://trademap.org): flussi commerciali, top fornitori, trend
+5. **ICE Italia** (https://www.ice.it): opportunità, fiere, guide paese per esportatori italiani
+
+ISTRUZIONI CRITICHE PER I DAZI:
+- Il dazio MFN è quello che paga chi NON ha accordo preferenziale.${isEUExporter ? `\n- L'${exporterName} è membro UE: verifica se ${importerName} ha un FTA con l'UE. Se sì, il dazio preferenziale è spesso 0% o ridotto.` : ''}${isEUImporter ? `\n- ${importerName} è membro UE: usa il TARIC (dazio comune UE). Verifica se ci sono accordi preferenziali con ${exporterName}.` : ''}
+- DISTINGUI SEMPRE tra: dazio ad valorem (%), dazio specifico (€/kg), dazio misto (% + €/kg).
+- Se il dazio è "specifico" (es. 5.1 EUR/100 kg), riportalo ESATTAMENTE così, NON convertirlo in %.
+- Cerca ANCHE: tasse portuali, sovrattasse doganali, tasse di ispezione, tasse ambientali.
+
+NON INVENTARE DATI. Se un dato non è trovato, scrivi esattamente "Non trovato su [nome fonte]".`,
       add_context_from_internet: true,
       model: 'gemini_3_flash',
       response_json_schema: {
@@ -549,17 +569,29 @@ IMPORTANTE: cerca dati il più recenti possibile (2024-2025).`,
           access2markets: {
             type: "object",
             properties: {
-              dazio_convenzionale: { type: "string", description: "Dazio MFN/convenzionale con % e fonte" },
-              dazio_convenzionale_valore: { type: "number", description: "Valore numerico del dazio convenzionale (solo il numero, es. 5.2 per 5.2%)" },
-              dazio_preferenziale: { type: "string", description: "Dazio preferenziale se esiste accordo EU" },
-              dazio_preferenziale_valore: { type: "number", description: "Valore numerico del dazio preferenziale (solo il numero)" },
-              iva_locale: { type: "string", description: "IVA/GST del paese destinazione" },
-              iva_locale_valore: { type: "number", description: "Valore numerico IVA/GST (solo il numero, es. 20 per 20%)" },
-              certificazioni_obbligatorie: { type: "array", items: { type: "string" }, description: "Lista certificazioni obbligatorie per questo HS" },
-              documenti_doganali: { type: "array", items: { type: "string" }, description: "Documenti richiesti per l'import" },
-              regole_origine: { type: "string", description: "Regole di origine applicabili" },
-              restrizioni: { type: "string", description: "Restrizioni, quote, embargo, anti-dumping" },
-              fonte: { type: "string" }
+              dazio_convenzionale: { type: "string", description: "Dazio MFN/convenzionale: valore esatto con tipo (ad valorem %, specifico €/kg, misto)" },
+              dazio_convenzionale_valore: { type: "number", description: "Valore numerico del dazio ad valorem (solo il numero %). Null se specifico." },
+              dazio_convenzionale_tipo: { type: "string", description: "Tipo: 'ad_valorem', 'specifico', 'misto'. Es: 'specifico' se 5.1 EUR/100kg" },
+              dazio_preferenziale: { type: "string", description: "Dazio preferenziale: valore + nome accordo FTA (es: '0% - EU-Japan EPA')" },
+              dazio_preferenziale_valore: { type: "number", description: "Valore numerico dazio preferenziale %. Null se non esiste accordo." },
+              accordo_commerciale: { type: "string", description: "Nome dell'accordo FTA/EPA se esiste (es: 'EU-Canada CETA', 'EU-Japan EPA')" },
+              anti_dumping: { type: "string", description: "Dazio anti-dumping: valore e regolamento (es: '12.5% - Reg. EU 2020/1336')" },
+              anti_dumping_valore: { type: "number", description: "Valore numerico anti-dumping %" },
+              misure_compensative: { type: "string", description: "Misure compensative/salvaguardie se presenti" },
+              iva_locale: { type: "string", description: "IVA/GST/VAT standard del paese importatore con nome locale (es: 'VAT 20%', 'GST 10%')" },
+              iva_locale_valore: { type: "number", description: "Valore numerico IVA/GST %" },
+              iva_ridotta: { type: "string", description: "Aliquota IVA ridotta se applicabile a questo prodotto" },
+              altre_tasse_doganali: { type: "array", items: { type: "object", properties: { nome: { type: "string", description: "Nome tassa (es: 'Statistical Tax', 'Port Surcharge', 'Inspection Fee')" }, valore: { type: "string", description: "Valore (es: '1.5%', '€25 per spedizione')" }, tipo: { type: "string", description: "'percentuale' o 'fisso'" } } }, description: "Altre tasse/sovrattasse doganali (ODC)" },
+              certificazioni_obbligatorie: { type: "array", items: { type: "string" }, description: "Lista COMPLETA certificazioni obbligatorie per questo HS" },
+              standard_tecnici: { type: "array", items: { type: "string" }, description: "Standard tecnici/normativi richiesti (ISO, EN, locali)" },
+              etichettatura: { type: "string", description: "Requisiti etichettatura obbligatori (lingue, informazioni, formati)" },
+              documenti_doganali: { type: "array", items: { type: "string" }, description: "TUTTI i documenti richiesti per lo sdoganamento" },
+              regole_origine: { type: "string", description: "Regole di origine per ottenere dazio preferenziale" },
+              restrizioni: { type: "string", description: "Restrizioni, quote, embargo, licenze import" },
+              contingenti_tariffari: { type: "string", description: "Contingenti tariffari (TRQ) se applicabili" },
+              nota_landed_cost: { type: "string", description: "Calcolo indicativo: su €10.000 FOB, quanto si paga IN TOTALE di dazi+tasse (escluso trasporto)" },
+              fonte: { type: "string" },
+              url_consultazione: { type: "string", description: "URL diretto Access2Markets per questo prodotto/paese" }
             }
           },
           trade_map: {
@@ -567,8 +599,10 @@ IMPORTANTE: cerca dati il più recenti possibile (2024-2025).`,
             properties: {
               import_totale_usd: { type: "string", description: "Import totale del paese per questo HS in USD" },
               export_italia_usd: { type: "string", description: "Export Italia verso questo paese per questo HS" },
-              top_esportatori: { type: "array", items: { type: "object", properties: { paese: { type: "string" }, quota: { type: "string" } } }, description: "Top 5 esportatori verso questo mercato" },
-              trend: { type: "string", description: "Trend crescita/decrescita ultimi anni" },
+              crescita_import_5y: { type: "string", description: "Crescita % import ultimi 5 anni" },
+              top_esportatori: { type: "array", items: { type: "object", properties: { paese: { type: "string" }, quota: { type: "string" }, valore_usd: { type: "string" } } }, description: "Top 5-10 esportatori verso questo mercato" },
+              trend: { type: "string", description: "Trend crescita/decrescita ultimi anni con %" },
+              prezzo_medio_import_usd_kg: { type: "string", description: "Prezzo medio all'import USD/kg se disponibile" },
               anno_dati: { type: "string" },
               fonte: { type: "string" }
             }
@@ -576,19 +610,32 @@ IMPORTANTE: cerca dati il più recenti possibile (2024-2025).`,
           ice_italia: {
             type: "object",
             properties: {
-              opportunita: { type: "string", description: "Opportunità segnalate da ICE per questo settore/paese" },
-              fiere_rilevanti: { type: "array", items: { type: "string" }, description: "Fiere di settore rilevanti nel paese" },
-              guide_paese: { type: "string", description: "Link o riferimento guide ICE per il paese" },
-              ufficio_ice_locale: { type: "string", description: "Ufficio ICE nel paese destinazione" },
+              opportunita: { type: "string", description: "Opportunità specifiche segnalate da ICE" },
+              fiere_rilevanti: { type: "array", items: { type: "string" }, description: "Fiere di settore REALI nel paese (nome + città + periodo)" },
+              guide_paese: { type: "string", description: "Link guida ICE se esistente" },
+              ufficio_ice_locale: { type: "string", description: "Sede ICE nel paese destinazione" },
+              programmi_supporto: { type: "string", description: "Programmi/bandi ICE attivi per questo mercato" },
               fonte: { type: "string" }
+            }
+          },
+          riepilogo_costi_export: {
+            type: "object",
+            properties: {
+              dazio_totale_stimato: { type: "string", description: "Somma dazi (MFN o pref + anti-dumping + ODC) come % o valore" },
+              iva_gst_totale: { type: "string", description: "IVA/GST applicabile" },
+              costo_aggiuntivo_stimato: { type: "string", description: "Stima costi aggiuntivi (ispezioni, certificazioni, sdoganamento)" },
+              esempio_10k_eur: { type: "string", description: "Su €10.000 FOB: totale stimato dazi+tasse in EUR (escluso trasporto)" },
+              livello_complessita: { type: "string", description: "'facile' (UE/FTA), 'medio' (MFN standard), 'complesso' (dazi alti, certificazioni, quote)" },
+              nota_per_imprenditore: { type: "string", description: "Spiegazione IN ITALIANO SEMPLICE per un imprenditore non esperto: cosa significa tutto questo per lui, quanto gli costa e cosa deve fare" }
             }
           },
           data_quality: {
             type: "object",
             properties: {
               fonti_consultate: { type: "array", items: { type: "string" } },
-              affidabilita: { type: "string", enum: ["alta", "media", "bassa"], description: "Livello di affidabilità complessivo" },
-              note: { type: "string", description: "Note su limitazioni o dati mancanti" }
+              affidabilita: { type: "string", enum: ["alta", "media", "bassa"] },
+              dati_mancanti: { type: "array", items: { type: "string" }, description: "Lista specifica dei dati NON trovati" },
+              note: { type: "string" }
             }
           }
         }
