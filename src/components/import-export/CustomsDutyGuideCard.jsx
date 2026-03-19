@@ -291,17 +291,51 @@ export default function CustomsDutyGuideCard({ countryCode, countryName, hsCode,
               </div>
               <div className="bg-white/[0.02] rounded-lg p-2.5">
                 <DatoTrovato label="Dazio MFN" valore={dati.dazio_mfn} fonte={dati.dazio_mfn_fonte} />
+                {dati.dazio_mfn_tipo && dati.dazio_mfn_tipo !== 'ad_valorem' && (
+                  <p className="text-amber-400/70 text-[9px] -mt-1 mb-1 ml-1">Tipo: {dati.dazio_mfn_tipo}</p>
+                )}
                 <DatoTrovato label="Dazio pref. EU" valore={dati.dazio_preferenziale_eu} fonte={dati.dazio_preferenziale_fonte} />
                 {dati.accordo_commerciale && (
                   <div className="py-1.5 border-b border-white/5">
-                    <span className="text-slate-400 text-[10px]">Accordo: </span>
-                    <span className="text-white text-[10px] font-medium">{dati.accordo_commerciale}</span>
+                    <span className="text-slate-400 text-[10px]">Accordo FTA: </span>
+                    <span className="text-cyan-400 text-[10px] font-medium">{dati.accordo_commerciale}</span>
                   </div>
                 )}
+                {dati.anti_dumping && (
+                  <DatoTrovato label="🔴 Anti-dumping" valore={dati.anti_dumping} fonte="TARIC/Access2Markets" warning />
+                )}
+                {dati.misure_compensative && (
+                  <DatoTrovato label="🔴 Misure compensative" valore={dati.misure_compensative} warning />
+                )}
+                {dati.salvaguardie && (
+                  <DatoTrovato label="🟡 Salvaguardie" valore={dati.salvaguardie} warning />
+                )}
                 <DatoTrovato label={dati.iva_gst_tipo || 'IVA/GST'} valore={dati.iva_gst} fonte={dati.iva_gst_fonte} />
-                {dati.altre_imposte?.length > 0 && dati.altre_imposte.map((imp, i) => (
-                  <DatoTrovato key={i} label={imp.nome} valore={imp.valore} fonte={imp.fonte} warning />
-                ))}
+                {dati.iva_ridotta && (
+                  <DatoTrovato label="IVA ridotta (se applicabile)" valore={dati.iva_ridotta} />
+                )}
+                {dati.altre_imposte?.length > 0 && (
+                  <div className="mt-1 pt-1 border-t border-white/5">
+                    <p className="text-slate-500 text-[9px] font-semibold mb-1">Altre tasse doganali (ODC):</p>
+                    {dati.altre_imposte.map((imp, i) => (
+                      <DatoTrovato key={i} label={imp.nome} valore={imp.valore} fonte={imp.fonte} warning />
+                    ))}
+                  </div>
+                )}
+                {dati.contingenti_tariffari && (
+                  <div className="mt-1 pt-1 border-t border-white/5">
+                    <p className="text-purple-400 text-[10px] font-semibold">📋 Contingenti tariffari (TRQ)</p>
+                    <p className="text-slate-300 text-[10px]">{dati.contingenti_tariffari}</p>
+                  </div>
+                )}
+                {dati.dazio_totale_stimato && (
+                  <div className="mt-2 pt-2 border-t border-lime-400/20">
+                    <div className="flex items-center justify-between">
+                      <span className="text-white text-[11px] font-bold">Dazio totale stimato</span>
+                      <span className="text-lime-400 text-[11px] font-bold">{dati.dazio_totale_stimato}</span>
+                    </div>
+                  </div>
+                )}
               </div>
               {dati.nota_verifica && (
                 <p className="text-amber-400/80 text-[9px] mt-1.5 italic">⚠ {dati.nota_verifica}</p>
