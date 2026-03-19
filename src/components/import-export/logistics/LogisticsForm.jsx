@@ -20,6 +20,7 @@ export default function LogisticsForm({ onSubmit, loading, countryOrigin, countr
     product_description: productDescription || '',
     hs_code: hsCode || '',
     weight_kg: '',
+    weight_type: 'confezione',
     volume_m3: '',
     colli: '',
     container_type: '20\' Standard',
