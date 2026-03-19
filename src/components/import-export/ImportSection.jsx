@@ -111,7 +111,6 @@ export default function ImportSection({ user, exportManagers }) {
   return (
     <div className="space-y-4">
       {importLimitReached && !importResult && <LimitReachedBanner actionType="import_analysis" usageCount={importUsage} limit={importLimit} isWeekly={true} />}
-      {!importLimitReached && user && !importResult && <UsageCounter usageCount={importUsage} limit={importLimit} label="Analisi import disponibili questa settimana" />}
 
       <Card className="bg-gradient-to-br from-red-500 to-red-700 border-0">
         <CardContent className="p-4"><div className="flex items-center gap-3"><span className="text-4xl">🇨🇳</span><div><h3 className="text-white font-bold">Import dalla Cina</h3><p className="text-white/80 text-sm">Produci su misura o trova prodotti esistenti</p></div></div></CardContent>
