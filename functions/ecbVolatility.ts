@@ -302,7 +302,7 @@ Deno.serve(async (req) => {
       tasso_corrente: tassoCorrente,
       periodo_lungo: periodoLungo,
       periodo_breve: periodoBreve,
-      fonte: 'BCE - Euro foreign exchange reference rates',
+      fonte: fonteUsata,
       n_osservazioni_lungo: allRates.length,
       n_osservazioni_breve: shortRates.length
     });
