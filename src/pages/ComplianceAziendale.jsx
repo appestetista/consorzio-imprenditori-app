@@ -1874,7 +1874,8 @@ VERIFICA:
                     )}
                   </div>
               )}
-              
+            </div>
+            )}
 
               {branches.length >= 5 && (
                 <div className="border-t border-slate-700 pt-4">
