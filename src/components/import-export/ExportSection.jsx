@@ -24,6 +24,7 @@ import { buildExportSummary } from './buildAnalysisSummary';
 import WorldMapExplorer from './WorldMapExplorer';
 import AnalysisErrorBoundary from './AnalysisErrorBoundary';
 import ExportAnalysisProgress from './ExportAnalysisProgress';
+import ExportConsultantBubble from './ExportConsultantBubble';
 
 const SETTORI = [
   'Alimentare e bevande', 'Moda e tessile', 'Arredamento e design',
@@ -670,9 +671,7 @@ export default function ExportSection({ user, exportManagers, selectedMapCountry
               <AnalysisErrorBoundary>
                 <ExportAnalysisResult analysisResult={analysisResult} tradeMetrics={tradeMetrics} macroData={macroData} confirmedExportHS={confirmedExportHS} tradeData={tradeData} exportForm={exportForm} />
               </AnalysisErrorBoundary>
-              <AnalysisErrorBoundary>
-                <ExportContactCard contactForm={contactForm} setContactForm={setContactForm} contactSent={contactSent} setContactSent={setContactSent} sendContactMutation={sendContactMutation} uploadingAttachment={uploadingAttachment} handleAttachmentUpload={handleAttachmentUpload} removeAttachment={removeAttachment} exportManagers={exportManagers} />
-              </AnalysisErrorBoundary>
+              {/* Contact card spostato nella bubble floating */}
             </>
           )}
 
