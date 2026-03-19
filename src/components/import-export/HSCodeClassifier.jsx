@@ -99,14 +99,20 @@ Restituisci SOLO codici HS reali a 6 cifre dalla nomenclatura combinata UE. Per 
 
       console.log('[HSCodeClassifier] LLM result:', JSON.stringify(result));
 
-      if (!result || !result.codici || result.codici.length === 0) {
-        const msg = result?.errore || "Impossibile determinare codice HS. Specificare dettagli tecnici del prodotto.";
+      // Gestione robusta: il risultato potrebbe essere wrappato in modi diversi
+      let codici = result?.codici;
+      if (!Array.isArray(codici)) codici = [];
+      // Filtra codici validi (devono avere hs_code stringa non vuota)
+      codici = codici.filter(c => c && typeof c.hs_code === 'string' && c.hs_code.trim().length >= 4);
+
+      if (codici.length === 0) {
+        const msg = result?.errore || "Impossibile determinare codice HS. Prova a specificare meglio il prodotto (es. 'pasta di semola secca' invece di 'pasta').";
         setError(msg);
         if (onError) onError(msg);
         return;
       }
 
-      const codes = result.codici.slice(0, 3);
+      const codes = codici.slice(0, 3);
       setCandidates(codes);
       // Auto-confirm: select the highest-confidence code automatically
       const best = codes.find(c => c.certezza === 'alto') || codes[0];
