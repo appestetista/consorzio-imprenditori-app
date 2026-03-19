@@ -156,6 +156,16 @@ export default function LogisticsForm({ onSubmit, loading, countryOrigin, countr
             <label className="text-slate-500 text-[10px] mb-1 block">Peso (kg) *</label>
             <Input type="number" min="0" value={form.weight_kg} onChange={e => update('weight_kg', e.target.value)} placeholder="0" className={fieldClass('weight_kg')} />
             {errors.weight_kg && <p className="text-red-400 text-[10px] mt-0.5">{errors.weight_kg}</p>}
+            <div className="flex gap-2 mt-1.5">
+              <button type="button" onClick={() => update('weight_type', 'confezione')}
+                className={`text-[9px] px-2 py-1 rounded-lg border transition-colors ${form.weight_type === 'confezione' ? 'bg-blue-500/20 border-blue-500/40 text-blue-300 font-bold' : 'bg-white/5 border-white/10 text-slate-400'}`}>
+                📦 Singola confezione
+              </button>
+              <button type="button" onClick={() => update('weight_type', 'bancale')}
+                className={`text-[9px] px-2 py-1 rounded-lg border transition-colors ${form.weight_type === 'bancale' ? 'bg-blue-500/20 border-blue-500/40 text-blue-300 font-bold' : 'bg-white/5 border-white/10 text-slate-400'}`}>
+                🏗️ Bancale/pallet
+              </button>
+            </div>
           </div>
           <div>
             <label className="text-slate-500 text-[10px] mb-1 block">Volume (m³)</label>
