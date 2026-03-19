@@ -1606,6 +1606,7 @@ VERIFICA:
                     setNewBranch(prev => ({
                       ...prev,
                       nome: data.ragione_sociale || prev.nome,
+                      tipo_attivita: data.descrizione_ateco || prev.tipo_attivita,
                       indirizzo: [data.indirizzo, data.cap, data.citta, data.provincia].filter(Boolean).join(', ') || prev.indirizzo,
                       codice_ateco: data.codice_ateco || prev.codice_ateco,
                     }));
@@ -1618,14 +1619,14 @@ VERIFICA:
                 <Input
                   value={newBranch.nome}
                   onChange={(e) => setNewBranch({...newBranch, nome: e.target.value})}
-                  className="bg-slate-900 border-slate-700 text-slate-900"
+                  className="bg-slate-900 border-slate-700 text-white"
                   placeholder="Nome ramo (es: Sede Principale, Magazzino, Filiale Roma)"
                 />
                 
                 <Textarea
                   value={newBranch.tipo_attivita}
                   onChange={(e) => setNewBranch({...newBranch, tipo_attivita: e.target.value})}
-                  className="bg-slate-900 border-slate-700 text-slate-900"
+                  className="bg-slate-900 border-slate-700 text-white"
                   placeholder="Tipo di attività (es: Ristorante, Officina meccanica, Ufficio amministrativo)"
                   rows={2}
                 />
@@ -1635,7 +1636,7 @@ VERIFICA:
                     <Input
                       value={newBranch.codice_ateco}
                       onChange={(e) => setNewBranch({...newBranch, codice_ateco: e.target.value})}
-                      className="bg-slate-900 border-slate-700 text-slate-900"
+                      className="bg-slate-900 border-slate-700 text-white"
                       placeholder="Codice ATECO *"
                       required
                     />
@@ -1645,7 +1646,7 @@ VERIFICA:
                     type="number"
                     value={newBranch.numero_dipendenti}
                     onChange={(e) => setNewBranch({...newBranch, numero_dipendenti: e.target.value})}
-                    className="bg-slate-900 border-slate-700 text-slate-900"
+                    className="bg-slate-900 border-slate-700 text-white"
                     placeholder="N° dipendenti"
                     min="0"
                   />
@@ -1654,7 +1655,7 @@ VERIFICA:
                 <Input
                                         value={newBranch.indirizzo}
                                         onChange={(e) => setNewBranch({...newBranch, indirizzo: e.target.value})}
-                                        className="bg-slate-900 border-slate-700 text-slate-900"
+                                        className="bg-slate-900 border-slate-700 text-white"
                                         placeholder="Indirizzo (opzionale)"
                                       />
 
@@ -1664,7 +1665,7 @@ VERIFICA:
                                             type="number"
                                             value={newBranch.data_attivazione}
                                             onChange={(e) => setNewBranch({...newBranch, data_attivazione: e.target.value})}
-                                            className="bg-slate-900 border-slate-700 text-slate-900"
+                                            className="bg-slate-900 border-slate-700 text-white"
                                             placeholder="es: 2020"
                                             min="1900"
                                             max={new Date().getFullYear()}
@@ -1691,7 +1692,7 @@ VERIFICA:
                                             type="number"
                                             value={newBranch.superficie_mq}
                                             onChange={(e) => setNewBranch({...newBranch, superficie_mq: e.target.value})}
-                                            className="bg-slate-900 border-slate-700 text-slate-900"
+                                            className="bg-slate-900 border-slate-700 text-white"
                                             placeholder="es: 500"
                                             min="0"
                                           />

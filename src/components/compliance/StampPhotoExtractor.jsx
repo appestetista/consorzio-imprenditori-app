@@ -104,6 +104,22 @@ REGOLE:
       }
     }
 
+    // Se abbiamo il codice ATECO, ricava automaticamente la descrizione se manca
+    if (result.codice_ateco && !result.descrizione_ateco) {
+      const descResult = await base44.integrations.Core.InvokeLLM({
+        prompt: `Qual è la descrizione ufficiale dell'attività economica per il codice ATECO ${result.codice_ateco}? Rispondi solo con la descrizione breve dell'attività (es: "Ristorazione con somministrazione", "Fabbricazione di strutture metalliche"). Non inventare, usa la classificazione ATECO 2007 ufficiale ISTAT.`,
+        response_json_schema: {
+          type: "object",
+          properties: {
+            descrizione: { type: "string", description: "Descrizione ufficiale dell'attività ATECO" }
+          }
+        }
+      });
+      if (descResult.descrizione) {
+        result.descrizione_ateco = descResult.descrizione;
+      }
+    }
+
     setExtracting(false);
     setExtractedData(result);
   };
@@ -123,6 +139,7 @@ REGOLE:
     { key: 'citta', label: 'Città' },
     { key: 'provincia', label: 'Provincia' },
     { key: 'codice_ateco', label: 'Codice ATECO' },
+    { key: 'descrizione_ateco', label: 'Attività ATECO' },
     { key: 'email_pec', label: 'Email / PEC' },
     { key: 'numero_rea', label: 'N° REA / CCIAA' },
   ];
