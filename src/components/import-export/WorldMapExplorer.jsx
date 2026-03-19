@@ -679,7 +679,7 @@ Rispondi in italiano.`,
     };
     loadGeoJSON();
 
-    // Animate
+    // Animate — stable render loop, no per-frame raycasting
     const animate = () => {
       animFrameRef.current = requestAnimationFrame(animate);
 
@@ -689,16 +689,23 @@ Rispondi in italiano.`,
 
       // Inerzia fluida
       if (!isDragging.current) {
-        globeGroup.rotation.y += rotationVelocity.current.x;
-        globeGroup.rotation.x += rotationVelocity.current.y;
-        rotationVelocity.current.x *= 0.95;
-        rotationVelocity.current.y *= 0.95;
-        if (Math.abs(rotationVelocity.current.x) < 0.0001) rotationVelocity.current.x = 0;
-        if (Math.abs(rotationVelocity.current.y) < 0.0001) rotationVelocity.current.y = 0;
+        const vx = rotationVelocity.current.x;
+        const vy = rotationVelocity.current.y;
+        if (Math.abs(vx) > 0.0001 || Math.abs(vy) > 0.0001) {
+          globeGroup.rotation.y += vx;
+          globeGroup.rotation.x += vy;
+          rotationVelocity.current.x = vx * 0.95;
+          rotationVelocity.current.y = vy * 0.95;
+        } else {
+          rotationVelocity.current.x = 0;
+          rotationVelocity.current.y = 0;
+        }
       }
 
       // Clamp rotazione X
-      globeGroup.rotation.x = Math.max(-Math.PI / 2, Math.min(Math.PI / 2, globeGroup.rotation.x));
+      const rx = globeGroup.rotation.x;
+      if (rx < -Math.PI / 2) globeGroup.rotation.x = -Math.PI / 2;
+      else if (rx > Math.PI / 2) globeGroup.rotation.x = Math.PI / 2;
 
       renderer.render(scene, camera);
     };
