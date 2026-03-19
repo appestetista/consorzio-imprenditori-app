@@ -76,22 +76,37 @@ async function fetchECBRates(currency, startDate, endDate) {
   const lines = text.split('\n');
   if (lines.length < 2) return [];
   
-  // Trova indici colonna TIME_PERIOD e OBS_VALUE
-  const header = lines[0].split(',');
-  const timeIdx = header.findIndex(h => h.trim() === 'TIME_PERIOD');
-  const valueIdx = header.findIndex(h => h.trim() === 'OBS_VALUE');
+  // Parse CSV correttamente gestendo campi tra doppi apici con virgole interne
+  function parseCSVLine(line) {
+    const fields = [];
+    let current = '';
+    let inQuotes = false;
+    for (let i = 0; i < line.length; i++) {
+      const ch = line[i];
+      if (ch === '"') { inQuotes = !inQuotes; continue; }
+      if (ch === ',' && !inQuotes) { fields.push(current.trim()); current = ''; continue; }
+      current += ch;
+    }
+    fields.push(current.trim());
+    return fields;
+  }
+  
+  const header = parseCSVLine(lines[0]);
+  const timeIdx = header.findIndex(h => h === 'TIME_PERIOD');
+  const valueIdx = header.findIndex(h => h === 'OBS_VALUE');
   
   if (timeIdx < 0 || valueIdx < 0) {
-    console.error('[ECB API] Colonne TIME_PERIOD/OBS_VALUE non trovate');
+    console.error('[ECB API] Colonne TIME_PERIOD/OBS_VALUE non trovate. Header:', header.slice(0, 10));
     return [];
   }
   
   const rates = [];
   for (let i = 1; i < lines.length; i++) {
-    const cols = lines[i].split(',');
+    if (!lines[i].trim()) continue;
+    const cols = parseCSVLine(lines[i]);
     if (cols.length <= Math.max(timeIdx, valueIdx)) continue;
-    const date = cols[timeIdx]?.trim();
-    const value = parseFloat(cols[valueIdx]?.trim());
+    const date = cols[timeIdx];
+    const value = parseFloat(cols[valueIdx]);
     if (date && !isNaN(value) && value > 0) {
       rates.push({ date, value });
     }
