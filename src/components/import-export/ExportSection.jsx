@@ -25,6 +25,7 @@ import WorldMapExplorer from './WorldMapExplorer';
 import AnalysisErrorBoundary from './AnalysisErrorBoundary';
 import ExportAnalysisProgress from './ExportAnalysisProgress';
 import ExportConsultantBubble from './ExportConsultantBubble';
+import LogisticsModule from './logistics/LogisticsModule';
 
 const SETTORI = [
   'Alimentare e bevande', 'Moda e tessile', 'Arredamento e design',
