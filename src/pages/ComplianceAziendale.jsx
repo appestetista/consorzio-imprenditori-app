@@ -68,6 +68,7 @@ export default function ComplianceAziendale() {
   const [editingNorm, setEditingNorm] = useState(null);
   const [showStampScanner, setShowStampScanner] = useState(false);
   const [showBranchForm, setShowBranchForm] = useState(false);
+  const [stampDataUsed, setStampDataUsed] = useState(false);
   
 
   const [newBranch, setNewBranch] = useState({ 
@@ -1634,95 +1635,128 @@ VERIFICA:
                      data_attivazione: data.anno_attivazione || prev.data_attivazione,
                      tipo_attivita_categoria: data.tipo_attivita_categoria || prev.tipo_attivita_categoria,
                    }));
-                    setShowStampScanner(false);
-                    setShowBranchForm(true);
+                   setStampDataUsed(true);
+                   setShowStampScanner(false);
+                   setShowBranchForm(true);
                   }}
                 />
               )}
 
               {showBranchForm && (
               <div className="space-y-3">
-                <Input
-                  value={newBranch.nome}
-                  onChange={(e) => setNewBranch({...newBranch, nome: e.target.value})}
-                  className="bg-slate-900 border-slate-700 text-white"
-                  placeholder="Nome ramo (es: Sede Principale, Magazzino, Filiale Roma)"
-                />
+                {/* Se i dati vengono dallo scanner, mostra riepilogo compatto */}
+                {stampDataUsed && (newBranch.nome || newBranch.codice_ateco || newBranch.tipo_attivita) && (
+                  <div className="bg-green-500/10 border border-green-500/30 rounded-lg p-3 space-y-1">
+                    <div className="flex items-center gap-2 mb-1">
+                      <CheckCircle className="w-4 h-4 text-green-400" />
+                      <span className="text-green-400 text-xs font-semibold">Dati compilati automaticamente</span>
+                    </div>
+                    {newBranch.nome && <p className="text-slate-300 text-xs"><span className="text-slate-500">Ragione sociale:</span> {newBranch.nome}</p>}
+                    {newBranch.codice_ateco && <p className="text-slate-300 text-xs"><span className="text-slate-500">ATECO:</span> {newBranch.codice_ateco}</p>}
+                    {newBranch.tipo_attivita && <p className="text-slate-300 text-xs"><span className="text-slate-500">Attività:</span> {newBranch.tipo_attivita}</p>}
+                    {newBranch.indirizzo && <p className="text-slate-300 text-xs"><span className="text-slate-500">Indirizzo:</span> {newBranch.indirizzo}</p>}
+                    {newBranch.data_attivazione && <p className="text-slate-300 text-xs"><span className="text-slate-500">Anno attivazione:</span> {newBranch.data_attivazione}</p>}
+                    {newBranch.tipo_attivita_categoria && <p className="text-slate-300 text-xs"><span className="text-slate-500">Tipologia:</span> {newBranch.tipo_attivita_categoria}</p>}
+                    <button onClick={() => setStampDataUsed(false)} className="text-blue-400 text-[10px] underline mt-1">Modifica dati manualmente</button>
+                  </div>
+                )}
+
+                {/* Campi editabili: mostra SOLO quelli non compilati dalla foto, oppure tutti se compilazione manuale */}
+                {(!stampDataUsed || !newBranch.nome) && (
+                  <Input
+                    value={newBranch.nome}
+                    onChange={(e) => setNewBranch({...newBranch, nome: e.target.value})}
+                    className="bg-slate-900 border-slate-700 text-white"
+                    placeholder="Nome ramo (es: Sede Principale, Magazzino, Filiale Roma)"
+                  />
+                )}
                 
-                <Textarea
-                  value={newBranch.tipo_attivita}
-                  onChange={(e) => setNewBranch({...newBranch, tipo_attivita: e.target.value})}
-                  className="bg-slate-900 border-slate-700 text-white"
-                  placeholder="Tipo di attività (es: Ristorante, Officina meccanica, Ufficio amministrativo)"
-                  rows={2}
-                />
+                {(!stampDataUsed || !newBranch.tipo_attivita) && (
+                  <Textarea
+                    value={newBranch.tipo_attivita}
+                    onChange={(e) => setNewBranch({...newBranch, tipo_attivita: e.target.value})}
+                    className="bg-slate-900 border-slate-700 text-white"
+                    placeholder="Tipo di attività (es: Ristorante, Officina meccanica, Ufficio amministrativo)"
+                    rows={2}
+                  />
+                )}
                 
-                <div className="grid grid-cols-2 gap-2">
-                  <div>
+                {(!stampDataUsed || !newBranch.codice_ateco || !newBranch.numero_dipendenti) && (
+                  <div className="grid grid-cols-2 gap-2">
+                    {(!stampDataUsed || !newBranch.codice_ateco) && (
+                      <div>
+                        <Input
+                          value={newBranch.codice_ateco}
+                          onChange={(e) => setNewBranch({...newBranch, codice_ateco: e.target.value})}
+                          className="bg-slate-900 border-slate-700 text-white"
+                          placeholder="Codice ATECO *"
+                          required
+                        />
+                        <p className="text-slate-500 text-[10px] mt-0.5">Es: 56.10, 43.21, 25.11</p>
+                      </div>
+                    )}
                     <Input
-                      value={newBranch.codice_ateco}
-                      onChange={(e) => setNewBranch({...newBranch, codice_ateco: e.target.value})}
+                      type="number"
+                      value={newBranch.numero_dipendenti}
+                      onChange={(e) => setNewBranch({...newBranch, numero_dipendenti: e.target.value})}
                       className="bg-slate-900 border-slate-700 text-white"
-                      placeholder="Codice ATECO *"
+                      placeholder="N° dipendenti *"
+                      min="0"
+                    />
+                  </div>
+                )}
+                
+                {(!stampDataUsed || !newBranch.indirizzo) && (
+                  <Input
+                    value={newBranch.indirizzo}
+                    onChange={(e) => setNewBranch({...newBranch, indirizzo: e.target.value})}
+                    className="bg-slate-900 border-slate-700 text-white"
+                    placeholder="Indirizzo (opzionale)"
+                  />
+                )}
+
+                {(!stampDataUsed || !newBranch.data_attivazione) && (
+                  <div>
+                    <Label className="text-slate-400 text-xs mb-1 block">Anno di attivazione attività *</Label>
+                    <Input
+                      type="number"
+                      value={newBranch.data_attivazione}
+                      onChange={(e) => setNewBranch({...newBranch, data_attivazione: e.target.value})}
+                      className="bg-slate-900 border-slate-700 text-white"
+                      placeholder="es: 2020"
+                      min="1900"
+                      max={new Date().getFullYear()}
                       required
                     />
-                    <p className="text-slate-500 text-[10px] mt-0.5">Es: 56.10, 43.21, 25.11</p>
+                    <p className="text-slate-500 text-xs mt-1">Anno in cui è iniziata l'attività</p>
                   </div>
+                )}
+
+                {/* Tipo attività — mostra solo se non compilato */}
+                {(!stampDataUsed || !newBranch.tipo_attivita_categoria) && (
+                  <div>
+                    <Label className="text-slate-400 text-xs mb-1 block">Tipologia attività</Label>
+                    <div className="mt-2">
+                      <TipoAttivitaSelector
+                        value={newBranch.tipo_attivita_categoria}
+                        onChange={(val) => setNewBranch({...newBranch, tipo_attivita_categoria: val})}
+                      />
+                    </div>
+                  </div>
+                )}
+
+                {/* Superficie — sempre visibile (non recuperabile online) */}
+                <div>
+                  <Label className="text-slate-400 text-xs mb-1 block">Superficie stabilimento (mq)</Label>
                   <Input
                     type="number"
-                    value={newBranch.numero_dipendenti}
-                    onChange={(e) => setNewBranch({...newBranch, numero_dipendenti: e.target.value})}
+                    value={newBranch.superficie_mq}
+                    onChange={(e) => setNewBranch({...newBranch, superficie_mq: e.target.value})}
                     className="bg-slate-900 border-slate-700 text-white"
-                    placeholder="N° dipendenti"
+                    placeholder="es: 500"
                     min="0"
                   />
                 </div>
-                
-                <Input
-                                        value={newBranch.indirizzo}
-                                        onChange={(e) => setNewBranch({...newBranch, indirizzo: e.target.value})}
-                                        className="bg-slate-900 border-slate-700 text-white"
-                                        placeholder="Indirizzo (opzionale)"
-                                      />
-
-                                      <div>
-                                          <Label className="text-slate-400 text-xs mb-1 block">Anno di attivazione attività *</Label>
-                                          <Input
-                                            type="number"
-                                            value={newBranch.data_attivazione}
-                                            onChange={(e) => setNewBranch({...newBranch, data_attivazione: e.target.value})}
-                                            className="bg-slate-900 border-slate-700 text-white"
-                                            placeholder="es: 2020"
-                                            min="1900"
-                                            max={new Date().getFullYear()}
-                                            required
-                                          />
-                                          <p className="text-slate-500 text-xs mt-1">Anno in cui è iniziata l'attività</p>
-                                        </div>
-
-                                        {/* Tipo attività */}
-                                        <div>
-                                          <Label className="text-slate-400 text-xs mb-1 block">Tipologia attività</Label>
-                                          <div className="mt-2">
-                                            <TipoAttivitaSelector
-                                              value={newBranch.tipo_attivita_categoria}
-                                              onChange={(val) => setNewBranch({...newBranch, tipo_attivita_categoria: val})}
-                                            />
-                                          </div>
-                                        </div>
-
-                                        {/* Superficie */}
-                                        <div>
-                                          <Label className="text-slate-400 text-xs mb-1 block">Superficie stabilimento (mq)</Label>
-                                          <Input
-                                            type="number"
-                                            value={newBranch.superficie_mq}
-                                            onChange={(e) => setNewBranch({...newBranch, superficie_mq: e.target.value})}
-                                            className="bg-slate-900 border-slate-700 text-white"
-                                            placeholder="es: 500"
-                                            min="0"
-                                          />
-                                        </div>
 
                                         {/* RISCHI REALI - Sezione completa */}
                                         <div className="space-y-4 pt-2">
