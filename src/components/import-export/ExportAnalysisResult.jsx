@@ -576,8 +576,10 @@ export default function ExportAnalysisResult({ analysisResult, tradeMetrics, mac
       <div className="bg-white/[0.02] border border-white/5 rounded-xl p-3">
         <p className="text-white/50 text-[10px] font-semibold uppercase tracking-wider mb-2">Trasparenza dati</p>
         <div className="grid grid-cols-2 gap-x-4 gap-y-1 text-[10px] text-white/60">
-          <div><span className="text-white/40">Fonte:</span> UN Comtrade</div>
-          <div><span className="text-white/40">Macro:</span> World Bank</div>
+          <div><span className="text-white/40">Commercio:</span> UN Comtrade, OEC, Eurostat</div>
+          <div><span className="text-white/40">Dazi:</span> WITS/TRAINS, WTO, Access2Markets</div>
+          <div><span className="text-white/40">Macro:</span> World Bank, BCE</div>
+          <div><span className="text-white/40">Arricch.:</span> MacMap, Trade Map, ICE</div>
           <div><span className="text-white/40">HS:</span> {confirmedExportHS?.hs_code}</div>
           <div><span className="text-white/40">Esportatore:</span> {tradeData?._query_log?.exporter || 'IT'}</div>
           <div><span className="text-white/40">Periodo:</span> {tradeData?._query_log?.periodo || `${new Date().getFullYear() - 5}-${new Date().getFullYear() - 1}`}</div>
