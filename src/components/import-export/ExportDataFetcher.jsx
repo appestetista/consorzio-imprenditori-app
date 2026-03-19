@@ -903,7 +903,7 @@ SPIEGAZIONE PER L'IMPRENDITORE:
               tempi_autorizzazioni: { type: "string" }, costi: { type: "string" },
               official_sources: { type: "array", items: { type: "string" } }
             } },
-            dazi_taric: { type: "object", properties: { dazio_mfn: { type: "string" }, dazio_preferenziale: { type: "string" }, anti_dumping: { type: "string" }, restrizioni: { type: "string" } } }
+            dazi_taric: { type: "object", properties: { dazio_mfn: { type: "string" }, dazio_mfn_valore: { type: "number", description: "Valore numerico % se ad valorem" }, dazio_preferenziale: { type: "string" }, dazio_preferenziale_valore: { type: "number" }, accordo_fta: { type: "string", description: "Nome accordo commerciale" }, anti_dumping: { type: "string" }, anti_dumping_valore: { type: "number" }, iva_gst: { type: "string" }, iva_gst_valore: { type: "number" }, altre_tasse: { type: "string", description: "ODC, sovrattasse, etc." }, restrizioni: { type: "string" }, contingenti: { type: "string" }, dazio_totale_stimato_pct: { type: "string", description: "Somma % di tutti i dazi (MFN/pref + AD + ODC)" }, esempio_10k_eur: { type: "string", description: "Su €10.000 FOB: totale dazi+IVA in EUR" } } }
           }
         }
       }
