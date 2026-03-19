@@ -217,7 +217,7 @@ function DetailedDataRow({ label, value, spiegazioneKey }) {
   const isEstimate = safeVal && /stima|proxy|approssim|circa|indicativ/i.test(String(safeVal));
   const isLong = safeVal && String(safeVal).length > 60;
 
-  if (isNDValue(value)) {
+  if (isNDValue(safeVal)) {
     return (
       <div className="py-1.5 border-b border-white/5 last:border-0">
         <div className="flex justify-between items-start">
@@ -239,7 +239,7 @@ function DetailedDataRow({ label, value, spiegazioneKey }) {
           {spiegazione && <InfoTooltip title={spiegazione.title}><p>{spiegazione.body}</p></InfoTooltip>}
           {isEstimate && <span className="text-amber-400 text-[8px] font-bold bg-amber-500/10 px-1.5 py-0.5 rounded">STIMA</span>}
         </div>
-        <p className="text-white/80 text-[11px] leading-relaxed pl-1">{value}</p>
+        <p className="text-white/80 text-[11px] leading-relaxed pl-1">{safeVal}</p>
       </div>
     );
   }
@@ -251,7 +251,7 @@ function DetailedDataRow({ label, value, spiegazioneKey }) {
         {spiegazione && <InfoTooltip title={spiegazione.title}><p>{spiegazione.body}</p></InfoTooltip>}
         {isEstimate && <span className="text-amber-400 text-[8px] font-bold bg-amber-500/10 px-1.5 py-0.5 rounded">STIMA</span>}
       </span>
-      <span className="text-xs text-right font-medium text-white">{value}</span>
+      <span className="text-xs text-right font-medium text-white">{safeVal}</span>
     </div>
   );
 }
