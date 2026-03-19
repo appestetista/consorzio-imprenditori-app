@@ -180,8 +180,10 @@ function isNDValue(value) {
 
 function DataRow({ label, value, warning }) {
   const spiegazione = SPIEGAZIONI[label];
+  // Proteggi da valori non-stringa (oggetti/array causano crash React)
+  const safeValue = (value != null && typeof value === 'object') ? JSON.stringify(value) : value;
 
-  if (isNDValue(value)) {
+  if (isNDValue(safeValue)) {
     return (
       <div className="flex justify-between items-start py-1.5 border-b border-white/5 last:border-0">
         <span className="text-white/60 text-xs flex items-center gap-1">
@@ -198,7 +200,7 @@ function DataRow({ label, value, warning }) {
         {label}
         {spiegazione && <InfoTooltip title={spiegazione.title}><p>{spiegazione.body}</p></InfoTooltip>}
       </span>
-      <span className={`text-xs text-right font-medium ${warning ? 'text-amber-400' : 'text-white'}`}>{value}</span>
+      <span className={`text-xs text-right font-medium ${warning ? 'text-amber-400' : 'text-white'}`}>{safeValue}</span>
     </div>
   );
 }
