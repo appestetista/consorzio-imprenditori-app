@@ -193,8 +193,7 @@ export default function ExportSection({ user, exportManagers, selectedMapCountry
   return (
     <>
       {/* Bubble consulente floating — sempre visibile */}
-      {(
-        <ExportConsultantBubble
+      <ExportConsultantBubble
           contactForm={contactForm} setContactForm={setContactForm}
           contactSent={contactSent} setContactSent={setContactSent}
           sendContactMutation={sendContactMutation}
