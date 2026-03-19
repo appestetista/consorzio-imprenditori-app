@@ -398,33 +398,36 @@ function MercatoContextSection({ data }) {
           <div className="flex-1">
             <p className="text-white text-xs font-medium">Questo mercato importa {formatBigMoney(data.importTotaleUsd)} di questo prodotto</p>
             <p className="text-white/60 text-[10px]">Più il numero è grande, più c'è domanda</p>
-            {/* Confronto con altri mercati */}
-            {data.confrontoImportGlobale && (
-              <div className="mt-2 space-y-1 border-t border-white/5 pt-2">
-                {data.confrontoImportGlobale.paese_importa_di_piu?.nome && (
-                  <div className="flex items-center gap-1.5">
-                    <span className="text-green-400 text-[10px]">▲</span>
-                    <p className="text-white/70 text-[10px]">
-                      <span className="font-semibold text-white/90">{data.confrontoImportGlobale.paese_importa_di_piu.nome}</span> importa {data.confrontoImportGlobale.paese_importa_di_piu.valore_usd || 'N/D'}
-                      {data.confrontoImportGlobale.paese_importa_di_piu.fonte && (
-                        <span className="text-white/40"> ({data.confrontoImportGlobale.paese_importa_di_piu.fonte})</span>
-                      )}
-                    </p>
-                  </div>
-                )}
-                {data.confrontoImportGlobale.paese_importa_di_meno?.nome && (
-                  <div className="flex items-center gap-1.5">
-                    <span className="text-orange-400 text-[10px]">▼</span>
-                    <p className="text-white/70 text-[10px]">
-                      <span className="font-semibold text-white/90">{data.confrontoImportGlobale.paese_importa_di_meno.nome}</span> importa {data.confrontoImportGlobale.paese_importa_di_meno.valore_usd || 'N/D'}
-                      {data.confrontoImportGlobale.paese_importa_di_meno.fonte && (
-                        <span className="text-white/40"> ({data.confrontoImportGlobale.paese_importa_di_meno.fonte})</span>
-                      )}
-                    </p>
-                  </div>
-                )}
-              </div>
-            )}
+            {/* Confronto con altri mercati — mostra solo se dati reali disponibili */}
+            {data.confrontoImportGlobale && (() => {
+              const piu = data.confrontoImportGlobale.paese_importa_di_piu;
+              const meno = data.confrontoImportGlobale.paese_importa_di_meno;
+              const piuValido = piu?.nome && piu.nome !== 'Non disponibile' && piu.valore_usd && piu.valore_usd !== 'Non disponibile';
+              const menoValido = meno?.nome && meno.nome !== 'Non disponibile' && meno.valore_usd && meno.valore_usd !== 'Non disponibile';
+              if (!piuValido && !menoValido) return null;
+              return (
+                <div className="mt-2 space-y-1 border-t border-white/5 pt-2">
+                  {piuValido && (
+                    <div className="flex items-center gap-1.5">
+                      <span className="text-green-400 text-[10px]">▲</span>
+                      <p className="text-white/70 text-[10px]">
+                        <span className="font-semibold text-white/90">{piu.nome}</span> importa {piu.valore_usd}
+                        {piu.fonte && <span className="text-white/40"> ({piu.fonte})</span>}
+                      </p>
+                    </div>
+                  )}
+                  {menoValido && (
+                    <div className="flex items-center gap-1.5">
+                      <span className="text-orange-400 text-[10px]">▼</span>
+                      <p className="text-white/70 text-[10px]">
+                        <span className="font-semibold text-white/90">{meno.nome}</span> importa {meno.valore_usd}
+                        {meno.fonte && <span className="text-white/40"> ({meno.fonte})</span>}
+                      </p>
+                    </div>
+                  )}
+                </div>
+              );
+            })()}
           </div>
         </div>
       )}
