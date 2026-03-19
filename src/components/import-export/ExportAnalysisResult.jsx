@@ -10,6 +10,7 @@ import {
   VerificaNormativaCard, StrutturaIngressoCard, CanaliVenditaCard, 
   LogisticaDoganeGTMCard, ValidazioneCommercialeCard, DatiMancantiCard 
 } from './ExportPhaseCards';
+import LogisticsModule from './logistics/LogisticsModule';
 import CustomsDutyGuideCard from './CustomsDutyGuideCard';
 import LogisticaDetailCard from './LogisticaDetailCard';
 import InfoTooltip from './InfoTooltip';
@@ -423,7 +424,7 @@ export default function ExportAnalysisResult({ analysisResult, tradeMetrics, mac
             {/* STRATEGIA EXPORT — FASI */}
             <VerificaNormativaCard data={m.verifica_normativa} />
 
-            <StrutturaIngressoCard data={m.canali_ingresso} countryCode={m.paese_code} countryName={m.paese_nome || m.mercato} hsCode={confirmedExportHS?.hs_code} productDescription={exportForm?.prodotto} />
+            <StrutturaIngressoCard data={m.canali_ingresso} />
             <CanaliVenditaCard data={m.canali_ingresso} />
 
             <LogisticaDoganeGTMCard data={m.logistica_dogane_gtm} />
