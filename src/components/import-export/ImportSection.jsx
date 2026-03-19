@@ -1,11 +1,12 @@
 import React, { useState } from 'react';
 import { base44 } from '@/api/base44Client';
-import { Ship, FileText, Loader2, CheckCircle, AlertTriangle, Target, Package, ArrowRight, Search } from 'lucide-react';
+import { Ship, FileText, Loader2, CheckCircle, AlertTriangle, Target, Package, ArrowRight, Search, Paperclip, Camera, Send, X } from 'lucide-react';
 import { useAILimits } from '@/components/hooks/useAILimits';
 import LimitReachedBanner from '@/components/common/LimitReachedBanner';
 import UsageCounter from '@/components/common/UsageCounter';
 import { Card, CardContent } from '@/components/ui/card';
 import { Button } from '@/components/ui/button';
+import { Input } from '@/components/ui/input';
 import { Textarea } from '@/components/ui/textarea';
 import { Select, SelectContent, SelectItem, SelectTrigger, SelectValue } from '@/components/ui/select';
 import { useMutation, useQueryClient } from '@tanstack/react-query';
@@ -15,7 +16,6 @@ import LandedCostTable from './LandedCostTable';
 import ImportMarketIndicators from './ImportMarketIndicators';
 import ImportTopImportersChart from './ImportTopImportersChart';
 import ImportTradeChart from './ImportTradeChart';
-import ImportContactCard from './ImportContactCard';
 import ImportLimitPopup from './ImportLimitPopup';
 import { buildImportSummary } from './buildAnalysisSummary';
 
