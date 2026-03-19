@@ -630,7 +630,7 @@ export default function ExportSection({ user, exportManagers, selectedMapCountry
           '--border': '215 20% 15%',
           '--popover': '215 28% 8%',
           '--popover-foreground': '0 0% 98%',
-        }} ref={el => { if (el) el.scrollIntoView({ behavior: 'smooth', block: 'start' }); }}>
+        }} ref={el => { if (el) setTimeout(() => el.scrollIntoView({ behavior: 'smooth', block: 'start' }), 300); }} style-pt="true" className="pt-16">
           {/* Progress animato durante l'analisi */}
           {analyzing && (
             <ExportAnalysisProgress exportStep={exportStep} countryName={selectedMapCountry?.name} />
