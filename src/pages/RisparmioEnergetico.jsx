@@ -46,16 +46,6 @@ export default function RisparmioEnergetico() {
       specialPage: 'FiscalitaEnergetica'
     },
     {
-      icon: Shield,
-      title: 'Assicurazioni',
-      description: 'Polizze aziendali a condizioni vantaggiose per i membri'
-    },
-    {
-      icon: Flame,
-      title: 'Gas',
-      description: 'Forniture gas metano a prezzi agevolati'
-    },
-    {
       icon: Leaf,
       title: 'Efficientamento Energetico',
       description: 'Interventi per ridurre i consumi e migliorare l\'efficienza'
@@ -64,6 +54,16 @@ export default function RisparmioEnergetico() {
       icon: Sun,
       title: 'Fotovoltaico',
       description: 'Soluzioni per l\'installazione di impianti fotovoltaici'
+    },
+    {
+      icon: Shield,
+      title: 'Assicurazioni',
+      description: 'Polizze aziendali a condizioni vantaggiose per i membri'
+    },
+    {
+      icon: Flame,
+      title: 'Gas',
+      description: 'Forniture gas metano a prezzi agevolati'
     },
     {
       icon: Phone,
