@@ -351,8 +351,6 @@ export default function ImportSection({ user, exportManagers }) {
         </div>
       )}
 
-      <ImportContactCard importContactForm={importContactForm} setImportContactForm={setImportContactForm} importContactSent={importContactSent} setImportContactSent={setImportContactSent} sendImportContactMutation={sendImportContactMutation} uploadingImportAttachment={uploadingImportAttachment} handleImportAttachmentUpload={handleImportAttachmentUpload} removeImportAttachment={removeImportAttachment} />
-
       <ImportLimitPopup open={showImportLimitPopup} onOpenChange={setShowImportLimitPopup} importLimit={importLimit} importContactForm={importContactForm} setImportContactForm={setImportContactForm} importContactSent={importContactSent} setImportContactSent={setImportContactSent} sendImportContactMutation={sendImportContactMutation} uploadingImportAttachment={uploadingImportAttachment} handleImportAttachmentUpload={handleImportAttachmentUpload} removeImportAttachment={removeImportAttachment} />
     </div>
   );
