@@ -57,9 +57,6 @@ export default function ImportExport() {
   const isExport = activeTab === 'export';
   const isImport = activeTab === 'import';
 
-  const actionType = isExport ? 'export_analysis' : 'import_analysis';
-  const { usageCount, limit, isLimitReached } = useAILimits(user?.email, actionType);
-
   return (
     <div className="min-h-screen pb-64" style={{ backgroundColor: 'var(--app-bg)' }}>
       {/* Zona superiore con gradiente scuro → giallo */}
