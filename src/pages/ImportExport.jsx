@@ -28,6 +28,7 @@ export default function ImportExport() {
   const [selectedMapCountry, setSelectedMapCountry] = useState(null);
   const [historySnapshot, setHistorySnapshot] = useState(null);
   const [showContactPopup, setShowContactPopup] = useState(false);
+  const [historyFromTab, setHistoryFromTab] = useState('export');
 
   useEffect(() => {
     window.scrollTo(0, 0);
