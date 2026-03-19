@@ -707,13 +707,20 @@ VERIFICA:
         {branches.length === 0 && (
           <button
             onClick={() => setShowBranchManager(true)}
-            className="w-full mb-6 py-4 rounded-xl border active:scale-[0.98] transition-all flex items-center justify-center gap-3"
+            className="w-full mb-6 py-4 px-4 rounded-xl border active:scale-[0.98] transition-all flex items-center gap-3"
             style={{ backgroundColor: '#0040ff', borderColor: '#3366ff' }}
           >
-            <div className="w-10 h-10 rounded-full flex items-center justify-center" style={{ backgroundColor: 'rgba(255,255,255,0.2)' }}>
-              <Plus className="w-6 h-6 text-white" />
+            <div className="flex items-center gap-3 flex-1">
+              <div className="w-10 h-10 rounded-full flex items-center justify-center flex-shrink-0" style={{ backgroundColor: 'rgba(255,255,255,0.2)' }}>
+                <Plus className="w-6 h-6 text-white" />
+              </div>
+              <span className="text-white font-semibold text-base text-left">Aggiungi primo ramo</span>
             </div>
-            <span className="text-white font-semibold text-base">Aggiungi il primo Ramo Aziendale</span>
+            <img 
+              src="https://media.base44.com/images/public/695e2f74bb7d2636b5606a98/22d2f500e_ChatGPT_Image_19_mar_2026__12_32_18-removebg-preview.png" 
+              alt="Evita sanzioni" 
+              className="w-20 h-20 object-contain flex-shrink-0"
+            />
           </button>
         )}
 
