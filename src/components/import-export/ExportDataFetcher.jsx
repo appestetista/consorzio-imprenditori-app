@@ -194,6 +194,70 @@ export async function fetchMacroData(countryCodes) {
  * Usa la backend function fetchTradeDataMultiSource per chiamate API dirette.
  * NESSUNA AI per il recupero dati — solo API ufficiali.
  */
+/**
+ * Costruisce l'oggetto dazi combinando API (WITS/WTO) e web enrichment (Access2Markets/MacMap).
+ * REGOLA CHIAVE: se le API restituiscono 0% o null ma il web enrichment ha un dazio diverso,
+ * usa il web enrichment (che cerca su Access2Markets/MacMap e distingue dazi specifici).
+ * Questo risolve il caso di dazi specifici (es. olio d'oliva USA: 0% ad valorem ma 5 cents/kg).
+ */
+function buildDaziObject(tariffs, webEnrichment) {
+  const empty = { dazio_mfn: null, dazio_mfn_valore: null, dazio_preferenziale: null, dazio_preferenziale_valore: null, dazio_mfn_wto: null, dazio_bound_wto: null, fonte_wto: null, anti_dumping: null, restrizioni: null, fonte: null, duty_type: null, dazio_specifico: null };
+  
+  if (!tariffs && !webEnrichment) return empty;
+  
+  // Base: dati dalle API WITS/WTO
+  const result = tariffs ? {
+    dazio_mfn: tariffs.dazio_mfn,
+    dazio_mfn_valore: tariffs.dazio_mfn_valore || null,
+    dazio_preferenziale: tariffs.dazio_preferenziale,
+    dazio_preferenziale_valore: tariffs.dazio_preferenziale_valore || null,
+    dazio_mfn_wto: tariffs.dazio_mfn_wto || null,
+    dazio_bound_wto: tariffs.dazio_bound_wto || null,
+    fonte_wto: tariffs.fonte_wto || null,
+    anti_dumping: null,
+    restrizioni: null,
+    fonte: tariffs.fonte || 'WITS/TRAINS',
+    duty_type: tariffs.duty_type || null,
+    dazio_specifico: tariffs.dazio_specifico || null
+  } : { ...empty };
+
+  // Override con web enrichment se disponibile e più completo
+  const a2m = webEnrichment?.access2markets;
+  if (!a2m) return result;
+
+  const apiMfnIsZeroOrNull = !result.dazio_mfn || result.dazio_mfn_valore === 0 || result.dazio_mfn === '0%';
+  const webHasDazio = a2m.dazio_convenzionale && a2m.dazio_convenzionale !== 'Non trovato' && !a2m.dazio_convenzionale.toLowerCase().includes('non trovato');
+  const webDazioIsSpecific = a2m.dazio_convenzionale_tipo === 'specifico' || a2m.dazio_convenzionale_tipo === 'misto';
+  
+  // CASO 1: API dice 0% ma web enrichment ha un dazio specifico (es. olio d'oliva USA)
+  // CASO 2: API non ha dati ma web enrichment sì
+  if ((apiMfnIsZeroOrNull && webHasDazio) || (!result.dazio_mfn && webHasDazio)) {
+    console.log(`[buildDazi] Override API dazio (${result.dazio_mfn}) con web enrichment: ${a2m.dazio_convenzionale} (tipo: ${a2m.dazio_convenzionale_tipo})`);
+    result.dazio_mfn = a2m.dazio_convenzionale;
+    result.dazio_mfn_valore = a2m.dazio_convenzionale_valore || null;
+    result.duty_type = a2m.dazio_convenzionale_tipo || (webDazioIsSpecific ? 'specifico' : 'ad_valorem');
+    result.fonte = (result.fonte || '') + ' + Access2Markets';
+  }
+  
+  // Dazio preferenziale dal web enrichment (più affidabile: include nome FTA)
+  if (a2m.dazio_preferenziale && !a2m.dazio_preferenziale.toLowerCase().includes('non trovato')) {
+    result.dazio_preferenziale = a2m.dazio_preferenziale;
+    result.dazio_preferenziale_valore = a2m.dazio_preferenziale_valore || result.dazio_preferenziale_valore;
+  }
+  
+  // Anti-dumping dal web enrichment
+  if (a2m.anti_dumping && !a2m.anti_dumping.toLowerCase().includes('non trovato') && !a2m.anti_dumping.toLowerCase().includes('nessun')) {
+    result.anti_dumping = a2m.anti_dumping;
+  }
+  
+  // Restrizioni dal web enrichment
+  if (a2m.restrizioni && !a2m.restrizioni.toLowerCase().includes('non trovato') && !a2m.restrizioni.toLowerCase().includes('nessun')) {
+    result.restrizioni = a2m.restrizioni;
+  }
+
+  return result;
+}
+
 export async function fetchTradeData(hsCode6, mercatiCodes, mercatiNames, exporterCode = 'IT', periodoAnni = 5) {
   const hs4 = toHS4(hsCode6);
   const currentYear = new Date().getFullYear();
