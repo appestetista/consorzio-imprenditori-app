@@ -586,7 +586,7 @@ export default function ExportAnalysisResult({ analysisResult, tradeMetrics, mac
           <div><span className="text-white/40">Data:</span> {tradeData?._timestamp_recupero ? new Date(tradeData._timestamp_recupero).toLocaleString('it-IT') : 'N/D'}</div>
           {tradeData?._partial && <div className="col-span-2"><span className="text-amber-400 text-[9px]">⚠ Alcuni dati commerciali non disponibili — analisi basata su fonti web</span></div>}
         </div>
-        <p className="text-white/40 text-[10px] mt-2 italic">Metodologia conforme a ICE, SACE, World Bank, International Trade Centre.</p>
+        <p className="text-white/40 text-[10px] mt-2 italic">Fonti: UN Comtrade, WITS/TRAINS, WTO Timeseries, Access2Markets, MacMap (ITC), Eurostat, World Bank, BCE, ICE Italia.</p>
       </div>
     </div>
   );
