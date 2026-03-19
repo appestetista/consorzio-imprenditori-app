@@ -429,6 +429,14 @@ export default function ExportAnalysisResult({ analysisResult, tradeMetrics, mac
 
             <LogisticaDoganeGTMCard data={m.logistica_dogane_gtm} />
 
+            {/* Modulo Logistica — sempre visibile */}
+            <LogisticsModule
+              countryOrigin="IT"
+              countryDest={m.paese_code || ''}
+              hsCode={confirmedExportHS?.hs_code || ''}
+              productDescription={exportForm?.prodotto || ''}
+            />
+
             <LogisticaDetailCard logistica={m.logistica} rischioPaese={m.rischio_paese} />
 
             <CustomsDutyGuideCard
