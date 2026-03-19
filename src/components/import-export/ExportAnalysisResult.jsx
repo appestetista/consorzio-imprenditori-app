@@ -11,6 +11,7 @@ import {
   LogisticaDoganeGTMCard, ValidazioneCommercialeCard, DatiMancantiCard 
 } from './ExportPhaseCards';
 import CustomsDutyGuideCard from './CustomsDutyGuideCard';
+import LogisticaDetailCard from './LogisticaDetailCard';
 import InfoTooltip from './InfoTooltip';
 
 function EntryBarriersSection({ entryBarriers }) {
