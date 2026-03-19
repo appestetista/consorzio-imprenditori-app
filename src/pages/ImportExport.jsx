@@ -116,19 +116,23 @@ export default function ImportExport() {
         ) : activeTab === 'history' ? (
           <>
             <button
-              onClick={() => setActiveTab('export')}
+              onClick={() => setActiveTab(historyFromTab)}
               className="flex items-center gap-2 mb-4 text-sm transition-colors"
               style={{ color: 'var(--app-text-primary)' }}
             >
               <ArrowLeft className="w-4 h-4" />
               Torna all'analisi
             </button>
-            <SearchHistory userEmail={user?.email} onOpenAnalysis={(log) => {
-              if (log.analysis_snapshot) {
-                setHistorySnapshot(log.analysis_snapshot);
-                setActiveTab(log.action_type === 'export_analysis' ? 'export' : 'import');
-              }
-            }} />
+            <SearchHistory
+              userEmail={user?.email}
+              filterType={historyFromTab === 'import' ? 'import_analysis' : 'export_analysis'}
+              onOpenAnalysis={(log) => {
+                if (log.analysis_snapshot) {
+                  setHistorySnapshot(log.analysis_snapshot);
+                  setActiveTab(log.action_type === 'export_analysis' ? 'export' : 'import');
+                }
+              }}
+            />
           </>
         ) : isExport ? (
           <ExportSection
