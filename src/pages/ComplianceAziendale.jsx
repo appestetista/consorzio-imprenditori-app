@@ -67,6 +67,7 @@ export default function ComplianceAziendale() {
   const [selectedBranch, setSelectedBranch] = useState('all');
   const [editingNorm, setEditingNorm] = useState(null);
   const [showStampScanner, setShowStampScanner] = useState(false);
+  const [showBranchForm, setShowBranchForm] = useState(false);
   
 
   const [newBranch, setNewBranch] = useState({ 
@@ -1588,24 +1589,37 @@ VERIFICA:
             <div className="border-t border-slate-700 pt-4">
               <Label className="text-slate-300 mb-2 block">Aggiungi nuovo ramo ({branches.length}/5)</Label>
               
-              {/* Pulsante per scansione timbro */}
-              {!showStampScanner && (
-                <button
-                  onClick={() => setShowStampScanner(true)}
-                  className="w-full mb-3 py-3.5 px-4 rounded-xl flex items-center justify-center gap-2.5 transition-all duration-150 active:translate-y-0.5 active:shadow-none"
-                  style={{
-                    background: 'linear-gradient(180deg, #60a5fa 0%, #3b82f6 50%, #2563eb 100%)',
-                    boxShadow: '0 6px 0 #1d4ed8, 0 8px 16px rgba(37, 99, 235, 0.4), inset 0 1px 0 rgba(255,255,255,0.25)',
-                    border: '1px solid rgba(96, 165, 250, 0.5)',
-                    textShadow: '0 1px 2px rgba(0,0,0,0.3)'
-                  }}
-                >
-                  <Camera className="w-5 h-5 text-white drop-shadow" />
-                  <span className="text-white text-sm font-bold drop-shadow">📸 Scatta foto al timbro — compila automatico</span>
-                </button>
+              {/* Due pulsanti affiancati: Foto timbro + Compila manualmente */}
+              {!showBranchForm && !showStampScanner && (
+                <div className="flex gap-2 mb-3">
+                  <button
+                    onClick={() => { setShowStampScanner(true); }}
+                    className="flex-1 py-3 px-3 rounded-xl flex items-center justify-center gap-2 transition-all duration-150 active:translate-y-0.5 active:shadow-none"
+                    style={{
+                      background: 'linear-gradient(180deg, #60a5fa 0%, #3b82f6 50%, #2563eb 100%)',
+                      boxShadow: '0 5px 0 #1d4ed8, 0 7px 14px rgba(37, 99, 235, 0.4), inset 0 1px 0 rgba(255,255,255,0.25)',
+                      border: '1px solid rgba(96, 165, 250, 0.5)',
+                    }}
+                  >
+                    <Camera className="w-5 h-5 text-white" />
+                    <span className="text-white text-xs font-bold">📸 Foto timbro</span>
+                  </button>
+                  <button
+                    onClick={() => setShowBranchForm(true)}
+                    className="flex-1 py-3 px-3 rounded-xl flex items-center justify-center gap-2 transition-all duration-150 active:translate-y-0.5 active:shadow-none"
+                    style={{
+                      background: 'linear-gradient(180deg, #a3e635 0%, #84cc16 50%, #65a30d 100%)',
+                      boxShadow: '0 5px 0 #4d7c0f, 0 7px 14px rgba(101, 163, 13, 0.4), inset 0 1px 0 rgba(255,255,255,0.25)',
+                      border: '1px solid rgba(163, 230, 53, 0.5)',
+                    }}
+                  >
+                    <Pencil className="w-4 h-4 text-slate-900" />
+                    <span className="text-slate-900 text-xs font-bold">✏️ Compila manualmente</span>
+                  </button>
+                </div>
               )}
 
-              {showStampScanner && (
+              {showStampScanner && !showBranchForm && (
                 <StampPhotoExtractor
                   onClose={() => setShowStampScanner(false)}
                   onDataExtracted={(data) => {
@@ -1617,10 +1631,12 @@ VERIFICA:
                       codice_ateco: data.codice_ateco || prev.codice_ateco,
                     }));
                     setShowStampScanner(false);
+                    setShowBranchForm(true);
                   }}
                 />
               )}
 
+              {showBranchForm && (
               <div className="space-y-3">
                 <Input
                   value={newBranch.nome}
@@ -1857,6 +1873,7 @@ VERIFICA:
                   </div>
                 </div>
               )}
+              
 
               {branches.length >= 5 && (
                 <div className="border-t border-slate-700 pt-4">
