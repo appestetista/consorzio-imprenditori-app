@@ -18,6 +18,7 @@ import { useImpersonation } from '../components/admin/ImpersonationContext';
 import { PieChart, Pie, Cell, ResponsiveContainer } from 'recharts';
 import SectionConsultantPanel from '../components/consulenze/SectionConsultantPanel';
 import PremiumAIGate from '@/components/common/PremiumAIGate';
+import ConsultantBubble from '../components/compliance/ConsultantBubble';
 import GlobalTopIcons from '../components/layout/GlobalTopIcons';
 
 const CATEGORIE = [
@@ -808,16 +809,7 @@ VERIFICA:
         {/* Contenuto visibile solo se selezionato un ramo specifico */}
         {(branches.length === 0 || selectedBranch !== 'all') && (
           <>
-            {/* Pannello Consulenti per questa sezione */}
-            {effectiveUser && (
-              <div className="mb-6">
-                <SectionConsultantPanel 
-                  sectionId="compliance" 
-                  sectionLabel="Compliance Aziendale" 
-                  user={effectiveUser} 
-                />
-              </div>
-            )}
+            {/* Pannello Consulenti rimosso - ora c'è la bolla flottante */}
 
             {/* Grafico a torta */}
             <Card className="bg-slate-900 border-slate-900 mb-6">
@@ -1813,6 +1805,15 @@ VERIFICA:
             </div>
           </DialogContent>
         </Dialog>
+
+      {/* Bolla flottante consulente */}
+      {effectiveUser && (
+        <ConsultantBubble 
+          sectionId="compliance" 
+          sectionLabel="Compliance Aziendale" 
+          user={effectiveUser} 
+        />
+      )}
 
       <BottomNavWithMenu currentPage="ComplianceAziendale" unreadMessages={messages.length} />
     </div>
