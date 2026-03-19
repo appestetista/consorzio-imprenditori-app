@@ -274,7 +274,7 @@ Deno.serve(async (req) => {
         livello_recente: 'non_disponibile',
         trend: 'non_disponibile',
         tasso_corrente: allRates.length > 0 ? allRates[allRates.length - 1].value : null,
-        fonte: 'BCE - Euro foreign exchange reference rates',
+        fonte: fonteUsata,
         nota: `Solo ${allRates.length} osservazioni disponibili, insufficienti per calcolare la volatilità.`
       });
     }
