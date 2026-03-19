@@ -219,6 +219,18 @@ export default function ImportSection({ user, exportManagers }) {
                       ))}
                     </div>
                   )}
+                  <Button
+                    onClick={() => sendImportContactMutation.mutate()}
+                    disabled={!importContactForm.subject || !importContactForm.message || sendImportContactMutation.isPending || uploadingImportAttachment}
+                    className="w-full bg-red-600 hover:bg-red-700 text-white font-bold h-11 mt-2"
+                  >
+                    {sendImportContactMutation.isPending ? (
+                      <><Loader2 className="w-4 h-4 mr-2 animate-spin" />Invio in corso...</>
+                    ) : (
+                      <><Send className="w-4 h-4 mr-2" />Invia Richiesta Import</>
+                    )}
+                  </Button>
+                  </div>)}
                 </div>
               </div>
             </CardContent></Card>
