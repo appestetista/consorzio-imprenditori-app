@@ -1,23 +1,17 @@
 import React, { useState } from 'react';
-import { Ship, Plane, ChevronDown, ChevronUp, Package, Truck, Lock, Unlock } from 'lucide-react';
-import { base44 } from '@/api/base44Client';
+import { ChevronDown, ChevronUp, Package, Truck } from 'lucide-react';
 import { Input } from '@/components/ui/input';
 import { Select, SelectContent, SelectItem, SelectTrigger, SelectValue } from '@/components/ui/select';
-import LogisticsForm from './LogisticsForm';
-import LogisticsResults from './LogisticsResults';
-import Cargo3DVisualizer from './Cargo3DVisualizer';
-import ShippingComparator from './ShippingComparator';
 import CargoInputForm from './CargoInputForm';
 import CargoResultPanel from './CargoResultPanel';
 import InfoTooltipLogistics from './InfoTooltipLogistics';
-import { Container20Icon, Container40Icon, TruckIcon, ShipIcon, PlaneIcon } from './VehicleIllustrations';
 
-export default function LogisticsModule({ countryOrigin, countryDest, hsCode, productDescription }) {
+const IMG_20 = 'https://media.base44.com/images/public/695e2f74bb7d2636b5606a98/c4d80d96e_images-removebg-preview1.png';
+const IMG_40 = 'https://media.base44.com/images/public/695e2f74bb7d2636b5606a98/5b89e95f5_40-hc-removebg-preview.png';
+const IMG_TRUCK = 'https://media.base44.com/images/public/695e2f74bb7d2636b5606a98/0d373cd54_Vrachtwagen-breedte-removebg-preview.png';
+
+export default function LogisticsModule() {
   const [open, setOpen] = useState(false);
-  const [operativeEnabled, setOperativeEnabled] = useState(false);
-  const [loading, setLoading] = useState(false);
-  const [results, setResults] = useState(null);
-  const [lastFormData, setLastFormData] = useState(null);
   const [cargoData, setCargoData] = useState(null);
   const [activeTab, setActiveTab] = useState('dimensioni');
   const [dims, setDims] = useState({
@@ -25,37 +19,9 @@ export default function LogisticsModule({ countryOrigin, countryDest, hsCode, pr
     lunghezza_cm: '', larghezza_cm: '', altezza_cm: ''
   });
 
-  const handleSubmit = async (formData) => {
-    setLoading(true);
-    setResults(null);
-    setLastFormData(formData);
-    try {
-      const response = await base44.functions.invoke('logisticsQuote', formData);
-      setResults(response.data);
-    } catch (err) {
-      console.error('[LogisticsModule] Error:', err);
-      setResults({
-        request_id: 'error-' + Date.now(),
-        timestamp_utc: new Date().toISOString(),
-        inputs_normalized: formData,
-        quotes: [],
-        port_congestion: null,
-        last_mile: null,
-        errors: [{ area: 'system', message: 'Errore di comunicazione con il backend: ' + (err?.message || 'sconosciuto') }]
-      });
-    } finally {
-      setLoading(false);
-    }
-  };
-
-  const handleCargoValidated = (data) => {
-    setCargoData(data);
-  };
-
   const tabs = [
     { id: 'dimensioni', label: 'Peso & Volume', icon: Package },
     { id: 'ingombri', label: 'Calcolo Ingombri', icon: Truck },
-    { id: 'quotazione', label: 'Quotazione', icon: Ship },
   ];
 
   // Calcoli volume inline per tab dimensioni
@@ -80,44 +46,33 @@ export default function LogisticsModule({ countryOrigin, countryDest, hsCode, pr
       >
         <div className="flex items-center gap-3">
           <div className="w-8 h-8 rounded-lg bg-blue-500/20 flex items-center justify-center">
-            <Ship className="w-4 h-4 text-blue-400" />
+            <Truck className="w-4 h-4 text-blue-400" />
           </div>
           <div className="text-left">
             <p className="text-white font-bold text-xs">Modulo Logistica</p>
-            <p className="text-slate-400 text-[10px]">Dimensioni, Ingombri, Pallet, Quotazioni</p>
+            <p className="text-slate-400 text-[10px]">Dimensioni, Ingombri, Pallet</p>
           </div>
         </div>
-        <div className="flex items-center gap-2">
-          <Plane className="w-4 h-4 text-purple-400" />
-          {open ? <ChevronUp className="w-4 h-4 text-slate-400" /> : <ChevronDown className="w-4 h-4 text-slate-400" />}
-        </div>
+        {open ? <ChevronUp className="w-4 h-4 text-slate-400" /> : <ChevronDown className="w-4 h-4 text-slate-400" />}
       </button>
 
       {/* Pannello aperto */}
       {open && (
         <div className="mt-3 bg-slate-800/40 border border-white/5 rounded-xl p-4">
 
-          {/* Illustrazioni mezzi di trasporto */}
-          <div className="flex items-center justify-center gap-4 mb-4 py-3 bg-slate-900/40 rounded-xl">
+          {/* Foto reali mezzi di trasporto */}
+          <div className="flex items-center justify-center gap-5 mb-4 py-3 bg-slate-900/40 rounded-xl">
             <div className="text-center">
-              <Container20Icon className="w-14 h-8 mx-auto" />
+              <img src={IMG_20} alt="Container 20'" className="w-16 h-10 object-contain mx-auto" />
               <p className="text-slate-500 text-[8px] mt-1">20'</p>
             </div>
             <div className="text-center">
-              <Container40Icon className="w-16 h-8 mx-auto" />
+              <img src={IMG_40} alt="Container 40' HC" className="w-18 h-10 object-contain mx-auto" />
               <p className="text-slate-500 text-[8px] mt-1">40' HC</p>
             </div>
             <div className="text-center">
-              <TruckIcon className="w-16 h-10 mx-auto" />
+              <img src={IMG_TRUCK} alt="Camion" className="w-18 h-12 object-contain mx-auto" />
               <p className="text-slate-500 text-[8px] mt-1">Camion</p>
-            </div>
-            <div className="text-center">
-              <ShipIcon className="w-12 h-9 mx-auto" />
-              <p className="text-slate-500 text-[8px] mt-1">Nave</p>
-            </div>
-            <div className="text-center">
-              <PlaneIcon className="w-12 h-9 mx-auto" />
-              <p className="text-slate-500 text-[8px] mt-1">Aereo</p>
             </div>
           </div>
 
@@ -126,23 +81,17 @@ export default function LogisticsModule({ countryOrigin, countryDest, hsCode, pr
             {tabs.map(t => {
               const Icon = t.icon;
               const active = activeTab === t.id;
-              // Quotazione bloccata se non attivato
-              const locked = t.id === 'quotazione' && !operativeEnabled;
               return (
                 <button
                   key={t.id}
-                  onClick={() => {
-                    if (locked) return;
-                    setActiveTab(t.id);
-                  }}
+                  onClick={() => setActiveTab(t.id)}
                   className={`flex-1 flex items-center justify-center gap-1.5 py-2 px-3 rounded-lg text-[11px] font-semibold transition-all ${
-                    locked ? 'text-slate-600 cursor-not-allowed' :
                     active 
                       ? 'bg-blue-500/20 text-blue-400 shadow-sm' 
                       : 'text-slate-500 hover:text-slate-300'
                   }`}
                 >
-                  {locked ? <Lock className="w-3 h-3" /> : <Icon className="w-3.5 h-3.5" />}
+                  <Icon className="w-3.5 h-3.5" />
                   {t.label}
                 </button>
               );
@@ -161,7 +110,7 @@ export default function LogisticsModule({ countryOrigin, countryDest, hsCode, pr
                 <div>
                   <label className="text-[10px] font-medium mb-1 block text-slate-300 flex items-center">
                     Tipo unità
-                    <InfoTooltipLogistics text="Seleziona se stai misurando una singola confezione (scatola, cartone) o un bancale/pallet già pronto. Se non sai, scegli 'Singola confezione'." />
+                    <InfoTooltipLogistics text="Seleziona se stai misurando una singola confezione (scatola, cartone) o un bancale/pallet già pronto." />
                   </label>
                   <Select value={dims.tipo_unita || undefined} onValueChange={(v) => setDims({ ...dims, tipo_unita: v })}>
                     <SelectTrigger className="h-10 rounded-lg text-xs bg-slate-900 border-slate-700 text-white">
@@ -187,7 +136,7 @@ export default function LogisticsModule({ countryOrigin, countryDest, hsCode, pr
                 <div>
                   <label className="text-[10px] font-medium mb-1 block text-slate-300 flex items-center">
                     Peso per unità
-                    <InfoTooltipLogistics text="Il peso lordo di una singola confezione o bancale, incluso l'imballaggio. È fondamentale per calcolare il peso totale della spedizione e confrontarlo con i limiti di carico dei mezzi." />
+                    <InfoTooltipLogistics text="Il peso lordo di una singola confezione o bancale, incluso l'imballaggio." />
                   </label>
                   <div className="relative">
                     <Input type="number" step="0.01" min="0" placeholder="Es. 25" value={dims.peso_kg}
@@ -233,7 +182,6 @@ export default function LogisticsModule({ countryOrigin, countryDest, hsCode, pr
                     <InfoTooltipLogistics text="Il volume viene calcolato come Lunghezza × Larghezza × Altezza. Il peso volumetrico è usato dai corrieri per calcolare il costo: se la merce è voluminosa ma leggera, paghi il peso volumetrico (volume in cm³ / 6000 per aereo)." />
                   </p>
 
-                  {/* Formula volume */}
                   <div className="bg-slate-800/60 rounded-lg p-2.5">
                     <p className="text-slate-500 text-[9px] mb-1">Volume per unità</p>
                     <p className="text-slate-400 text-[10px] font-mono">
@@ -245,7 +193,6 @@ export default function LogisticsModule({ countryOrigin, countryDest, hsCode, pr
                     </div>
                   </div>
 
-                  {/* Totali se più unità */}
                   {numUnita > 1 && (
                     <div className="bg-slate-800/60 rounded-lg p-2.5">
                       <p className="text-slate-500 text-[9px] mb-1">Totale ({numUnita} {dims.tipo_unita === 'bancale' ? 'bancali' : 'confezioni'})</p>
@@ -265,7 +212,6 @@ export default function LogisticsModule({ countryOrigin, countryDest, hsCode, pr
                     </div>
                   )}
 
-                  {/* Peso volumetrico */}
                   {numUnita > 0 && (
                     <div className="bg-slate-800/60 rounded-lg p-2.5">
                       <p className="text-slate-500 text-[9px] mb-1 flex items-center">
@@ -296,68 +242,10 @@ export default function LogisticsModule({ countryOrigin, countryDest, hsCode, pr
           {/* Tab: Calcolo Ingombri */}
           {activeTab === 'ingombri' && (
             <div>
-              <CargoInputForm onValidated={handleCargoValidated} />
+              <CargoInputForm onValidated={setCargoData} />
               <CargoResultPanel data={cargoData} />
-              
-              {cargoData && (
-                <button
-                  onClick={() => { if (operativeEnabled) setActiveTab('quotazione'); }}
-                  className={`w-full mt-3 flex items-center justify-center gap-2 py-2.5 rounded-xl border text-xs font-semibold transition-colors ${
-                    operativeEnabled
-                      ? 'border-blue-500/20 bg-blue-500/5 text-blue-400 hover:bg-blue-500/10'
-                      : 'border-slate-600 bg-slate-700/20 text-slate-500 cursor-not-allowed'
-                  }`}
-                >
-                  {operativeEnabled ? <Ship className="w-4 h-4" /> : <Lock className="w-4 h-4" />}
-                  {operativeEnabled ? 'Passa alla Quotazione Logistica →' : 'Attiva il modulo operativo per le quotazioni'}
-                </button>
-              )}
             </div>
           )}
-
-          {/* Tab: Quotazione Logistica */}
-          {activeTab === 'quotazione' && operativeEnabled && (
-            <div>
-              <LogisticsForm
-                onSubmit={handleSubmit}
-                loading={loading}
-                countryOrigin={countryOrigin}
-                countryDest={countryDest}
-                hsCode={hsCode}
-                productDescription={productDescription}
-              />
-              <LogisticsResults results={results} />
-              {lastFormData && (lastFormData.volume_m3 || lastFormData.weight_kg) && (
-                <>
-                  <ShippingComparator formData={lastFormData} />
-                  {parseFloat(lastFormData.volume_m3) > 0 && (
-                    <Cargo3DVisualizer volumeM3={lastFormData.volume_m3} weightKg={lastFormData.weight_kg} />
-                  )}
-                </>
-              )}
-            </div>
-          )}
-
-          {/* Pulsante attivazione modulo operativo */}
-          <div className="mt-4 pt-3 border-t border-white/5">
-            <button
-              onClick={() => setOperativeEnabled(!operativeEnabled)}
-              className={`w-full flex items-center justify-center gap-2 py-3 rounded-xl font-bold text-sm transition-all border ${
-                operativeEnabled
-                  ? 'bg-green-500/15 border-green-500/30 text-green-400 shadow-lg shadow-green-500/10'
-                  : 'bg-slate-700/30 border-white/10 text-slate-400 hover:border-amber-500/30 hover:text-amber-400'
-              }`}
-            >
-              {operativeEnabled ? <Unlock className="w-4 h-4" /> : <Lock className="w-4 h-4" />}
-              {operativeEnabled ? '✅ Modulo Operativo Attivo — Quotazioni abilitate' : '🔒 Attiva Modulo Operativo (Quotazioni reali)'}
-            </button>
-            <p className="text-slate-600 text-[9px] text-center mt-1.5">
-              {operativeEnabled
-                ? 'Le quotazioni interrogano API reali di carrier. I dati sono verificati.'
-                : 'Attiva per accedere al tab Quotazione e ricevere preventivi reali via API carrier.'
-              }
-            </p>
-          </div>
         </div>
       )}
     </div>
