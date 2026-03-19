@@ -56,14 +56,14 @@ export default function RisparmioEnergetico() {
       description: 'Soluzioni per l\'installazione di impianti fotovoltaici'
     },
     {
-      icon: Shield,
-      title: 'Assicurazioni',
-      description: 'Polizze aziendali a condizioni vantaggiose per i membri'
-    },
-    {
       icon: Flame,
       title: 'Gas',
       description: 'Forniture gas metano a prezzi agevolati'
+    },
+    {
+      icon: Shield,
+      title: 'Assicurazioni',
+      description: 'Polizze aziendali a condizioni vantaggiose per i membri'
     },
     {
       icon: Phone,
