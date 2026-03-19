@@ -1234,8 +1234,80 @@ GLOBALE:
     }
   });
 
+  // === NORMALIZZAZIONE COERENZA DATI ===
+  // I dati API (tradeData) sono la fonte di verità. Se un modulo LLM ha dato un valore
+  // diverso per lo stesso campo, sovrascriviamo con il dato API per evitare incoerenze.
   const mercati_analisi = Object.values(mercatiMap);
-  console.log('[ExportModular] Mercati assemblati:', mercati_analisi.length, mercati_analisi.map(m => m.paese_code));
+  (tradeData.mercati || []).forEach(apiM => {
+    const assembled = mercati_analisi.find(m => m.paese_code === apiM.paese_code);
+    if (!assembled) return;
+
+    // --- Import totale: fonte API ha priorità ---
+    const apiImport = apiM.import_totale?.valore_usd;
+    const apiImportAnno = apiM.import_totale?.anno;
+    const apiImportFonte = apiM.import_totale?.fonte;
+    if (apiImport) {
+      const importLabel = `${apiImport}${apiImportAnno ? ` (${apiImportAnno}` : ''}${apiImportFonte ? `, fonte: ${apiImportFonte}` : ''}${apiImportAnno || apiImportFonte ? ')' : ''}`;
+      // Normalizza in market_screening
+      if (assembled.market_screening) {
+        assembled.market_screening.import_totale = importLabel;
+      }
+      // Normalizza in flussi_commerciali
+      if (assembled.flussi_commerciali) {
+        assembled.flussi_commerciali.valore_import_annuo = importLabel;
+      }
+    }
+
+    // --- Export bilaterale Italia: fonte API ha priorità ---
+    const apiExport = apiM.export_from_exporter?.valore_usd || apiM.export_italia?.valore_usd;
+    const apiExportAnno = apiM.export_from_exporter?.anno || apiM.export_italia?.anno;
+    const apiExportFonte = apiM.export_from_exporter?.fonte || apiM.export_italia?.fonte;
+    if (apiExport) {
+      const exportLabel = `${apiExport}${apiExportAnno ? ` (${apiExportAnno}` : ''}${apiExportFonte ? `, fonte: ${apiExportFonte}` : ''}${apiExportAnno || apiExportFonte ? ')' : ''}`;
+      if (assembled.flussi_commerciali) {
+        assembled.flussi_commerciali.export_italia_verso_paese = exportLabel;
+      }
+    }
+
+    // --- Quota Italia: fonte API ha priorità ---
+    const apiQuota = apiM.quota_exporter || apiM.quota_italia;
+    if (apiQuota && assembled.flussi_commerciali) {
+      assembled.flussi_commerciali.quota_italia = apiQuota;
+    }
+
+    // --- Dazi: normalizza tra modulo C (dazi_taric) e modulo E (logistica_dogane_gtm) ---
+    // Il modulo C è specializzato sui dazi → ha priorità su modulo E
+    const daziC = assembled.dazi_taric;
+    const daziE = assembled.logistica_dogane_gtm;
+    if (daziC && daziE) {
+      // Sovrascrivi i campi dazi del modulo E con quelli del modulo C se presenti
+      if (daziC.dazio_mfn) daziE.dazi_applicabili = daziC.dazio_mfn;
+      if (daziC.dazio_preferenziale) daziE.dazio_preferenziale = daziC.dazio_preferenziale;
+      if (daziC.anti_dumping) daziE.anti_dumping = daziC.anti_dumping;
+      if (daziC.iva_gst) daziE.iva_gst_locale = daziC.iva_gst;
+      if (daziC.altre_tasse) daziE.altre_tasse = daziC.altre_tasse;
+      if (daziC.esempio_10k_eur) daziE.costo_doganale_su_10k = daziC.esempio_10k_eur;
+    }
+
+    // --- Dazi dal market_screening: normalizza con dato più preciso ---
+    if (assembled.market_screening && daziC) {
+      const daziLabel = daziC.dazio_preferenziale || daziC.dazio_mfn;
+      if (daziLabel) assembled.market_screening.dazi = daziLabel;
+    }
+
+    // --- Se API ha dazi strutturati, usa quelli come base ---
+    const apiDazi = apiM.dazi;
+    if (apiDazi) {
+      const apiDazioMfn = apiDazi.dazio_mfn;
+      const apiDazioPref = apiDazi.dazio_preferenziale;
+      // Se i moduli LLM non hanno dazi ma l'API sì, propagali
+      if (assembled.market_screening && !assembled.market_screening.dazi) {
+        assembled.market_screening.dazi = apiDazioPref || apiDazioMfn || assembled.market_screening.dazi;
+      }
+    }
+  });
+
+  console.log('[ExportModular] Mercati assemblati e normalizzati:', mercati_analisi.length, mercati_analisi.map(m => m.paese_code));
 
   return {
     readiness_score: resE?.readiness_score || 5,
