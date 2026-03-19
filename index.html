@@ -8,6 +8,21 @@
     <title>Base44 APP</title>
   </head>
   <body>
+    <script>
+      // Applica il tema PRIMA del rendering React per evitare flash
+      (function() {
+        var theme = 'dark';
+        try { theme = localStorage.getItem('app_theme_mode') || 'dark'; } catch(e) {}
+        document.body.classList.add('theme-' + theme);
+        if (theme === 'light') {
+          document.body.style.backgroundColor = '#fef200';
+          document.body.style.color = '#1e293b';
+        } else {
+          document.body.style.backgroundColor = '#0a0f1a';
+          document.body.style.color = '#ffffff';
+        }
+      })();
+    </script>
     <div id="root"></div>
     <script type="module" src="/src/main.jsx"></script>
   </body>
