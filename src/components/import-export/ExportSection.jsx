@@ -629,6 +629,9 @@ export default function ExportSection({ user, exportManagers, selectedMapCountry
             </>
           )}
 
+          {/* Modulo Logistica — disponibile anche dopo i risultati */}
+          {analysisResult && !analyzing && <LogisticsModule />}
+
           {/* Pulsante Nuova Analisi — appare solo dopo i risultati */}
           {analysisResult && !analyzing && (
             <div className="pt-6 pb-4">
