@@ -30,9 +30,9 @@ export default function ExportConsultantBubble({
       {/* Bolla floating */}
       <button
         onClick={() => setOpen(true)}
-        className="fixed z-[100] right-4 transition-transform active:scale-90"
+        className="fixed z-[9999] right-4 transition-transform active:scale-90"
         style={{
-          bottom: `${80 + bobOffset}px`,
+          bottom: `${120 + bobOffset}px`,
           width: 68, height: 68,
         }}
       >
