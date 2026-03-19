@@ -14,13 +14,15 @@
         var theme = 'dark';
         try { theme = localStorage.getItem('app_theme_mode') || 'dark'; } catch(e) {}
         document.body.classList.add('theme-' + theme);
+        // Inietta style tag con !important per vincere su qualsiasi CSS caricato dopo
+        var s = document.createElement('style');
         if (theme === 'light') {
-          document.body.style.backgroundColor = '#fef200';
-          document.body.style.color = '#1e293b';
+          s.textContent = 'html,body{background-color:#fef200!important;color:#1e293b!important}';
         } else {
-          document.body.style.backgroundColor = '#0a0f1a';
-          document.body.style.color = '#ffffff';
+          s.textContent = 'html,body{background-color:#0a0f1a!important;color:#fff!important}';
         }
+        s.id = 'theme-flash-guard';
+        document.head.appendChild(s);
       })();
     </script>
     <div id="root"></div>
