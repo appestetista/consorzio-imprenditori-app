@@ -82,17 +82,7 @@ export default function ImportExport() {
           </div>
         </div>
 
-        {/* Usage Counter */}
-        {user && !isLimitReached && activeTab !== 'history' && (
-          <div className="mb-4">
-            <UsageCounter usageCount={usageCount} limit={limit} label={`Analisi ${isExport ? 'export' : 'import'} disponibili questo mese`} />
-          </div>
-        )}
-        {user && isLimitReached && activeTab !== 'history' && (
-          <div className="mb-4">
-            <LimitReachedBanner actionType={actionType} usageCount={usageCount} limit={limit} />
-          </div>
-        )}
+        {/* Usage Counter — gestito internamente da ExportSection e ImportSection */}
 
         {/* Storico inline */}
         {activeTab !== 'history' && user && (
