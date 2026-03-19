@@ -212,8 +212,10 @@ function DataRow({ label, value, warning }) {
  */
 function DetailedDataRow({ label, value, spiegazioneKey }) {
   const spiegazione = SPIEGAZIONI[spiegazioneKey || label];
-  const isEstimate = value && /stima|proxy|approssim|circa|indicativ/i.test(String(value));
-  const isLong = value && String(value).length > 60;
+  // Proteggi da valori non-stringa
+  const safeVal = (value != null && typeof value === 'object') ? JSON.stringify(value) : value;
+  const isEstimate = safeVal && /stima|proxy|approssim|circa|indicativ/i.test(String(safeVal));
+  const isLong = safeVal && String(safeVal).length > 60;
 
   if (isNDValue(value)) {
     return (
