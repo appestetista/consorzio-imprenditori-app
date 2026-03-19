@@ -59,9 +59,9 @@ export default function ImportExport() {
 
   return (
     <div className="min-h-screen pb-64" style={{ backgroundColor: 'var(--app-bg)' }}>
-      {/* Zona superiore con gradiente scuro → giallo */}
+      {/* Zona superiore con gradiente che sfuma verso lo sfondo */}
       <div style={{
-        background: 'linear-gradient(180deg, #1a1400 0%, #3d2e00 18%, #6b5500 35%, #9a7d00 50%, #c9a800 65%, #e2c800 78%, #f0e000 88%, var(--app-bg) 100%)',
+        background: 'linear-gradient(180deg, var(--app-bg) 0%, var(--app-bg) 100%)',
       }}>
       <main className="px-4 py-6 max-w-md mx-auto">
         {/* Header */}
