@@ -78,8 +78,8 @@ export default function ImportExport() {
 
         {/* Usage Counter — gestito internamente da ExportSection e ImportSection */}
 
-        {/* Storico inline */}
-        {activeTab !== 'history' && user && (
+        {/* Storico inline — solo per export */}
+        {activeTab !== 'history' && activeTab !== 'import' && user && (
           <div className="mb-6">
             <button
               onClick={() => { setHistoryFromTab(activeTab); setActiveTab('history'); }}
