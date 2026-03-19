@@ -673,7 +673,17 @@ function buildDataContext(tradeData, metricsResult, hsCode, hsDescrizione, profi
 - Quota Italia: ${m.quota_exporter || m.quota_italia || 'N/D'}, Posizione: ${m.posizione_exporter || m.posizione_italia || 'N/D'}
 - CAGR: ${met?.cagr ? met.cagr + '%' : 'N/C'}, Crescita 3a: ${met?.crescita_3_anni ? met.crescita_3_anni + '%' : 'N/C'}, Volatilità: ${met?.volatilita ? met.volatilita + '%' : 'N/C'}
 - Top fornitori: ${(m.top_fornitori || []).map(f => `${f.paese} ${f.quota_percentuale}`).join(', ') || 'N/D'}
-- Dazio MFN: ${m.dazi?.dazio_mfn || 'N/D'}, Anti-dumping: ${m.dazi?.anti_dumping || 'Nessuna'}`;
+- Dazio MFN: ${m.dazi?.dazio_mfn || 'N/D'}, Dazio pref: ${m.dazi?.dazio_preferenziale || 'N/D'}, Anti-dumping: ${m.dazi?.anti_dumping || 'Nessuna'}`;
+    if (m.riepilogo_costi) {
+      const rc = m.riepilogo_costi;
+      const rcParts = [];
+      if (rc.dazio_totale_stimato) rcParts.push(`Dazio totale: ${rc.dazio_totale_stimato}`);
+      if (rc.iva_gst_totale) rcParts.push(`IVA/GST: ${rc.iva_gst_totale}`);
+      if (rc.esempio_10k_eur) rcParts.push(`Su €10k: ${rc.esempio_10k_eur}`);
+      if (rc.livello_complessita) rcParts.push(`Complessità: ${rc.livello_complessita}`);
+      if (rcParts.length > 0) base += `\n- Riepilogo costi export: ${rcParts.join('; ')}`;
+      if (rc.nota_per_imprenditore) base += `\n- Nota imprenditore: ${rc.nota_per_imprenditore}`;
+    }
     if (met?.consumo_apparente) base += `\n- Consumo Apparente proxy: $${met.consumo_apparente.toLocaleString('en-US')}`;
     if (met?.demand_score) base += `, Demand Score: ${met.demand_score}`;
     if (met?.import_pro_capite) base += `, Import pc: $${met.import_pro_capite.toFixed(2)}`;
