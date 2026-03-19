@@ -6,13 +6,13 @@ import { TrendingUp, Ship, Loader2, Clock, Package, MapPin, Trash2, Eye, Setting
 import { Link } from 'react-router-dom';
 import { createPageUrl } from '@/utils';
 
-export default function SearchHistory({ userEmail, onOpenAnalysis }) {
+export default function SearchHistory({ userEmail, onOpenAnalysis, filterType }) {
   const queryClient = useQueryClient();
 
   const { data: logs = [], isLoading } = useQuery({
-    queryKey: ['search-history', userEmail],
+    queryKey: ['search-history', userEmail, filterType],
     queryFn: () => base44.entities.UsageLog.filter(
-      { user_email: userEmail, action_type: { $in: ['export_analysis', 'import_analysis'] } },
+      { user_email: userEmail, action_type: filterType || { $in: ['export_analysis', 'import_analysis'] } },
       '-created_date',
       50
     ),
