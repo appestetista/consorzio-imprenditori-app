@@ -393,6 +393,8 @@ function parseWITSUrlResponse(json, year) {
     if (!records || (Array.isArray(records) && records.length === 0)) return null;
 
     let mfnRate = null, prefRate = null, mfnMin = null, mfnMax = null;
+    let dutyType = 'ad_valorem'; // default
+    let specificDuty = null; // per dazi specifici (es. "5.1 USD/100kg")
 
     const extractFromArray = (arr) => {
       for (const rec of arr) {
@@ -400,6 +402,21 @@ function parseWITSUrlResponse(json, year) {
         const avg = parseFloat(rec.SimpleAverage ?? rec.OBS_VALUE ?? rec.Value ?? rec.simpleAverage ?? NaN);
         const min = parseFloat(rec.MIN_RATE ?? rec.MinRate ?? NaN);
         const max = parseFloat(rec.MAX_RATE ?? rec.MaxRate ?? NaN);
+        
+        // Rileva tipo di dazio: ad valorem, specifico, misto
+        const dutyTypeRaw = (rec.DutyType || rec.DUTY_TYPE || rec.duty_type || rec.NomenCode || '').toLowerCase();
+        const unitDuty = rec.UnitDuty || rec.UNIT_DUTY || rec.unit_duty || rec.AHS_SpecificRate || rec.SpecificRate || null;
+        
+        // Se c'è un dazio specifico (per unità, non percentuale)
+        if (unitDuty && String(unitDuty).trim() !== '' && String(unitDuty).trim() !== '0') {
+          specificDuty = String(unitDuty);
+          dutyType = 'specifico';
+          console.log(`[WITS-Parse] Detected specific duty: ${specificDuty}`);
+        }
+        if (dutyTypeRaw.includes('specific') || dutyTypeRaw.includes('compound') || dutyTypeRaw.includes('mixed')) {
+          dutyType = dutyTypeRaw.includes('compound') || dutyTypeRaw.includes('mixed') ? 'misto' : 'specifico';
+        }
+        
         if (isNaN(avg)) continue;
         if (tariffType === 'MFN' || tariffType === '' || !tariffType) {
           if (mfnRate === null) { mfnRate = avg; mfnMin = isNaN(min) ? null : min; mfnMax = isNaN(max) ? null : max; }
@@ -425,15 +442,29 @@ function parseWITSUrlResponse(json, year) {
       }
     }
 
-    if (mfnRate === null && prefRate === null) return null;
+    if (mfnRate === null && prefRate === null && !specificDuty) return null;
+
+    // Se il dazio ad valorem è 0 ma c'è un dazio specifico, segnalalo chiaramente
+    // (es: olio d'oliva USA ha 0% ad valorem ma 5 cents/kg specifico)
+    let daziomfnLabel = mfnRate !== null ? `${mfnRate}%` : null;
+    if (mfnRate === 0 && specificDuty) {
+      daziomfnLabel = `${specificDuty} (specifico)`;
+      dutyType = 'specifico';
+      console.log(`[WITS-Parse] MFN 0% but specific duty exists: ${specificDuty}`);
+    } else if (mfnRate !== null && specificDuty) {
+      daziomfnLabel = `${mfnRate}% + ${specificDuty} (misto)`;
+      dutyType = 'misto';
+    }
 
     return {
-      dazio_mfn: mfnRate !== null ? `${mfnRate}%` : null,
+      dazio_mfn: daziomfnLabel,
       dazio_mfn_valore: mfnRate,
       dazio_mfn_min: mfnMin !== null ? `${mfnMin}%` : null,
       dazio_mfn_max: mfnMax !== null ? `${mfnMax}%` : null,
       dazio_preferenziale: prefRate !== null ? `${prefRate}%` : null,
       dazio_preferenziale_valore: prefRate,
+      dazio_specifico: specificDuty,
+      duty_type: dutyType,
       anno: year,
       fonte: 'WITS/TRAINS'
     };
