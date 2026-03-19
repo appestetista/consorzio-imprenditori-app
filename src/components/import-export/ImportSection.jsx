@@ -156,7 +156,7 @@ export default function ImportSection({ user, exportManagers }) {
               <div className="relative w-full" style={{ paddingBottom: '177.78%' }}>
                 <iframe
                   className="absolute inset-0 w-full h-full"
-                  src="https://www.youtube.com/embed/Epmg-w3dWZ8"
+                  src="https://www.youtube.com/embed/CO5CydPnHYs"
                   title="Import dalla Cina"
                   frameBorder="0"
                   allow="accelerometer; autoplay; clipboard-write; encrypted-media; gyroscope; picture-in-picture"
