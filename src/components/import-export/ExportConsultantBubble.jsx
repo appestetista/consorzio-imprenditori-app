@@ -117,44 +117,46 @@ export default function ExportConsultantBubble({
   return (
     <>
       {/* Bolla floating draggable — nascosta quando il modale è aperto */}
-      {!open && <div
-        ref={bubbleRef}
-        onMouseDown={onPointerDown}
-        onTouchStart={onPointerDown}
-        className="fixed z-[9999] select-none touch-none"
-        style={{
-          left: pos.x,
-          top: pos.y + bobOffset,
-          width: 68, height: 68,
-          cursor: dragging.current ? 'grabbing' : 'grab',
-        }}
-      >
-        <div className="relative w-full h-full">
-          {/* Glow pulsante */}
-          <div className="absolute inset-0 rounded-full animate-pulse"
-            style={{
-              background: 'radial-gradient(circle, rgba(212,175,55,0.25) 0%, transparent 70%)',
-              transform: 'scale(1.5)',
-            }}
-          />
-          {/* Bolla trasparente */}
-          <div className="absolute inset-0 rounded-full"
-            style={{
-              background: 'radial-gradient(ellipse at 30% 20%, rgba(255,255,255,0.35) 0%, rgba(255,255,255,0.08) 40%, rgba(100,180,255,0.1) 70%, transparent 100%)',
-              border: '1.5px solid rgba(255,255,255,0.2)',
-              boxShadow: '0 4px 20px rgba(0,0,0,0.3), inset 0 2px 8px rgba(255,255,255,0.15)',
-              backdropFilter: 'blur(4px)',
-            }}
-          />
-          {/* Pupino */}
-          <img
-            src={BUBBLE_IMG}
-            alt="Consulente Export"
-            className="absolute inset-0 w-full h-full object-contain p-1 drop-shadow-lg pointer-events-none"
-            style={{ filter: 'drop-shadow(0 2px 6px rgba(0,0,0,0.4))' }}
-          />
+      {!open && (
+        <div
+          ref={bubbleRef}
+          onMouseDown={onPointerDown}
+          onTouchStart={onPointerDown}
+          className="fixed z-[9999] select-none touch-none"
+          style={{
+            left: pos.x,
+            top: pos.y + bobOffset,
+            width: 68, height: 68,
+            cursor: dragging.current ? 'grabbing' : 'grab',
+          }}
+        >
+          <div className="relative w-full h-full">
+            {/* Glow pulsante */}
+            <div className="absolute inset-0 rounded-full animate-pulse"
+              style={{
+                background: 'radial-gradient(circle, rgba(212,175,55,0.25) 0%, transparent 70%)',
+                transform: 'scale(1.5)',
+              }}
+            />
+            {/* Bolla trasparente */}
+            <div className="absolute inset-0 rounded-full"
+              style={{
+                background: 'radial-gradient(ellipse at 30% 20%, rgba(255,255,255,0.35) 0%, rgba(255,255,255,0.08) 40%, rgba(100,180,255,0.1) 70%, transparent 100%)',
+                border: '1.5px solid rgba(255,255,255,0.2)',
+                boxShadow: '0 4px 20px rgba(0,0,0,0.3), inset 0 2px 8px rgba(255,255,255,0.15)',
+                backdropFilter: 'blur(4px)',
+              }}
+            />
+            {/* Pupino */}
+            <img
+              src={BUBBLE_IMG}
+              alt="Consulente Export"
+              className="absolute inset-0 w-full h-full object-contain p-1 drop-shadow-lg pointer-events-none"
+              style={{ filter: 'drop-shadow(0 2px 6px rgba(0,0,0,0.4))' }}
+            />
+          </div>
         </div>
-      </div>}
+      )}
 
       {/* Popup modale */}
       {open && (
