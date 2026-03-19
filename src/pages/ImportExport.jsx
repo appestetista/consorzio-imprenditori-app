@@ -13,11 +13,7 @@ import ExportSection from '@/components/import-export/ExportSection';
 import ImportSection from '@/components/import-export/ImportSection';
 import ContactExportManagerPopup from '@/components/import-export/ContactExportManagerPopup';
 import GlobalTopIcons from '../components/layout/GlobalTopIcons';
-import { useAILimits } from '@/components/hooks/useAILimits';
-import UsageCounter from '@/components/common/UsageCounter';
-import LimitReachedBanner from '@/components/common/LimitReachedBanner';
 import { Button } from '@/components/ui/button';
-import { FileSearch } from 'lucide-react';
 import AnalysisErrorBoundary from '@/components/import-export/AnalysisErrorBoundary';
 
 export default function ImportExport() {
