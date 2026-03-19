@@ -66,14 +66,14 @@ export default function RisparmioEnergetico() {
       description: 'Polizze aziendali a condizioni vantaggiose per i membri'
     },
     {
-      icon: Phone,
-      title: 'Spesa Telefonica',
-      description: 'Piani tariffari telefonia mobile e fissa convenzionati'
-    },
-    {
       icon: Wifi,
       title: 'Internet',
       description: 'Connettività fibra e ADSL a tariffe dedicate'
+    },
+    {
+      icon: Phone,
+      title: 'Spesa Telefonica',
+      description: 'Piani tariffari telefonia mobile e fissa convenzionati'
     }
   ];
 
