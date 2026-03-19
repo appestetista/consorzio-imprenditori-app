@@ -712,47 +712,41 @@ VERIFICA:
         {/* Hero spiegazione sezione + Pulsante */}
         {branches.length === 0 && (
           <div className="mb-6 space-y-4">
-            {/* Immagine poliziotto grande */}
-            <div className="flex justify-center -mb-2">
+            {/* Card con poliziotto sovrapposto a destra */}
+            <div className="relative">
               <img 
                 src="https://media.base44.com/images/public/695e2f74bb7d2636b5606a98/22d2f500e_ChatGPT_Image_19_mar_2026__12_32_18-removebg-preview.png" 
                 alt="Evita sanzioni" 
-                className="w-64 h-64 object-contain drop-shadow-2xl"
+                className="absolute -right-3 -top-8 w-40 h-40 object-contain drop-shadow-2xl pointer-events-none z-10 opacity-90"
               />
+              <Card className="bg-slate-800/80 border-slate-700">
+                <CardContent className="p-5 pr-20 space-y-3">
+                  <h2 className="text-white font-bold text-lg">Evita sanzioni e dormi tranquillo</h2>
+                  <p className="text-slate-300 text-sm leading-relaxed">
+                    Scopri in automatico <span className="text-lime-400 font-semibold">tutti gli obblighi normativi</span> della tua azienda e tienili sotto controllo.
+                  </p>
+                  
+                  <div className="space-y-1.5 pt-1">
+                    <div className="flex items-center gap-2">
+                      <Shield className="w-3.5 h-3.5 text-lime-400 flex-shrink-0" />
+                      <p className="text-slate-400 text-xs">Adempimenti generati dall'AI per il tuo ATECO</p>
+                    </div>
+                    <div className="flex items-center gap-2">
+                      <FileText className="w-3.5 h-3.5 text-blue-400 flex-shrink-0" />
+                      <p className="text-slate-400 text-xs">Carica documenti e verifica la conformità</p>
+                    </div>
+                    <div className="flex items-center gap-2">
+                      <Clock className="w-3.5 h-3.5 text-orange-400 flex-shrink-0" />
+                      <p className="text-slate-400 text-xs">Scadenze e promemoria automatici</p>
+                    </div>
+                    <div className="flex items-center gap-2">
+                      <AlertTriangle className="w-3.5 h-3.5 text-red-400 flex-shrink-0" />
+                      <p className="text-slate-400 text-xs">Sanzioni previste ed enti di controllo</p>
+                    </div>
+                  </div>
+                </CardContent>
+              </Card>
             </div>
-
-            {/* Spiegazione dettagliata */}
-            <Card className="bg-slate-800/80 border-slate-700">
-              <CardContent className="p-5 space-y-3">
-                <h2 className="text-white font-bold text-lg text-center">Non farti cogliere impreparato</h2>
-                <p className="text-slate-300 text-sm leading-relaxed">
-                  Ogni azienda italiana è soggetta a <span className="text-lime-400 font-semibold">decine di adempimenti obbligatori</span> in base al proprio codice ATECO, al numero di dipendenti e ai rischi presenti. Ignorarli può costare <span className="text-red-400 font-semibold">migliaia di euro in sanzioni</span>, fino alla sospensione dell'attività.
-                </p>
-                
-                <div className="space-y-2 pt-1">
-                  <div className="flex items-start gap-2">
-                    <Shield className="w-4 h-4 text-lime-400 mt-0.5 flex-shrink-0" />
-                    <p className="text-slate-400 text-xs"><span className="text-white font-medium">Analisi automatica</span> — L'AI analizza il tuo codice ATECO e genera tutti gli adempimenti obbligatori: sicurezza, privacy, ambiente, antincendio, formazione.</p>
-                  </div>
-                  <div className="flex items-start gap-2">
-                    <FileText className="w-4 h-4 text-blue-400 mt-0.5 flex-shrink-0" />
-                    <p className="text-slate-400 text-xs"><span className="text-white font-medium">Verifica documenti</span> — Carica i tuoi documenti (DVR, certificati, attestati) e l'AI li analizza in tempo reale, verificando conformità, scadenze e coerenza con la tua azienda.</p>
-                  </div>
-                  <div className="flex items-start gap-2">
-                    <Clock className="w-4 h-4 text-orange-400 mt-0.5 flex-shrink-0" />
-                    <p className="text-slate-400 text-xs"><span className="text-white font-medium">Scadenze sotto controllo</span> — Ogni adempimento ha una timeline visiva che ti avvisa prima della scadenza, così non perdi mai una data importante.</p>
-                  </div>
-                  <div className="flex items-start gap-2">
-                    <CheckCircle className="w-4 h-4 text-green-400 mt-0.5 flex-shrink-0" />
-                    <p className="text-slate-400 text-xs"><span className="text-white font-medium">Fonti verificate</span> — Ogni adempimento indica se la fonte normativa è verificata (con riferimento di legge) o se necessita conferma da un professionista.</p>
-                  </div>
-                  <div className="flex items-start gap-2">
-                    <AlertTriangle className="w-4 h-4 text-red-400 mt-0.5 flex-shrink-0" />
-                    <p className="text-slate-400 text-xs"><span className="text-white font-medium">Sanzioni visibili</span> — Per ogni obbligo vedi la sanzione prevista, l'ente che controlla (ASL, ARPA, Vigili del Fuoco, Garante Privacy) e la priorità.</p>
-                  </div>
-                </div>
-              </CardContent>
-            </Card>
 
             {/* Pulsante Aggiungi primo ramo */}
             <button
