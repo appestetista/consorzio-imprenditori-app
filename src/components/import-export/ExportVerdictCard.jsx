@@ -149,7 +149,22 @@ function buildContoServa(mercatoAnalisi, tradeData, exportForm, macroData) {
   // === 5. DIMENSIONE MERCATO ===
   let importTotaleUsd = null;
   if (mercatoTrade?.import_totale?.valore_usd) {
-    importTotaleUsd = parseFloat(String(mercatoTrade.import_totale.valore_usd).replace(/[^0-9.]/g, ''));
+    const rawVal = mercatoTrade.import_totale.valore_usd;
+    // Se è già un numero, usalo direttamente
+    if (typeof rawVal === 'number') {
+      importTotaleUsd = rawVal;
+    } else {
+      const str = String(rawVal).trim();
+      // Gestisci formati tipo "$1,234,567" → rimuovi $ e virgole, poi parsa
+      const cleaned = str.replace(/[$€]/g, '').replace(/,/g, '').trim();
+      const parsed = parseFloat(cleaned);
+      if (!isNaN(parsed)) importTotaleUsd = parsed;
+    }
+    // Sanity check: un import totale < $1000 per un paese intero è sicuramente un errore di dati
+    if (importTotaleUsd !== null && importTotaleUsd < 1000) {
+      console.warn(`[ExportVerdictCard] Import totale sospetto per ${code}: $${importTotaleUsd} — ignorato`);
+      importTotaleUsd = null;
+    }
   }
   
   // === 6. TOP FORNITORI ===
