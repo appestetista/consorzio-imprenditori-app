@@ -643,13 +643,14 @@ Rispondi in italiano.`,
       const landSphere = new THREE.Mesh(landSphereGeom, landSphereMat);
       globeGroup.add(landSphere);
 
-      // Hit-test mesh trasparenti per click/hover (diventano visibili su hover/selezione)
+      // Hit-test mesh trasparenti per click/hover
       const hitMat = new THREE.MeshBasicMaterial({
         color: 0x3d80b0,
-        side: THREE.DoubleSide,
+        side: THREE.FrontSide,
         transparent: true,
         opacity: 0,
         depthWrite: false,
+        depthTest: false,
       });
       const meshEntries = [];
 
