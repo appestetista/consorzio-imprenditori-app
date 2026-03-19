@@ -245,20 +245,17 @@ export default function CountryInfoCard({ countryCode, countryName, macroData, m
             <div className="px-3 py-2.5 border-r border-white/5">
               <p className="text-slate-400 text-[10px] font-medium">Popolazione</p>
               <p className="text-white text-sm font-semibold">{formatPop(macroData.popolazione)}</p>
-              {macroData.popolazione_anno && <p className="text-slate-500 text-[9px] mt-0.5">{macroData.popolazione_anno}</p>}
-              <p className="text-slate-500 text-[8px] leading-tight mt-0.5">Numero totale di abitanti del paese</p>
+              <p className="text-amber-400/70 text-[9px] font-medium mt-0.5">{macroData.popolazione_anno ? `Anno ${macroData.popolazione_anno}` : 'Anno N/D'}</p>
             </div>
             <div className="px-3 py-2.5 border-r border-white/5">
               <p className="text-slate-400 text-[10px] font-medium">PIL nominale</p>
               <p className="text-white text-sm font-semibold">{formatBigNum(macroData.pil_nominale)}</p>
-              {macroData.pil_nominale_anno && <p className="text-slate-500 text-[9px] mt-0.5">{macroData.pil_nominale_anno}</p>}
-              <p className="text-slate-500 text-[8px] leading-tight mt-0.5">Prodotto Interno Lordo totale del paese</p>
+              <p className="text-amber-400/70 text-[9px] font-medium mt-0.5">{macroData.pil_nominale_anno ? `Anno ${macroData.pil_nominale_anno}` : 'Anno N/D'}</p>
             </div>
             <div className="px-3 py-2.5">
               <p className="text-slate-400 text-[10px] font-medium">PIL p.c.</p>
               <p className="text-white text-sm font-semibold">{formatBigNum(macroData.pil_pro_capite)}</p>
-              {macroData.pil_pro_capite_anno && <p className="text-slate-500 text-[9px] mt-0.5">{macroData.pil_pro_capite_anno}</p>}
-              <p className="text-slate-500 text-[8px] leading-tight mt-0.5">PIL diviso per abitante: potere d'acquisto medio</p>
+              <p className="text-amber-400/70 text-[9px] font-medium mt-0.5">{macroData.pil_pro_capite_anno ? `Anno ${macroData.pil_pro_capite_anno}` : 'Anno N/D'}</p>
             </div>
           </div>
         </div>
