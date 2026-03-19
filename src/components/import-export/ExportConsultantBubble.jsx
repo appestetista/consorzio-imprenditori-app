@@ -1,8 +1,9 @@
-import React, { useState, useEffect, useRef } from 'react';
+import React, { useState, useEffect, useRef, useCallback } from 'react';
 import { X } from 'lucide-react';
 import ExportContactCard from './ExportContactCard';
 
-const BUBBLE_IMG = 'https://media.base44.com/images/public/695e2f74bb7d2636b5606a98/5735af2d2_ChatGPT_Image_9_mar_2026__14_59_16-removebg-preview.png';
+const BUBBLE_IMG = 'https://media.base44.com/images/public/695e2f74bb7d2636b5606a98/5735af2d2_ChatGPT_Image_9_mar_2025__14_59_16-removebg-preview.png';
+const LONG_PRESS_MS = 3000;
 
 export default function ExportConsultantBubble({
   contactForm, setContactForm, contactSent, setContactSent,
@@ -13,7 +14,16 @@ export default function ExportConsultantBubble({
   const [bobOffset, setBobOffset] = useState(0);
   const animRef = useRef(null);
 
-  // Animazione bobbing continua
+  // Posizione bolla (draggable)
+  const [pos, setPos] = useState({ x: window.innerWidth - 80, y: window.innerHeight - 200 });
+  const dragging = useRef(false);
+  const dragStartPos = useRef({ x: 0, y: 0 });
+  const bubbleStartPos = useRef({ x: 0, y: 0 });
+  const hasMoved = useRef(false);
+  const longPressTimer = useRef(null);
+  const bubbleRef = useRef(null);
+
+  // Bobbing
   useEffect(() => {
     let frame = 0;
     const animate = () => {
@@ -25,19 +35,102 @@ export default function ExportConsultantBubble({
     return () => cancelAnimationFrame(animRef.current);
   }, []);
 
+  const getPointerPos = (e) => {
+    if (e.touches) return { x: e.touches[0].clientX, y: e.touches[0].clientY };
+    return { x: e.clientX, y: e.clientY };
+  };
+
+  const clampPos = useCallback((x, y) => {
+    const size = 68;
+    return {
+      x: Math.max(4, Math.min(window.innerWidth - size - 4, x)),
+      y: Math.max(4, Math.min(window.innerHeight - size - 4, y)),
+    };
+  }, []);
+
+  const onPointerDown = (e) => {
+    const p = getPointerPos(e);
+    dragStartPos.current = p;
+    bubbleStartPos.current = { ...pos };
+    hasMoved.current = false;
+    dragging.current = true;
+
+    // Avvia long press timer
+    longPressTimer.current = setTimeout(() => {
+      if (!hasMoved.current) {
+        setOpen(true);
+        dragging.current = false;
+      }
+    }, LONG_PRESS_MS);
+  };
+
+  const onPointerMove = useCallback((e) => {
+    if (!dragging.current) return;
+    const p = getPointerPos(e);
+    const dx = p.x - dragStartPos.current.x;
+    const dy = p.y - dragStartPos.current.y;
+
+    // Se spostamento > 8px, consideriamo drag (non tap)
+    if (Math.abs(dx) > 8 || Math.abs(dy) > 8) {
+      hasMoved.current = true;
+      // Cancella long press se stiamo trascinando
+      if (longPressTimer.current) {
+        clearTimeout(longPressTimer.current);
+        longPressTimer.current = null;
+      }
+    }
+
+    const newPos = clampPos(bubbleStartPos.current.x + dx, bubbleStartPos.current.y + dy);
+    setPos(newPos);
+  }, [clampPos]);
+
+  const onPointerUp = useCallback(() => {
+    if (longPressTimer.current) {
+      clearTimeout(longPressTimer.current);
+      longPressTimer.current = null;
+    }
+
+    // Se non si è mosso → tap singolo → apri modale
+    if (dragging.current && !hasMoved.current) {
+      setOpen(true);
+    }
+
+    dragging.current = false;
+  }, []);
+
+  // Listener globali per drag
+  useEffect(() => {
+    const moveHandler = (e) => onPointerMove(e);
+    const upHandler = (e) => onPointerUp(e);
+    window.addEventListener('mousemove', moveHandler);
+    window.addEventListener('mouseup', upHandler);
+    window.addEventListener('touchmove', moveHandler, { passive: false });
+    window.addEventListener('touchend', upHandler);
+    return () => {
+      window.removeEventListener('mousemove', moveHandler);
+      window.removeEventListener('mouseup', upHandler);
+      window.removeEventListener('touchmove', moveHandler);
+      window.removeEventListener('touchend', upHandler);
+    };
+  }, [onPointerMove, onPointerUp]);
+
   return (
     <>
-      {/* Bolla floating */}
-      <button
-        onClick={() => setOpen(true)}
-        className="fixed z-[9999] right-4 transition-transform active:scale-90"
+      {/* Bolla floating draggable */}
+      <div
+        ref={bubbleRef}
+        onMouseDown={onPointerDown}
+        onTouchStart={onPointerDown}
+        className="fixed z-[9999] select-none touch-none"
         style={{
-          bottom: `${120 + bobOffset}px`,
+          left: pos.x,
+          top: pos.y + bobOffset,
           width: 68, height: 68,
+          cursor: dragging.current ? 'grabbing' : 'grab',
         }}
       >
         <div className="relative w-full h-full">
-          {/* Cerchio glow pulsante */}
+          {/* Glow pulsante */}
           <div className="absolute inset-0 rounded-full animate-pulse"
             style={{
               background: 'radial-gradient(circle, rgba(212,175,55,0.25) 0%, transparent 70%)',
@@ -61,11 +154,11 @@ export default function ExportConsultantBubble({
             style={{ filter: 'drop-shadow(0 2px 6px rgba(0,0,0,0.4))' }}
           />
         </div>
-      </button>
+      </div>
 
       {/* Popup modale */}
       {open && (
-        <div className="fixed inset-0 z-[200] flex items-end justify-center bg-black/60 backdrop-blur-sm px-3 pb-3"
+        <div className="fixed inset-0 z-[10000] flex items-end justify-center bg-black/60 backdrop-blur-sm px-3 pb-3"
           onClick={() => setOpen(false)}>
           <div
             className="w-full max-w-md rounded-2xl overflow-hidden shadow-2xl"
