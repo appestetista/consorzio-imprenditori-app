@@ -305,9 +305,24 @@ export default function ExportSection({ user, exportManagers, selectedMapCountry
 
             <div>
               <label className="text-xs font-medium mb-1.5 block" style={{ color: 'var(--app-text-primary)' }}>Prezzo medio di vendita (€)</label>
-              <Input type="number" step="0.01" min="0" placeholder="Es. 15.00" value={exportForm.prezzo_medio}
-                onChange={(e) => setExportForm({ ...exportForm, prezzo_medio: e.target.value })}
-                className="h-11 rounded-xl" style={{ background: 'var(--app-bg-input)', color: 'var(--app-text-primary)', border: '1px solid var(--app-border)' }} />
+              <div className="grid grid-cols-2 gap-2">
+                <Input type="number" step="0.01" min="0" placeholder="Es. 15.00" value={exportForm.prezzo_medio}
+                  onChange={(e) => setExportForm({ ...exportForm, prezzo_medio: e.target.value })}
+                  className="h-11 rounded-xl" style={{ background: 'var(--app-bg-input)', color: 'var(--app-text-primary)', border: '1px solid var(--app-border)' }} />
+                <Select value={exportForm.unita_prezzo || undefined} onValueChange={(v) => setExportForm({ ...exportForm, unita_prezzo: v })}>
+                  <SelectTrigger className="h-11 rounded-xl text-xs" style={{ background: 'var(--app-bg-input)', color: 'var(--app-text-primary)', border: '1px solid var(--app-border)' }}><SelectValue placeholder="Unità" /></SelectTrigger>
+                  <SelectContent>
+                    <SelectItem value="pezzo">€ / pezzo</SelectItem>
+                    <SelectItem value="kg">€ / kg</SelectItem>
+                    <SelectItem value="litro">€ / litro</SelectItem>
+                    <SelectItem value="metro">€ / metro</SelectItem>
+                    <SelectItem value="m²">€ / m²</SelectItem>
+                    <SelectItem value="m³">€ / m³</SelectItem>
+                    <SelectItem value="confezione">€ / confezione</SelectItem>
+                    <SelectItem value="pallet">€ / pallet</SelectItem>
+                  </SelectContent>
+                </Select>
+              </div>
             </div>
 
             <div className="grid grid-cols-2 gap-3">
