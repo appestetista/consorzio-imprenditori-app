@@ -1,6 +1,8 @@
 import React, { useState } from 'react';
 import { Ship, Plane, ChevronDown, ChevronUp, Package } from 'lucide-react';
 import { base44 } from '@/api/base44Client';
+import { Input } from '@/components/ui/input';
+import { Select, SelectContent, SelectItem, SelectTrigger, SelectValue } from '@/components/ui/select';
 import LogisticsForm from './LogisticsForm';
 import LogisticsResults from './LogisticsResults';
 import Cargo3DVisualizer from './Cargo3DVisualizer';
@@ -14,7 +16,11 @@ export default function LogisticsModule({ countryOrigin, countryDest, hsCode, pr
   const [results, setResults] = useState(null);
   const [lastFormData, setLastFormData] = useState(null);
   const [cargoData, setCargoData] = useState(null);
-  const [activeTab, setActiveTab] = useState('ingombri'); // 'ingombri' | 'quotazione'
+  const [activeTab, setActiveTab] = useState('dimensioni'); // 'dimensioni' | 'ingombri' | 'quotazione'
+  const [dims, setDims] = useState({
+    tipo_unita: '', numero_unita: '', peso_kg: '',
+    lunghezza_cm: '', larghezza_cm: '', altezza_cm: ''
+  });
 
   const handleSubmit = async (formData) => {
     setLoading(true);
