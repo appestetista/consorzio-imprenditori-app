@@ -432,6 +432,8 @@ export default function ExportAnalysisResult({ analysisResult, tradeMetrics, mac
 
             <LogisticaDoganeGTMCard data={m.logistica_dogane_gtm} />
 
+            <LogisticaDetailCard logistica={m.logistica} rischioPaese={m.rischio_paese} />
+
             <CustomsDutyGuideCard
               countryCode={m.paese_code}
               countryName={m.paese_nome || m.mercato}
