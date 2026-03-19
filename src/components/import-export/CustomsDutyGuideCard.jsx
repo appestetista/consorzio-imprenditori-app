@@ -50,6 +50,15 @@ function DatoTrovato({ label, valore, fonte, warning }) {
   );
 }
 
+function CalcRow({ label, value, bold, warn }) {
+  return (
+    <div className="flex items-center justify-between text-[11px]">
+      <span className={bold ? 'text-white font-bold' : warn ? 'text-red-400' : 'text-slate-400'}>{label}</span>
+      <span className={bold ? 'text-lime-400 font-bold' : warn ? 'text-red-400 font-semibold' : 'text-white'}>{value}</span>
+    </div>
+  );
+}
+
 export default function CustomsDutyGuideCard({ countryCode, countryName, hsCode, productDescription }) {
   const [data, setData] = useState(null);
   const [loading, setLoading] = useState(false);
