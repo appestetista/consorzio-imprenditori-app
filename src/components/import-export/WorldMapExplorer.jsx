@@ -761,19 +761,25 @@ Rispondi in italiano.`,
     }
 
     // Hover detection (solo quando non si sta trascinando)
-    if (!isDragging.current) {
+    if (!isDragging.current && countryMeshesRef.current.length > 0) {
       mouseRef.current.set(pos.x, pos.y);
       raycasterRef.current.setFromCamera(mouseRef.current, cameraRef.current);
       const intersects = raycasterRef.current.intersectObjects(countryMeshesRef.current);
       
       if (intersects.length > 0) {
         const mesh = intersects[0].object;
-        hoveredRef.current = mesh;
-        setHoveredName(translateCountryName(mesh.userData.countryName));
+        const name = mesh.userData.countryName;
+        // Aggiorna solo se cambia paese (evita re-render continui = flickering)
+        if (!hoveredRef.current || hoveredRef.current.userData.countryName !== name) {
+          hoveredRef.current = mesh;
+          setHoveredName(translateCountryName(name));
+        }
         container.style.cursor = 'pointer';
       } else {
-        hoveredRef.current = null;
-        setHoveredName('');
+        if (hoveredRef.current) {
+          hoveredRef.current = null;
+          setHoveredName('');
+        }
         container.style.cursor = 'grab';
       }
     }
