@@ -120,6 +120,40 @@ REGOLE:
       }
     }
 
+    // Cerca online dati aggiuntivi: anno attivazione, tipologia attività
+    if (result.partita_iva || result.ragione_sociale) {
+      const extraResult = await base44.integrations.Core.InvokeLLM({
+        prompt: `Cerca informazioni sull'azienda italiana${result.partita_iva ? ' con P.IVA ' + result.partita_iva : ''}${result.ragione_sociale ? ', ragione sociale: ' + result.ragione_sociale : ''}${result.citta ? ', città: ' + result.citta : ''}.
+
+Cerca su registroimprese.it, openapi.it, infoimprese.it, o altre fonti ufficiali italiane.
+
+Devo sapere:
+1. Anno di inizio attività (anno iscrizione alla CCIAA o data apertura P.IVA)
+2. Tipologia macro dell'attività tra queste categorie ESATTE: "ufficio", "negozio_retail", "ristorante_bar", "magazzino_logistica", "produzione_industriale", "cantiere_edile", "laboratorio_artigianale", "studio_professionale", "struttura_sanitaria", "struttura_ricettiva", "agricoltura", "trasporti"
+
+REGOLE:
+- Restituisci SOLO dati trovati con certezza da fonti ufficiali
+- Se NON trovi un dato, restituisci stringa vuota ""
+- NON inventare dati`,
+        add_context_from_internet: true,
+        response_json_schema: {
+          type: "object",
+          properties: {
+            anno_attivazione: { type: "string", description: "Anno di inizio attività (es: 2015). Vuoto se non trovato." },
+            tipo_attivita_categoria: { type: "string", description: "Categoria macro tra: ufficio, negozio_retail, ristorante_bar, magazzino_logistica, produzione_industriale, cantiere_edile, laboratorio_artigianale, studio_professionale, struttura_sanitaria, struttura_ricettiva, agricoltura, trasporti. Vuoto se non determinabile." },
+            fonte: { type: "string", description: "Fonte dei dati" }
+          }
+        }
+      });
+
+      if (extraResult.anno_attivazione) {
+        result.anno_attivazione = extraResult.anno_attivazione;
+      }
+      if (extraResult.tipo_attivita_categoria) {
+        result.tipo_attivita_categoria = extraResult.tipo_attivita_categoria;
+      }
+    }
+
     setExtracting(false);
     setExtractedData(result);
   };
@@ -140,6 +174,8 @@ REGOLE:
     { key: 'provincia', label: 'Provincia' },
     { key: 'codice_ateco', label: 'Codice ATECO' },
     { key: 'descrizione_ateco', label: 'Attività ATECO' },
+    { key: 'anno_attivazione', label: 'Anno attivazione' },
+    { key: 'tipo_attivita_categoria', label: 'Tipo attività' },
     { key: 'email_pec', label: 'Email / PEC' },
     { key: 'numero_rea', label: 'N° REA / CCIAA' },
   ];

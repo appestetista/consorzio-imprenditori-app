@@ -1625,13 +1625,15 @@ VERIFICA:
                 <StampPhotoExtractor
                   onClose={() => setShowStampScanner(false)}
                   onDataExtracted={(data) => {
-                    setNewBranch(prev => ({
-                      ...prev,
-                      nome: data.ragione_sociale || prev.nome,
-                      tipo_attivita: data.descrizione_ateco || prev.tipo_attivita,
-                      indirizzo: [data.indirizzo, data.cap, data.citta, data.provincia].filter(Boolean).join(', ') || prev.indirizzo,
-                      codice_ateco: data.codice_ateco || prev.codice_ateco,
-                    }));
+                   setNewBranch(prev => ({
+                     ...prev,
+                     nome: data.ragione_sociale || prev.nome,
+                     tipo_attivita: data.descrizione_ateco || prev.tipo_attivita,
+                     indirizzo: [data.indirizzo, data.cap, data.citta, data.provincia].filter(Boolean).join(', ') || prev.indirizzo,
+                     codice_ateco: data.codice_ateco || prev.codice_ateco,
+                     data_attivazione: data.anno_attivazione || prev.data_attivazione,
+                     tipo_attivita_categoria: data.tipo_attivita_categoria || prev.tipo_attivita_categoria,
+                   }));
                     setShowStampScanner(false);
                     setShowBranchForm(true);
                   }}
