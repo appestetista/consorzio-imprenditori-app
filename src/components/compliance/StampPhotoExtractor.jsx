@@ -171,6 +171,8 @@ REGOLE:
       }
     }
 
+    setProgressStep(3);
+
     // Cerca online dati aggiuntivi: anno attivazione, tipologia attività
     if (result.partita_iva || result.ragione_sociale) {
       const extraResult = await base44.integrations.Core.InvokeLLM({
