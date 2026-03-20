@@ -10,8 +10,16 @@ export default function StampPhotoExtractor({ onDataExtracted, onClose }) {
   const [extractedData, setExtractedData] = useState(null);
   const [error, setError] = useState(null);
 
-  const handlePhoto = async (e) => {
-    const file = e.target.files?.[0];
+  // Se c'è un file pre-selezionato (da pulsanti esterni), processalo subito
+  React.useEffect(() => {
+    if (window.__stampFile) {
+      const file = window.__stampFile;
+      window.__stampFile = null;
+      processFile(file);
+    }
+  }, []);
+
+  const processFile = async (file) => {
     if (!file) return;
 
     // Mostra anteprima
