@@ -1655,7 +1655,7 @@ VERIFICA:
                   <Input
                     value={newBranch.nome}
                     onChange={(e) => setNewBranch({...newBranch, nome: e.target.value})}
-                    className="bg-slate-900 border-slate-700 text-white"
+                    className="bg-white/80 border-amber-300 text-slate-900 placeholder:text-amber-700/40"
                     placeholder="Nome ramo (es: Sede Principale, Magazzino, Filiale Roma)"
                   />
                 )}
