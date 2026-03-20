@@ -1816,8 +1816,8 @@ VERIFICA:
                       <Button
                         onClick={handleCreateBranch}
                         disabled={!newBranch.nome.trim() || !newBranch.tipo_attivita.trim() || !newBranch.codice_ateco.trim() || !newBranch.data_attivazione || branches.length >= 5 || effectiveUser?.piano_abbonamento !== 'impresa_39'}
-                        className="w-full text-slate-900 hover:opacity-90"
-                        style={{ background: 'linear-gradient(180deg, #f0e68c 0%, #d4af37 50%, #b8860b 100%)', boxShadow: '0 4px 0 #8b6914, inset 0 1px 0 rgba(255,255,255,0.3)' }}
+                        className="w-full text-white hover:opacity-90"
+                        style={{ background: 'linear-gradient(180deg, #5c3a1e 0%, #3e2310 50%, #2a1808 100%)', boxShadow: '0 4px 0 #1a0f05, inset 0 1px 0 rgba(255,255,255,0.1)' }}
                       >
                         <Plus className="w-4 h-4 mr-2" />
                         Aggiungi Ramo e Genera Adempimenti
