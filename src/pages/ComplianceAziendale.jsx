@@ -1717,7 +1717,7 @@ VERIFICA:
                       max={new Date().getFullYear()}
                       required
                     />
-                    <p className="text-slate-500 text-xs mt-1">Anno in cui è iniziata l'attività</p>
+                    <p className="text-amber-700/60 text-xs mt-1">Anno in cui è iniziata l'attività</p>
                   </div>
                 )}
 
