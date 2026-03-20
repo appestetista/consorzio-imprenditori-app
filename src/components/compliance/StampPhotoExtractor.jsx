@@ -4,11 +4,21 @@ import { Camera, Upload, Loader2, CheckCircle, AlertTriangle, X } from 'lucide-r
 import { Button } from '@/components/ui/button';
 import { Card, CardContent } from '@/components/ui/card';
 
+const STEPS = [
+  { label: 'Caricamento immagine...', target: 15 },
+  { label: 'Lettura dati dal timbro...', target: 40 },
+  { label: 'Ricerca codice ATECO...', target: 65 },
+  { label: 'Verifica dati aziendali...', target: 85 },
+  { label: 'Completamento...', target: 100 },
+];
+
 export default function StampPhotoExtractor({ onDataExtracted, onClose }) {
   const [extracting, setExtracting] = useState(false);
   const [preview, setPreview] = useState(null);
   const [extractedData, setExtractedData] = useState(null);
   const [error, setError] = useState(null);
+  const [progressStep, setProgressStep] = useState(0);
+  const [displayProgress, setDisplayProgress] = useState(0);
 
   // Se c'è un file pre-selezionato (da pulsanti esterni), processalo subito
   React.useEffect(() => {
