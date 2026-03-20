@@ -210,38 +210,8 @@ REGOLE:
         </div>
 
         <p className="text-slate-400 text-xs">
-          Scatta una foto al timbro aziendale per compilare automaticamente i dati.
+          Analisi in corso del timbro aziendale...
         </p>
-
-        {!extractedData && !extracting && (
-          <div className="flex gap-2">
-            <label className="flex-1 cursor-pointer">
-              <input
-                type="file"
-                accept="image/*"
-                capture="environment"
-                className="hidden"
-                onChange={handlePhoto}
-              />
-              <div className="flex items-center justify-center gap-2 bg-blue-500/20 text-blue-400 border border-blue-500/30 rounded-lg py-3 px-4 hover:bg-blue-500/30 transition-colors">
-                <Camera className="w-5 h-5" />
-                <span className="text-sm font-medium">Scatta foto</span>
-              </div>
-            </label>
-            <label className="flex-1 cursor-pointer">
-              <input
-                type="file"
-                accept="image/*"
-                className="hidden"
-                onChange={handlePhoto}
-              />
-              <div className="flex items-center justify-center gap-2 bg-slate-700/50 text-slate-300 border border-slate-600 rounded-lg py-3 px-4 hover:bg-slate-700 transition-colors">
-                <Upload className="w-5 h-5" />
-                <span className="text-sm font-medium">Galleria</span>
-              </div>
-            </label>
-          </div>
-        )}
 
         {extracting && (
           <div className="bg-purple-500/10 border border-purple-500/30 rounded-lg p-4 text-center space-y-3">
