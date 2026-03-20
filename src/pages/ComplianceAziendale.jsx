@@ -108,6 +108,7 @@ export default function ComplianceAziendale() {
     trattamento_dati_sensibili: false
   });
   const { impersonation, appMode } = useImpersonation();
+  const { isDark } = useTheme();
   const queryClient = useQueryClient();
 
   useEffect(() => {
