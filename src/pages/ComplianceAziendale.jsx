@@ -1724,7 +1724,7 @@ VERIFICA:
                 {/* Tipo attività — mostra solo se non compilato */}
                 {(!stampDataUsed || !newBranch.tipo_attivita_categoria) && (
                   <div>
-                    <Label className="text-slate-400 text-xs mb-1 block">Tipologia attività</Label>
+                    <Label className="text-amber-800 text-xs mb-1 block">Tipologia attività</Label>
                     <div className="mt-2">
                       <TipoAttivitaSelector
                         value={newBranch.tipo_attivita_categoria}
