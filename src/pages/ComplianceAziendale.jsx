@@ -1476,26 +1476,46 @@ VERIFICA:
             <div className="pt-2">
               <Label className={`font-semibold mb-3 block ${isDark ? 'text-slate-300' : 'text-amber-900'}`}>Come vuoi inserire i dati? ({branches.length}/5)</Label>
               
-              {/* Due pulsanti: Foto timbro + Compila manualmente */}
+              {/* Tre pulsanti: Scatta foto / Carica da galleria / Compila manualmente */}
               {!showBranchForm && !showStampScanner && (
                 <div className="flex flex-col gap-3 mb-3">
-                  <button
-                    onClick={() => { setShowStampScanner(true); }}
-                    className="w-full py-4 px-4 rounded-2xl flex items-start gap-4 transition-all duration-150 active:scale-[0.98] text-left"
+                  {/* Scatta foto (camera) */}
+                  <label
+                    className="w-full py-4 px-4 rounded-2xl flex items-start gap-4 transition-all duration-150 active:scale-[0.98] text-left cursor-pointer"
                     style={{
                       background: isDark ? 'linear-gradient(180deg, #1e293b 0%, #0f172a 100%)' : 'linear-gradient(180deg, #3d3210 0%, #2a2208 100%)',
                       boxShadow: isDark ? '0 4px 0 #020617, 0 6px 16px rgba(0,0,0,0.4), inset 0 1px 0 rgba(255,255,255,0.06)' : '0 4px 0 #1a1505, 0 6px 16px rgba(0,0,0,0.3), inset 0 1px 0 rgba(255,255,255,0.08)',
                       border: isDark ? '1px solid rgba(100,116,139,0.3)' : '1px solid rgba(212,175,55,0.25)',
                     }}
                   >
+                    <input type="file" accept="image/*" capture="environment" className="hidden" onChange={(e) => { if (e.target.files?.[0]) { setShowStampScanner(true); window.__stampFile = e.target.files[0]; }}} />
                     <div className="w-11 h-11 rounded-xl flex items-center justify-center flex-shrink-0 mt-0.5" style={{ background: isDark ? 'rgba(132,255,0,0.15)' : 'rgba(212,175,55,0.2)' }}>
                       <Camera className={`w-5 h-5 ${isDark ? 'text-lime-400' : 'text-amber-300'}`} />
                     </div>
                     <div>
                       <span className={`text-sm font-semibold block ${isDark ? 'text-white' : 'text-amber-100'}`}>📸 Scatta foto al timbro</span>
-                      <span className={`text-xs block mt-1 leading-relaxed ${isDark ? 'text-slate-400' : 'text-amber-300/80'}`}>Fotografa il timbro della tua azienda e l'AI compilerà automaticamente tutti i campi per te</span>
+                      <span className={`text-xs block mt-1 leading-relaxed ${isDark ? 'text-slate-400' : 'text-amber-300/80'}`}>Apri la fotocamera e fotografa il timbro aziendale</span>
                     </div>
-                  </button>
+                  </label>
+                  {/* Carica da galleria */}
+                  <label
+                    className="w-full py-4 px-4 rounded-2xl flex items-start gap-4 transition-all duration-150 active:scale-[0.98] text-left cursor-pointer"
+                    style={{
+                      background: isDark ? 'linear-gradient(180deg, #1e293b 0%, #0f172a 100%)' : 'linear-gradient(180deg, #3d3210 0%, #2a2208 100%)',
+                      boxShadow: isDark ? '0 4px 0 #020617, 0 6px 16px rgba(0,0,0,0.4), inset 0 1px 0 rgba(255,255,255,0.06)' : '0 4px 0 #1a1505, 0 6px 16px rgba(0,0,0,0.3), inset 0 1px 0 rgba(255,255,255,0.08)',
+                      border: isDark ? '1px solid rgba(100,116,139,0.3)' : '1px solid rgba(212,175,55,0.25)',
+                    }}
+                  >
+                    <input type="file" accept="image/*" className="hidden" onChange={(e) => { if (e.target.files?.[0]) { setShowStampScanner(true); window.__stampFile = e.target.files[0]; }}} />
+                    <div className="w-11 h-11 rounded-xl flex items-center justify-center flex-shrink-0 mt-0.5" style={{ background: isDark ? 'rgba(132,255,0,0.15)' : 'rgba(212,175,55,0.2)' }}>
+                      <Upload className={`w-5 h-5 ${isDark ? 'text-lime-400' : 'text-amber-300'}`} />
+                    </div>
+                    <div>
+                      <span className={`text-sm font-semibold block ${isDark ? 'text-white' : 'text-amber-100'}`}>🖼️ Carica dalla galleria</span>
+                      <span className={`text-xs block mt-1 leading-relaxed ${isDark ? 'text-slate-400' : 'text-amber-300/80'}`}>Scegli una foto del timbro già salvata sul tuo dispositivo</span>
+                    </div>
+                  </label>
+                  {/* Compila manualmente */}
                   <button
                     onClick={() => setShowBranchForm(true)}
                     className="w-full py-4 px-4 rounded-2xl flex items-start gap-4 transition-all duration-150 active:scale-[0.98] text-left"
@@ -1510,7 +1530,7 @@ VERIFICA:
                     </div>
                     <div>
                       <span className={`text-sm font-semibold block ${isDark ? 'text-white' : 'text-amber-100'}`}>✏️ Compila manualmente</span>
-                      <span className={`text-xs block mt-1 leading-relaxed ${isDark ? 'text-slate-400' : 'text-amber-300/80'}`}>Inserisci tu stesso il codice ATECO, tipo di attività, dipendenti e rischi presenti</span>
+                      <span className={`text-xs block mt-1 leading-relaxed ${isDark ? 'text-slate-400' : 'text-amber-300/80'}`}>Inserisci tu stesso il codice ATECO, tipo di attività e rischi presenti</span>
                     </div>
                   </button>
                 </div>
