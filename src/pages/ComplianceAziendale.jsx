@@ -1588,25 +1588,25 @@ VERIFICA:
                     onClick={() => { setShowStampScanner(true); }}
                     className="flex-1 py-3 px-3 rounded-xl flex items-center justify-center gap-2 transition-all duration-150 active:translate-y-0.5 active:shadow-none"
                     style={{
-                      background: 'linear-gradient(180deg, #60a5fa 0%, #3b82f6 50%, #2563eb 100%)',
-                      boxShadow: '0 5px 0 #1d4ed8, 0 7px 14px rgba(37, 99, 235, 0.4), inset 0 1px 0 rgba(255,255,255,0.25)',
-                      border: '1px solid rgba(96, 165, 250, 0.5)',
+                      background: 'linear-gradient(180deg, #f0e68c 0%, #d4af37 50%, #b8860b 100%)',
+                      boxShadow: '0 4px 0 #8b6914, 0 6px 12px rgba(139, 105, 20, 0.3), inset 0 1px 0 rgba(255,255,255,0.35)',
+                      border: '1px solid rgba(212, 175, 55, 0.6)',
                     }}
                   >
-                    <Camera className="w-5 h-5 text-white" />
-                    <span className="text-white text-xs font-bold">📸 Foto timbro</span>
+                    <Camera className="w-5 h-5 text-slate-900" />
+                    <span className="text-slate-900 text-xs font-bold">📸 Foto timbro</span>
                   </button>
                   <button
                     onClick={() => setShowBranchForm(true)}
                     className="flex-1 py-3 px-3 rounded-xl flex items-center justify-center gap-2 transition-all duration-150 active:translate-y-0.5 active:shadow-none"
                     style={{
-                      background: 'linear-gradient(180deg, #a3e635 0%, #84cc16 50%, #65a30d 100%)',
-                      boxShadow: '0 5px 0 #4d7c0f, 0 7px 14px rgba(101, 163, 13, 0.4), inset 0 1px 0 rgba(255,255,255,0.25)',
-                      border: '1px solid rgba(163, 230, 53, 0.5)',
+                      background: 'linear-gradient(180deg, #fff 0%, #fef3c7 50%, #fde68a 100%)',
+                      boxShadow: '0 4px 0 #d4a017, 0 6px 12px rgba(180, 140, 20, 0.2), inset 0 1px 0 rgba(255,255,255,0.5)',
+                      border: '1px solid rgba(212, 175, 55, 0.4)',
                     }}
                   >
-                    <Pencil className="w-4 h-4 text-slate-900" />
-                    <span className="text-slate-900 text-xs font-bold">✏️ Compila manualmente</span>
+                    <Pencil className="w-4 h-4 text-amber-800" />
+                    <span className="text-amber-900 text-xs font-bold">✏️ Compila manualmente</span>
                   </button>
                 </div>
               )}
