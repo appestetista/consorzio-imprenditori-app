@@ -1460,7 +1460,7 @@ VERIFICA:
 
       {/* Dialog Gestione Rami Aziendali */}
       <Dialog open={showBranchManager} onOpenChange={(open) => { setShowBranchManager(open); if (!open) { setShowBranchForm(false); setShowStampScanner(false); setStampDataUsed(false); } }}>
-        <DialogContent className="fixed inset-0 w-full h-full max-w-none max-h-none rounded-none border-none overflow-y-auto p-0 translate-x-0 translate-y-0 top-0 left-0" style={{ background: 'linear-gradient(180deg, #fef9c3 0%, #fde68a 30%, #f5d060 100%)' }}>
+        <DialogContent className="fixed inset-0 w-full h-full max-w-none max-h-none rounded-none border-none overflow-y-auto p-0 translate-x-0 translate-y-0 top-0 left-0" style={{ background: '#fef200' }}>
           <DialogHeader className="sticky top-0 z-10 px-5 pt-5 pb-3" style={{ background: 'linear-gradient(180deg, #fef9c3 0%, #fef9c3 80%, transparent 100%)' }}>
             <DialogTitle className="text-slate-900 flex items-center gap-2 text-xl font-bold">
               <Building2 className="w-6 h-6 text-amber-700" />
