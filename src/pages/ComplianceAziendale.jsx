@@ -1690,6 +1690,16 @@ VERIFICA:
                                         <div className="space-y-4 pt-2">
                                           <Label className={`text-sm font-medium ${isDark ? 'text-slate-200' : 'text-slate-800'}`}>RISCHI PRESENTI (dichiara solo quelli effettivi)</Label>
                                           
+                                          {rischiAutoApplied && (
+                                            <div className={`rounded-lg p-3 border flex items-start gap-2 ${isDark ? 'bg-amber-500/10 border-amber-500/30' : 'bg-amber-50 border-amber-300'}`}>
+                                              <Sparkles className={`w-4 h-4 mt-0.5 flex-shrink-0 ${isDark ? 'text-amber-400' : 'text-amber-600'}`} />
+                                              <div>
+                                                <p className={`text-xs font-semibold ${isDark ? 'text-amber-400' : 'text-amber-700'}`}>Rischi pre-compilati in base al settore ATECO</p>
+                                                <p className={`text-[10px] mt-0.5 ${isDark ? 'text-slate-400' : 'text-slate-600'}`}>Verifica e correggi le spunte se necessario — puoi aggiungere o rimuovere rischi.</p>
+                                              </div>
+                                            </div>
+                                          )}
+                                          
                                           {/* Sezione Base */}
                                           <div className={`rounded-lg p-3 space-y-2 border ${isDark ? 'bg-slate-800/60 border-slate-700' : 'bg-white/40 border-amber-300/30'}`}>
                                             <p className={`text-xs font-semibold mb-2 ${isDark ? 'text-amber-400' : 'text-amber-800'}`}>👷 SICUREZZA LAVORO</p>
