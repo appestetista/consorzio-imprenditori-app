@@ -13,7 +13,7 @@ Deno.serve(async (req) => {
       return Response.json({ error: 'Unauthorized' }, { status: 401 });
     }
 
-    const { codice_ateco, tipo_attivita, tipo_attivita_categoria, numero_dipendenti, superficie_mq, data_attivazione, rischi } = await req.json();
+    const { codice_ateco, tipo_attivita, tipo_attivita_categoria, numero_dipendenti, superficie_mq, data_attivazione, livello_rischio_inail, rischi } = await req.json();
 
     if (!codice_ateco) {
       return Response.json({ error: 'Codice ATECO obbligatorio' }, { status: 400 });
@@ -67,10 +67,17 @@ DATI AZIENDA
 CODICE ATECO: ${codice_ateco}
 TIPO ATTIVITÀ: ${tipo_attivita || 'da determinare in base al codice ATECO'}
 CATEGORIA ATTIVITÀ: ${tipo_attivita_categoria || 'non specificata'}
+LIVELLO RISCHIO INAIL: ${livello_rischio_inail || 'non classificato'} (Fonte: Allegato II Accordo Stato-Regioni 21/12/2011)
 NUMERO DIPENDENTI: ${numero_dipendenti || 'non specificato'}
 SUPERFICIE MQ: ${superficie_mq || 'non specificata'}
 DATA INIZIO ATTIVITÀ: ${dataBase}
 RISCHI DICHIARATI: Lavoratori: ${rischi?.lavoratori !== false ? 'SÌ' : 'NO'}, Specifici: ${rischiAttivi || 'nessuno'}
+
+NOTA IMPORTANTE SUL LIVELLO RISCHIO:
+- Se BASSO: formazione specifica 4h, aggiornamento quinquennale 6h, rischio incendio livello 1
+- Se MEDIO: formazione specifica 8h, aggiornamento quinquennale 6h, rischio incendio livello 2
+- Se ALTO: formazione specifica 12h, aggiornamento quinquennale 6h, rischio incendio livello 3
+Calibra gli adempimenti di formazione e antincendio in base a questo livello.
 
 ═══════════════════════════════
 PROCESSO OBBLIGATORIO
