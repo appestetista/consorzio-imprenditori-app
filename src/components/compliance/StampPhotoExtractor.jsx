@@ -113,6 +113,7 @@ REGOLE:
 
     if (result.dati_non_leggibili) {
       setExtracting(false);
+      setDisplayProgress(0);
       setError(result.note || "L'immagine non è leggibile. Riprova con una foto più nitida.");
       return;
     }
@@ -120,6 +121,7 @@ REGOLE:
     const hasData = result.ragione_sociale || result.partita_iva || result.codice_fiscale;
     if (!hasData) {
       setExtracting(false);
+      setDisplayProgress(0);
       setError("Non sono riuscito a trovare dati aziendali nel timbro. Assicurati che la foto sia nitida e il timbro ben visibile.");
       return;
     }
