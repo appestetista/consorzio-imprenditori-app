@@ -1857,8 +1857,8 @@ VERIFICA:
                                           </div>
                                           
                                           {/* Sezione Privacy/IT */}
-                                          <div className="bg-slate-900/50 rounded-lg p-3 space-y-2">
-                                            <p className="text-blue-400 text-xs font-semibold mb-2">🔐 PRIVACY / IT</p>
+                                          <div className="bg-white/40 rounded-lg p-3 space-y-2 border border-amber-300/30">
+                                            <p className="text-blue-700 text-xs font-semibold mb-2">🔐 PRIVACY / IT</p>
                                             
                                             <label className="flex items-center gap-2 text-white text-sm cursor-pointer">
                                               <input type="checkbox" checked={newBranch.presenza_sistemi_it_cloud} onChange={(e) => setNewBranch({...newBranch, presenza_sistemi_it_cloud: e.target.checked})} className="rounded border-slate-600 bg-slate-800" />
