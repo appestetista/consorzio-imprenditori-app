@@ -1578,8 +1578,8 @@ VERIFICA:
             </div>
 
             {branches.length < 5 && (
-            <div className="border-t border-slate-700 pt-4">
-              <Label className="text-slate-300 mb-2 block">Aggiungi nuovo ramo ({branches.length}/5)</Label>
+            <div className="border-t border-amber-400/40 pt-4">
+              <Label className="text-amber-900 font-semibold mb-2 block">Aggiungi nuovo ramo ({branches.length}/5)</Label>
               
               {/* Due pulsanti affiancati: Foto timbro + Compila manualmente */}
               {!showBranchForm && !showStampScanner && (
