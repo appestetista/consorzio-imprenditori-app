@@ -1898,15 +1898,39 @@ NON inventare informazioni non presenti nel documento.`,
                                                                 </div>
                                                               </div>
                                                             ) : (
-                      <Button
-                        onClick={handleCreateBranch}
-                        disabled={!newBranch.nome.trim() || !newBranch.tipo_attivita.trim() || !newBranch.codice_ateco.trim() || !newBranch.data_attivazione || !newBranch.numero_dipendenti || branches.length >= 5 || (effectiveUser?.piano_abbonamento !== 'impresa_39' && user?.role !== 'admin')}
-                        className="w-full text-white hover:opacity-90"
-                        style={{ background: 'linear-gradient(180deg, #5c3a1e 0%, #3e2310 50%, #2a1808 100%)', boxShadow: '0 4px 0 #1a0f05, inset 0 1px 0 rgba(255,255,255,0.1)' }}
-                      >
-                        <Plus className="w-4 h-4 mr-2" />
-                        Aggiungi Ramo e Genera Adempimenti
-                      </Button>
+                      {(() => {
+                        const campiMancanti = [];
+                        if (!newBranch.nome.trim()) campiMancanti.push('Nome ramo');
+                        if (!newBranch.tipo_attivita.trim()) campiMancanti.push('Tipo attività');
+                        if (!newBranch.codice_ateco.trim()) campiMancanti.push('Codice ATECO');
+                        if (!newBranch.data_attivazione) campiMancanti.push('Anno attivazione');
+                        if (!newBranch.numero_dipendenti) campiMancanti.push('N° dipendenti');
+                        const isDisabled = campiMancanti.length > 0 || branches.length >= 5 || (effectiveUser?.piano_abbonamento !== 'impresa_39' && user?.role !== 'admin');
+                        return (
+                          <>
+                            <Button
+                              onClick={handleCreateBranch}
+                              disabled={isDisabled}
+                              className="w-full text-white hover:opacity-90"
+                              style={{ 
+                                background: isDisabled 
+                                  ? 'linear-gradient(180deg, #374151 0%, #1f2937 100%)' 
+                                  : 'linear-gradient(180deg, #5c3a1e 0%, #3e2310 50%, #2a1808 100%)', 
+                                boxShadow: isDisabled ? 'none' : '0 4px 0 #1a0f05, inset 0 1px 0 rgba(255,255,255,0.1)',
+                                opacity: isDisabled ? 0.6 : 1
+                              }}
+                            >
+                              <Plus className="w-4 h-4 mr-2" />
+                              Aggiungi Ramo e Genera Adempimenti
+                            </Button>
+                            {campiMancanti.length > 0 && (
+                              <p className={`text-xs mt-2 text-center ${isDark ? 'text-red-400' : 'text-red-600'}`}>
+                                ⚠️ Campi obbligatori mancanti: {campiMancanti.join(', ')}
+                              </p>
+                            )}
+                          </>
+                        );
+                      })()}
                     )}
                   </div>
               )}
