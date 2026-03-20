@@ -359,6 +359,8 @@ export default function ComplianceAziendale() {
         try {
           console.log('[ComplianceAziendale] Chiamo ChatGPT per generare adempimenti ATECO:', ateco);
 
+          const livelloRischioINAIL = getLivelloRischioINAIL(ateco);
+          
           const response = await base44.functions.invoke('generateComplianceNorms', {
             codice_ateco: ateco,
             tipo_attivita: tipoAttivita,
@@ -366,6 +368,7 @@ export default function ComplianceAziendale() {
             numero_dipendenti: numeroDipendenti || 0,
             superficie_mq: branchData.superficie_mq || 0,
             data_attivazione: dataAttivazione || new Date().toISOString().split('T')[0],
+            livello_rischio_inail: livelloRischioINAIL,
             rischi
           });
 
