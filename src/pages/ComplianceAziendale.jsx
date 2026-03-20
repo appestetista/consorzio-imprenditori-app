@@ -1631,18 +1631,18 @@ VERIFICA:
 
                 {(!stampDataUsed || !newBranch.data_attivazione) && (
                   <div>
-                    <Label className="text-amber-800 text-xs mb-1 block">Anno di attivazione attività *</Label>
+                    <Label className={`text-xs mb-1 block ${isDark ? 'text-slate-300' : 'text-slate-700'}`}>Anno di attivazione attività *</Label>
                     <Input
                       type="number"
                       value={newBranch.data_attivazione}
                       onChange={(e) => setNewBranch({...newBranch, data_attivazione: e.target.value})}
-                      className="bg-white/80 border-amber-300 text-slate-900 placeholder:text-amber-700/40"
+                      className={isDark ? "bg-slate-800 border-slate-600 text-white placeholder:text-slate-500" : "bg-white/80 border-amber-300 text-slate-900 placeholder:text-slate-500"}
                       placeholder="es: 2020"
                       min="1900"
                       max={new Date().getFullYear()}
                       required
                     />
-                    <p className="text-amber-700/60 text-xs mt-1">Anno in cui è iniziata l'attività</p>
+                    <p className={`text-xs mt-1 ${isDark ? 'text-slate-500' : 'text-slate-600'}`}>Anno in cui è iniziata l'attività</p>
                   </div>
                 )}
 
