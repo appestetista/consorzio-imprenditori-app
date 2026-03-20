@@ -1688,7 +1688,7 @@ VERIFICA:
                       type="number"
                       value={newBranch.numero_dipendenti}
                       onChange={(e) => setNewBranch({...newBranch, numero_dipendenti: e.target.value})}
-                      className="bg-slate-900 border-slate-700 text-white"
+                      className="bg-white/80 border-amber-300 text-slate-900 placeholder:text-amber-700/40"
                       placeholder="N° dipendenti *"
                       min="0"
                     />
