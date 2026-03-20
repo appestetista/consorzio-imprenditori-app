@@ -1468,11 +1468,11 @@ VERIFICA:
             </DialogTitle>
           </DialogHeader>
           
-          <div className="space-y-4 mt-4">
+          <div className="space-y-4 px-5 pb-8">
             <div className="space-y-2">
-              <Label className="text-slate-300">Rami esistenti ({branches.length})</Label>
+              <Label className="text-amber-900 font-semibold">Rami esistenti ({branches.length})</Label>
               {branches.length === 0 ? (
-                <p className="text-slate-500 text-sm py-2">Nessun ramo aziendale configurato. Aggiungine uno qui sotto.</p>
+                <p className="text-amber-700/70 text-sm py-2">Nessun ramo aziendale configurato. Aggiungine uno qui sotto.</p>
               ) : (
                 branches.map(branch => (
                   <Card key={branch.id} className="bg-slate-900 border-slate-700">
