@@ -1900,7 +1900,7 @@ NON inventare informazioni non presenti nel documento.`,
                                                             ) : (
                       <Button
                         onClick={handleCreateBranch}
-                        disabled={!newBranch.nome.trim() || !newBranch.tipo_attivita.trim() || !newBranch.codice_ateco.trim() || !newBranch.data_attivazione || branches.length >= 5 || effectiveUser?.piano_abbonamento !== 'impresa_39'}
+                        disabled={!newBranch.nome.trim() || !newBranch.tipo_attivita.trim() || !newBranch.codice_ateco.trim() || !newBranch.data_attivazione || !newBranch.numero_dipendenti || branches.length >= 5 || (effectiveUser?.piano_abbonamento !== 'impresa_39' && user?.role !== 'admin')}
                         className="w-full text-white hover:opacity-90"
                         style={{ background: 'linear-gradient(180deg, #5c3a1e 0%, #3e2310 50%, #2a1808 100%)', boxShadow: '0 4px 0 #1a0f05, inset 0 1px 0 rgba(255,255,255,0.1)' }}
                       >
