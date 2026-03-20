@@ -210,46 +210,62 @@ Sii MANIACALMENTE preciso e completo. Genera TUTTI gli adempimenti obbligatori p
     console.log('[generateComplianceNorms] Fase 1 completata:', adempimenti.length, 'adempimenti generati');
 
     // ─── FASE 2: Cross-check con ricerca web su fonti ufficiali ───
-    // Verifica i riferimenti normativi cercando su internet
-    const nomiAdempimenti = adempimenti.map(a => `- ${a.nome}: ${a.riferimento_normativo || 'da verificare'}`).join('\n');
+    // Spezza in batch da max 12 per evitare JSON troppo lunghi che crashano il parser
+    const BATCH_SIZE = 12;
+    let verifica = { correzioni: {}, adempimenti_mancanti: [] };
 
-    let verifica = {};
-    try {
-      verifica = await base44.asServiceRole.integrations.Core.InvokeLLM({
-        prompt: `Verifica la CORRETTEZZA dei seguenti adempimenti normativi italiani per un'azienda con codice ATECO ${codice_ateco} (${tipo_attivita || ''}).
+    for (let i = 0; i < adempimenti.length; i += BATCH_SIZE) {
+      const batch = adempimenti.slice(i, i + BATCH_SIZE);
+      const nomiAdempimenti = batch.map(a => `- ${a.nome}: ${a.riferimento_normativo || 'da verificare'}`).join('\n');
+      const batchNum = Math.floor(i / BATCH_SIZE) + 1;
 
-ADEMPIMENTI DA VERIFICARE:
+      try {
+        const batchResult = await base44.asServiceRole.integrations.Core.InvokeLLM({
+          prompt: `Verifica la CORRETTEZZA dei seguenti adempimenti normativi italiani per un'azienda con codice ATECO ${codice_ateco} (${tipo_attivita || ''}).
+
+ADEMPIMENTI DA VERIFICARE (batch ${batchNum}):
 ${nomiAdempimenti}
 
 Per OGNI adempimento, verifica su fonti ufficiali (normattiva.it, INAIL, Ministero Lavoro, Garante Privacy):
 1. Il riferimento normativo è CORRETTO? (articolo, legge, anno)
 2. La sanzione indicata è REALE e AGGIORNATA al ${currentYear}?
 3. L'adempimento è EFFETTIVAMENTE obbligatorio per ATECO ${codice_ateco}?
-4. Manca qualche adempimento FONDAMENTALE che non è stato generato?
+${i === 0 ? '4. Manca qualche adempimento FONDAMENTALE che non è stato generato?' : ''}
 
 Rispondi con un JSON:
 - "correzioni": oggetto dove la chiave è il nome dell'adempimento e il valore è un oggetto con { "corretto": bool, "riferimento_corretto": string, "sanzione_corretta": string, "nota": string }
-- "adempimenti_mancanti": array di nomi di adempimenti fondamentali mancanti`,
-        add_context_from_internet: true,
-        response_json_schema: {
-          type: "object",
-          properties: {
-            correzioni: { 
-              type: "object",
-              description: "Per ogni adempimento, correzioni trovate"
-            },
-            adempimenti_mancanti: { 
-              type: "array", 
-              items: { type: "string" },
-              description: "Adempimenti fondamentali mancanti dalla lista" 
+${i === 0 ? '- "adempimenti_mancanti": array di nomi di adempimenti fondamentali mancanti' : ''}`,
+          add_context_from_internet: true,
+          response_json_schema: {
+            type: "object",
+            properties: {
+              correzioni: { 
+                type: "object",
+                description: "Per ogni adempimento, correzioni trovate"
+              },
+              adempimenti_mancanti: { 
+                type: "array", 
+                items: { type: "string" },
+                description: "Adempimenti fondamentali mancanti dalla lista" 
+              }
             }
           }
+        });
+
+        // Merge risultati
+        if (batchResult.correzioni) {
+          Object.assign(verifica.correzioni, batchResult.correzioni);
         }
-      });
-      console.log('[generateComplianceNorms] Fase 2 verifica completata. Correzioni:', Object.keys(verifica.correzioni || {}).length, '| Mancanti:', (verifica.adempimenti_mancanti || []).length);
-    } catch (e) {
-      console.warn('[generateComplianceNorms] Fase 2 verifica fallita, continuo senza:', e.message);
+        if (batchResult.adempimenti_mancanti) {
+          verifica.adempimenti_mancanti.push(...batchResult.adempimenti_mancanti);
+        }
+        console.log(`[generateComplianceNorms] Fase 2 batch ${batchNum} completato. Correzioni: ${Object.keys(batchResult.correzioni || {}).length}`);
+      } catch (e) {
+        console.warn(`[generateComplianceNorms] Fase 2 batch ${batchNum} fallito, continuo:`, e.message);
+      }
     }
+
+    console.log('[generateComplianceNorms] Fase 2 totale. Correzioni:', Object.keys(verifica.correzioni).length, '| Mancanti:', verifica.adempimenti_mancanti.length);
 
     // Applica correzioni dalla verifica
     if (verifica.correzioni) {
