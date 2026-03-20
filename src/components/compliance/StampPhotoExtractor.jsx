@@ -128,58 +128,65 @@ REGOLE:
 
     setProgressStep(2);
 
-    // Cerca il codice ATECO nel database interno (867+ codici ufficiali ISTAT)
-    // Lo facciamo SEMPRE: sia se manca il codice, sia per VERIFICARE un codice letto dal timbro
-    {
-      // Costruisci la descrizione di ricerca dal timbro
-      const descrizioneRicerca = result.descrizione_ateco || result.ragione_sociale || '';
-      
-      const atecoLookup = await base44.functions.invoke('lookupAteco', {
-        descrizione_attivita: descrizioneRicerca,
-        ragione_sociale: result.ragione_sociale || '',
-        partita_iva: result.partita_iva || ''
-      });
+    // STEP 2: Cerca l'attività prevalente ufficiale tramite P.IVA su fonti Camera di Commercio
+    let attivitaPrevalente = '';
+    if (result.partita_iva) {
+      const cciaResult = await base44.integrations.Core.InvokeLLM({
+        prompt: `Cerca l'azienda italiana con Partita IVA: ${result.partita_iva}${result.ragione_sociale ? ', ragione sociale: ' + result.ragione_sociale : ''}${result.citta ? ', città: ' + result.citta : ''}.
 
-      const atecoResult = atecoLookup.data;
-      if (atecoResult.codice_ateco) {
-        result.codice_ateco = atecoResult.codice_ateco;
-        result.descrizione_ateco = atecoResult.descrizione_ateco || '';
-      }
-    }
+Cerca su registroimprese.it, openapi.it, infoimprese.it, atoka.io, o altre fonti ufficiali italiane della Camera di Commercio (CCIAA).
 
-    setProgressStep(3);
+DEVO SAPERE:
+1. ATTIVITÀ PREVALENTE registrata in Camera di Commercio (descrizione testuale dell'attività, es: "Lavori di costruzione di edifici residenziali", "Ristorazione con somministrazione", "Commercio al dettaglio di abbigliamento")
+2. Anno di inizio attività (anno iscrizione CCIAA o apertura P.IVA)
+3. Tipologia macro tra: "ufficio", "negozio_retail", "ristorante_bar", "magazzino_logistica", "produzione_industriale", "cantiere_edile", "laboratorio_artigianale", "studio_professionale", "struttura_sanitaria", "struttura_ricettiva", "agricoltura", "trasporti"
 
-    // Cerca online dati aggiuntivi: anno attivazione, tipologia attività
-    if (result.partita_iva || result.ragione_sociale) {
-      const extraResult = await base44.integrations.Core.InvokeLLM({
-        prompt: `Cerca informazioni sull'azienda italiana${result.partita_iva ? ' con P.IVA ' + result.partita_iva : ''}${result.ragione_sociale ? ', ragione sociale: ' + result.ragione_sociale : ''}${result.citta ? ', città: ' + result.citta : ''}.
-
-Cerca su registroimprese.it, openapi.it, infoimprese.it, o altre fonti ufficiali italiane.
-
-Devo sapere:
-1. Anno di inizio attività (anno iscrizione alla CCIAA o data apertura P.IVA)
-2. Tipologia macro dell'attività tra queste categorie ESATTE: "ufficio", "negozio_retail", "ristorante_bar", "magazzino_logistica", "produzione_industriale", "cantiere_edile", "laboratorio_artigianale", "studio_professionale", "struttura_sanitaria", "struttura_ricettiva", "agricoltura", "trasporti"
-
-REGOLE:
+REGOLE FONDAMENTALI:
+- L'attività prevalente è il dato PIÙ IMPORTANTE: cercala con attenzione nelle fonti ufficiali
 - Restituisci SOLO dati trovati con certezza da fonti ufficiali
 - Se NON trovi un dato, restituisci stringa vuota ""
-- NON inventare dati`,
+- NON inventare dati, NON dedurre dall'nome dell'azienda`,
         add_context_from_internet: true,
         response_json_schema: {
           type: "object",
           properties: {
+            attivita_prevalente: { type: "string", description: "Descrizione testuale dell'attività prevalente dalla CCIAA (es: 'Lavori di costruzione di edifici residenziali'). Vuoto se non trovata." },
             anno_attivazione: { type: "string", description: "Anno di inizio attività (es: 2015). Vuoto se non trovato." },
-            tipo_attivita_categoria: { type: "string", description: "Categoria macro tra: ufficio, negozio_retail, ristorante_bar, magazzino_logistica, produzione_industriale, cantiere_edile, laboratorio_artigianale, studio_professionale, struttura_sanitaria, struttura_ricettiva, agricoltura, trasporti. Vuoto se non determinabile." },
-            fonte: { type: "string", description: "Fonte dei dati" }
+            tipo_attivita_categoria: { type: "string", description: "Categoria macro. Vuoto se non determinabile." },
+            fonte: { type: "string", description: "Fonte da cui è stato trovato il dato" }
           }
         }
       });
 
-      if (extraResult.anno_attivazione) {
-        result.anno_attivazione = extraResult.anno_attivazione;
+      attivitaPrevalente = cciaResult.attivita_prevalente || '';
+      if (cciaResult.anno_attivazione) {
+        result.anno_attivazione = cciaResult.anno_attivazione;
       }
-      if (extraResult.tipo_attivita_categoria) {
-        result.tipo_attivita_categoria = extraResult.tipo_attivita_categoria;
+      if (cciaResult.tipo_attivita_categoria) {
+        result.tipo_attivita_categoria = cciaResult.tipo_attivita_categoria;
+      }
+      console.log('[StampExtractor] Attività prevalente CCIAA:', attivitaPrevalente);
+    }
+
+    setProgressStep(3);
+
+    // STEP 3: Usa l'attività prevalente per cercare il codice ATECO nel database interno
+    {
+      // Priorità: attività prevalente da CCIAA > descrizione dal timbro > ragione sociale
+      const descrizioneRicerca = attivitaPrevalente || result.descrizione_ateco || result.ragione_sociale || '';
+      
+      if (descrizioneRicerca) {
+        const atecoLookup = await base44.functions.invoke('lookupAteco', {
+          descrizione_attivita: descrizioneRicerca,
+          ragione_sociale: result.ragione_sociale || '',
+          partita_iva: result.partita_iva || ''
+        });
+
+        const atecoResult = atecoLookup.data;
+        if (atecoResult.codice_ateco) {
+          result.codice_ateco = atecoResult.codice_ateco;
+          result.descrizione_ateco = atecoResult.descrizione_ateco || '';
+        }
       }
     }
 
