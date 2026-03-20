@@ -1,5 +1,6 @@
 import React, { useState, useEffect, useRef } from 'react';
 import { base44 } from '@/api/base44Client';
+import { getCategoriaDaATECO } from './autoRischi';
 import { Camera, Upload, Loader2, CheckCircle, AlertTriangle, X } from 'lucide-react';
 import { Button } from '@/components/ui/button';
 import { Card, CardContent } from '@/components/ui/card';
@@ -188,6 +189,11 @@ REGOLE FONDAMENTALI:
           result.descrizione_ateco = atecoResult.descrizione_ateco || '';
         }
       }
+    }
+
+    // Deriva tipo_attivita_categoria dal codice ATECO (non dalla LLM, che può sbagliare)
+    if (result.codice_ateco) {
+      result.tipo_attivita_categoria = getCategoriaDaATECO(result.codice_ateco);
     }
 
     setProgressStep(4);
