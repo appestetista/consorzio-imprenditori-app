@@ -19,6 +19,12 @@ export default function StampPhotoExtractor({ onDataExtracted, onClose }) {
     }
   }, []);
 
+  const handlePhoto = async (e) => {
+    const file = e.target.files?.[0];
+    if (!file) return;
+    processFile(file);
+  };
+
   const processFile = async (file) => {
     if (!file) return;
 
