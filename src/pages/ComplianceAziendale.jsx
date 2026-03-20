@@ -22,7 +22,7 @@ import ConsultantBubble from '../components/compliance/ConsultantBubble';
 import GlobalTopIcons from '../components/layout/GlobalTopIcons';
 import TipoAttivitaSelector from '../components/compliance/TipoAttivitaSelector';
 import StampPhotoExtractor from '../components/compliance/StampPhotoExtractor';
-import { calcolaRischiAutomatici } from '../components/compliance/autoRischi';
+import { calcolaRischiAutomatici, getLivelloRischioINAIL } from '../components/compliance/autoRischi';
 import { useTheme } from '../components/context/ThemeContext';
 
 const CATEGORIE = [
@@ -1690,15 +1690,39 @@ VERIFICA:
                                         <div className="space-y-4 pt-2">
                                           <Label className={`text-sm font-medium ${isDark ? 'text-slate-200' : 'text-slate-800'}`}>RISCHI PRESENTI (dichiara solo quelli effettivi)</Label>
                                           
-                                          {rischiAutoApplied && (
-                                            <div className={`rounded-lg p-3 border flex items-start gap-2 ${isDark ? 'bg-amber-500/10 border-amber-500/30' : 'bg-amber-50 border-amber-300'}`}>
-                                              <Sparkles className={`w-4 h-4 mt-0.5 flex-shrink-0 ${isDark ? 'text-amber-400' : 'text-amber-600'}`} />
-                                              <div>
-                                                <p className={`text-xs font-semibold ${isDark ? 'text-amber-400' : 'text-amber-700'}`}>Rischi pre-compilati in base al settore ATECO</p>
-                                                <p className={`text-[10px] mt-0.5 ${isDark ? 'text-slate-400' : 'text-slate-600'}`}>Verifica e correggi le spunte se necessario — puoi aggiungere o rimuovere rischi.</p>
+                                          {rischiAutoApplied && (() => {
+                                            const livello = getLivelloRischioINAIL(newBranch.codice_ateco);
+                                            const livelloLabel = { basso: 'BASSO', medio: 'MEDIO', alto: 'ALTO' }[livello];
+                                            const livelloColor = { basso: isDark ? 'text-green-400' : 'text-green-700', medio: isDark ? 'text-amber-400' : 'text-amber-700', alto: isDark ? 'text-red-400' : 'text-red-700' }[livello];
+                                            const livelloBg = { basso: isDark ? 'bg-green-500/20 border-green-500/40' : 'bg-green-50 border-green-400', medio: isDark ? 'bg-amber-500/20 border-amber-500/40' : 'bg-amber-50 border-amber-400', alto: isDark ? 'bg-red-500/20 border-red-500/40' : 'bg-red-50 border-red-400' }[livello];
+                                            return (
+                                              <div className="space-y-2">
+                                                {/* Badge livello rischio INAIL */}
+                                                <div className={`rounded-lg p-3 border ${livelloBg}`}>
+                                                  <div className="flex items-center justify-between">
+                                                    <div>
+                                                      <p className={`text-[10px] font-medium ${isDark ? 'text-slate-400' : 'text-slate-500'}`}>Classificazione INAIL (Accordo Stato-Regioni)</p>
+                                                      <p className={`text-sm font-bold ${livelloColor}`}>Rischio {livelloLabel}</p>
+                                                    </div>
+                                                    <div className={`w-10 h-10 rounded-full flex items-center justify-center font-bold text-xs border-2 ${livelloBg} ${livelloColor}`}>
+                                                      {livelloLabel[0]}
+                                                    </div>
+                                                  </div>
+                                                  <p className={`text-[10px] mt-1 ${isDark ? 'text-slate-500' : 'text-slate-500'}`}>
+                                                    Fonte: All. II Accordo Stato-Regioni 21/12/2011 • Rischi: D.Lgs. 81/08 + profili INAIL/INAPP
+                                                  </p>
+                                                </div>
+                                                {/* Banner rischi auto-compilati */}
+                                                <div className={`rounded-lg p-3 border flex items-start gap-2 ${isDark ? 'bg-amber-500/10 border-amber-500/30' : 'bg-amber-50 border-amber-300'}`}>
+                                                  <Sparkles className={`w-4 h-4 mt-0.5 flex-shrink-0 ${isDark ? 'text-amber-400' : 'text-amber-600'}`} />
+                                                  <div>
+                                                    <p className={`text-xs font-semibold ${isDark ? 'text-amber-400' : 'text-amber-700'}`}>Rischi pre-compilati in base al settore ATECO</p>
+                                                    <p className={`text-[10px] mt-0.5 ${isDark ? 'text-slate-400' : 'text-slate-600'}`}>Classificazione da fonti ufficiali INAIL/INAPP/D.Lgs. 81/08. Verifica e correggi se necessario.</p>
+                                                  </div>
+                                                </div>
                                               </div>
-                                            </div>
-                                          )}
+                                            );
+                                          })()}
                                           
                                           {/* Sezione Base */}
                                           <div className={`rounded-lg p-3 space-y-2 border ${isDark ? 'bg-slate-800/60 border-slate-700' : 'bg-white/40 border-amber-300/30'}`}>
