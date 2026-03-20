@@ -251,6 +251,59 @@ const RISCHI_SETTORE = {
 
 
 /**
+ * Mappa divisione ATECO → tipo_attivita_categoria
+ * Basato su classificazione ISTAT sezioni ATECO 2007
+ */
+export function getCategoriaDaATECO(codice_ateco) {
+  const divisione = (codice_ateco || '').split('.')[0] || '';
+  const divNum = parseInt(divisione) || 0;
+
+  // Sezione A — Agricoltura
+  if (divNum >= 1 && divNum <= 3) return 'agricoltura';
+  // Sezione B — Estrazione
+  if (divNum >= 5 && divNum <= 9) return 'produzione_industriale';
+  // Sezione C — Manifattura
+  if (divNum >= 10 && divNum <= 33) return 'produzione_industriale';
+  // Sezione D — Energia
+  if (divNum === 35) return 'produzione_industriale';
+  // Sezione E — Acqua/Rifiuti
+  if (divNum >= 36 && divNum <= 39) return 'produzione_industriale';
+  // Sezione F — Costruzioni
+  if (divNum >= 41 && divNum <= 43) return 'cantiere_edile';
+  // Sezione G — Commercio
+  if (divNum >= 45 && divNum <= 47) return 'negozio_retail';
+  // Sezione H — Trasporto e magazzinaggio
+  if (divNum >= 49 && divNum <= 53) return 'magazzino_logistica';
+  // Sezione I — Alloggio
+  if (divNum === 55) return 'struttura_ricettiva';
+  // Sezione I — Ristorazione
+  if (divNum === 56) return 'ristorante_bar';
+  // Sezione J — IT e Comunicazione
+  if (divNum >= 58 && divNum <= 63) return 'ufficio';
+  // Sezione K — Finanza
+  if (divNum >= 64 && divNum <= 66) return 'ufficio';
+  // Sezione L — Attività immobiliari
+  if (divNum === 68) return 'ufficio';
+  // Sezione M — Attività professionali
+  if (divNum >= 69 && divNum <= 75) return 'studio_professionale';
+  // Sezione N — Noleggio e servizi
+  if (divNum >= 77 && divNum <= 82) return 'ufficio';
+  // Sezione O — PA
+  if (divNum === 84) return 'ufficio';
+  // Sezione P — Istruzione
+  if (divNum === 85) return 'ufficio';
+  // Sezione Q — Sanità
+  if (divNum >= 86 && divNum <= 88) return 'struttura_sanitaria';
+  // Sezione R — Arte/Sport
+  if (divNum >= 90 && divNum <= 93) return 'ufficio';
+  // Sezione S — Servizi persona (parrucchieri, estetica, lavanderie)
+  if (divNum === 96) return 'laboratorio_artigianale';
+  if (divNum >= 94 && divNum <= 96) return 'ufficio';
+
+  return 'ufficio'; // default sicuro
+}
+
+/**
  * Calcola automaticamente i rischi da pre-selezionare.
  * 
  * Combina:
