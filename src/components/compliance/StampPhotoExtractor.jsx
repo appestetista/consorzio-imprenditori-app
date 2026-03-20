@@ -124,6 +124,8 @@ REGOLE:
       return;
     }
 
+    setProgressStep(2);
+
     // Se abbiamo la P.IVA ma non il codice ATECO, lo cerchiamo online
     if (result.partita_iva && !result.codice_ateco) {
       const atecoResult = await base44.integrations.Core.InvokeLLM({
