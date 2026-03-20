@@ -556,28 +556,43 @@ NON inventare informazioni non presenti nel documento.`,
       });
 
       // CONFRONTO RISULTATI - usa il più conservativo
+      const allCriticita = [...new Set([
+        ...(firstAnalysis.criticita || []), 
+        ...(secondAnalysis.criticita || []),
+        ...(firstAnalysis.anomalie_rilevate || []),
+        ...(firstAnalysis.sezioni_mancanti || []).map(s => `Sezione mancante: ${s}`),
+        ...(secondAnalysis.requisiti_mancanti || []).map(r => `Requisito mancante: ${r}`),
+      ])];
+
+      // Se la normativa è stata aggiornata dopo il documento, aggiungi nota
+      if (secondAnalysis.normativa_aggiornata && secondAnalysis.nota_aggiornamento) {
+        allCriticita.push(`⚠️ Normativa aggiornata: ${secondAnalysis.nota_aggiornamento}`);
+      }
+
       const analysisResult = {
         documento_pertinente: firstAnalysis.documento_pertinente && secondAnalysis.documento_pertinente,
         motivo_non_pertinente: firstAnalysis.motivo_non_pertinente || '',
         documento_appartiene_azienda: firstAnalysis.documento_appartiene_azienda && secondAnalysis.documento_appartiene_azienda,
         motivo_azienda_diversa: firstAnalysis.motivo_azienda_diversa || '',
         dati_azienda_trovati: firstAnalysis.dati_azienda_trovati || '',
-        // Stato: prendi il più conservativo (non_conforme > da_migliorare > conforme)
         stato_conformita: (() => {
           const stati = [firstAnalysis.stato_conformita, secondAnalysis.stato_conformita];
           if (stati.includes('non_conforme')) return 'non_conforme';
           if (stati.includes('da_migliorare')) return 'da_migliorare';
+          // Se ci sono criticità significative, downgrade a da_migliorare
+          if (allCriticita.length > 2) return 'da_migliorare';
           return 'conforme';
         })(),
         data_scadenza: firstAnalysis.data_scadenza || secondAnalysis.data_scadenza || null,
-        criticita: [...new Set([...(firstAnalysis.criticita || []), ...(secondAnalysis.criticita || [])])],
+        criticita: allCriticita,
         note_analisi: firstAnalysis.note_analisi || ''
       };
 
       console.log('[ComplianceAziendale] Doppia verifica completata:', {
         prima: firstAnalysis.stato_conformita,
         seconda: secondAnalysis.stato_conformita,
-        finale: analysisResult.stato_conformita
+        finale: analysisResult.stato_conformita,
+        criticita: allCriticita.length
       });
 
       if (!analysisResult.documento_pertinente) {
