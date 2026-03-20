@@ -1606,7 +1606,7 @@ VERIFICA:
                           placeholder="Codice ATECO *"
                           required
                         />
-                        <p className="text-amber-700/60 text-[10px] mt-0.5">Es: 56.10, 43.21, 25.11</p>
+                        <p className={`text-[10px] mt-0.5 ${isDark ? 'text-slate-500' : 'text-slate-600'}`}>Es: 56.10, 43.21, 25.11</p>
                       </div>
                     )}
                     <Input
