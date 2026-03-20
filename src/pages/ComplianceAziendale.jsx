@@ -1535,21 +1535,21 @@ VERIFICA:
                       ) : (
                         <div className="flex items-center justify-between">
                           <div>
-                            <p className="text-white font-medium">{branch.nome}</p>
-                            <p className="text-slate-400 text-sm">{branch.tipo_attivita}</p>
+                            <p className="text-slate-900 font-medium">{branch.nome}</p>
+                            <p className="text-amber-800 text-sm">{branch.tipo_attivita}</p>
                             <div className="flex flex-wrap gap-2 mt-1">
                               {branch.codice_ateco && (
-                                <span className="text-slate-500 text-xs bg-slate-800 px-2 py-0.5 rounded">ATECO: {branch.codice_ateco}</span>
+                                <span className="text-amber-900 text-xs bg-amber-200/60 px-2 py-0.5 rounded">ATECO: {branch.codice_ateco}</span>
                               )}
                               {branch.numero_dipendenti && (
-                                <span className="text-slate-500 text-xs bg-slate-800 px-2 py-0.5 rounded">{branch.numero_dipendenti} dip.</span>
+                                <span className="text-amber-900 text-xs bg-amber-200/60 px-2 py-0.5 rounded">{branch.numero_dipendenti} dip.</span>
                               )}
                               {branch.data_attivazione && (
-                                <span className="text-slate-500 text-xs bg-slate-800 px-2 py-0.5 rounded">Dal: {new Date(branch.data_attivazione).toLocaleDateString('it-IT')}</span>
+                                <span className="text-amber-900 text-xs bg-amber-200/60 px-2 py-0.5 rounded">Dal: {new Date(branch.data_attivazione).toLocaleDateString('it-IT')}</span>
                               )}
                             </div>
                             {branch.indirizzo && (
-                              <p className="text-slate-500 text-xs mt-1">{branch.indirizzo}</p>
+                              <p className="text-amber-700 text-xs mt-1">{branch.indirizzo}</p>
                             )}
                           </div>
                           <div className="flex gap-1">
