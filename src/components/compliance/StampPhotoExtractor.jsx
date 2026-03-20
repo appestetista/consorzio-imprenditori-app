@@ -233,10 +233,10 @@ REGOLE:
               <Button
                 size="sm"
                 variant="outline"
-                onClick={() => { setError(null); setPreview(null); }}
+                onClick={() => { if (onClose) onClose(); }}
                 className="mt-2 border-red-500/50 text-red-400 hover:bg-red-500/20 text-xs"
               >
-                Riprova
+                Torna indietro
               </Button>
             </div>
           </div>
