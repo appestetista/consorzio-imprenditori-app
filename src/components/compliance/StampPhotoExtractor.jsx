@@ -68,8 +68,11 @@ export default function StampPhotoExtractor({ onDataExtracted, onClose }) {
     setExtracting(true);
     setError(null);
     setExtractedData(null);
+    setProgressStep(0);
+    setDisplayProgress(0);
 
     const { file_url } = await base44.integrations.Core.UploadFile({ file });
+    setProgressStep(1);
 
     const result = await base44.integrations.Core.InvokeLLM({
       prompt: `Analizza questa foto di un timbro aziendale italiano. Estrai SOLO i dati che riesci EFFETTIVAMENTE a leggere dal timbro. Non inventare nulla.
