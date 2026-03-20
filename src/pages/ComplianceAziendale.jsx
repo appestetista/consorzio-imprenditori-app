@@ -1580,7 +1580,7 @@ VERIFICA:
                   <Input
                     value={newBranch.nome}
                     onChange={(e) => setNewBranch({...newBranch, nome: e.target.value})}
-                    className={isDark ? "bg-slate-800 border-slate-600 text-white placeholder:text-slate-500" : "bg-white/80 border-amber-300 text-slate-900 placeholder:text-slate-500"}
+                    className={isDark ? "bg-slate-700 border-slate-600 text-slate-100 placeholder:text-slate-400" : "bg-white border-amber-300 text-slate-900 placeholder:text-slate-400"}
                     placeholder="Nome ramo (es: Sede Principale, Magazzino, Filiale Roma)"
                   />
                 )}
@@ -1589,7 +1589,7 @@ VERIFICA:
                   <Textarea
                     value={newBranch.tipo_attivita}
                     onChange={(e) => setNewBranch({...newBranch, tipo_attivita: e.target.value})}
-                    className={isDark ? "bg-slate-800 border-slate-600 text-white placeholder:text-slate-500" : "bg-white/80 border-amber-300 text-slate-900 placeholder:text-slate-500"}
+                    className={isDark ? "bg-slate-700 border-slate-600 text-slate-100 placeholder:text-slate-400" : "bg-white border-amber-300 text-slate-900 placeholder:text-slate-400"}
                     placeholder="Tipo di attività (es: Ristorante, Officina meccanica, Ufficio amministrativo)"
                     rows={2}
                   />
@@ -1602,7 +1602,7 @@ VERIFICA:
                         <Input
                           value={newBranch.codice_ateco}
                           onChange={(e) => setNewBranch({...newBranch, codice_ateco: e.target.value})}
-                          className={isDark ? "bg-slate-800 border-slate-600 text-white placeholder:text-slate-500" : "bg-white/80 border-amber-300 text-slate-900 placeholder:text-slate-500"}
+                          className={isDark ? "bg-slate-700 border-slate-600 text-slate-100 placeholder:text-slate-400" : "bg-white border-amber-300 text-slate-900 placeholder:text-slate-400"}
                           placeholder="Codice ATECO *"
                           required
                         />
@@ -1613,7 +1613,7 @@ VERIFICA:
                       type="number"
                       value={newBranch.numero_dipendenti}
                       onChange={(e) => setNewBranch({...newBranch, numero_dipendenti: e.target.value})}
-                      className={isDark ? "bg-slate-800 border-slate-600 text-white placeholder:text-slate-500" : "bg-white/80 border-amber-300 text-slate-900 placeholder:text-slate-500"}
+                      className={isDark ? "bg-slate-700 border-slate-600 text-slate-100 placeholder:text-slate-400" : "bg-white border-amber-300 text-slate-900 placeholder:text-slate-400"}
                       placeholder="N° dipendenti *"
                       min="0"
                     />
@@ -1624,7 +1624,7 @@ VERIFICA:
                   <Input
                     value={newBranch.indirizzo}
                     onChange={(e) => setNewBranch({...newBranch, indirizzo: e.target.value})}
-                    className={isDark ? "bg-slate-800 border-slate-600 text-white placeholder:text-slate-500" : "bg-white/80 border-amber-300 text-slate-900 placeholder:text-slate-500"}
+                    className={isDark ? "bg-slate-700 border-slate-600 text-slate-100 placeholder:text-slate-400" : "bg-white border-amber-300 text-slate-900 placeholder:text-slate-400"}
                     placeholder="Indirizzo (opzionale)"
                   />
                 )}
@@ -1636,7 +1636,7 @@ VERIFICA:
                       type="number"
                       value={newBranch.data_attivazione}
                       onChange={(e) => setNewBranch({...newBranch, data_attivazione: e.target.value})}
-                      className={isDark ? "bg-slate-800 border-slate-600 text-white placeholder:text-slate-500" : "bg-white/80 border-amber-300 text-slate-900 placeholder:text-slate-500"}
+                      className={isDark ? "bg-slate-700 border-slate-600 text-slate-100 placeholder:text-slate-400" : "bg-white border-amber-300 text-slate-900 placeholder:text-slate-400"}
                       placeholder="es: 2020"
                       min="1900"
                       max={new Date().getFullYear()}
@@ -1666,7 +1666,7 @@ VERIFICA:
                     type="number"
                     value={newBranch.superficie_mq}
                     onChange={(e) => setNewBranch({...newBranch, superficie_mq: e.target.value})}
-                    className={isDark ? "bg-slate-800 border-slate-600 text-white placeholder:text-slate-500" : "bg-white/80 border-amber-300 text-slate-900 placeholder:text-slate-500"}
+                    className={isDark ? "bg-slate-700 border-slate-600 text-slate-100 placeholder:text-slate-400" : "bg-white border-amber-300 text-slate-900 placeholder:text-slate-400"}
                     placeholder="es: 500"
                     min="0"
                   />
