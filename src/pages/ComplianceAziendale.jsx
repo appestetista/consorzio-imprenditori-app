@@ -22,6 +22,7 @@ import ConsultantBubble from '../components/compliance/ConsultantBubble';
 import GlobalTopIcons from '../components/layout/GlobalTopIcons';
 import TipoAttivitaSelector from '../components/compliance/TipoAttivitaSelector';
 import StampPhotoExtractor from '../components/compliance/StampPhotoExtractor';
+import { calcolaRischiAutomatici } from '../components/compliance/autoRischi';
 import { useTheme } from '../components/context/ThemeContext';
 
 const CATEGORIE = [
@@ -107,9 +108,23 @@ export default function ComplianceAziendale() {
     presenza_sistemi_it_cloud: false,
     trattamento_dati_sensibili: false
   });
+  const [rischiAutoApplied, setRischiAutoApplied] = useState(false);
   const { impersonation, appMode } = useImpersonation();
   const { isDark } = useTheme();
   const queryClient = useQueryClient();
+
+  // Auto-fill rischi quando codice ATECO + numero dipendenti sono disponibili
+  useEffect(() => {
+    if (newBranch.codice_ateco && newBranch.numero_dipendenti && !rischiAutoApplied) {
+      const rischiAuto = calcolaRischiAutomatici({
+        codice_ateco: newBranch.codice_ateco,
+        tipo_attivita_categoria: newBranch.tipo_attivita_categoria,
+        numero_dipendenti: newBranch.numero_dipendenti,
+      });
+      setNewBranch(prev => ({ ...prev, ...rischiAuto }));
+      setRischiAutoApplied(true);
+    }
+  }, [newBranch.codice_ateco, newBranch.numero_dipendenti, newBranch.tipo_attivita_categoria, rischiAutoApplied]);
 
   useEffect(() => {
     window.scrollTo(0, 0);
