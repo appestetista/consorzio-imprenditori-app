@@ -451,39 +451,48 @@ DATI AZIENDA REGISTRATA:
       const currentYear = new Date().getFullYear();
       const todayDate = new Date().toISOString().split('T')[0];
       
-      // PRIMA ANALISI
+      // PRIMA ANALISI — Lettura documento + verifica contenuto
       const firstAnalysis = await base44.integrations.Core.InvokeLLM({
-        prompt: `Sei un esperto di compliance aziendale italiana. Analizza questo documento e verifica LA CONFORMITÀ SECONDO LA NORMATIVA VIGENTE AGGIORNATA AL ${currentYear}.
+        prompt: `Sei un ispettore di compliance aziendale italiana. Analizza questo documento con la massima scrupolosità.
 
 ADEMPIMENTO RICHIESTO: "${norm.nome}"
 DESCRIZIONE: "${norm.descrizione || 'Non specificata'}"
 CATEGORIA: "${norm.categoria}"
+RIFERIMENTO NORMATIVO: "${norm.riferimento_normativo || 'non disponibile'}"
+ENTE DI CONTROLLO: "${norm.ente_controllo || 'non specificato'}"
 
 ${aziendaInfo}
 
 DATA DI OGGI: ${todayDate}
 
-REGOLE FONDAMENTALI:
+REGOLE ASSOLUTE:
 - NON INVENTARE MAI informazioni non presenti nel documento
-- Se non riesci a leggere o estrarre un dato, indica "non rilevabile" 
-- Basa le tue conclusioni SOLO su ciò che è effettivamente scritto nel documento
+- Se non riesci a leggere un dato, indica "non rilevabile"
+- Basa le conclusioni SOLO su ciò che è scritto nel documento
 
-CONTROLLI DA EFFETTUARE:
+CONTROLLI OBBLIGATORI:
 
-1. PERTINENZA: Il documento è pertinente a questo adempimento? (es: se serve un DVR e l'utente carica una fattura, NON è pertinente)
+1. PERTINENZA: Il documento è pertinente a questo adempimento specifico?
+   - Se serve un DVR e l'utente carica una fattura → NON pertinente
+   - Se serve formazione e l'utente carica un attestato di formazione diversa → NON pertinente
 
-2. COERENZA AZIENDA: I dati aziendali nel documento corrispondono a quelli dell'azienda registrata?
+2. COERENZA AZIENDA: I dati aziendali nel documento corrispondono?
+   - Verifica P.IVA, ragione sociale, codice fiscale se presenti
 
-3. CONFORMITÀ: Il documento rispetta i requisiti normativi vigenti al ${currentYear}?
+3. CONFORMITÀ NORMATIVA: Verifica che il documento rispetti i requisiti della normativa ${norm.riferimento_normativo || 'vigente'}:
+   - Contiene tutte le sezioni/informazioni obbligatorie per legge?
+   - Le firme necessarie sono presenti?
+   - Il formato è conforme ai requisiti normativi?
    - Se ha data scadenza PASSATA rispetto a ${todayDate} → "non_conforme"
-   - Se valido e non scaduto → "conforme"
-   - Se mancanze minori → "da_migliorare"
 
-4. SCADENZA: Estrai la data di scadenza se presente (YYYY-MM-DD)
+4. ANOMALIE: Cerca qualsiasi anomalia, incongruenza o dato sospetto:
+   - Date incoerenti tra loro
+   - Dati che non tornano
+   - Sezioni mancanti rispetto a quanto richiesto dalla normativa
+   - Firme o timbri mancanti
 
-5. CRITICITÀ: Elenca eventuali problemi riscontrati`,
+5. SCADENZA: Estrai la data di scadenza se presente (YYYY-MM-DD)`,
         file_urls: [file_url],
-        add_context_from_internet: true,
         response_json_schema: {
           type: "object",
           properties: {
@@ -495,33 +504,40 @@ CONTROLLI DA EFFETTUARE:
             stato_conformita: { type: "string", enum: ["conforme", "da_migliorare", "non_conforme"] },
             data_scadenza: { type: "string" },
             criticita: { type: "array", items: { type: "string" } },
+            anomalie_rilevate: { type: "array", items: { type: "string" } },
+            sezioni_mancanti: { type: "array", items: { type: "string" } },
             note_analisi: { type: "string" }
           }
         }
       });
 
-      // SECONDA ANALISI (VERIFICA)
+      // SECONDA ANALISI — Verifica incrociata con fonti ufficiali e siti specializzati
       const secondAnalysis = await base44.integrations.Core.InvokeLLM({
-        prompt: `Sei un revisore di compliance aziendale italiana. VERIFICA INDIPENDENTEMENTE questo documento.
+        prompt: `Sei un revisore legale specializzato in normativa italiana. Effettua una VERIFICA INCROCIATA di questo documento con le fonti ufficiali.
 
-ADEMPIMENTO RICHIESTO: "${norm.nome}"
+ADEMPIMENTO: "${norm.nome}"
 CATEGORIA: "${norm.categoria}"
+RIFERIMENTO NORMATIVO: "${norm.riferimento_normativo || 'da verificare'}"
 
 ${aziendaInfo}
 
 DATA DI OGGI: ${todayDate}
 
-ISTRUZIONI CRITICHE:
-- Questa è una SECONDA VERIFICA indipendente
-- NON INVENTARE informazioni non presenti nel documento
-- Se un dato non è leggibile/presente, scrivi "non rilevabile"
-- Sii CONSERVATIVO: nel dubbio, indica "da_migliorare" invece di "conforme"
+VERIFICA SU FONTI UFFICIALI:
+Cerca su normattiva.it, INAIL, Ministero del Lavoro, Garante Privacy, e siti specializzati per verificare:
 
-VERIFICA:
-1. Il documento è pertinente all'adempimento "${norm.nome}"?
-2. I dati aziendali corrispondono?
-3. Il documento è conforme alla normativa ${currentYear}?
-4. C'è una data di scadenza? Se sì, è passata rispetto a ${todayDate}?`,
+1. REQUISITI NORMATIVI: Quali sono i requisiti ESATTI che questo tipo di documento deve soddisfare secondo ${norm.riferimento_normativo || 'la normativa vigente'}? Il documento li rispetta TUTTI?
+
+2. AGGIORNAMENTI NORMATIVI: La normativa di riferimento è stata aggiornata dopo la data del documento? Se sì, il documento potrebbe essere obsoleto.
+
+3. CONFORMITÀ FORMALE: Il documento ha il formato, le firme, i timbri, le sezioni obbligatorie richieste dalla normativa?
+
+4. SCADENZE: Il documento o le certificazioni al suo interno sono scadute?
+
+5. COMPLETEZZA: Manca qualcosa di obbligatorio secondo la normativa?
+
+Sii CONSERVATIVO: nel dubbio, indica "da_migliorare" invece di "conforme".
+NON inventare informazioni non presenti nel documento.`,
         file_urls: [file_url],
         add_context_from_internet: true,
         response_json_schema: {
@@ -531,7 +547,10 @@ VERIFICA:
             documento_appartiene_azienda: { type: "boolean" },
             stato_conformita: { type: "string", enum: ["conforme", "da_migliorare", "non_conforme"] },
             data_scadenza: { type: "string" },
-            criticita: { type: "array", items: { type: "string" } }
+            criticita: { type: "array", items: { type: "string" } },
+            requisiti_mancanti: { type: "array", items: { type: "string" } },
+            normativa_aggiornata: { type: "boolean", description: "true se la normativa è stata aggiornata dopo il documento" },
+            nota_aggiornamento: { type: "string" }
           }
         }
       });
