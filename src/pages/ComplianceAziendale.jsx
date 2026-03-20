@@ -1904,11 +1904,11 @@ VERIFICA:
             )}
 
               {branches.length >= 5 && (
-                <div className="border-t border-slate-700 pt-4">
-                  <div className="bg-amber-500/20 border border-amber-500/30 rounded-lg p-4 text-center">
-                    <AlertTriangle className="w-8 h-8 text-amber-400 mx-auto mb-2" />
-                    <p className="text-amber-400 font-medium">Limite massimo raggiunto</p>
-                    <p className="text-slate-400 text-sm mt-1">Puoi gestire al massimo 5 rami aziendali. Elimina un ramo esistente per aggiungerne uno nuovo.</p>
+                <div className="border-t border-amber-400/40 pt-4">
+                  <div className="bg-white/40 border border-amber-400/40 rounded-lg p-4 text-center">
+                    <AlertTriangle className="w-8 h-8 text-amber-700 mx-auto mb-2" />
+                    <p className="text-amber-900 font-medium">Limite massimo raggiunto</p>
+                    <p className="text-amber-800/70 text-sm mt-1">Puoi gestire al massimo 5 rami aziendali. Elimina un ramo esistente per aggiungerne uno nuovo.</p>
                   </div>
                 </div>
               )}
