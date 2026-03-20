@@ -1706,12 +1706,12 @@ VERIFICA:
 
                 {(!stampDataUsed || !newBranch.data_attivazione) && (
                   <div>
-                    <Label className="text-slate-400 text-xs mb-1 block">Anno di attivazione attività *</Label>
+                    <Label className="text-amber-800 text-xs mb-1 block">Anno di attivazione attività *</Label>
                     <Input
                       type="number"
                       value={newBranch.data_attivazione}
                       onChange={(e) => setNewBranch({...newBranch, data_attivazione: e.target.value})}
-                      className="bg-slate-900 border-slate-700 text-white"
+                      className="bg-white/80 border-amber-300 text-slate-900 placeholder:text-amber-700/40"
                       placeholder="es: 2020"
                       min="1900"
                       max={new Date().getFullYear()}
