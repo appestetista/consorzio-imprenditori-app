@@ -1674,7 +1674,7 @@ VERIFICA:
 
                                         {/* RISCHI REALI - Sezione completa */}
                                         <div className="space-y-4 pt-2">
-                                          <Label className="text-amber-900 text-sm font-medium">RISCHI PRESENTI (dichiara solo quelli effettivi)</Label>
+                                          <Label className={`text-sm font-medium ${isDark ? 'text-slate-200' : 'text-slate-800'}`}>RISCHI PRESENTI (dichiara solo quelli effettivi)</Label>
                                           
                                           {/* Sezione Base */}
                                           <div className="bg-white/40 rounded-lg p-3 space-y-2 border border-amber-300/30">
