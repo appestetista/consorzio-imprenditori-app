@@ -1699,7 +1699,7 @@ VERIFICA:
                   <Input
                     value={newBranch.indirizzo}
                     onChange={(e) => setNewBranch({...newBranch, indirizzo: e.target.value})}
-                    className="bg-slate-900 border-slate-700 text-white"
+                    className="bg-white/80 border-amber-300 text-slate-900 placeholder:text-amber-700/40"
                     placeholder="Indirizzo (opzionale)"
                   />
                 )}
