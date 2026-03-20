@@ -1475,7 +1475,7 @@ VERIFICA:
                 <p className="text-amber-700/70 text-sm py-2">Nessun ramo aziendale configurato. Aggiungine uno qui sotto.</p>
               ) : (
                 branches.map(branch => (
-                  <Card key={branch.id} className="bg-slate-900 border-slate-700">
+                  <Card key={branch.id} className="bg-white/60 border-amber-300/50 shadow-sm">
                     <CardContent className="p-3">
                       {editingBranch?.id === branch.id ? (
                         <div className="space-y-2">
