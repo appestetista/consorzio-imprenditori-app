@@ -722,43 +722,22 @@ VERIFICA:
           <div className="mb-6 space-y-4">
             {/* Hero con immagine sovrapposta e testo a fianco */}
             <div className="relative rounded-2xl overflow-hidden" style={{ background: 'linear-gradient(135deg, #0f172a 0%, #1a2744 50%, #0f172a 100%)' }}>
-              <div className="flex items-center">
-                {/* Testo a sinistra */}
-                <div className="flex-1 p-5 pr-0 z-10">
-                  <h2 className="text-white font-extrabold text-2xl leading-tight mb-1">Evita sanzioni</h2>
-                  <h2 className="text-lime-400 font-extrabold text-2xl leading-tight mb-3">dormi tranquillo</h2>
-                  <p className="text-slate-300 text-base leading-relaxed mb-4">
-                    Scopri in automatico <span className="text-lime-400 font-semibold">tutti gli obblighi</span> della tua azienda.
+              <div className="relative min-h-[280px]">
+                {/* Testo */}
+                <div className="relative z-10 p-5 pr-[45%]">
+                  <h2 className="text-white font-extrabold text-3xl leading-none tracking-tight">Evita sanzioni</h2>
+                  <h2 className="text-lime-400 font-extrabold text-3xl leading-none tracking-tight mt-1">dormi tranquillo</h2>
+                  <p className="text-slate-300 text-base leading-relaxed mt-4">
+                    Scopri in automatico <span className="text-lime-400 font-semibold">tutti gli obblighi</span> della tua azienda e controlla con l'AI se i documenti che hai sono in regola.
                   </p>
-                  
-                  <div className="space-y-2">
-                    <div className="flex items-center gap-2">
-                      <Shield className="w-4 h-4 text-lime-400 flex-shrink-0" />
-                      <p className="text-slate-300 text-sm">AI per il tuo ATECO</p>
-                    </div>
-                    <div className="flex items-center gap-2">
-                      <FileText className="w-4 h-4 text-blue-400 flex-shrink-0" />
-                      <p className="text-slate-300 text-sm">Verifica conformità</p>
-                    </div>
-                    <div className="flex items-center gap-2">
-                      <Clock className="w-4 h-4 text-orange-400 flex-shrink-0" />
-                      <p className="text-slate-300 text-sm">Scadenze automatiche</p>
-                    </div>
-                    <div className="flex items-center gap-2">
-                      <AlertTriangle className="w-4 h-4 text-red-400 flex-shrink-0" />
-                      <p className="text-slate-300 text-sm">Sanzioni ed enti</p>
-                    </div>
-                  </div>
                 </div>
 
                 {/* Immagine vigile grande sovrapposta a destra */}
-                <div className="relative flex-shrink-0 -mr-4 -mb-2 self-end">
-                  <img 
-                    src="https://media.base44.com/images/public/695e2f74bb7d2636b5606a98/22d2f500e_ChatGPT_Image_19_mar_2026__12_32_18-removebg-preview.png" 
-                    alt="Evita sanzioni" 
-                    className="w-52 h-52 object-contain drop-shadow-2xl"
-                  />
-                </div>
+                <img 
+                  src="https://media.base44.com/images/public/695e2f74bb7d2636b5606a98/22d2f500e_ChatGPT_Image_19_mar_2026__12_32_18-removebg-preview.png" 
+                  alt="Evita sanzioni" 
+                  className="absolute right-[-16px] bottom-0 w-56 h-56 object-contain drop-shadow-2xl pointer-events-none"
+                />
               </div>
             </div>
 
