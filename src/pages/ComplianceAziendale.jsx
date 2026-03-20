@@ -1524,10 +1524,10 @@ VERIFICA:
                              />
                           </div>
                           <div className="flex gap-2">
-                            <Button size="sm" onClick={() => updateBranchMutation.mutate({ id: branch.id, data: editingBranch })} className="bg-lime-400 text-slate-900">
+                            <Button size="sm" onClick={() => updateBranchMutation.mutate({ id: branch.id, data: editingBranch })} className="bg-amber-600 text-white hover:bg-amber-700">
                               Salva
                             </Button>
-                            <Button size="sm" variant="outline" onClick={() => setEditingBranch(null)} className="border-slate-600 text-slate-300">
+                            <Button size="sm" variant="outline" onClick={() => setEditingBranch(null)} className="border-amber-400 text-amber-800 hover:bg-amber-100">
                               Annulla
                             </Button>
                           </div>
