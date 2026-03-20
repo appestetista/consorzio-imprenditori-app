@@ -1930,7 +1930,7 @@ NON inventare informazioni non presenti nel documento.`,
                           </>
                         );
                       })()
-                    )}
+                    }
                   </div>
               )}
             </div>
