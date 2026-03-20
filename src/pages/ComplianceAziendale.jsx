@@ -1560,18 +1560,18 @@ VERIFICA:
               <div className="space-y-3">
                 {/* Se i dati vengono dallo scanner, mostra riepilogo compatto */}
                 {stampDataUsed && (newBranch.nome || newBranch.codice_ateco || newBranch.tipo_attivita) && (
-                  <div className="bg-green-500/10 border border-green-500/30 rounded-lg p-3 space-y-1">
+                  <div className={`rounded-lg p-3 space-y-1 border ${isDark ? 'bg-green-500/10 border-green-500/30' : 'bg-green-50 border-green-300'}`}>
                     <div className="flex items-center gap-2 mb-1">
-                      <CheckCircle className="w-4 h-4 text-green-400" />
-                      <span className="text-green-400 text-xs font-semibold">Dati compilati automaticamente</span>
+                      <CheckCircle className={`w-4 h-4 ${isDark ? 'text-green-400' : 'text-green-600'}`} />
+                      <span className={`text-xs font-semibold ${isDark ? 'text-green-400' : 'text-green-700'}`}>Dati compilati automaticamente</span>
                     </div>
-                    {newBranch.nome && <p className="text-slate-300 text-xs"><span className="text-slate-500">Ragione sociale:</span> {newBranch.nome}</p>}
-                    {newBranch.codice_ateco && <p className="text-slate-300 text-xs"><span className="text-slate-500">ATECO:</span> {newBranch.codice_ateco}</p>}
-                    {newBranch.tipo_attivita && <p className="text-slate-300 text-xs"><span className="text-slate-500">Attività:</span> {newBranch.tipo_attivita}</p>}
-                    {newBranch.indirizzo && <p className="text-slate-300 text-xs"><span className="text-slate-500">Indirizzo:</span> {newBranch.indirizzo}</p>}
-                    {newBranch.data_attivazione && <p className="text-slate-300 text-xs"><span className="text-slate-500">Anno attivazione:</span> {newBranch.data_attivazione}</p>}
-                    {newBranch.tipo_attivita_categoria && <p className="text-slate-300 text-xs"><span className="text-slate-500">Tipologia:</span> {newBranch.tipo_attivita_categoria}</p>}
-                    <button onClick={() => setStampDataUsed(false)} className="text-blue-400 text-[10px] underline mt-1">Modifica dati manualmente</button>
+                    {newBranch.nome && <p className={`text-xs ${isDark ? 'text-slate-300' : 'text-slate-700'}`}><span className={isDark ? 'text-slate-500' : 'text-slate-500'}>Ragione sociale:</span> {newBranch.nome}</p>}
+                    {newBranch.codice_ateco && <p className={`text-xs ${isDark ? 'text-slate-300' : 'text-slate-700'}`}><span className={isDark ? 'text-slate-500' : 'text-slate-500'}>ATECO:</span> {newBranch.codice_ateco}</p>}
+                    {newBranch.tipo_attivita && <p className={`text-xs ${isDark ? 'text-slate-300' : 'text-slate-700'}`}><span className={isDark ? 'text-slate-500' : 'text-slate-500'}>Attività:</span> {newBranch.tipo_attivita}</p>}
+                    {newBranch.indirizzo && <p className={`text-xs ${isDark ? 'text-slate-300' : 'text-slate-700'}`}><span className={isDark ? 'text-slate-500' : 'text-slate-500'}>Indirizzo:</span> {newBranch.indirizzo}</p>}
+                    {newBranch.data_attivazione && <p className={`text-xs ${isDark ? 'text-slate-300' : 'text-slate-700'}`}><span className={isDark ? 'text-slate-500' : 'text-slate-500'}>Anno attivazione:</span> {newBranch.data_attivazione}</p>}
+                    {newBranch.tipo_attivita_categoria && <p className={`text-xs ${isDark ? 'text-slate-300' : 'text-slate-700'}`}><span className={isDark ? 'text-slate-500' : 'text-slate-500'}>Tipologia:</span> {newBranch.tipo_attivita_categoria}</p>}
+                    <button onClick={() => setStampDataUsed(false)} className={`text-[10px] underline mt-1 ${isDark ? 'text-blue-400' : 'text-blue-600'}`}>Modifica dati manualmente</button>
                   </div>
                 )}
 
