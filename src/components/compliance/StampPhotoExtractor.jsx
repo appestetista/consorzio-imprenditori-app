@@ -19,6 +19,28 @@ export default function StampPhotoExtractor({ onDataExtracted, onClose }) {
   const [error, setError] = useState(null);
   const [progressStep, setProgressStep] = useState(0);
   const [displayProgress, setDisplayProgress] = useState(0);
+  const animRef = useRef(null);
+
+  // Animazione barra di progresso graduale
+  useEffect(() => {
+    if (!extracting) {
+      if (animRef.current) cancelAnimationFrame(animRef.current);
+      return;
+    }
+    const targetValue = STEPS[progressStep]?.target || 0;
+    const animate = () => {
+      setDisplayProgress(prev => {
+        if (prev >= targetValue) return targetValue;
+        // Avanza lentamente verso il target dello step corrente
+        const diff = targetValue - prev;
+        const increment = Math.max(0.15, diff * 0.02);
+        return Math.min(prev + increment, targetValue);
+      });
+      animRef.current = requestAnimationFrame(animate);
+    };
+    animRef.current = requestAnimationFrame(animate);
+    return () => { if (animRef.current) cancelAnimationFrame(animRef.current); };
+  }, [extracting, progressStep]);
 
   // Se c'è un file pre-selezionato (da pulsanti esterni), processalo subito
   React.useEffect(() => {
