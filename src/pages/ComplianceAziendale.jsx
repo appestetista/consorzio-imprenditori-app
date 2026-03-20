@@ -1462,10 +1462,10 @@ VERIFICA:
 
       {/* Dialog Gestione Rami Aziendali */}
       <Dialog open={showBranchManager} onOpenChange={(open) => { setShowBranchManager(open); if (!open) { setShowBranchForm(false); setShowStampScanner(false); setStampDataUsed(false); } }}>
-        <DialogContent className="fixed inset-0 w-full h-full max-w-none max-h-none rounded-none border-none overflow-y-auto p-0 translate-x-0 translate-y-0 top-0 left-0" style={{ background: '#fef200' }}>
-          <DialogHeader className="sticky top-0 z-10 px-5 pt-5 pb-3" style={{ background: '#fef200' }}>
-            <DialogTitle className="text-slate-900 flex items-center gap-2 text-xl font-bold">
-              <Building2 className="w-6 h-6 text-amber-700" />
+        <DialogContent className="fixed inset-0 w-full h-full max-w-none max-h-none rounded-none border-none overflow-y-auto p-0 translate-x-0 translate-y-0 top-0 left-0" style={{ background: isDark ? '#0a0f1a' : '#fef200' }}>
+          <DialogHeader className="sticky top-0 z-10 px-5 pt-5 pb-3" style={{ background: isDark ? '#0a0f1a' : '#fef200' }}>
+            <DialogTitle className={`flex items-center gap-2 text-xl font-bold ${isDark ? 'text-white' : 'text-slate-900'}`}>
+              <Building2 className={`w-6 h-6 ${isDark ? 'text-lime-400' : 'text-amber-700'}`} />
               Rami Aziendali
             </DialogTitle>
           </DialogHeader>
