@@ -6,9 +6,9 @@ import { Card, CardContent } from '@/components/ui/card';
 
 const STEPS = [
   { label: 'Caricamento immagine...', target: 15 },
-  { label: 'Lettura dati dal timbro...', target: 40 },
-  { label: 'Ricerca codice ATECO...', target: 65 },
-  { label: 'Verifica dati aziendali...', target: 85 },
+  { label: 'Lettura dati dal timbro...', target: 35 },
+  { label: 'Ricerca attività in Camera di Commercio...', target: 60 },
+  { label: 'Classificazione codice ATECO...', target: 85 },
   { label: 'Completamento...', target: 100 },
 ];
 
