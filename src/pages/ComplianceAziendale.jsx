@@ -1515,13 +1515,13 @@ VERIFICA:
                             placeholder="Indirizzo"
                           />
                           <div>
-                            <Label className="text-slate-400 text-xs mb-1 block">Data attivazione</Label>
-                            <Input
-                              type="date"
-                              value={editingBranch.data_attivazione || ''}
-                              onChange={(e) => setEditingBranch({...editingBranch, data_attivazione: e.target.value})}
-                              className="bg-slate-800 border-slate-600 text-slate-900"
-                            />
+                            <Label className="text-amber-800 text-xs mb-1 block">Data attivazione</Label>
+                             <Input
+                               type="date"
+                               value={editingBranch.data_attivazione || ''}
+                               onChange={(e) => setEditingBranch({...editingBranch, data_attivazione: e.target.value})}
+                               className="bg-white/80 border-amber-300 text-slate-900"
+                             />
                           </div>
                           <div className="flex gap-2">
                             <Button size="sm" onClick={() => updateBranchMutation.mutate({ id: branch.id, data: editingBranch })} className="bg-lime-400 text-slate-900">
