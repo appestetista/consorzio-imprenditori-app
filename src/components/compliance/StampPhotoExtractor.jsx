@@ -207,6 +207,7 @@ REGOLE:
       }
     }
 
+    setProgressStep(4);
     setExtracting(false);
     setExtractedData(result);
   };
