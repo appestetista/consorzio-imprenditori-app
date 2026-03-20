@@ -1772,8 +1772,8 @@ VERIFICA:
                                           </div>
                                           
                                           {/* Sezione Antincendio */}
-                                          <div className="bg-white/40 rounded-lg p-3 space-y-2 border border-amber-300/30">
-                                            <p className="text-orange-700 text-xs font-semibold mb-2">🔥 ANTINCENDIO</p>
+                                          <div className={`rounded-lg p-3 space-y-2 border ${isDark ? 'bg-slate-800/60 border-slate-700' : 'bg-white/40 border-amber-300/30'}`}>
+                                            <p className={`text-xs font-semibold mb-2 ${isDark ? 'text-orange-400' : 'text-orange-700'}`}>🔥 ANTINCENDIO</p>
                                             
                                             <label className={`flex items-center gap-2 text-sm cursor-pointer ${isDark ? 'text-slate-200' : 'text-slate-900'}`}>
                                               <input type="checkbox" checked={newBranch.presenza_rischio_incendio_non_basso} onChange={(e) => setNewBranch({...newBranch, presenza_rischio_incendio_non_basso: e.target.checked})} className="rounded border-amber-400 bg-white/60" />
