@@ -237,7 +237,7 @@ REGOLE FONDAMENTALI:
         </p>
 
         {extracting && (
-          <div className="bg-purple-500/10 border border-purple-500/30 rounded-lg p-4 space-y-4">
+          <div className="rounded-lg p-4 space-y-4" style={{ background: 'rgba(212,175,55,0.08)', border: '1px solid rgba(212,175,55,0.3)' }}>
             {preview && (
               <img src={preview} alt="Timbro" className="w-24 h-24 object-cover rounded-lg mx-auto border border-slate-600" />
             )}
@@ -248,7 +248,7 @@ REGOLE FONDAMENTALI:
                   className="absolute inset-y-0 left-0 rounded-full transition-none"
                   style={{
                     width: `${displayProgress}%`,
-                    background: 'linear-gradient(90deg, #a855f7, #6366f1, #22d3ee)'
+                    background: 'linear-gradient(90deg, #d4af37, #b8860b, #d4af37)'
                   }}
                 />
                 {/* Shimmer */}
@@ -262,8 +262,8 @@ REGOLE FONDAMENTALI:
               </div>
               <div className="flex items-center justify-between">
                 <div className="flex items-center gap-2">
-                  <Loader2 className="w-4 h-4 text-purple-400 animate-spin" />
-                  <span className="text-purple-300 text-xs">{STEPS[progressStep]?.label || 'Elaborazione...'}</span>
+                  <Loader2 className="w-4 h-4 animate-spin" style={{ color: '#d4af37' }} />
+                  <span className="text-xs" style={{ color: '#d4af37' }}>{STEPS[progressStep]?.label || 'Elaborazione...'}</span>
                 </div>
                 <span className="text-slate-400 text-xs font-mono">{Math.round(displayProgress)}%</span>
               </div>

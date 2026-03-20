@@ -1595,30 +1595,28 @@ VERIFICA:
                   />
                 )}
                 
-                {(!stampDataUsed || !newBranch.codice_ateco || !newBranch.numero_dipendenti) && (
-                  <div className="grid grid-cols-2 gap-2">
-                    {(!stampDataUsed || !newBranch.codice_ateco) && (
-                      <div>
-                        <Input
-                          value={newBranch.codice_ateco}
-                          onChange={(e) => setNewBranch({...newBranch, codice_ateco: e.target.value})}
-                          className={isDark ? "bg-slate-700 border-slate-600 text-slate-100 placeholder:text-slate-400" : "bg-white border-amber-300 text-slate-900 placeholder:text-slate-400"}
-                          placeholder="Codice ATECO *"
-                          required
-                        />
-                        <p className={`text-[10px] mt-0.5 ${isDark ? 'text-slate-500' : 'text-slate-600'}`}>Es: 56.10, 43.21, 25.11</p>
-                      </div>
-                    )}
+                {(!stampDataUsed || !newBranch.codice_ateco) && (
+                  <div>
                     <Input
-                      type="number"
-                      value={newBranch.numero_dipendenti}
-                      onChange={(e) => setNewBranch({...newBranch, numero_dipendenti: e.target.value})}
+                      value={newBranch.codice_ateco}
+                      onChange={(e) => setNewBranch({...newBranch, codice_ateco: e.target.value})}
                       className={isDark ? "bg-slate-700 border-slate-600 text-slate-100 placeholder:text-slate-400" : "bg-white border-amber-300 text-slate-900 placeholder:text-slate-400"}
-                      placeholder="N° dipendenti *"
-                      min="0"
+                      placeholder="Codice ATECO *"
+                      required
                     />
+                    <p className={`text-[10px] mt-0.5 ${isDark ? 'text-slate-500' : 'text-slate-600'}`}>Es: 56.10, 43.21, 25.11</p>
                   </div>
                 )}
+                <div>
+                  <Input
+                    type="number"
+                    value={newBranch.numero_dipendenti}
+                    onChange={(e) => setNewBranch({...newBranch, numero_dipendenti: e.target.value})}
+                    className={isDark ? "bg-slate-700 border-slate-600 text-slate-100 placeholder:text-slate-400" : "bg-white border-amber-300 text-slate-900 placeholder:text-slate-400"}
+                    placeholder="N° dipendenti *"
+                    min="0"
+                  />
+                </div>
                 
                 {(!stampDataUsed || !newBranch.indirizzo) && (
                   <Input
