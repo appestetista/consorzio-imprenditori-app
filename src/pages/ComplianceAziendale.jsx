@@ -744,13 +744,17 @@ VERIFICA:
             {/* Pulsante Aggiungi primo ramo */}
             <button
               onClick={() => setShowBranchManager(true)}
-              className="w-full py-4 px-4 rounded-xl border active:scale-[0.98] transition-all flex items-center justify-center gap-3"
-              style={{ backgroundColor: '#0040ff', borderColor: '#3366ff' }}
+              className="w-full py-4 px-4 rounded-xl active:scale-[0.98] transition-all flex items-center justify-center gap-3"
+              style={{
+                background: 'linear-gradient(180deg, #f0e68c 0%, #d4af37 30%, #b8860b 70%, #8b6914 100%)',
+                boxShadow: '0 6px 0 #6b5310, 0 8px 16px rgba(139, 105, 20, 0.5), inset 0 2px 0 rgba(255,255,255,0.35), inset 0 -2px 4px rgba(0,0,0,0.15)',
+                border: '1px solid rgba(240, 230, 140, 0.6)',
+              }}
             >
-              <div className="w-10 h-10 rounded-full flex items-center justify-center flex-shrink-0" style={{ backgroundColor: 'rgba(255,255,255,0.2)' }}>
-                <Plus className="w-6 h-6 text-white" />
+              <div className="w-10 h-10 rounded-full flex items-center justify-center flex-shrink-0" style={{ backgroundColor: 'rgba(255,255,255,0.25)', boxShadow: 'inset 0 1px 2px rgba(255,255,255,0.3)' }}>
+                <Plus className="w-6 h-6 text-slate-900" />
               </div>
-              <span className="text-white font-semibold text-base">Inizia — Aggiungi il tuo primo ramo</span>
+              <span className="text-slate-900 font-bold text-base drop-shadow-sm">Inizia — Aggiungi il tuo primo ramo</span>
             </button>
           </div>
         )}
