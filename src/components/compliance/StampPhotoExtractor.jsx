@@ -284,7 +284,7 @@ REGOLE:
               <Button
                 size="sm"
                 variant="outline"
-                onClick={() => { setExtractedData(null); setPreview(null); }}
+                onClick={() => { if (onClose) onClose(); }}
                 className="border-slate-600 text-slate-300"
               >
                 Rifai foto
