@@ -1677,8 +1677,8 @@ VERIFICA:
                                           <Label className={`text-sm font-medium ${isDark ? 'text-slate-200' : 'text-slate-800'}`}>RISCHI PRESENTI (dichiara solo quelli effettivi)</Label>
                                           
                                           {/* Sezione Base */}
-                                          <div className="bg-white/40 rounded-lg p-3 space-y-2 border border-amber-300/30">
-                                            <p className="text-amber-800 text-xs font-semibold mb-2">👷 SICUREZZA LAVORO</p>
+                                          <div className={`rounded-lg p-3 space-y-2 border ${isDark ? 'bg-slate-800/60 border-slate-700' : 'bg-white/40 border-amber-300/30'}`}>
+                                            <p className={`text-xs font-semibold mb-2 ${isDark ? 'text-amber-400' : 'text-amber-800'}`}>👷 SICUREZZA LAVORO</p>
                                             
                                             <label className="flex items-center gap-2 text-slate-900 text-sm cursor-pointer">
                                               <input type="checkbox" checked={newBranch.presenza_lavoratori} onChange={(e) => setNewBranch({...newBranch, presenza_lavoratori: e.target.checked})} className="rounded border-amber-400 bg-white/60" />
