@@ -22,6 +22,7 @@ import ConsultantBubble from '../components/compliance/ConsultantBubble';
 import GlobalTopIcons from '../components/layout/GlobalTopIcons';
 import TipoAttivitaSelector from '../components/compliance/TipoAttivitaSelector';
 import StampPhotoExtractor from '../components/compliance/StampPhotoExtractor';
+import { useTheme } from '../components/context/ThemeContext';
 
 const CATEGORIE = [
   "Sicurezza sul lavoro",
