@@ -128,48 +128,22 @@ REGOLE:
 
     setProgressStep(2);
 
-    // Se abbiamo la P.IVA ma non il codice ATECO, lo cerchiamo online
-    if (result.partita_iva && !result.codice_ateco) {
-      const atecoResult = await base44.integrations.Core.InvokeLLM({
-        prompt: `Cerca il codice ATECO principale dell'azienda italiana con Partita IVA: ${result.partita_iva}${result.ragione_sociale ? ', ragione sociale: ' + result.ragione_sociale : ''}.
-
-Cerca su registroimprese.it, openapi.it, o altre fonti ufficiali italiane.
-
-REGOLE:
-- Restituisci SOLO il codice ATECO se lo trovi con certezza da una fonte ufficiale
-- Se NON lo trovi, restituisci stringa vuota
-- NON inventare codici ATECO
-- Il formato deve essere XX.XX.XX (es: 56.10.11, 43.21.01)`,
-        add_context_from_internet: true,
-        response_json_schema: {
-          type: "object",
-          properties: {
-            codice_ateco: { type: "string", description: "Codice ATECO trovato (vuoto se non trovato)" },
-            descrizione_ateco: { type: "string", description: "Descrizione dell'attività ATECO" },
-            fonte: { type: "string", description: "Fonte da cui è stato trovato" }
-          }
-        }
+    // Cerca il codice ATECO nel database interno (867+ codici ufficiali ISTAT)
+    // Lo facciamo SEMPRE: sia se manca il codice, sia per VERIFICARE un codice letto dal timbro
+    {
+      // Costruisci la descrizione di ricerca dal timbro
+      const descrizioneRicerca = result.descrizione_ateco || result.ragione_sociale || '';
+      
+      const atecoLookup = await base44.functions.invoke('lookupAteco', {
+        descrizione_attivita: descrizioneRicerca,
+        ragione_sociale: result.ragione_sociale || '',
+        partita_iva: result.partita_iva || ''
       });
 
+      const atecoResult = atecoLookup.data;
       if (atecoResult.codice_ateco) {
         result.codice_ateco = atecoResult.codice_ateco;
         result.descrizione_ateco = atecoResult.descrizione_ateco || '';
-      }
-    }
-
-    // Se abbiamo il codice ATECO, ricava automaticamente la descrizione se manca
-    if (result.codice_ateco && !result.descrizione_ateco) {
-      const descResult = await base44.integrations.Core.InvokeLLM({
-        prompt: `Qual è la descrizione ufficiale dell'attività economica per il codice ATECO ${result.codice_ateco}? Rispondi solo con la descrizione breve dell'attività (es: "Ristorazione con somministrazione", "Fabbricazione di strutture metalliche"). Non inventare, usa la classificazione ATECO 2007 ufficiale ISTAT.`,
-        response_json_schema: {
-          type: "object",
-          properties: {
-            descrizione: { type: "string", description: "Descrizione ufficiale dell'attività ATECO" }
-          }
-        }
-      });
-      if (descResult.descrizione) {
-        result.descrizione_ateco = descResult.descrizione;
       }
     }
 
