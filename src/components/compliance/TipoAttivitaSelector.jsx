@@ -36,7 +36,7 @@ export default function TipoAttivitaSelector({ value, onChange }) {
               <div className="w-2 h-2 rounded-full bg-lime-400" />
             )}
           </div>
-          <span className="text-white text-sm">{tipo.label}</span>
+          <span className="text-slate-900 dark:text-white text-sm" style={{ color: 'var(--app-text-primary)' }}>{tipo.label}</span>
         </label>
       ))}
     </div>
