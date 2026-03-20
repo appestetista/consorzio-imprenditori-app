@@ -736,7 +736,7 @@ VERIFICA:
                 <img 
                   src="https://media.base44.com/images/public/695e2f74bb7d2636b5606a98/22d2f500e_ChatGPT_Image_19_mar_2026__12_32_18-removebg-preview.png" 
                   alt="Evita sanzioni" 
-                  className="absolute right-[-16px] bottom-0 w-56 h-56 object-contain drop-shadow-2xl pointer-events-none"
+                  className="absolute right-[-16px] top-[-10px] w-56 h-56 object-contain drop-shadow-2xl pointer-events-none"
                 />
               </div>
             </div>
