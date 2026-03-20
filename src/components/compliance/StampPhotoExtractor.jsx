@@ -129,8 +129,11 @@ REGOLE:
 
     setProgressStep(2);
 
-    // STEP 2: Cerca l'attività prevalente ufficiale tramite P.IVA su fonti Camera di Commercio
-    let attivitaPrevalente = '';
+    // Salva il codice ATECO letto dal timbro (fonte primaria)
+    const atecoFromStamp = result.codice_ateco || '';
+
+    // STEP 2: Cerca SOLO anno attivazione e descrizione attività da fonti CCIAA
+    // NON sovrascrivere mai il codice ATECO se è stato letto dal timbro
     if (result.partita_iva) {
       const cciaResult = await base44.integrations.Core.InvokeLLM({
         prompt: `Cerca l'azienda italiana con Partita IVA: ${result.partita_iva}${result.ragione_sociale ? ', ragione sociale: ' + result.ragione_sociale : ''}${result.citta ? ', città: ' + result.citta : ''}.
@@ -138,43 +141,46 @@ REGOLE:
 Cerca su registroimprese.it, openapi.it, infoimprese.it, atoka.io, o altre fonti ufficiali italiane della Camera di Commercio (CCIAA).
 
 DEVO SAPERE:
-1. ATTIVITÀ PREVALENTE registrata in Camera di Commercio (descrizione testuale dell'attività, es: "Lavori di costruzione di edifici residenziali", "Ristorazione con somministrazione", "Commercio al dettaglio di abbigliamento")
-2. Anno di inizio attività (anno iscrizione CCIAA o apertura P.IVA)
-3. Tipologia macro tra: "ufficio", "negozio_retail", "ristorante_bar", "magazzino_logistica", "produzione_industriale", "cantiere_edile", "laboratorio_artigianale", "studio_professionale", "struttura_sanitaria", "struttura_ricettiva", "agricoltura", "trasporti"
+1. ATTIVITÀ PREVALENTE registrata in Camera di Commercio (descrizione testuale, es: "Compravendita di beni immobili effettuata su beni propri", "Ristorazione con somministrazione")
+2. CODICE ATECO registrato in Camera di Commercio (es: "68.10.00", "56.10.11") — restituisci SOLO se lo trovi con certezza
+3. Anno di inizio attività (anno iscrizione CCIAA o apertura P.IVA)
 
 REGOLE FONDAMENTALI:
-- L'attività prevalente è il dato PIÙ IMPORTANTE: cercala con attenzione nelle fonti ufficiali
 - Restituisci SOLO dati trovati con certezza da fonti ufficiali
 - Se NON trovi un dato, restituisci stringa vuota ""
-- NON inventare dati, NON dedurre dall'nome dell'azienda`,
+- NON inventare dati, NON dedurre, NON interpretare`,
         add_context_from_internet: true,
         response_json_schema: {
           type: "object",
           properties: {
-            attivita_prevalente: { type: "string", description: "Descrizione testuale dell'attività prevalente dalla CCIAA (es: 'Lavori di costruzione di edifici residenziali'). Vuoto se non trovata." },
+            attivita_prevalente: { type: "string", description: "Descrizione testuale dell'attività prevalente dalla CCIAA. Vuoto se non trovata." },
+            codice_ateco_cciaa: { type: "string", description: "Codice ATECO dalla CCIAA (es: 68.10.00). Vuoto se non trovato." },
             anno_attivazione: { type: "string", description: "Anno di inizio attività (es: 2015). Vuoto se non trovato." },
-            tipo_attivita_categoria: { type: "string", description: "Categoria macro. Vuoto se non determinabile." },
             fonte: { type: "string", description: "Fonte da cui è stato trovato il dato" }
           }
         }
       });
 
-      attivitaPrevalente = cciaResult.attivita_prevalente || '';
+      // Descrizione attività
+      if (cciaResult.attivita_prevalente) {
+        result.descrizione_ateco = cciaResult.attivita_prevalente;
+      }
+      // Anno attivazione
       if (cciaResult.anno_attivazione) {
         result.anno_attivazione = cciaResult.anno_attivazione;
       }
-      if (cciaResult.tipo_attivita_categoria) {
-        result.tipo_attivita_categoria = cciaResult.tipo_attivita_categoria;
+      // Codice ATECO: priorità a quello del timbro, poi CCIAA, poi lookup
+      if (!atecoFromStamp && cciaResult.codice_ateco_cciaa) {
+        result.codice_ateco = cciaResult.codice_ateco_cciaa;
       }
-      console.log('[StampExtractor] Attività prevalente CCIAA:', attivitaPrevalente);
+      console.log('[StampExtractor] CCIAA:', cciaResult.attivita_prevalente, '| ATECO timbro:', atecoFromStamp, '| ATECO CCIAA:', cciaResult.codice_ateco_cciaa);
     }
 
     setProgressStep(3);
 
-    // STEP 3: Usa l'attività prevalente per cercare il codice ATECO nel database interno
-    {
-      // Priorità: attività prevalente da CCIAA > descrizione dal timbro > ragione sociale
-      const descrizioneRicerca = attivitaPrevalente || result.descrizione_ateco || result.ragione_sociale || '';
+    // STEP 3: Lookup ATECO nel database SOLO se non abbiamo ancora un codice (né dal timbro né dalla CCIAA)
+    if (!result.codice_ateco) {
+      const descrizioneRicerca = result.descrizione_ateco || result.ragione_sociale || '';
       
       if (descrizioneRicerca) {
         const atecoLookup = await base44.functions.invoke('lookupAteco', {
@@ -186,12 +192,12 @@ REGOLE FONDAMENTALI:
         const atecoResult = atecoLookup.data;
         if (atecoResult.codice_ateco) {
           result.codice_ateco = atecoResult.codice_ateco;
-          result.descrizione_ateco = atecoResult.descrizione_ateco || '';
+          result.descrizione_ateco = atecoResult.descrizione_ateco || result.descrizione_ateco || '';
         }
       }
     }
 
-    // Deriva tipo_attivita_categoria dal codice ATECO (non dalla LLM, che può sbagliare)
+    // Deriva tipo_attivita_categoria deterministicamente dal codice ATECO
     if (result.codice_ateco) {
       result.tipo_attivita_categoria = getCategoriaDaATECO(result.codice_ateco);
     }
