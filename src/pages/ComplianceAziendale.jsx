@@ -1752,8 +1752,8 @@ VERIFICA:
                                           </div>
                                           
                                           {/* Sezione Ambientale */}
-                                          <div className="bg-white/40 rounded-lg p-3 space-y-2 border border-amber-300/30">
-                                            <p className="text-green-700 text-xs font-semibold mb-2">🌿 AMBIENTALE</p>
+                                          <div className={`rounded-lg p-3 space-y-2 border ${isDark ? 'bg-slate-800/60 border-slate-700' : 'bg-white/40 border-amber-300/30'}`}>
+                                            <p className={`text-xs font-semibold mb-2 ${isDark ? 'text-green-400' : 'text-green-700'}`}>🌿 AMBIENTALE</p>
                                             
                                             <label className={`flex items-center gap-2 text-sm cursor-pointer ${isDark ? 'text-slate-200' : 'text-slate-900'}`}>
                                               <input type="checkbox" checked={newBranch.presenza_rifiuti_speciali} onChange={(e) => setNewBranch({...newBranch, presenza_rifiuti_speciali: e.target.checked})} className="rounded border-amber-400 bg-white/60" />
