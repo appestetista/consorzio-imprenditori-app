@@ -1482,13 +1482,13 @@ VERIFICA:
                           <Input
                             value={editingBranch.nome || ''}
                             onChange={(e) => setEditingBranch({...editingBranch, nome: e.target.value})}
-                            className="bg-slate-800 border-slate-600 text-slate-900"
+                            className="bg-white/80 border-amber-300 text-slate-900"
                             placeholder="Nome ramo"
                           />
                           <Textarea
                             value={editingBranch.tipo_attivita || ''}
                             onChange={(e) => setEditingBranch({...editingBranch, tipo_attivita: e.target.value})}
-                            className="bg-slate-800 border-slate-600 text-slate-900"
+                            className="bg-white/80 border-amber-300 text-slate-900"
                             placeholder="Tipo attività"
                             rows={2}
                           />
@@ -1496,14 +1496,14 @@ VERIFICA:
                             <Input
                               value={editingBranch.codice_ateco || ''}
                               onChange={(e) => setEditingBranch({...editingBranch, codice_ateco: e.target.value})}
-                              className="bg-slate-800 border-slate-600 text-slate-900"
+                              className="bg-white/80 border-amber-300 text-slate-900"
                               placeholder="Codice ATECO"
                             />
                             <Input
                               type="number"
                               value={editingBranch.numero_dipendenti || ''}
                               onChange={(e) => setEditingBranch({...editingBranch, numero_dipendenti: e.target.value ? parseInt(e.target.value) : null})}
-                              className="bg-slate-800 border-slate-600 text-slate-900"
+                              className="bg-white/80 border-amber-300 text-slate-900"
                               placeholder="N° dipendenti"
                               min="0"
                             />
@@ -1511,7 +1511,7 @@ VERIFICA:
                           <Input
                             value={editingBranch.indirizzo || ''}
                             onChange={(e) => setEditingBranch({...editingBranch, indirizzo: e.target.value})}
-                            className="bg-slate-800 border-slate-600 text-slate-900"
+                            className="bg-white/80 border-amber-300 text-slate-900"
                             placeholder="Indirizzo"
                           />
                           <div>
