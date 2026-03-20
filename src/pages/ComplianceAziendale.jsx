@@ -1602,7 +1602,7 @@ VERIFICA:
                         <Input
                           value={newBranch.codice_ateco}
                           onChange={(e) => setNewBranch({...newBranch, codice_ateco: e.target.value})}
-                          className="bg-white/80 border-amber-300 text-slate-900 placeholder:text-amber-700/40"
+                          className={isDark ? "bg-slate-800 border-slate-600 text-white placeholder:text-slate-500" : "bg-white/80 border-amber-300 text-slate-900 placeholder:text-slate-500"}
                           placeholder="Codice ATECO *"
                           required
                         />
