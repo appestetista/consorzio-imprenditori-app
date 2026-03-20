@@ -19,7 +19,6 @@ Deno.serve(async (req) => {
       return Response.json({ error: 'Codice ATECO obbligatorio' }, { status: 400 });
     }
 
-    // data_attivazione può essere un anno (es: "2020") o una data completa
     const dataBase = data_attivazione 
       ? (String(data_attivazione).length === 4 ? `${data_attivazione}-01-01` : data_attivazione)
       : new Date().toISOString().split('T')[0];
@@ -30,35 +29,8 @@ Deno.serve(async (req) => {
       .map(([key]) => key.replace(/_/g, ' '))
       .join(', ') : 'nessuno dichiarato';
 
-    // ─── FASE 1 + FASE 2: Generazione con classificazione affidabilità ───
-    const prompt = `Sei un consulente esperto di compliance aziendale italiana.
-
-═══════════════════════════════
-REGOLE ASSOLUTE
-═══════════════════════════════
-
-1. NON inventare mai normative, articoli di legge o sanzioni inesistenti
-2. NON dichiarare mai certezza senza fonte ufficiale reale
-3. È OBBLIGATORIO generare output (non lasciare vuoto)
-4. Se NON trovi fonte ufficiale certa → segnala come "non_verificato"
-5. NON bloccare l'output, ma CLASSIFICA ogni adempimento
-
-═══════════════════════════════
-FONTI UFFICIALI PRIORITARIE
-═══════════════════════════════
-
-Usa preferibilmente queste fonti:
-- Normattiva (https://www.normattiva.it) → leggi ufficiali italiane
-- INAIL (https://www.inail.it) → sicurezza lavoro
-- INPS (https://www.inps.it) → previdenza
-- Agenzia Entrate (https://www.agenziaentrate.gov.it) → fiscale
-- Ministero del Lavoro (https://www.lavoro.gov.it)
-- Garante Privacy (https://www.garanteprivacy.it) → GDPR
-
-Puoi usare la tua conoscenza SOLO SE:
-- è coerente con la normativa italiana nota
-- è plausibile per il settore
-- viene marcata come "non_verificato"
+    // ─── FASE 1: Generazione adempimenti con GPT-4o ───
+    const prompt = `Sei un consulente esperto di compliance aziendale italiana. Devi generare la lista COMPLETA e MANIACALE di TUTTI gli adempimenti normativi obbligatori.
 
 ═══════════════════════════════
 DATI AZIENDA
@@ -73,90 +45,139 @@ SUPERFICIE MQ: ${superficie_mq || 'non specificata'}
 DATA INIZIO ATTIVITÀ: ${dataBase}
 RISCHI DICHIARATI: Lavoratori: ${rischi?.lavoratori !== false ? 'SÌ' : 'NO'}, Specifici: ${rischiAttivi || 'nessuno'}
 
-NOTA IMPORTANTE SUL LIVELLO RISCHIO:
-- Se BASSO: formazione specifica 4h, aggiornamento quinquennale 6h, rischio incendio livello 1
-- Se MEDIO: formazione specifica 8h, aggiornamento quinquennale 6h, rischio incendio livello 2
-- Se ALTO: formazione specifica 12h, aggiornamento quinquennale 6h, rischio incendio livello 3
-Calibra gli adempimenti di formazione e antincendio in base a questo livello.
-
 ═══════════════════════════════
-PROCESSO OBBLIGATORIO
+CALIBRAZIONE PER LIVELLO RISCHIO INAIL
 ═══════════════════════════════
 
-FASE 1 — GENERAZIONE:
-Genera una lista COMPLETA di adempimenti normativi obbligatori in base a:
-- codice ATECO e settore specifico
-- numero dipendenti
-- fattori di rischio dichiarati
-- tipo attività (produttiva/servizi/commerciale)
-
-Includi SEMPRE gli adempimenti fondamentali di:
-- Sicurezza sul lavoro (D.Lgs. 81/08)
-- Privacy e GDPR (Reg. UE 2016/679)
-- Ambientale (D.Lgs. 152/06) se pertinente
-- Antincendio se pertinente
-- Formazione obbligatoria
-- Settoriali specifici (HACCP per alimentare, POS per edilizia, ecc.)
-
-FASE 2 — VERIFICA FONTI:
-Per OGNI adempimento generato:
-1. Cerca il riferimento normativo reale (legge, articolo, comma)
-2. Se trovi riferimento certo e verificabile:
-   → stato_affidabilita = "verificato"
-   → indica riferimento_normativo, fonte_ufficiale, link_verifica
-   → indica sanzione_prevista SOLO con importi certi
-3. Se NON trovi riferimento certo:
-   → stato_affidabilita = "non_verificato"
-   → riferimento_normativo = "non disponibile"
-   → fonte_ufficiale = "non verificata"
-   → link_verifica = null
-   → sanzione_prevista = "non verificata - consultare un professionista"
+${livello_rischio_inail === 'basso' ? `RISCHIO BASSO:
+- Formazione specifica lavoratori: 4 ore (+ 4 ore generali = 8 ore totali)
+- Aggiornamento quinquennale: 6 ore
+- Rischio incendio: Livello 1 (ex basso) - DM 02/09/2021
+- Primo soccorso: Gruppo C (aziende <3 dipendenti senza rischi particolari) o Gruppo B
+- RSPP datore di lavoro: 16 ore (Accordo Stato-Regioni)` : 
+livello_rischio_inail === 'medio' ? `RISCHIO MEDIO:
+- Formazione specifica lavoratori: 8 ore (+ 4 ore generali = 12 ore totali)
+- Aggiornamento quinquennale: 6 ore
+- Rischio incendio: Livello 2 (ex medio) - DM 02/09/2021
+- Primo soccorso: Gruppo B
+- RSPP datore di lavoro: 32 ore (Accordo Stato-Regioni)` :
+`RISCHIO ALTO:
+- Formazione specifica lavoratori: 12 ore (+ 4 ore generali = 16 ore totali)
+- Aggiornamento quinquennale: 6 ore
+- Rischio incendio: Livello 3 (ex alto) - DM 02/09/2021 → richiede CPI (Certificato Prevenzione Incendi)
+- Primo soccorso: Gruppo A
+- RSPP datore di lavoro: 48 ore (Accordo Stato-Regioni)
+- Sorveglianza sanitaria OBBLIGATORIA`}
 
 ═══════════════════════════════
-REGOLE DI SICUREZZA
+REGOLE DIMENSIONALI (numero dipendenti: ${numero_dipendenti || 0})
 ═══════════════════════════════
 
-- Se un adempimento è "non_verificato": NON presentare sanzioni come certe
-- Se è "verificato": DEVE avere riferimento normativo preciso
-- In caso di dubbio → classificare SEMPRE come "non_verificato"
-- Le sanzioni verificate devono avere importi REALI e AGGIORNATI
-- NON arrotondare o inventare cifre
-
-Le categorie ammesse sono SOLO: "Sicurezza sul lavoro", "Privacy e GDPR", "Ambientale", "Fiscale", "Igiene e Sanità", "Antincendio", "Formazione obbligatoria", "Altro"
+${parseInt(numero_dipendenti) > 0 ? `- DVR obbligatorio (Art. 17 D.Lgs. 81/08) — NON procedure standardizzate se >10 dipendenti
+- Nomina RSPP obbligatoria (Art. 17 D.Lgs. 81/08)
+- Nomina RLS (Art. 47 D.Lgs. 81/08) — 1 RLS fino a 200 dip., 3 RLS 201-1000 dip.
+- Designazione addetti emergenza e primo soccorso (Art. 18 D.Lgs. 81/08)
+- Sorveglianza sanitaria se rischi specifici (Art. 41 D.Lgs. 81/08)
+- Formazione obbligatoria tutti i lavoratori (Art. 37 D.Lgs. 81/08)` : '- Titolare senza dipendenti: obblighi ridotti ma DVR comunque necessario se impresa'}
+${parseInt(numero_dipendenti) > 15 ? `- Riunione periodica OBBLIGATORIA (Art. 35 D.Lgs. 81/08) — almeno annuale
+- Piano di emergenza ed evacuazione OBBLIGATORIO (DM 02/09/2021)` : ''}
+${parseInt(numero_dipendenti) > 50 ? `- Registro infortuni con comunicazione INAIL
+- Possibile obbligo DUVRI per appalti interni` : ''}
 
 ═══════════════════════════════
-FORMATO OUTPUT JSON
+REGOLE SUPERFICIE (${superficie_mq || 0} mq)
 ═══════════════════════════════
 
-Rispondi con un JSON con chiave "adempimenti" contenente un array di oggetti con ESATTAMENTE questi campi:
+${parseInt(superficie_mq) > 400 ? `- Superficie >400 mq: possibile obbligo CPI (DPR 151/2011 - Attività 69-70)
+- Verifica assoggettabilità a controllo VVF` : ''}
+${parseInt(superficie_mq) > 1000 ? `- Superficie >1000 mq: molto probabile obbligo CPI
+- Piano di emergenza ed evacuazione OBBLIGATORIO
+- Segnaletica di sicurezza estesa (D.Lgs. 81/08 Titolo V)` : ''}
 
-- "nome": nome specifico dell'adempimento (es: "DVR - Documento di Valutazione dei Rischi")
-- "descrizione": descrizione tecnica con riferimento normativo
-- "categoria": una delle categorie ammesse
-- "frequenza_rinnovo_mesi": numero intero (0 se non ha scadenza periodica)
-- "sanzione_prevista": importo e articolo REALI se verificato, oppure "non verificata - consultare un professionista"
-- "priorita": "alta" (sanzioni penali), "media" (sanzioni amministrative), "bassa" (raccomandati)
-- "stato_affidabilita": "verificato" o "non_verificato"
-- "riferimento_normativo": articolo e legge esatti se verificato, oppure "non disponibile"
-- "fonte_ufficiale": nome ente fonte se verificato, oppure "non verificata"
-- "link_verifica": URL fonte ufficiale se disponibile, oppure null
-- "ente_controllo": ente preposto al controllo (es: "ASL/Ispettorato del Lavoro", "ARPA", "Vigili del Fuoco", "Garante Privacy")
+═══════════════════════════════
+RISCHI SPECIFICI DICHIARATI → ADEMPIMENTI OBBLIGATORI
+═══════════════════════════════
 
-ESEMPIO verificato:
-{"nome": "DVR - Documento di Valutazione dei Rischi", "descrizione": "Documento obbligatorio che analizza tutti i rischi presenti in azienda e le misure di prevenzione", "categoria": "Sicurezza sul lavoro", "frequenza_rinnovo_mesi": 0, "sanzione_prevista": "Art. 55 D.Lgs. 81/08: Arresto da 3 a 6 mesi o ammenda da €3.071,27 a €7.862,44", "priorita": "alta", "stato_affidabilita": "verificato", "riferimento_normativo": "Art. 17, 28, 29 D.Lgs. 81/2008", "fonte_ufficiale": "Normattiva", "link_verifica": "https://www.normattiva.it/uri-res/N2Ls?urn:nir:stato:decreto.legislativo:2008-04-09;81", "ente_controllo": "ASL / Ispettorato del Lavoro"}
+${rischi?.macchinari ? '- MACCHINARI: Marcatura CE, libretto uso/manutenzione, registro verifiche periodiche (DPR 459/96, All. VII D.Lgs. 81/08)' : ''}
+${rischi?.rumore ? '- RUMORE: Valutazione rischio rumore (Titolo VIII Capo II D.Lgs. 81/08), audiometria se >80 dB(A), DPI uditivi se >85 dB(A)' : ''}
+${rischi?.vibrazioni ? '- VIBRAZIONI: Valutazione rischio vibrazioni HAV/WBV (Titolo VIII Capo III D.Lgs. 81/08)' : ''}
+${rischi?.sostanze_chimiche ? '- CHIMICO: Valutazione rischio chimico (Titolo IX D.Lgs. 81/08), schede SDS, registro esposizione se cancerogeni' : ''}
+${rischi?.movimentazione_carichi ? '- MMC: Valutazione rischio MMC (Titolo VI D.Lgs. 81/08), formazione specifica' : ''}
+${rischi?.videoterminali ? '- VDT: Valutazione rischio VDT (Titolo VII D.Lgs. 81/08), sorveglianza sanitaria se >20h/sett' : ''}
+${rischi?.lavori_quota ? '- QUOTA: Piano operativo sicurezza, DPI anticaduta III cat., formazione specifica (Art. 111 D.Lgs. 81/08)' : ''}
+${rischi?.spazi_confinati ? '- SPAZI CONFINATI: DPR 177/2011, procedura specifica, formazione, personale qualificato' : ''}
+${rischi?.rischio_biologico ? '- BIOLOGICO: Valutazione rischio biologico (Titolo X D.Lgs. 81/08), protocollo sanitario specifico' : ''}
+${rischi?.campi_elettromagnetici ? '- CEM: Valutazione rischio CEM (Titolo VIII Capo IV D.Lgs. 81/08)' : ''}
+${rischi?.radiazioni_ottiche ? '- ROA: Valutazione rischio radiazioni ottiche (Titolo VIII Capo V D.Lgs. 81/08)' : ''}
+${rischi?.microclima_severo ? '- MICROCLIMA: Valutazione rischio microclima severo caldo/freddo' : ''}
+${rischi?.atmosfere_esplosive ? '- ATEX: Documento protezione esplosioni (Titolo XI D.Lgs. 81/08, Direttive ATEX)' : ''}
+${rischi?.rifiuti_speciali ? '- RIFIUTI: Registro carico/scarico, MUD annuale, formulari trasporto (D.Lgs. 152/06 Parte IV)' : ''}
+${rischi?.emissioni_atmosfera ? '- EMISSIONI: AUA o AIA (D.Lgs. 152/06 Parte V), monitoraggio emissioni' : ''}
+${rischi?.scarichi_industriali ? '- SCARICHI: Autorizzazione scarichi (D.Lgs. 152/06 Parte III), analisi periodiche' : ''}
+${rischi?.rischio_incendio_non_basso ? '- INCENDIO: CPI se attività in DPR 151/2011, SCIA antincendio, registro controlli, manutenzione estintori/idranti' : ''}
+${rischi?.sistemi_it_cloud ? '- IT: Misure sicurezza informatica, backup, policy password' : ''}
+${rischi?.dati_sensibili ? '- PRIVACY: DPIA obbligatoria (Art. 35 GDPR), DPO se trattamento su larga scala, registro trattamenti' : ''}
 
-ESEMPIO non verificato:
-{"nome": "Registro carico/scarico sostanze", "descrizione": "Possibile obbligo di tenuta registro per sostanze pericolose specifiche del settore", "categoria": "Ambientale", "frequenza_rinnovo_mesi": 12, "sanzione_prevista": "non verificata - consultare un professionista", "priorita": "media", "stato_affidabilita": "non_verificato", "riferimento_normativo": "non disponibile", "fonte_ufficiale": "non verificata", "link_verifica": null, "ente_controllo": "ARPA / Provincia"}`;
+═══════════════════════════════
+ADEMPIMENTI TRASVERSALI SEMPRE OBBLIGATORI
+═══════════════════════════════
+
+Includi SEMPRE:
+1. DVR (Art. 17 D.Lgs. 81/08)
+2. Nomina RSPP (Art. 17 D.Lgs. 81/08)
+3. Formazione lavoratori base + specifica (Art. 37 + Accordo Stato-Regioni)
+4. Registro Privacy / GDPR base (Reg. UE 2016/679 Art. 30)
+5. Informativa privacy dipendenti e clienti
+6. Nomina addetti primo soccorso (DM 388/2003)
+7. Nomina addetti antincendio (DM 02/09/2021)
+8. Cassetta primo soccorso (DM 388/2003)
+9. Estintori e segnaletica emergenza
+
+Se pertinenti al settore, aggiungi ANCHE:
+- HACCP (Reg. CE 852/2004) per alimentare
+- POS (Art. 89 D.Lgs. 81/08) per edilizia
+- CPI per attività soggette (DPR 151/2011)
+- SCIA commerciale per commercio
+- Autorizzazione sanitaria per sanità
+- Libro unico del lavoro (D.L. 112/2008)
+- Comunicazione lavoratori all'INAIL
+
+═══════════════════════════════
+FORMATO OUTPUT
+═══════════════════════════════
+
+Genera un JSON con chiave "adempimenti" contenente un array. Per OGNI adempimento:
+
+- "nome": nome specifico (es: "DVR - Documento di Valutazione dei Rischi")
+- "descrizione": descrizione tecnica completa con cosa deve contenere il documento
+- "categoria": SOLO tra "Sicurezza sul lavoro", "Privacy e GDPR", "Ambientale", "Fiscale", "Igiene e Sanità", "Antincendio", "Formazione obbligatoria", "Altro"
+- "frequenza_rinnovo_mesi": intero (0 = nessuna scadenza periodica)
+- "sanzione_prevista": importo e articolo REALI da fonti certe, o "non verificata - consultare un professionista"
+- "priorita": "alta" (sanzioni penali/arresto), "media" (sanzioni amministrative), "bassa" (raccomandati)
+- "stato_affidabilita": "verificato" se hai certezza assoluta del riferimento, "non_verificato" altrimenti
+- "riferimento_normativo": articolo e legge esatti (es: "Art. 17, 28 D.Lgs. 81/2008")
+- "fonte_ufficiale": nome ente (es: "Normattiva", "INAIL")
+- "link_verifica": URL fonte ufficiale o null
+- "ente_controllo": ente preposto (es: "ASL / Ispettorato del Lavoro")
+
+REGOLE ASSOLUTE:
+- NON inventare mai articoli di legge o importi sanzioni inesistenti
+- Se non sei CERTO → stato_affidabilita = "non_verificato"
+- Sii ESAUSTIVO: meglio 30 adempimenti completi che 10 generici
+- Ogni rischio dichiarato DEVE generare almeno un adempimento specifico`;
+
+    console.log('[generateComplianceNorms] Generazione per ATECO:', codice_ateco, '| Dipendenti:', numero_dipendenti, '| Superficie:', superficie_mq, '| Rischio INAIL:', livello_rischio_inail);
 
     const response = await openai.chat.completions.create({
       model: "gpt-4o",
       messages: [
         {
           role: "system",
-          content: `Sei un consulente di compliance aziendale italiano esperto in normativa vigente al ${currentYear}. 
-Rispondi SOLO in formato JSON valido con la chiave 'adempimenti'. Non aggiungere testo fuori dal JSON.
+          content: `Sei un consulente di compliance aziendale italiano esperto in normativa vigente al ${currentYear}. Rispondi SOLO in formato JSON valido con la chiave 'adempimenti'. Non aggiungere testo fuori dal JSON.
 
-REGOLA FONDAMENTALE: Per ogni adempimento DEVI classificare lo stato_affidabilita come "verificato" (se hai certezza del riferimento normativo) o "non_verificato" (se hai dubbi). NON inventare MAI riferimenti normativi falsi. È meglio classificare come "non_verificato" che inventare.`
+REGOLA FONDAMENTALE: Per ogni adempimento DEVI classificare lo stato_affidabilita come "verificato" (se hai certezza del riferimento normativo) o "non_verificato" (se hai dubbi). NON inventare MAI riferimenti normativi falsi. È meglio classificare come "non_verificato" che inventare.
+
+Sii MANIACALMENTE preciso e completo. Genera TUTTI gli adempimenti obbligatori per questa specifica combinazione di ATECO + dipendenti + superficie + rischi dichiarati.`
         },
         { role: "user", content: prompt }
       ],
@@ -172,7 +193,6 @@ REGOLA FONDAMENTALE: Per ogni adempimento DEVI classificare lo stato_affidabilit
       return Response.json({ error: 'Errore parsing risposta AI', raw: content }, { status: 500 });
     }
 
-    // Trova l'array di adempimenti nel JSON
     let adempimenti = parsed.adempimenti || parsed.lista || parsed.norms || parsed.items || parsed.obblighi || [];
     if (!Array.isArray(adempimenti)) {
       for (const key of Object.keys(parsed)) {
@@ -187,6 +207,72 @@ REGOLA FONDAMENTALE: Per ogni adempimento DEVI classificare lo stato_affidabilit
       return Response.json({ error: 'Nessun adempimento generato', raw: parsed }, { status: 500 });
     }
 
+    console.log('[generateComplianceNorms] Fase 1 completata:', adempimenti.length, 'adempimenti generati');
+
+    // ─── FASE 2: Cross-check con ricerca web su fonti ufficiali ───
+    // Verifica i riferimenti normativi cercando su internet
+    const nomiAdempimenti = adempimenti.map(a => `- ${a.nome}: ${a.riferimento_normativo || 'da verificare'}`).join('\n');
+
+    let verifica = {};
+    try {
+      verifica = await base44.asServiceRole.integrations.Core.InvokeLLM({
+        prompt: `Verifica la CORRETTEZZA dei seguenti adempimenti normativi italiani per un'azienda con codice ATECO ${codice_ateco} (${tipo_attivita || ''}).
+
+ADEMPIMENTI DA VERIFICARE:
+${nomiAdempimenti}
+
+Per OGNI adempimento, verifica su fonti ufficiali (normattiva.it, INAIL, Ministero Lavoro, Garante Privacy):
+1. Il riferimento normativo è CORRETTO? (articolo, legge, anno)
+2. La sanzione indicata è REALE e AGGIORNATA al ${currentYear}?
+3. L'adempimento è EFFETTIVAMENTE obbligatorio per ATECO ${codice_ateco}?
+4. Manca qualche adempimento FONDAMENTALE che non è stato generato?
+
+Rispondi con un JSON:
+- "correzioni": oggetto dove la chiave è il nome dell'adempimento e il valore è un oggetto con { "corretto": bool, "riferimento_corretto": string, "sanzione_corretta": string, "nota": string }
+- "adempimenti_mancanti": array di nomi di adempimenti fondamentali mancanti`,
+        add_context_from_internet: true,
+        response_json_schema: {
+          type: "object",
+          properties: {
+            correzioni: { 
+              type: "object",
+              description: "Per ogni adempimento, correzioni trovate"
+            },
+            adempimenti_mancanti: { 
+              type: "array", 
+              items: { type: "string" },
+              description: "Adempimenti fondamentali mancanti dalla lista" 
+            }
+          }
+        }
+      });
+      console.log('[generateComplianceNorms] Fase 2 verifica completata. Correzioni:', Object.keys(verifica.correzioni || {}).length, '| Mancanti:', (verifica.adempimenti_mancanti || []).length);
+    } catch (e) {
+      console.warn('[generateComplianceNorms] Fase 2 verifica fallita, continuo senza:', e.message);
+    }
+
+    // Applica correzioni dalla verifica
+    if (verifica.correzioni) {
+      for (const a of adempimenti) {
+        const corr = verifica.correzioni[a.nome];
+        if (corr) {
+          if (corr.corretto === false) {
+            // Riferimento errato → marca come non verificato
+            a.stato_affidabilita = 'non_verificato';
+            if (corr.nota) a.descrizione = (a.descrizione || '') + ' [Nota verifica: ' + corr.nota + ']';
+          }
+          if (corr.riferimento_corretto && corr.corretto !== false) {
+            a.riferimento_normativo = corr.riferimento_corretto;
+            a.stato_affidabilita = 'verificato';
+          }
+          if (corr.sanzione_corretta && corr.corretto !== false) {
+            a.sanzione_prevista = corr.sanzione_corretta;
+          }
+        }
+      }
+    }
+
+    // Normalizzazione finale
     const validCategorie = ["Sicurezza sul lavoro", "Privacy e GDPR", "Ambientale", "Fiscale", "Igiene e Sanità", "Antincendio", "Formazione obbligatoria", "Altro"];
 
     const normalizedAdempimenti = adempimenti.map(a => {
@@ -210,10 +296,8 @@ REGOLA FONDAMENTALE: Per ogni adempimento DEVI classificare lo stato_affidabilit
         dataScadenza = data.toISOString().split('T')[0];
       }
 
-      // Determina stato affidabilità
       const statoAffidabilita = a.stato_affidabilita === 'verificato' ? 'verificato' : 'non_verificato';
       
-      // Se non verificato, forza sanzione come non verificata
       let sanzione = a.sanzione_prevista || a.sanzione || '';
       if (statoAffidabilita === 'non_verificato' && sanzione && !sanzione.toLowerCase().includes('non verificata')) {
         sanzione = 'non verificata - consultare un professionista';
@@ -241,10 +325,13 @@ REGOLA FONDAMENTALE: Per ogni adempimento DEVI classificare lo stato_affidabilit
       };
     });
 
+    console.log('[generateComplianceNorms] Completato:', normalizedAdempimenti.length, 'adempimenti finali');
+
     return Response.json({
       success: true,
       adempimenti: normalizedAdempimenti,
-      count: normalizedAdempimenti.length
+      count: normalizedAdempimenti.length,
+      adempimenti_mancanti_segnalati: verifica.adempimenti_mancanti || []
     });
 
   } catch (error) {
