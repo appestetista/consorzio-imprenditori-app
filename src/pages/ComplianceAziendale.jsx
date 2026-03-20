@@ -1661,12 +1661,12 @@ VERIFICA:
 
                 {/* Superficie — sempre visibile (non recuperabile online) */}
                 <div>
-                  <Label className="text-amber-800 text-xs mb-1 block">Superficie stabilimento (mq)</Label>
+                  <Label className={`text-xs mb-1 block ${isDark ? 'text-slate-300' : 'text-slate-700'}`}>Superficie stabilimento (mq)</Label>
                   <Input
                     type="number"
                     value={newBranch.superficie_mq}
                     onChange={(e) => setNewBranch({...newBranch, superficie_mq: e.target.value})}
-                    className="bg-white/80 border-amber-300 text-slate-900 placeholder:text-amber-700/40"
+                    className={isDark ? "bg-slate-800 border-slate-600 text-white placeholder:text-slate-500" : "bg-white/80 border-amber-300 text-slate-900 placeholder:text-slate-500"}
                     placeholder="es: 500"
                     min="0"
                   />
