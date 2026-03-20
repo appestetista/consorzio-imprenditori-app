@@ -1471,144 +1471,47 @@ VERIFICA:
           </DialogHeader>
           
           <div className="space-y-4 px-5 pb-8">
-            <div className="space-y-2">
-              <Label className="text-amber-900 font-semibold">Rami esistenti ({branches.length})</Label>
-              {branches.length === 0 ? (
-                <p className="text-amber-700/70 text-sm py-2">Nessun ramo aziendale configurato. Aggiungine uno qui sotto.</p>
-              ) : (
-                branches.map(branch => (
-                  <Card key={branch.id} className="bg-white/60 border-amber-300/50 shadow-sm">
-                    <CardContent className="p-3">
-                      {editingBranch?.id === branch.id ? (
-                        <div className="space-y-2">
-                          <Input
-                            value={editingBranch.nome || ''}
-                            onChange={(e) => setEditingBranch({...editingBranch, nome: e.target.value})}
-                            className="bg-white/80 border-amber-300 text-slate-900"
-                            placeholder="Nome ramo"
-                          />
-                          <Textarea
-                            value={editingBranch.tipo_attivita || ''}
-                            onChange={(e) => setEditingBranch({...editingBranch, tipo_attivita: e.target.value})}
-                            className="bg-white/80 border-amber-300 text-slate-900"
-                            placeholder="Tipo attività"
-                            rows={2}
-                          />
-                          <div className="grid grid-cols-2 gap-2">
-                            <Input
-                              value={editingBranch.codice_ateco || ''}
-                              onChange={(e) => setEditingBranch({...editingBranch, codice_ateco: e.target.value})}
-                              className="bg-white/80 border-amber-300 text-slate-900"
-                              placeholder="Codice ATECO"
-                            />
-                            <Input
-                              type="number"
-                              value={editingBranch.numero_dipendenti || ''}
-                              onChange={(e) => setEditingBranch({...editingBranch, numero_dipendenti: e.target.value ? parseInt(e.target.value) : null})}
-                              className="bg-white/80 border-amber-300 text-slate-900"
-                              placeholder="N° dipendenti"
-                              min="0"
-                            />
-                          </div>
-                          <Input
-                            value={editingBranch.indirizzo || ''}
-                            onChange={(e) => setEditingBranch({...editingBranch, indirizzo: e.target.value})}
-                            className="bg-white/80 border-amber-300 text-slate-900"
-                            placeholder="Indirizzo"
-                          />
-                          <div>
-                            <Label className="text-amber-800 text-xs mb-1 block">Data attivazione</Label>
-                             <Input
-                               type="date"
-                               value={editingBranch.data_attivazione || ''}
-                               onChange={(e) => setEditingBranch({...editingBranch, data_attivazione: e.target.value})}
-                               className="bg-white/80 border-amber-300 text-slate-900"
-                             />
-                          </div>
-                          <div className="flex gap-2">
-                            <Button size="sm" onClick={() => updateBranchMutation.mutate({ id: branch.id, data: editingBranch })} className="bg-amber-600 text-white hover:bg-amber-700">
-                              Salva
-                            </Button>
-                            <Button size="sm" variant="outline" onClick={() => setEditingBranch(null)} className="border-amber-400 text-amber-800 hover:bg-amber-100">
-                              Annulla
-                            </Button>
-                          </div>
-                        </div>
-                      ) : (
-                        <div className="flex items-center justify-between">
-                          <div>
-                            <p className="text-slate-900 font-medium">{branch.nome}</p>
-                            <p className="text-amber-800 text-sm">{branch.tipo_attivita}</p>
-                            <div className="flex flex-wrap gap-2 mt-1">
-                              {branch.codice_ateco && (
-                                <span className="text-amber-900 text-xs bg-amber-200/60 px-2 py-0.5 rounded">ATECO: {branch.codice_ateco}</span>
-                              )}
-                              {branch.numero_dipendenti && (
-                                <span className="text-amber-900 text-xs bg-amber-200/60 px-2 py-0.5 rounded">{branch.numero_dipendenti} dip.</span>
-                              )}
-                              {branch.data_attivazione && (
-                                <span className="text-amber-900 text-xs bg-amber-200/60 px-2 py-0.5 rounded">Dal: {new Date(branch.data_attivazione).toLocaleDateString('it-IT')}</span>
-                              )}
-                            </div>
-                            {branch.indirizzo && (
-                              <p className="text-amber-700 text-xs mt-1">{branch.indirizzo}</p>
-                            )}
-                          </div>
-                          <div className="flex gap-1">
-                            <Button size="sm" variant="ghost" onClick={() => setEditingBranch(branch)} className="text-slate-400 hover:text-white">
-                              ✏️
-                            </Button>
-                            <Button 
-                              size="sm" 
-                              variant="ghost" 
-                              onClick={() => {
-                                if (confirm(`Eliminare il ramo "${branch.nome}" e tutti i suoi adempimenti?`)) {
-                                  deleteBranchMutation.mutate(branch.id);
-                                }
-                              }} 
-                              className="text-red-400 hover:text-red-300"
-                            >
-                              <Trash2 className="w-4 h-4" />
-                            </Button>
-                          </div>
-                        </div>
-                      )}
-                    </CardContent>
-                  </Card>
-                ))
-              )}
-            </div>
 
             {branches.length < 5 && (
-            <div className="border-t border-amber-400/40 pt-4">
-              <Label className="text-amber-900 font-semibold mb-2 block">Aggiungi nuovo ramo ({branches.length}/5)</Label>
+            <div className="pt-2">
+              <Label className={`font-semibold mb-3 block ${isDark ? 'text-slate-300' : 'text-amber-900'}`}>Come vuoi inserire i dati? ({branches.length}/5)</Label>
               
-              {/* Due pulsanti affiancati: Foto timbro + Compila manualmente */}
+              {/* Due pulsanti: Foto timbro + Compila manualmente */}
               {!showBranchForm && !showStampScanner && (
-                <div className="flex gap-2 mb-3">
+                <div className="flex flex-col gap-3 mb-3">
                   <button
                     onClick={() => { setShowStampScanner(true); }}
-                    className="flex-1 py-3 px-3 rounded-xl flex items-center justify-center gap-2 transition-all duration-150 active:translate-y-0.5 active:shadow-none"
+                    className="w-full py-4 px-4 rounded-2xl flex items-start gap-4 transition-all duration-150 active:scale-[0.98] text-left"
                     style={{
-                      background: 'linear-gradient(180deg, #f0e68c 0%, #d4af37 50%, #b8860b 100%)',
-                      boxShadow: '0 4px 0 #8b6914, 0 6px 12px rgba(139, 105, 20, 0.3), inset 0 1px 0 rgba(255,255,255,0.35)',
-                      border: '1px solid rgba(212, 175, 55, 0.6)',
+                      background: isDark ? 'linear-gradient(180deg, #1e293b 0%, #0f172a 100%)' : 'linear-gradient(180deg, #3d3210 0%, #2a2208 100%)',
+                      boxShadow: isDark ? '0 4px 0 #020617, 0 6px 16px rgba(0,0,0,0.4), inset 0 1px 0 rgba(255,255,255,0.06)' : '0 4px 0 #1a1505, 0 6px 16px rgba(0,0,0,0.3), inset 0 1px 0 rgba(255,255,255,0.08)',
+                      border: isDark ? '1px solid rgba(100,116,139,0.3)' : '1px solid rgba(212,175,55,0.25)',
                     }}
                   >
-                    <Camera className="w-5 h-5 text-slate-900" />
-                    <span className="text-slate-900 text-xs font-bold">📸 Foto timbro</span>
+                    <div className="w-11 h-11 rounded-xl flex items-center justify-center flex-shrink-0 mt-0.5" style={{ background: isDark ? 'rgba(132,255,0,0.15)' : 'rgba(212,175,55,0.2)' }}>
+                      <Camera className={`w-5 h-5 ${isDark ? 'text-lime-400' : 'text-amber-300'}`} />
+                    </div>
+                    <div>
+                      <span className={`text-sm font-semibold block ${isDark ? 'text-white' : 'text-amber-100'}`}>📸 Scatta foto al timbro</span>
+                      <span className={`text-xs block mt-1 leading-relaxed ${isDark ? 'text-slate-400' : 'text-amber-300/80'}`}>Fotografa il timbro della tua azienda e l'AI compilerà automaticamente tutti i campi per te</span>
+                    </div>
                   </button>
                   <button
                     onClick={() => setShowBranchForm(true)}
-                    className="flex-1 py-3 px-3 rounded-xl flex items-center justify-center gap-2 transition-all duration-150 active:translate-y-0.5 active:shadow-none"
+                    className="w-full py-4 px-4 rounded-2xl flex items-start gap-4 transition-all duration-150 active:scale-[0.98] text-left"
                     style={{
-                      background: 'linear-gradient(180deg, #fff 0%, #fef3c7 50%, #fde68a 100%)',
-                      boxShadow: '0 4px 0 #d4a017, 0 6px 12px rgba(180, 140, 20, 0.2), inset 0 1px 0 rgba(255,255,255,0.5)',
-                      border: '1px solid rgba(212, 175, 55, 0.4)',
+                      background: isDark ? 'linear-gradient(180deg, #1e293b 0%, #0f172a 100%)' : 'linear-gradient(180deg, #4a3d18 0%, #33280e 100%)',
+                      boxShadow: isDark ? '0 4px 0 #020617, 0 6px 16px rgba(0,0,0,0.4), inset 0 1px 0 rgba(255,255,255,0.06)' : '0 4px 0 #1a1505, 0 6px 16px rgba(0,0,0,0.3), inset 0 1px 0 rgba(255,255,255,0.08)',
+                      border: isDark ? '1px solid rgba(100,116,139,0.3)' : '1px solid rgba(212,175,55,0.25)',
                     }}
                   >
-                    <Pencil className="w-4 h-4 text-amber-800" />
-                    <span className="text-amber-900 text-xs font-bold">✏️ Compila manualmente</span>
+                    <div className="w-11 h-11 rounded-xl flex items-center justify-center flex-shrink-0 mt-0.5" style={{ background: isDark ? 'rgba(132,255,0,0.15)' : 'rgba(212,175,55,0.2)' }}>
+                      <Pencil className={`w-5 h-5 ${isDark ? 'text-lime-400' : 'text-amber-300'}`} />
+                    </div>
+                    <div>
+                      <span className={`text-sm font-semibold block ${isDark ? 'text-white' : 'text-amber-100'}`}>✏️ Compila manualmente</span>
+                      <span className={`text-xs block mt-1 leading-relaxed ${isDark ? 'text-slate-400' : 'text-amber-300/80'}`}>Inserisci tu stesso il codice ATECO, tipo di attività, dipendenti e rischi presenti</span>
+                    </div>
                   </button>
                 </div>
               )}
