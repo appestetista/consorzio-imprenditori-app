@@ -129,71 +129,72 @@ REGOLE:
 
     setProgressStep(2);
 
-    // Salva il codice ATECO letto dal timbro (fonte primaria)
-    const atecoFromStamp = result.codice_ateco || '';
+    // STEP 2: Cerca P.IVA su fonti ufficiali CCIAA → codice ATECO + descrizione + anno
+    let atecoUfficiale = '';
+    let descrizioneUfficiale = '';
 
-    // STEP 2: Cerca SOLO anno attivazione e descrizione attività da fonti CCIAA
-    // NON sovrascrivere mai il codice ATECO se è stato letto dal timbro
     if (result.partita_iva) {
       const cciaResult = await base44.integrations.Core.InvokeLLM({
         prompt: `Cerca l'azienda italiana con Partita IVA: ${result.partita_iva}${result.ragione_sociale ? ', ragione sociale: ' + result.ragione_sociale : ''}${result.citta ? ', città: ' + result.citta : ''}.
 
 Cerca su registroimprese.it, openapi.it, infoimprese.it, atoka.io, o altre fonti ufficiali italiane della Camera di Commercio (CCIAA).
 
-DEVO SAPERE:
-1. ATTIVITÀ PREVALENTE registrata in Camera di Commercio (descrizione testuale, es: "Compravendita di beni immobili effettuata su beni propri", "Ristorazione con somministrazione")
-2. CODICE ATECO registrato in Camera di Commercio (es: "68.10.00", "56.10.11") — restituisci SOLO se lo trovi con certezza
+DATI DA ESTRARRE:
+1. CODICE ATECO ufficiale registrato in Camera di Commercio (formato: XX.XX.XX, es: "68.10.00", "56.10.11")
+2. ATTIVITÀ PREVALENTE registrata in CCIAA (descrizione testuale esatta come risulta dal registro)
 3. Anno di inizio attività (anno iscrizione CCIAA o apertura P.IVA)
 
-REGOLE FONDAMENTALI:
+REGOLE:
 - Restituisci SOLO dati trovati con certezza da fonti ufficiali
+- Il codice ATECO è il dato PIÙ IMPORTANTE
 - Se NON trovi un dato, restituisci stringa vuota ""
-- NON inventare dati, NON dedurre, NON interpretare`,
+- NON inventare, NON dedurre, NON interpretare`,
         add_context_from_internet: true,
         response_json_schema: {
           type: "object",
           properties: {
-            attivita_prevalente: { type: "string", description: "Descrizione testuale dell'attività prevalente dalla CCIAA. Vuoto se non trovata." },
-            codice_ateco_cciaa: { type: "string", description: "Codice ATECO dalla CCIAA (es: 68.10.00). Vuoto se non trovato." },
-            anno_attivazione: { type: "string", description: "Anno di inizio attività (es: 2015). Vuoto se non trovato." },
+            codice_ateco: { type: "string", description: "Codice ATECO ufficiale dalla CCIAA (es: 68.10.00). Vuoto se non trovato." },
+            attivita_prevalente: { type: "string", description: "Descrizione attività dalla CCIAA. Vuoto se non trovata." },
+            anno_attivazione: { type: "string", description: "Anno di inizio attività. Vuoto se non trovato." },
             fonte: { type: "string", description: "Fonte da cui è stato trovato il dato" }
           }
         }
       });
 
-      // Descrizione attività
-      if (cciaResult.attivita_prevalente) {
-        result.descrizione_ateco = cciaResult.attivita_prevalente;
-      }
-      // Anno attivazione
+      atecoUfficiale = cciaResult.codice_ateco || '';
+      descrizioneUfficiale = cciaResult.attivita_prevalente || '';
+      
       if (cciaResult.anno_attivazione) {
         result.anno_attivazione = cciaResult.anno_attivazione;
       }
-      // Codice ATECO: priorità a quello del timbro, poi CCIAA, poi lookup
-      if (!atecoFromStamp && cciaResult.codice_ateco_cciaa) {
-        result.codice_ateco = cciaResult.codice_ateco_cciaa;
-      }
-      console.log('[StampExtractor] CCIAA:', cciaResult.attivita_prevalente, '| ATECO timbro:', atecoFromStamp, '| ATECO CCIAA:', cciaResult.codice_ateco_cciaa);
+
+      console.log('[StampExtractor] CCIAA → ATECO:', atecoUfficiale, '| Attività:', descrizioneUfficiale);
     }
 
     setProgressStep(3);
 
-    // STEP 3: Lookup ATECO nel database SOLO se non abbiamo ancora un codice (né dal timbro né dalla CCIAA)
-    if (!result.codice_ateco) {
-      const descrizioneRicerca = result.descrizione_ateco || result.ragione_sociale || '';
-      
-      if (descrizioneRicerca) {
-        const atecoLookup = await base44.functions.invoke('lookupAteco', {
-          descrizione_attivita: descrizioneRicerca,
-          ragione_sociale: result.ragione_sociale || '',
-          partita_iva: result.partita_iva || ''
-        });
+    // STEP 3: Cerca il codice ATECO nel database interno per avere la descrizione ISTAT ufficiale
+    // Usa: ATECO da CCIAA > ATECO letto dal timbro > lookup per descrizione
+    const atecoToLookup = atecoUfficiale || result.codice_ateco || '';
+    const descrizioneFallback = descrizioneUfficiale || result.ragione_sociale || '';
 
-        const atecoResult = atecoLookup.data;
-        if (atecoResult.codice_ateco) {
-          result.codice_ateco = atecoResult.codice_ateco;
-          result.descrizione_ateco = atecoResult.descrizione_ateco || result.descrizione_ateco || '';
-        }
+    if (atecoToLookup || descrizioneFallback) {
+      const atecoLookup = await base44.functions.invoke('lookupAteco', {
+        descrizione_attivita: atecoToLookup 
+          ? `Codice ATECO ${atecoToLookup}: ${descrizioneUfficiale || 'cerca la descrizione ufficiale'}` 
+          : descrizioneFallback,
+        ragione_sociale: result.ragione_sociale || '',
+        partita_iva: result.partita_iva || ''
+      });
+
+      const atecoResult = atecoLookup.data;
+      if (atecoResult.codice_ateco) {
+        result.codice_ateco = atecoResult.codice_ateco;
+        result.descrizione_ateco = atecoResult.descrizione_ateco || descrizioneUfficiale || '';
+      } else if (atecoUfficiale) {
+        // Il database non ha trovato il codice, ma la CCIAA sì → usa quello
+        result.codice_ateco = atecoUfficiale;
+        result.descrizione_ateco = descrizioneUfficiale;
       }
     }
 
