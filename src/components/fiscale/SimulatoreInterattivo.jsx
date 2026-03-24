@@ -460,11 +460,35 @@ export default function SimulatoreInterattivo({ user }) {
   const updCat = (k, v) => setCv(prev => ({ ...prev, [k]: v }));
   const toggleGruppo = (id) => setOpenGruppi(prev => ({ ...prev, [id]: !prev[id] }));
 
+  // Pesi default per distribuire i costi quando sono tutti a zero
+  const DEFAULT_WEIGHTS = {
+    materie_prime:22, semilavorati:8, imballaggi:2, consumabili:2, rifiuti:1,
+    lav_esterne:2, magazzino:1, controllo_qualita:0.5,
+    salari:14, oneri_sociali:5.5, tfr:1.5, interinali:2, formazione:0.5,
+    buoni_pasto:1, straordinari:1.5, trasferte_dip:0.5, welfare_aziendale:0.5,
+    affitto:4, elettricita:3, gas:1.5, acqua:0.3, manutenzione:2.5, pulizie:0.5,
+    condominio:0.4, sicurezza_sede:0.2, smaltimento_rifiuti_sede:0.2,
+    trasporti:3, commercialista:1, legali:0.3, telefonia:0.3, software:0.5, marketing:1,
+    consulenze_tecniche:0.5, postali_corrieri:0.2, certificazioni:0.3, outsourcing:0.4,
+    amm_macchinari:5, amm_immobili:1.5, leasing:1.5, interessi:1,
+    amm_automezzi:0.8, amm_software:0.5, commissioni_bancarie:0.4, interessi_fido:0.6,
+    assicurazioni:1, imu_tari:0.8, viaggi:0.5, rappresentanza:0.3, varie:1,
+    bolli_vidimazioni:0.15, abbonamenti_riviste:0.1, contributi_associativi:0.2, auto_aziendali:0.8,
+  };
+
   const scalaCosti = (target) => {
-    const ratio = target / Math.max(1, costi);
-    const n = {};
-    Object.entries(cv).forEach(([k, val]) => { n[k] = Math.round(val * ratio); });
-    setCv(n);
+    if (costi === 0) {
+      // Distribuisci proporzionalmente ai pesi default
+      const totalWeight = Object.values(DEFAULT_WEIGHTS).reduce((a, b) => a + b, 0);
+      const n = {};
+      ALL_KEYS.forEach(k => { n[k] = Math.round(target * (DEFAULT_WEIGHTS[k] || 0) / totalWeight); });
+      setCv(n);
+    } else {
+      const ratio = target / costi;
+      const n = {};
+      Object.entries(cv).forEach(([k, val]) => { n[k] = Math.round(val * ratio); });
+      setCv(n);
+    }
   };
 
   const applyAteco = (code) => {
