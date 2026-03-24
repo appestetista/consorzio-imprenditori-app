@@ -700,7 +700,15 @@ export default function SimulatoreInterattivo({ user }) {
       </div>
 
       {/* ═══ RISULTATI ═══ */}
+      {fatt === 0 && (
+        <div className="rounded-xl p-6 text-center" style={{ backgroundColor: "rgba(255,255,255,0.03)", border: "1px solid rgba(0,0,0,0.15)" }}>
+          <div className="text-3xl mb-2">☝️</div>
+          <p className="text-sm font-medium" style={{ color: 'var(--app-text-primary)' }}>Inserisci il tuo fatturato per vedere i risultati</p>
+          <p className="text-xs mt-1" style={{ color: 'var(--app-text-secondary)' }}>Sposta lo slider del fatturato oppure digita un valore nel campo sopra</p>
+        </div>
+      )}
 
+      {fatt > 0 && <>
       {/* QUANTO TI RESTA IN TASCA */}
       <div className="rounded-xl p-6 text-center" style={{
         background: "linear-gradient(135deg, rgba(16,185,129,0.1) 0%, rgba(59,130,246,0.1) 100%)",
