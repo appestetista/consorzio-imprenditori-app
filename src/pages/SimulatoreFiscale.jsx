@@ -90,13 +90,13 @@ export default function SimulatoreFiscale() {
             </button>
             <span className="text-[#d4af37] text-xs font-semibold bg-[#d4af37]/10 px-2 py-0.5 rounded">{effectiveUser.forma_giuridica}</span>
             {effectiveUser?.regime_fiscale && (
-              <span className="text-black text-xs bg-slate-800/80 px-2 py-0.5 rounded">{effectiveUser.regime_fiscale}</span>
+              <span className="text-xs px-2 py-0.5 rounded" style={{ color: 'var(--app-text-primary)', backgroundColor: 'var(--app-bg-card)' }}>{effectiveUser.regime_fiscale}</span>
             )}
             {(effectiveUser?.regione || effectiveUser?.region) && (
-              <span className="text-black text-xs bg-slate-800/80 px-2 py-0.5 rounded">{effectiveUser.regione || effectiveUser.region}</span>
+              <span className="text-xs px-2 py-0.5 rounded" style={{ color: 'var(--app-text-primary)', backgroundColor: 'var(--app-bg-card)' }}>{effectiveUser.regione || effectiveUser.region}</span>
             )}
             {effectiveUser?.ateco_code && (
-              <span className="text-black text-xs bg-slate-800/80 px-2 py-0.5 rounded inline-flex items-center">
+              <span className="text-xs px-2 py-0.5 rounded inline-flex items-center" style={{ color: 'var(--app-text-primary)', backgroundColor: 'var(--app-bg-card)' }}>
                 ATECO {effectiveUser.ateco_code}
                 <AtecoInfoPopup atecoCode={effectiveUser.ateco_code} />
               </span>
