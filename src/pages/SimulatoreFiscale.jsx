@@ -52,17 +52,18 @@ export default function SimulatoreFiscale() {
     <div className="min-h-screen pb-64" style={{ backgroundColor: 'var(--app-bg)' }}>
       <main className="px-4 py-6 max-w-md mx-auto">
         {/* Header pagina */}
-        <div className="flex items-center justify-between mb-6">
-          <div className="flex items-center gap-3">
-            <Link to={createPageUrl('Esplora?tab=strumenti')} className="text-[#d4af37] p-3 -m-3 rounded-full back-arrow-tap">
-              <ArrowLeft className="w-7 h-7" />
-            </Link>
-            <div className="flex items-center gap-2">
-              <Calculator className="w-5 h-5 text-[#d4af37]" />
-              <h1 className="text-black text-xl font-bold">Quanto Mi Resta?</h1>
-            </div>
+        <div className="flex items-center gap-3 mb-4">
+          <Link to={createPageUrl('Esplora?tab=strumenti')} className="text-[#d4af37] p-3 -m-3 rounded-full back-arrow-tap">
+            <ArrowLeft className="w-7 h-7" />
+          </Link>
+          <div className="flex items-center gap-2">
+            <Calculator className="w-5 h-5 text-[#d4af37]" />
+            <h1 className="text-xl font-bold" style={{ color: 'var(--app-text-primary)' }}>Simulatore Fiscale</h1>
           </div>
         </div>
+
+        {/* Hero visivo */}
+        <SimulatoreHero />
 
         {/* Popup pre-flight dati fiscali mancanti */}
         {showPreFlight && effectiveUser && (
