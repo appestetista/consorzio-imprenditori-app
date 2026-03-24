@@ -388,25 +388,11 @@ function WBar({ step, maxVal }) {
 export default function SimulatoreInterattivo({ user }) {
   const initVals = {};
   ALL_KEYS.forEach(k => { initVals[k] = 0; });
-  Object.assign(initVals, {
-    materie_prime:66000, semilavorati:24000, imballaggi:6000, consumabili:6000, rifiuti:3000,
-    lav_esterne:6000, magazzino:3000, controllo_qualita:1500,
-    salari:42000, oneri_sociali:16500, tfr:4500, interinali:6000, formazione:1500,
-    buoni_pasto:3000, straordinari:4500, trasferte_dip:1500, welfare_aziendale:1500,
-    affitto:12000, elettricita:9000, gas:4500, acqua:900, manutenzione:7500, pulizie:1500,
-    condominio:1200, sicurezza_sede:600, smaltimento_rifiuti_sede:500,
-    trasporti:9000, commercialista:3000, legali:900, telefonia:900, software:1500, marketing:3000,
-    consulenze_tecniche:1500, postali_corrieri:600, certificazioni:900, outsourcing:1200,
-    amm_macchinari:15000, amm_immobili:4500, leasing:4500, interessi:3000,
-    amm_automezzi:2400, amm_software:1500, commissioni_bancarie:1200, interessi_fido:1800,
-    assicurazioni:3000, imu_tari:2400, viaggi:1500, rappresentanza:900, varie:3000,
-    bolli_vidimazioni:500, abbonamenti_riviste:300, contributi_associativi:600, auto_aziendali:2400,
-  });
 
-  const [fatt, setFatt] = useState(300000);
+  const [fatt, setFatt] = useState(0);
   const [cv, setCv] = useState(initVals);
-  const [comp, setComp] = useState(36000);
-  const [pDiv, setPDiv] = useState(80);
+  const [comp, setComp] = useState(0);
+  const [pDiv, setPDiv] = useState(0);
   const [detCosti, setDetCosti] = useState(false);
   const [openGruppi, setOpenGruppi] = useState({});
   const [detComp, setDetComp] = useState(false);
