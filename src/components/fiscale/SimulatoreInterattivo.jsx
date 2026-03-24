@@ -948,6 +948,8 @@ export default function SimulatoreInterattivo({ user }) {
         )}
       </div>
 
+      </>}
+
       {/* DISCLAIMER */}
       <div className="text-center text-xs text-black/50 px-2">
         ⚠️ Simulazione orientativa — non sostituisce il commercialista.
