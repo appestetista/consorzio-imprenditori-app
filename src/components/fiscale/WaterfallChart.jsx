@@ -79,7 +79,7 @@ export default function WaterfallChart({ result, features }) {
   items.push({ label: '💰 In tasca', value: result.inTascaSocio, color: 'emerald' });
 
   return (
-    <div className="bg-gradient-to-br from-[#0a2540] to-[#0d2f4f] border border-[#1a3a5c] rounded-2xl p-4">
+    <div className="bg-gradient-to-br from-[#0a2540] to-[#0d2f4f] border border-[#1a3a5c] rounded-2xl p-4 w-full overflow-hidden">
       <h3 className="text-white font-bold text-sm mb-3">CASCATA: DOVE VANNO I TUOI SOLDI</h3>
       <div className="space-y-0.5">
         {items.map((item, i) => (
