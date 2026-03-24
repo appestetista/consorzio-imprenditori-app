@@ -13,16 +13,16 @@ function WaterfallBar({ label, value, maxValue, color }) {
     emerald: 'bg-emerald-400', slate: 'bg-slate-500',
   };
   return (
-    <div className="flex items-center gap-3 py-1.5">
-      <div className="w-[120px] flex-shrink-0">
-        <p className="text-slate-400 text-[11px] leading-tight">{label}</p>
+    <div className="flex items-center gap-2 py-1.5 min-w-0 w-full overflow-hidden">
+      <div className="w-[100px] flex-shrink-0">
+        <p className="text-slate-400 text-[11px] leading-tight truncate">{label}</p>
       </div>
-      <div className="flex-1 h-7 bg-slate-800/50 rounded-md overflow-hidden relative">
+      <div className="flex-1 min-w-0 h-7 bg-slate-800/50 rounded-md overflow-hidden relative">
         <div
           className={`h-full ${colorMap[color] || 'bg-slate-500'} rounded-md transition-all duration-500 flex items-center justify-end pr-2`}
-          style={{ width: `${Math.max(perc, 8)}%` }}
+          style={{ width: `${Math.max(perc, 12)}%` }}
         >
-          <span className="text-white text-[11px] font-bold whitespace-nowrap drop-shadow">{formatEuro(value)}</span>
+          <span className="text-white text-[10px] font-bold whitespace-nowrap drop-shadow">{formatEuro(value)}</span>
         </div>
       </div>
     </div>
