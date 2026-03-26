@@ -1,6 +1,7 @@
 import React, { useState, useEffect } from 'react';
 import { base44 } from '@/api/base44Client';
 import { useQuery, useQueryClient } from '@tanstack/react-query';
+import { useAuth } from '@/lib/AuthContext';
 import { ArrowLeft } from 'lucide-react';
 import { Link } from 'react-router-dom';
 import { createPageUrl } from '@/utils';
@@ -17,79 +18,39 @@ import ConsulenzeBanner from '../components/consulenze/ConsulenzeBanner';
 
 
 export default function Consulenze() {
-  const [user, setUser] = useState(null);
+  const { user } = useAuth();
   const [effectiveUser, setEffectiveUser] = useState(null);
   const { impersonation } = useImpersonation();
   const { playSound } = useNotificationSound();
   const queryClient = useQueryClient();
 
-  // Carica l'user corrente
   useEffect(() => {
     window.scrollTo(0, 0);
-    const loadUser = async () => {
-      try {
-        const currentUser = await base44.auth.me();
-        setUser(currentUser);
-      } catch (e) {
-        console.error(e);
-      }
-    };
-    loadUser();
   }, []);
 
-  // Carica l'effective user (con impersonation)
+  // Carica l'effective user (con impersonation) usando user da AuthContext
   useEffect(() => {
+    if (!user) return;
     const loadEffectiveUser = async () => {
-      try {
-        const currentUser = await base44.auth.me();
-        console.log('[Consulenze] currentUser from auth.me():', currentUser);
-        
-        if (impersonation.active) {
-          if (impersonation.role === 'user') {
-            // Impersonificazione utente normale
-            const impersonatedUser = await base44.entities.User.filter({ id: impersonation.targetId });
-            if (impersonatedUser.length > 0) {
-              setEffectiveUser(impersonatedUser[0]);
-            } else {
-              setEffectiveUser(currentUser);
-            }
-          } else if (impersonation.role === 'consulente') {
-            // Impersonificazione consulente - carica i dati completi dell'utente consulente
-            const consultantUsers = await base44.entities.User.filter({ email: impersonation.targetEmail });
-            if (consultantUsers.length > 0) {
-              setEffectiveUser({
-                ...consultantUsers[0],
-                user_type: 'consulente'
-              });
-            } else {
-              // Fallback se non c'è un record User per il consulente
-              setEffectiveUser({ 
-                ...currentUser, 
-                email: impersonation.targetEmail,
-                user_type: 'consulente',
-                full_name: impersonation.targetName
-              });
-            }
+      if (impersonation.active) {
+        if (impersonation.role === 'user') {
+          const impersonatedUser = await base44.entities.User.filter({ id: impersonation.targetId });
+          setEffectiveUser(impersonatedUser.length > 0 ? impersonatedUser[0] : user);
+        } else if (impersonation.role === 'consulente') {
+          const consultantUsers = await base44.entities.User.filter({ email: impersonation.targetEmail });
+          if (consultantUsers.length > 0) {
+            setEffectiveUser({ ...consultantUsers[0], user_type: 'consulente' });
+          } else {
+            setEffectiveUser({ ...user, email: impersonation.targetEmail, user_type: 'consulente', full_name: impersonation.targetName });
           }
-        } else {
-          // Normalizza i dati: user_type e altri campi possono essere in data.*
-          // base44.auth.me() restituisce dati con struttura diversa a seconda del contesto
-          const normalizedUser = {
-            ...currentUser,
-            ...currentUser.data, // Flatten dei dati nested
-            email: currentUser.email, // email è sempre nel root per auth.me()
-            user_type: currentUser.user_type || currentUser.data?.user_type
-          };
-          console.log('[Consulenze] currentUser raw:', JSON.stringify(currentUser, null, 2));
-          console.log('[Consulenze] normalizedUser:', normalizedUser);
-          setEffectiveUser(normalizedUser);
         }
-      } catch (e) {
-        console.error('[Consulenze] Error loading user:', e);
+      } else {
+        // user da AuthContext è già normalizzato
+        setEffectiveUser(user);
       }
     };
     loadEffectiveUser();
-  }, [impersonation.active, impersonation.targetId, impersonation.role, impersonation.targetEmail, impersonation.targetName]);
+  }, [user, impersonation.active, impersonation.targetId, impersonation.role, impersonation.targetEmail, impersonation.targetName]);
 
   const { data: consultants = [], isLoading } = useQuery({
     queryKey: ['consultants'],

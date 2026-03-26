@@ -1,6 +1,7 @@
 import React, { useState, useEffect } from 'react';
 import { base44 } from '@/api/base44Client';
 import { useQuery, useMutation, useQueryClient } from '@tanstack/react-query';
+import { useAuth } from '@/lib/AuthContext';
 import { ArrowLeft, Shield, Upload, FileText, AlertTriangle, CheckCircle, Clock, Plus, X, ChevronDown, ChevronUp, Trash2, Calendar, Sparkles, Loader2, Building2, MoreVertical, Pencil, Camera, Image, RefreshCw, Search } from 'lucide-react';
 import { Link } from 'react-router-dom';
 import { createPageUrl } from '@/utils';
@@ -51,7 +52,7 @@ const STATO_LABELS = {
 };
 
 export default function ComplianceAziendale() {
-  const [user, setUser] = useState(null);
+  const { user } = useAuth();
   const [effectiveUser, setEffectiveUser] = useState(null);
   const [loading, setLoading] = useState(true);
   
@@ -128,26 +129,19 @@ export default function ComplianceAziendale() {
 
   useEffect(() => {
     window.scrollTo(0, 0);
-    const loadUser = async () => {
+    if (!user) return;
+    const loadEffective = async () => {
       setLoading(true);
-      try {
-        const currentUser = await base44.auth.me();
-        setUser(currentUser);
-        
-        if (appMode === 'user-preview' && impersonation.previewUserId) {
-          const users = await base44.entities.User.filter({ id: impersonation.previewUserId });
-          setEffectiveUser(users[0] || currentUser);
-        } else {
-          setEffectiveUser(currentUser);
-        }
-      } catch (e) {
-        console.error(e);
-      } finally {
-        setLoading(false);
+      if (appMode === 'user-preview' && impersonation.previewUserId) {
+        const users = await base44.entities.User.filter({ id: impersonation.previewUserId });
+        setEffectiveUser(users[0] || user);
+      } else {
+        setEffectiveUser(user);
       }
+      setLoading(false);
     };
-    loadUser();
-  }, [appMode, impersonation.previewUserId]);
+    loadEffective();
+  }, [user, appMode, impersonation.previewUserId]);
 
   const { data: norms = [], isLoading: loadingNorms } = useQuery({
     queryKey: ['compliance-norms', effectiveUser?.email],

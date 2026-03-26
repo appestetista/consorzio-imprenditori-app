@@ -1,6 +1,7 @@
 import React, { useState, useEffect } from 'react';
 import { base44 } from '@/api/base44Client';
 import { useQuery, useMutation, useQueryClient } from '@tanstack/react-query';
+import { useAuth } from '@/lib/AuthContext';
 import { format } from 'date-fns';
 import { it } from 'date-fns/locale';
 import { Calendar, MapPin, Clock, Users, Check, X, Plus, ArrowLeft, Image, Upload, Edit, Briefcase, Bell, Send } from 'lucide-react';
@@ -31,7 +32,7 @@ export default function CalendarioIncontri() {
   const urlParams = new URLSearchParams(window.location.search);
   const paramColor = urlParams.get('monthColor');
   const currentMonthColor = paramColor && paramColor.startsWith('#') ? paramColor : MONTH_COLORS[new Date().getMonth()];
-  const [user, setUser] = useState(null);
+  const { user } = useAuth();
   const [showAddEvent, setShowAddEvent] = useState(false);
   const [showUserEventForm, setShowUserEventForm] = useState(false);
   const [newEvent, setNewEvent] = useState({ title: '', description: '', date: '', time: '', location: '', image_url: '', reminder_enabled: false });
@@ -58,15 +59,6 @@ export default function CalendarioIncontri() {
 
   useEffect(() => {
     window.scrollTo(0, 0);
-    const loadUser = async () => {
-      try {
-        const currentUser = await base44.auth.me();
-        setUser(currentUser);
-      } catch (e) {
-        console.error(e);
-      }
-    };
-    loadUser();
   }, []);
 
   const isAdmin = user?.role === 'admin' && !impersonation.active;

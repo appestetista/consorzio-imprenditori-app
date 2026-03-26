@@ -1,6 +1,7 @@
 import React, { useState, useEffect } from 'react';
 import { base44 } from '@/api/base44Client';
 import { useQuery, useMutation, useQueryClient } from '@tanstack/react-query';
+import { useAuth } from '@/lib/AuthContext';
 import { ArrowLeft, Plus, ShoppingBag, Tag, User, X, Upload, Pencil, Trash2, MessageCircle, Send, Loader2, Mail, Briefcase, Check } from 'lucide-react';
 import { Link } from 'react-router-dom';
 import { createPageUrl } from '@/utils';
@@ -33,7 +34,7 @@ const CATEGORIES = [
 ];
 
 export default function Marketplace() {
-  const [user, setUser] = useState(null);
+  const { user } = useAuth();
   const [showAddAd, setShowAddAd] = useState(false);
   const [selectedCategory, setSelectedCategory] = useState('all');
   const [newAd, setNewAd] = useState({ title: '', description: '', category: '', price: '', contact_phone: '', image_url: '' });
@@ -52,15 +53,6 @@ export default function Marketplace() {
 
   useEffect(() => {
     window.scrollTo(0, 0);
-    const loadUser = async () => {
-      try {
-        const currentUser = await base44.auth.me();
-        setUser(currentUser);
-      } catch (e) {
-        console.error(e);
-      }
-    };
-    loadUser();
   }, []);
 
   const { data: ads = [], isLoading } = useQuery({

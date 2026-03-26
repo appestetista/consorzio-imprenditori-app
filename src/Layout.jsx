@@ -7,6 +7,7 @@ import GlobalHeader from './components/layout/GlobalHeader';
 import ImpersonationBanner from './components/admin/ImpersonationBanner';
 import { base44 } from '@/api/base44Client';
 import { Toaster } from 'sonner';
+import { useAuth } from '@/lib/AuthContext';
 import CalendarSideTab from './components/calendario/CalendarSideTab';
 import VantaggiSideTab from './components/vantaggi/VantaggiSideTab';
 import GlobalSearchBar from './components/layout/GlobalSearchBar';
@@ -19,14 +20,9 @@ import { ThemeProvider } from './components/context/ThemeContext';
 export default function Layout({ children, currentPageName }) {
   const [selectedDate, setSelectedDate] = useState(null);
   const [forceOpenCalendar, setForceOpenCalendar] = useState(false);
-  const [layoutUser, setLayoutUser] = useState(null);
+  const { user: layoutUser } = useAuth();
   const [chatSidebarOpen, setChatSidebarOpen] = useState(false);
   const navigate = useNavigate();
-
-  // Carica utente una sola volta per i pannelli globali
-  useEffect(() => {
-    base44.auth.me().then(u => setLayoutUser(u)).catch(() => {});
-  }, []);
 
   // Ascolta evento globale per aprire la sidebar chat
   useEffect(() => {

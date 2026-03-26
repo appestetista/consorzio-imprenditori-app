@@ -1,6 +1,7 @@
 import React, { useState, useEffect } from 'react';
 import { base44 } from '@/api/base44Client';
 import { useQuery, useMutation, useQueryClient } from '@tanstack/react-query';
+import { useAuth } from '@/lib/AuthContext';
 import { ArrowLeft, Plus, Search, Eye, Users, Clock, Shield, AlertTriangle } from 'lucide-react';
 import { useNavigate } from 'react-router-dom';
 import { createPageUrl } from '@/utils';
@@ -18,7 +19,7 @@ import PremiumAIGate from '@/components/common/PremiumAIGate';
 import GlobalTopIcons from '../components/layout/GlobalTopIcons';
 
 export default function Fornitori() {
-  const [user, setUser] = useState(null);
+  const { user } = useAuth();
   const [effectiveUser, setEffectiveUser] = useState(null);
   const [loading, setLoading] = useState(true);
   const [showNewRequest, setShowNewRequest] = useState(false);
@@ -29,26 +30,19 @@ export default function Fornitori() {
 
   useEffect(() => {
     window.scrollTo(0, 0);
-    const loadUser = async () => {
+    if (!user) return;
+    const loadEffective = async () => {
       setLoading(true);
-      try {
-        const currentUser = await base44.auth.me();
-        setUser(currentUser);
-        
-        if (appMode === 'user-preview' && impersonation.previewUserId) {
-          const users = await base44.entities.User.filter({ id: impersonation.previewUserId });
-          setEffectiveUser(users[0] || currentUser);
-        } else {
-          setEffectiveUser(currentUser);
-        }
-      } catch (e) {
-        console.error(e);
-      } finally {
-        setLoading(false);
+      if (appMode === 'user-preview' && impersonation.previewUserId) {
+        const users = await base44.entities.User.filter({ id: impersonation.previewUserId });
+        setEffectiveUser(users[0] || user);
+      } else {
+        setEffectiveUser(user);
       }
+      setLoading(false);
     };
-    loadUser();
-  }, [appMode, impersonation.previewUserId]);
+    loadEffective();
+  }, [user, appMode, impersonation.previewUserId]);
 
   // Controlla se l'utente ha un profilo fornitore
   const { data: supplierProfile } = useQuery({

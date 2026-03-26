@@ -3,6 +3,7 @@
 import React, { useState, useEffect, useLayoutEffect, useRef } from 'react';
 import { base44 } from '@/api/base44Client';
 import { useQuery, useQueryClient } from '@tanstack/react-query';
+import { useAuth } from '@/lib/AuthContext';
 import { Calendar, Video, Briefcase, User, Euro, ShoppingBag, BookOpen, Handshake, Truck, Heart, FileSearch, Globe, Shield, PiggyBank, Gavel, Gift, QrCode, ScanLine, Star, Calculator, Users, Home, Menu, X, LogOut, Settings, Eye, XCircle, Phone, Megaphone, TrendingUp } from 'lucide-react';
 import { Link, useNavigate } from 'react-router-dom';
 import { createPageUrl } from '@/utils';
@@ -23,7 +24,7 @@ import { cn } from '@/lib/utils';
 import { useTheme } from '../components/context/ThemeContext';
 
 export default function Esplora() {
-  const [user, setUser] = useState(null);
+  const { user } = useAuth();
   const [effectiveUser, setEffectiveUser] = useState(null);
   const [loading, setLoading] = useState(true);
   const { impersonation, setCurrentUserRole, appMode, startImpersonation, stopImpersonation } = useImpersonation();
@@ -38,36 +39,21 @@ export default function Esplora() {
   const { isDark } = useTheme();
 
   useEffect(() => {
-    const loadUser = async () => {
+    if (!user) { setLoading(true); return; }
+    const loadEffective = async () => {
       setLoading(true);
-      try {
-        const currentUser = await base44.auth.me();
-        if (!currentUser) {
-          setEffectiveUser(null);
-          setLoading(false);
-          return;
-        }
-        setUser(currentUser);
-        setCurrentUserRole(currentUser.role);
-
-        if (appMode === 'user-preview' && impersonation.previewUserId) {
-          const users = await base44.entities.User.filter({ id: impersonation.previewUserId });
-          if (users.length > 0) {
-            setEffectiveUser(normalizeUser(users[0]));
-          } else {
-            setEffectiveUser(null);
-          }
-        } else {
-          setEffectiveUser(normalizeUser(currentUser));
-        }
-      } catch (e) {
-        setEffectiveUser(null);
-      } finally {
-        setLoading(false);
+      setCurrentUserRole(user.role);
+      if (appMode === 'user-preview' && impersonation.previewUserId) {
+        const users = await base44.entities.User.filter({ id: impersonation.previewUserId });
+        setEffectiveUser(users.length > 0 ? normalizeUser(users[0]) : null);
+      } else {
+        // user da AuthContext è già normalizzato
+        setEffectiveUser(user);
       }
+      setLoading(false);
     };
-    loadUser();
-  }, [appMode, impersonation.previewUserId, setCurrentUserRole]);
+    loadEffective();
+  }, [user, appMode, impersonation.previewUserId, setCurrentUserRole]);
 
   const notificationTypeToSection = {
     'event': 'calendario',

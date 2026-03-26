@@ -1,6 +1,7 @@
 import React, { useState, useEffect } from 'react';
 import { base44 } from '@/api/base44Client';
 import { useQuery } from '@tanstack/react-query';
+import { useAuth } from '@/lib/AuthContext';
 import { ArrowLeft, FileSearch, Upload, FileText, Loader2, CheckCircle, AlertTriangle, Info, Scale, Send, X, History, ChevronRight, Trash2, Paperclip, Camera, Mail, MessageSquare, Clock } from 'lucide-react';
 import { useAILimits } from '@/components/hooks/useAILimits';
 import LimitReachedBanner from '@/components/common/LimitReachedBanner';
@@ -22,7 +23,7 @@ import PremiumAIGate from '@/components/common/PremiumAIGate';
 import GlobalTopIcons from '../components/layout/GlobalTopIcons';
 
 export default function AnalisiContratti() {
-  const [user, setUser] = useState(null);
+  const { user } = useAuth();
   const [files, setFiles] = useState([]);
   const [uploading, setUploading] = useState(false);
   const [analyzing, setAnalyzing] = useState(false);
@@ -43,15 +44,6 @@ export default function AnalisiContratti() {
 
   useEffect(() => {
     window.scrollTo(0, 0);
-    const loadUser = async () => {
-      try {
-        const currentUser = await base44.auth.me();
-        setUser(currentUser);
-      } catch (e) {
-        console.error(e);
-      }
-    };
-    loadUser();
   }, []);
 
   const { data: messages = [] } = useQuery({

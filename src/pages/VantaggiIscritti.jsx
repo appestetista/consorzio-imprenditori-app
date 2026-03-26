@@ -1,6 +1,7 @@
 import React, { useState, useEffect } from 'react';
 import { base44 } from '@/api/base44Client';
 import { useQuery, useMutation, useQueryClient } from '@tanstack/react-query';
+import { useAuth } from '@/lib/AuthContext';
 import { Link } from 'react-router-dom';
 import { createPageUrl } from '@/utils';
 import { ArrowLeft, Gift, Tag, Calendar, MapPin, Check, Clock, Building2, User, Plus, X, Upload, TrendingUp, Minus, QrCode } from 'lucide-react';
@@ -32,6 +33,7 @@ const TIPI_VANTAGGIO = [
 ];
 
 export default function VantaggiIscritti() {
+  const { user: authUser } = useAuth();
   const [user, setUser] = useState(null);
   const [loading, setLoading] = useState(true);
   const [showCreatePanel, setShowCreatePanel] = useState(false);
@@ -57,23 +59,18 @@ export default function VantaggiIscritti() {
 
   useEffect(() => {
     window.scrollTo(0, 0);
-    const loadUser = async () => {
-      try {
-        const currentUser = await base44.auth.me();
-        if (impersonation.active && impersonation.targetEmail) {
-          const users = await base44.entities.User.filter({ email: impersonation.targetEmail });
-          setUser(users[0] || currentUser);
-        } else {
-          setUser(currentUser);
-        }
-      } catch (e) {
-        console.error(e);
-      } finally {
-        setLoading(false);
+    const loadEffective = async () => {
+      if (!authUser) return;
+      if (impersonation.active && impersonation.targetEmail) {
+        const users = await base44.entities.User.filter({ email: impersonation.targetEmail });
+        setUser(users[0] || authUser);
+      } else {
+        setUser(authUser);
       }
+      setLoading(false);
     };
-    loadUser();
-  }, [impersonation]);
+    loadEffective();
+  }, [authUser, impersonation]);
 
   // Vantaggi attivi
   const { data: vantaggiAttivi = [], isLoading: loadingVantaggi } = useQuery({

@@ -1,7 +1,8 @@
-import React, { createContext, useState, useContext, useEffect } from 'react';
+import React, { createContext, useState, useContext, useEffect, useCallback } from 'react';
 import { base44 } from '@/api/base44Client';
 import { appParams } from '@/lib/app-params';
 import { createAxiosClient } from '@base44/sdk/dist/utils/axios-client';
+import { normalizeUser } from '@/components/utils/normalizeUser';
 
 const AuthContext = createContext();
 
@@ -92,7 +93,7 @@ export const AuthProvider = ({ children }) => {
       // Now check if the user is authenticated
       setIsLoadingAuth(true);
       const currentUser = await base44.auth.me();
-      setUser(currentUser);
+      setUser(normalizeUser(currentUser));
       setIsAuthenticated(true);
       setIsLoadingAuth(false);
     } catch (error) {
@@ -109,6 +110,17 @@ export const AuthProvider = ({ children }) => {
       }
     }
   };
+
+  const refreshUser = useCallback(async () => {
+    try {
+      const currentUser = await base44.auth.me();
+      setUser(normalizeUser(currentUser));
+      return normalizeUser(currentUser);
+    } catch (error) {
+      console.error('refreshUser failed:', error);
+      return null;
+    }
+  }, []);
 
   const logout = (shouldRedirect = true) => {
     setUser(null);
@@ -138,7 +150,8 @@ export const AuthProvider = ({ children }) => {
       appPublicSettings,
       logout,
       navigateToLogin,
-      checkAppState
+      checkAppState,
+      refreshUser
     }}>
       {children}
     </AuthContext.Provider>

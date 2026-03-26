@@ -8,6 +8,7 @@ import { useImpersonation } from '../components/admin/ImpersonationContext';
 import { normalizeUser, isUserConsultant } from '../components/utils/normalizeUser';
 import { cn } from '@/lib/utils';
 import { useTheme } from '../components/context/ThemeContext';
+import { useAuth } from '@/lib/AuthContext';
 import BottomNav from '../components/layout/BottomNav';
 import ChatMessage from '../components/home/ChatMessage';
 
@@ -22,7 +23,7 @@ import useStreamingAI from '../components/home/useStreamingAI';
 import { useQueryClient } from '@tanstack/react-query';
 
 export default function Home() {
-  const [user, setUser] = useState(null);
+  const { user } = useAuth();
   const [effectiveUser, setEffectiveUser] = useState(null);
   const [loading, setLoading] = useState(true);
   const { impersonation, setCurrentUserRole, appMode } = useImpersonation();
@@ -61,26 +62,23 @@ export default function Home() {
   const inputRef = useRef(null);
   const [showScrollDown, setShowScrollDown] = useState(false);
 
-  // Caricamento utente
+  // Caricamento effectiveUser basato su user da AuthContext
   useEffect(() => {
-    const loadUser = async () => {
+    if (!user) { setLoading(true); return; }
+    const loadEffective = async () => {
       setLoading(true);
-      try {
-        const currentUser = await base44.auth.me();
-        if (!currentUser) { setEffectiveUser(null); setLoading(false); return; }
-        setUser(currentUser);
-        setCurrentUserRole(currentUser.role);
-        if (appMode === 'user-preview' && impersonation.previewUserId) {
-          const users = await base44.entities.User.filter({ id: impersonation.previewUserId });
-          setEffectiveUser(users.length > 0 ? normalizeUser(users[0]) : null);
-        } else {
-          setEffectiveUser(normalizeUser(currentUser));
-        }
-      } catch (e) { setEffectiveUser(null); }
-      finally { setLoading(false); }
+      setCurrentUserRole(user.role);
+      if (appMode === 'user-preview' && impersonation.previewUserId) {
+        const users = await base44.entities.User.filter({ id: impersonation.previewUserId });
+        setEffectiveUser(users.length > 0 ? normalizeUser(users[0]) : null);
+      } else {
+        // user da AuthContext è già normalizzato
+        setEffectiveUser(user);
+      }
+      setLoading(false);
     };
-    loadUser();
-  }, [appMode, impersonation.previewUserId, setCurrentUserRole]);
+    loadEffective();
+  }, [user, appMode, impersonation.previewUserId, setCurrentUserRole]);
 
   // Redirect admin
   useEffect(() => {
@@ -118,11 +116,10 @@ export default function Home() {
 
   // Assegnazione tipo utente
   useEffect(() => {
+    if (!user || impersonation.active) return;
     const assignType = async () => {
-      if (impersonation.active) return;
+      if (user.role === 'admin' || user.user_type) return;
       try {
-        const currentUser = await base44.auth.me();
-        if (currentUser?.role === 'admin' || currentUser?.user_type) return;
         const result = await base44.functions.invoke('assignUserType', {});
         if (result.data?.already_assigned || result.data?.already_registered) return;
         if (result.data?.success && result.data?.message?.includes('Consulente autorizzato')) return;
@@ -133,7 +130,7 @@ export default function Home() {
       } catch (e) {}
     };
     assignType();
-  }, [impersonation.active, navigate]);
+  }, [user, impersonation.active, navigate]);
 
   // Scroll: quando l'utente invia un messaggio, scrolla per mostrare la domanda + i puntini di typing in alto.
   // Quando arriva la risposta AI, scrolla fino alla RISPOSTA (non al fondo) e lascia che l'utente scorra con il dito.
