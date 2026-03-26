@@ -1,35 +1,22 @@
-import React, { useState, useEffect } from 'react';
-import { base44 } from '@/api/base44Client';
-import { useQuery } from '@tanstack/react-query';
+import React from 'react';
 import { useNavigate } from 'react-router-dom';
 import { createPageUrl } from '@/utils';
 
 import { ArrowLeft, MapPin } from 'lucide-react';
-import Header from '../components/layout/Header';
 import BottomNav from '../components/layout/BottomNav';
 import ZoneManagerSimple from '../components/admin/ZoneManagerSimple';
+import AdminGuard from '../components/admin/AdminGuard';
 
 export default function GestioneZone() {
-  const [user, setUser] = useState(null);
-  
+  return (
+    <AdminGuard>
+      {(user) => <GestioneZoneContent user={user} />}
+    </AdminGuard>
+  );
+}
+
+function GestioneZoneContent({ user }) {
   const navigate = useNavigate();
-
-  useEffect(() => {
-    const loadUser = async () => {
-      try {
-        const currentUser = await base44.auth.me();
-        setUser(currentUser);
-        if (currentUser.role !== 'admin') {
-          navigate(createPageUrl('Home'));
-        }
-      } catch (e) {
-        console.error(e);
-      }
-    };
-    loadUser();
-  }, []);
-
-  if (!user) return null;
 
   return (
     <div className="min-h-screen bg-slate-900 pb-64">

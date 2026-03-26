@@ -14,9 +14,17 @@ import { Badge } from '@/components/ui/badge';
 import Header from '../components/layout/Header';
 import BottomNav from '../components/layout/BottomNav';
 import ContattaMembri from '../pages/ContattaMembri';
+import AdminGuard from '../components/admin/AdminGuard';
 
 export default function ContattaMembriAdmin() {
-  const [user, setUser] = useState(null);
+  return (
+    <AdminGuard>
+      {(user) => <ContattaMembriAdminContent user={user} />}
+    </AdminGuard>
+  );
+}
+
+function ContattaMembriAdminContent({ user }) {
   const [activeTab, setActiveTab] = useState('gestione');
   const [searchTerm, setSearchTerm] = useState('');
   const [statusFilter, setStatusFilter] = useState('all');
@@ -25,18 +33,6 @@ export default function ContattaMembriAdmin() {
   const [showUserDetails, setShowUserDetails] = useState(false);
 
   const queryClient = useQueryClient();
-
-  React.useEffect(() => {
-    const loadUser = async () => {
-      try {
-        const currentUser = await base44.auth.me();
-        setUser(currentUser);
-      } catch (e) {
-        console.error(e);
-      }
-    };
-    loadUser();
-  }, []);
 
   const { data: allUsers = [] } = useQuery({
     queryKey: ['all-users'],
@@ -68,10 +64,6 @@ export default function ContattaMembriAdmin() {
     
     return matchesSearch && matchesStatus && matchesRole;
   });
-
-  if (!user) {
-    return null;
-  }
 
   return (
     <div className="min-h-screen bg-slate-900 pb-24">

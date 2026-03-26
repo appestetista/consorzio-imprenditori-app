@@ -41,6 +41,7 @@ import AdminAltreSezGrid from '../components/admin/AdminAltreSezGrid';
 import { AdminMessagesDialog, ConsultationMessagesDialog, VideoRequestsDialog } from '../components/admin/AdminDialogs';
 import GlobalTopIcons from '../components/layout/GlobalTopIcons';
 import { Sheet, SheetContent, SheetTrigger } from '@/components/ui/sheet';
+import AdminGuard from '../components/admin/AdminGuard';
 
 const CONSULTANT_CATEGORIES = [
   "Stampa Digitale e Cataloghi", "Assicurazioni Aziendali", "Agenzia di Comunicazione",
@@ -60,8 +61,14 @@ const SECTIONS = [
 ];
 
 export default function AdminPanel() {
-  const [user, setUser] = useState(null);
-  const [isAuthorized, setIsAuthorized] = useState(false);
+  return (
+    <AdminGuard>
+      {(user) => <AdminPanelContent user={user} />}
+    </AdminGuard>
+  );
+}
+
+function AdminPanelContent({ user }) {
   const [showImpersonationDialog, setShowImpersonationDialog] = useState(false);
   const { impersonation, startImpersonation, appMode } = useImpersonation();
 
@@ -103,24 +110,7 @@ export default function AdminPanel() {
 
   useEffect(() => {
     window.scrollTo(0, 0);
-    const loadUser = async () => {
-      try {
-        const u = await base44.auth.me();
-        if (u.role !== 'admin') {
-          toast.error('Accesso non autorizzato');
-          navigate(createPageUrl('Home'));
-          return;
-        }
-        setUser(u);
-        setIsAuthorized(true);
-      } catch (e) {
-        console.error(e);
-        toast.error('Accesso non autorizzato');
-        navigate(createPageUrl('Home'));
-      }
-    };
-    loadUser();
-  }, [navigate]);
+  }, []);
 
   // ─── Queries ────────────────────────────────────────────
   const { data: stats } = useQuery({
@@ -255,14 +245,6 @@ export default function AdminPanel() {
 
   const handleOpenSections = (c) => { const invite = pendingInvitesConsultants.find(i => i.email === c.email); setSectionsData(c.assigned_sections || invite?.assigned_sections || []); setSelectedConsultant(c); setShowSections(true); };
   const toggleSection = (id) => setSectionsData(prev => prev.includes(id) ? prev.filter(s => s !== id) : [...prev, id]);
-
-  if (!isAuthorized) {
-    return (
-      <div className="min-h-screen bg-slate-900 flex items-center justify-center">
-        <div className="animate-spin rounded-full h-12 w-12 border-t-2 border-b-2 border-lime-400"></div>
-      </div>
-    );
-  }
 
   return (
     <div className="min-h-screen bg-slate-900 pb-64">
