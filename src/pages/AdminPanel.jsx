@@ -5,6 +5,7 @@ import useNotificationSound from '../components/hooks/useNotificationSound';
 import { Users, Briefcase, Settings, Bell, Clock, Trash2, Mail, Eye, MessageSquare, CalendarDays, MapPin, DollarSign, UserPlus, Search, Edit, Phone, PhoneOff, Save, Upload, X, ChevronRight, Calculator, Star, Globe, Database, Menu, Home, LogOut } from 'lucide-react';
 import { Link, useNavigate } from 'react-router-dom';
 import { createPageUrl } from '@/utils';
+import { toast } from 'sonner';
 import { Button } from '@/components/ui/button';
 import { Card, CardContent } from '@/components/ui/card';
 import { Tabs, TabsContent, TabsList, TabsTrigger } from '@/components/ui/tabs';
@@ -60,6 +61,7 @@ const SECTIONS = [
 
 export default function AdminPanel() {
   const [user, setUser] = useState(null);
+  const [isAuthorized, setIsAuthorized] = useState(false);
   const [showImpersonationDialog, setShowImpersonationDialog] = useState(false);
   const { impersonation, startImpersonation, appMode } = useImpersonation();
 
@@ -102,10 +104,23 @@ export default function AdminPanel() {
   useEffect(() => {
     window.scrollTo(0, 0);
     const loadUser = async () => {
-      try { setUser(await base44.auth.me()); } catch (e) { console.error(e); }
+      try {
+        const u = await base44.auth.me();
+        if (u.role !== 'admin') {
+          toast.error('Accesso non autorizzato');
+          navigate(createPageUrl('Home'));
+          return;
+        }
+        setUser(u);
+        setIsAuthorized(true);
+      } catch (e) {
+        console.error(e);
+        toast.error('Accesso non autorizzato');
+        navigate(createPageUrl('Home'));
+      }
     };
     loadUser();
-  }, []);
+  }, [navigate]);
 
   // ─── Queries ────────────────────────────────────────────
   const { data: stats } = useQuery({
@@ -241,8 +256,13 @@ export default function AdminPanel() {
   const handleOpenSections = (c) => { const invite = pendingInvitesConsultants.find(i => i.email === c.email); setSectionsData(c.assigned_sections || invite?.assigned_sections || []); setSelectedConsultant(c); setShowSections(true); };
   const toggleSection = (id) => setSectionsData(prev => prev.includes(id) ? prev.filter(s => s !== id) : [...prev, id]);
 
-  if (!user) return null;
-  if (appMode === 'user' && user.role !== 'admin') return null;
+  if (!isAuthorized) {
+    return (
+      <div className="min-h-screen bg-slate-900 flex items-center justify-center">
+        <div className="animate-spin rounded-full h-12 w-12 border-t-2 border-b-2 border-lime-400"></div>
+      </div>
+    );
+  }
 
   return (
     <div className="min-h-screen bg-slate-900 pb-64">
