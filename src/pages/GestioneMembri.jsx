@@ -4,6 +4,7 @@ import { useQuery, useMutation, useQueryClient } from '@tanstack/react-query';
 import { ArrowLeft, User, Lock, Unlock, Trash2, Settings, Search, Shield, ShieldOff, Edit, X, UserPlus, Upload, Image, Save, FileText, Clock, Mail, Briefcase, Users, Send, MapPin } from 'lucide-react';
 import { Link, useNavigate } from 'react-router-dom';
 import { createPageUrl } from '@/utils';
+import { toast } from 'sonner';
 import { Button } from '@/components/ui/button';
 import { Card, CardContent } from '@/components/ui/card';
 import { Input } from '@/components/ui/input';
@@ -37,6 +38,7 @@ const PERMISSIONS_LIST = [
 
 export default function GestioneMembri() {
   const [user, setUser] = useState(null);
+  const [isAuthorized, setIsAuthorized] = useState(false);
   const [searchTerm, setSearchTerm] = useState('');
   const [selectedZone, setSelectedZone] = useState('all');
   const [selectedMember, setSelectedMember] = useState(null);
@@ -54,11 +56,13 @@ export default function GestioneMembri() {
   const { data: members = [], isLoading } = useQuery({
     queryKey: ['all-members'],
     queryFn: () => base44.entities.User.list(),
+    enabled: isAuthorized,
   });
 
   const { data: zones = [] } = useQuery({
     queryKey: ['zones'],
     queryFn: () => base44.entities.Zone.filter({ is_active: true }),
+    enabled: isAuthorized,
   });
 
   const { data: pendingInvites = [] } = useQuery({
@@ -67,6 +71,7 @@ export default function GestioneMembri() {
       const invites = await base44.entities.PendingInvite.filter({ user_type: 'utente' });
       return invites.filter(i => !i.is_registered);
     },
+    enabled: isAuthorized,
   });
 
   useEffect(() => {
@@ -74,13 +79,21 @@ export default function GestioneMembri() {
     const loadUser = async () => {
       try {
         const currentUser = await base44.auth.me();
+        if (currentUser.role !== 'admin') {
+          toast.error('Accesso non autorizzato');
+          navigate(createPageUrl('Home'));
+          return;
+        }
         setUser(currentUser);
+        setIsAuthorized(true);
       } catch (e) {
         console.error(e);
+        toast.error('Accesso non autorizzato');
+        navigate(createPageUrl('Home'));
       }
     };
     loadUser();
-  }, []);
+  }, [navigate]);
 
   // Apri automaticamente il dialog se c'è memberId nell'URL
   useEffect(() => {
@@ -309,11 +322,15 @@ export default function GestioneMembri() {
   // Se impersonation è attiva con ruolo 'user', mostra la vista utente
   const isAdmin = user?.role === 'admin' && !impersonation.active;
 
-  if (!user) {
-    return null;
+  if (!isAuthorized) {
+    return (
+      <div className="min-h-screen bg-slate-900 flex items-center justify-center">
+        <div className="animate-spin rounded-full h-12 w-12 border-t-2 border-b-2 border-lime-400"></div>
+      </div>
+    );
   }
 
-  // Vista per utenti normali (non admin)
+  // Vista per utenti normali (non admin) — impersonation mode
   if (!isAdmin) {
     return (
       <div className="min-h-screen pb-64" style={{ backgroundColor: 'var(--app-bg)' }}>
