@@ -221,18 +221,20 @@ export default function Home() {
     if (previousMsgs.length === 0) return '';
     const historyParts = [];
     let totalChars = 0;
-    // Max 3000 char — meno token = meno CPU = meno timeout
+    // Ogni messaggio troncato a 200 char × 6 messaggi = ~1200 char totali
+    // Garantisce sempre la presenza di tutti e 6 gli scambi recenti nel contesto
     const MAX_TOTAL = 3000;
+    const MAX_MSG = 200;
     // Ultimi 6 messaggi max (3 scambi)
     const recentMsgs = previousMsgs.slice(-6);
     for (let i = recentMsgs.length - 1; i >= 0; i--) {
       const m = recentMsgs[i];
       let part = null;
-      if (m.role === 'user') part = 'U: ' + (m.content || '').substring(0, 300);
+      if (m.role === 'user') part = 'U: ' + (m.content || '').substring(0, MAX_MSG);
       else if (m.role === 'assistant' && m.content) {
         const c = m.content;
         const raw = typeof c === 'object' && c.risposta ? c.risposta : (typeof c === 'string' ? c : '');
-        part = 'A: ' + (raw.length > 400 ? raw.substring(0, 400) + '…' : raw);
+        part = 'A: ' + (raw.length > MAX_MSG ? raw.substring(0, MAX_MSG) + '…' : raw);
       }
       if (part) {
         if (totalChars + part.length > MAX_TOTAL) break;
