@@ -1,0 +1,70 @@
+{
+  "name": "UserStats",
+  "type": "object",
+  "properties": {
+    "user_email": {
+      "type": "string",
+      "description": "Email dell'utente (chiave univoca)"
+    },
+    "total_analyses": {
+      "type": "number",
+      "default": 0,
+      "description": "Totale conversazioni con categoria"
+    },
+    "this_month_count": {
+      "type": "number",
+      "default": 0,
+      "description": "Analisi del mese corrente"
+    },
+    "this_month_key": {
+      "type": "string",
+      "description": "Chiave mese corrente (YYYY-MM) per reset automatico"
+    },
+    "total_ratings": {
+      "type": "number",
+      "default": 0,
+      "description": "Somma di tutti i rating"
+    },
+    "ratings_count": {
+      "type": "number",
+      "default": 0,
+      "description": "Numero di conversazioni con rating"
+    },
+    "category_counts": {
+      "type": "object",
+      "description": "Conteggi per categoria: {Fiscale: 10, Legale: 5, ...}"
+    },
+    "recent_analyses": {
+      "type": "array",
+      "items": {
+        "type": "object",
+        "properties": {
+          "id": {
+            "type": "string"
+          },
+          "titolo": {
+            "type": "string"
+          },
+          "categoria": {
+            "type": "string"
+          },
+          "rating": {
+            "type": "number"
+          },
+          "created_date": {
+            "type": "string"
+          }
+        }
+      },
+      "description": "Ultime 5 analisi (leggero, senza messages)"
+    },
+    "last_computed_at": {
+      "type": "string",
+      "format": "date-time",
+      "description": "Ultima data di aggiornamento stats"
+    }
+  },
+  "required": [
+    "user_email"
+  ]
+}

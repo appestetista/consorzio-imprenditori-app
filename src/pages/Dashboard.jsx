@@ -58,51 +58,39 @@ export default function Dashboard() {
     base44.auth.me().then(setUser).catch(() => {});
   }, []);
 
-  // Carica solo conversazioni con categoria degli ultimi 6 mesi, max 200
-  const sixMonthsAgo = new Date();
-  sixMonthsAgo.setMonth(sixMonthsAgo.getMonth() - 6);
-  const sixMonthsAgoISO = sixMonthsAgo.toISOString();
-
-  const { data: analyses = [], isLoading } = useQuery({
-    queryKey: ['dashboard-conversations', user?.email],
-    queryFn: () => base44.entities.ChatConversation.filter(
-      { user_email: user.email, categoria: { $ne: null }, created_date: { $gte: sixMonthsAgoISO } },
-      '-created_date',
-      200
-    ),
+  // Carica un singolo record UserStats invece di centinaia di conversazioni
+  const { data: statsData, isLoading } = useQuery({
+    queryKey: ['user-stats', user?.email],
+    queryFn: async () => {
+      const results = await base44.entities.UserStats.filter(
+        { user_email: user.email },
+        '-updated_date',
+        1
+      );
+      return results[0] || null;
+    },
     enabled: !!user?.email,
   });
 
-  // Analisi questo mese
-  const now = new Date();
-  const thisMonthAnalyses = analyses.filter(c => {
-    const d = new Date(c.created_date);
-    return d.getMonth() === now.getMonth() && d.getFullYear() === now.getFullYear();
-  });
-
-  // Rating medio
-  const rated = analyses.filter(c => c.rating > 0);
-  const avgRating = rated.length > 0 ? rated.reduce((s, c) => s + c.rating, 0) / rated.length : 0;
-
-  // Categoria più frequente
-  const catCount = {};
-  analyses.forEach(c => { catCount[c.categoria] = (catCount[c.categoria] || 0) + 1; });
+  // Derivati dal singolo record stats
+  const stats = statsData || {};
+  const totalAnalyses = stats.total_analyses || 0;
+  const catCount = stats.category_counts || {};
+  const avgRating = stats.ratings_count > 0 ? (stats.total_ratings || 0) / stats.ratings_count : 0;
   const topCategory = Object.entries(catCount).sort((a, b) => b[1] - a[1])[0]?.[0] || '—';
-
-  // Dati grafico — ultimi 3 mesi
-  const threeMonthsAgo = new Date();
-  threeMonthsAgo.setMonth(threeMonthsAgo.getMonth() - 3);
-  const recentAnalyses = analyses.filter(c => new Date(c.created_date) >= threeMonthsAgo);
-  const recentCatCount = {};
-  recentAnalyses.forEach(c => { recentCatCount[c.categoria] = (recentCatCount[c.categoria] || 0) + 1; });
-  const chartData = Object.entries(recentCatCount)
+  
+  // Conteggio mensile (con check mese corrente)
+  const now = new Date();
+  const currentMonthKey = `${now.getFullYear()}-${String(now.getMonth() + 1).padStart(2, '0')}`;
+  const thisMonthCount = stats.this_month_key === currentMonthKey ? (stats.this_month_count || 0) : 0;
+  
+  // Grafico: usa tutte le categorie (non più filtrate per 3 mesi — il costo era nel fetch, non nel calcolo)
+  const chartData = Object.entries(catCount)
     .map(([name, count]) => ({ name, count }))
     .sort((a, b) => b.count - a.count);
 
-  // Ultime 5
-  const latest5 = analyses.slice(0, 5);
-
-  const notEnough = analyses.length === 0;
+  const latest5 = stats.recent_analyses || [];
+  const notEnough = totalAnalyses === 0;
 
   return (
     <div className="min-h-screen pb-8 bg-app">
@@ -143,15 +131,15 @@ export default function Dashboard() {
         <div className="px-4 space-y-5">
           {/* 4 stat cards */}
           <div className="grid grid-cols-2 gap-3">
-            <StatCard icon={BarChart3} label="Analisi totali" value={analyses.length} iconColor="text-[#d4af37]" />
-            <StatCard icon={Calendar} label="Questo mese" value={thisMonthAnalyses.length} iconColor="text-blue-400" />
+            <StatCard icon={BarChart3} label="Analisi totali" value={totalAnalyses} iconColor="text-[#d4af37]" />
+            <StatCard icon={Calendar} label="Questo mese" value={thisMonthCount} iconColor="text-blue-400" />
             <div className="rounded-xl p-3 flex flex-col gap-1 border" style={{ backgroundColor: 'var(--app-bg-card)', borderColor: 'var(--app-border)' }}>
               <div className="flex items-center gap-2">
                 <Star className="w-4 h-4 text-[#d4af37]" />
                 <span className="text-[10px] text-app-muted uppercase tracking-wider font-medium">Rating medio</span>
               </div>
               <StarsDisplay rating={avgRating} />
-              {rated.length > 0 && <p className="text-[10px] text-app-muted">{rated.length} valutazion{rated.length === 1 ? 'e' : 'i'}</p>}
+              {stats.ratings_count > 0 && <p className="text-[10px] text-app-muted">{stats.ratings_count} valutazion{stats.ratings_count === 1 ? 'e' : 'i'}</p>}
             </div>
             <StatCard icon={Tag} label="Top categoria" value={topCategory} sub={`${catCount[topCategory] || 0} analisi`} iconColor="text-emerald-400" />
           </div>
@@ -160,7 +148,7 @@ export default function Dashboard() {
           <div className="rounded-xl p-4 border" style={{ backgroundColor: 'var(--app-bg-card)', borderColor: 'var(--app-border)' }}>
             <div className="flex items-center gap-2 mb-4">
               <TrendingUp className="w-4 h-4 text-[#d4af37]" />
-              <span className="text-xs font-semibold text-app-primary">Analisi per categoria (ultimi 3 mesi)</span>
+              <span className="text-xs font-semibold text-app-primary">Analisi per categoria</span>
             </div>
             <div className="h-48">
               <ResponsiveContainer width="100%" height="100%">
@@ -195,8 +183,7 @@ export default function Dashboard() {
             </div>
             <div className="space-y-2">
               {latest5.map(conv => {
-                const firstUserMsg = conv.messages?.find(m => m.role === 'user');
-                const preview = firstUserMsg?.content?.substring(0, 60) || conv.titolo || '—';
+                const preview = (conv.titolo || '—').substring(0, 60);
                 const date = conv.created_date ? new Date(conv.created_date).toLocaleDateString('it-IT', { day: 'numeric', month: 'short' }) : '';
                 const catColor = CATEGORY_COLORS[conv.categoria] || '#60a5fa';
 
