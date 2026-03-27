@@ -70,7 +70,7 @@ export default function Home() {
     const loadEffective = async () => {
       setLoading(true);
       setCurrentUserRole(user.role);
-      if (appMode === 'user-preview' && impersonation.previewUserId) {
+      if (appMode === 'user-preview' && impersonation.previewUserId && user?.role === 'admin') {
         const users = await base44.entities.User.filter({ id: impersonation.previewUserId });
         setEffectiveUser(users.length > 0 ? normalizeUser(users[0]) : null);
       } else {

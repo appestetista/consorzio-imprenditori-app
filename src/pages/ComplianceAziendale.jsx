@@ -132,7 +132,7 @@ export default function ComplianceAziendale() {
     if (!user) return;
     const loadEffective = async () => {
       setLoading(true);
-      if (appMode === 'user-preview' && impersonation.previewUserId) {
+      if (appMode === 'user-preview' && impersonation.previewUserId && user?.role === 'admin') {
         const users = await base44.entities.User.filter({ id: impersonation.previewUserId });
         setEffectiveUser(users[0] || user);
       } else {

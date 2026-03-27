@@ -39,7 +39,7 @@ export default function SimulatoreFiscale() {
     window.scrollTo(0, 0);
     const loadUser = async () => {
       const currentUser = await base44.auth.me();
-      if (appMode === 'user-preview' && impersonation.previewUserId) {
+      if (appMode === 'user-preview' && impersonation.previewUserId && currentUser?.role === 'admin') {
         const users = await base44.entities.User.filter({ id: impersonation.previewUserId });
         setEffectiveUser(normalizeUser(users.length > 0 ? users[0] : currentUser));
       } else {

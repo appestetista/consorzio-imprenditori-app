@@ -840,8 +840,8 @@ export default function MyProfile() {
         setCurrentUserRole(currentUser.role);
         let effectiveUser = currentUser;
 
-        // Gestione impersonation
-        if (impersonation.active) {
+        // Gestione impersonation — solo se l'utente corrente è admin
+        if (impersonation.active && currentUser?.role === 'admin') {
           if (impersonation.role === 'user' && impersonation.previewUserId) {
             // Impersonificazione utente normale
             const users = await base44.entities.User.filter({ id: impersonation.previewUserId });

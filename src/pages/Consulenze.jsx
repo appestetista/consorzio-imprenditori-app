@@ -33,7 +33,7 @@ export default function Consulenze() {
   useEffect(() => {
     if (!user) return;
     const loadEffectiveUser = async () => {
-      if (impersonation.active) {
+      if (impersonation.active && user?.role === 'admin') {
         if (impersonation.role === 'user') {
           const impersonatedUser = await base44.entities.User.filter({ id: impersonation.targetId });
           setEffectiveUser(impersonatedUser.length > 0 ? normalizeUser(impersonatedUser[0]) : user);
