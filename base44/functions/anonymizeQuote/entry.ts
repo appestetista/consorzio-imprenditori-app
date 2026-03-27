@@ -13,6 +13,15 @@ Deno.serve(async (req) => {
       return Response.json({ error: 'file_url required' }, { status: 400 });
     }
 
+    // Validazione dominio file_url
+    const allowedPrefixes = [
+      'https://media.base44.com/',
+      'https://qtrypzzcjebvfcihiynt.supabase.co/'
+    ];
+    if (!allowedPrefixes.some(prefix => file_url.startsWith(prefix))) {
+      return Response.json({ error: 'URL file non autorizzato' }, { status: 400 });
+    }
+
     // Step 1: Use AI vision to analyze the document and identify ALL sensitive data
     const analysisResult = await base44.integrations.Core.InvokeLLM({
       prompt: `Analizza questo documento (preventivo/fattura/offerta commerciale) come immagine.
