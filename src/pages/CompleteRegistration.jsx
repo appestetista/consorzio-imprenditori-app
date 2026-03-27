@@ -2,20 +2,11 @@ import React, { useState, useEffect } from 'react';
 import { base44 } from '@/api/base44Client';
 import { useQuery } from '@tanstack/react-query';
 import { Button } from '@/components/ui/button';
-import { Input } from '@/components/ui/input';
-import { Label } from '@/components/ui/label';
 import { Card, CardContent, CardHeader, CardTitle } from '@/components/ui/card';
-import { Loader2, CheckCircle, AlertCircle, User, Mail, Lock } from 'lucide-react';
+import { Loader2, CheckCircle, AlertCircle, User, Mail } from 'lucide-react';
 
 export default function CompleteRegistration() {
-  const [step, setStep] = useState('loading'); // loading, invalid, form, success, error
-  const [formData, setFormData] = useState({
-    full_name: '',
-    password: '',
-    confirmPassword: ''
-  });
-  const [isSubmitting, setIsSubmitting] = useState(false);
-  const [errorMessage, setErrorMessage] = useState('');
+  const [step, setStep] = useState('loading'); // loading, invalid, form, already_registered
 
   // Leggi i parametri URL
   const urlParams = new URLSearchParams(window.location.search);
@@ -50,22 +41,8 @@ export default function CompleteRegistration() {
     }
   }, [isLoading, token, email, inviteData, alreadyRegistered]);
 
-  const handleSubmit = async (e) => {
-    e.preventDefault();
-    
-    setIsSubmitting(true);
-    setErrorMessage('');
-
-    try {
-      // Usa il metodo di Base44 per reindirizzare al login/registrazione
-      // Dopo la registrazione, l'utente tornerà alla home dell'app
-      base44.auth.redirectToLogin('/');
-      
-    } catch (error) {
-      console.error('Errore registrazione:', error);
-      setErrorMessage(error.message || 'Errore durante la registrazione');
-      setIsSubmitting(false);
-    }
+  const handleComplete = () => {
+    base44.auth.redirectToLogin('/');
   };
 
   // Loading state
@@ -122,7 +99,7 @@ export default function CompleteRegistration() {
     );
   }
 
-  // Registration form
+  // Registration info page
   return (
     <div className="min-h-screen bg-slate-900 flex items-center justify-center p-4">
       <Card className="bg-slate-800 border-slate-700 w-full max-w-md">
@@ -139,39 +116,25 @@ export default function CompleteRegistration() {
           <div className="bg-slate-900 rounded-lg p-3 mb-6 flex items-center gap-3">
             <Mail className="w-5 h-5 text-lime-400" />
             <div>
-              <p className="text-slate-400 text-xs">Email</p>
+              <p className="text-slate-400 text-xs">Email invito</p>
               <p className="text-white font-medium">{email}</p>
             </div>
           </div>
 
           <div className="space-y-4 mb-6">
             <p className="text-slate-300 text-sm">
-              Per completare la registrazione, clicca sul pulsante qui sotto. Verrai reindirizzato alla pagina di registrazione dove potrai impostare la tua password.
+              Cliccando il pulsante qui sotto verrai reindirizzato alla pagina di registrazione Base44 dove potrai creare il tuo account e impostare la password.
             </p>
             <p className="text-amber-400 text-sm font-medium">
               ⚠️ Importante: usa esattamente questa email per registrarti: <strong>{email}</strong>
             </p>
           </div>
 
-          {errorMessage && (
-            <div className="bg-red-500/20 border border-red-500/30 rounded-lg p-3 mb-4">
-              <p className="text-red-400 text-sm">{errorMessage}</p>
-            </div>
-          )}
-
           <Button
-            onClick={handleSubmit}
-            disabled={isSubmitting}
+            onClick={handleComplete}
             className="w-full bg-lime-400 text-slate-900 hover:bg-lime-500"
           >
-            {isSubmitting ? (
-              <>
-                <Loader2 className="w-4 h-4 mr-2 animate-spin" />
-                Reindirizzamento...
-              </>
-            ) : (
-              'Completa Registrazione'
-            )}
+            Completa Registrazione
           </Button>
         </CardContent>
       </Card>
