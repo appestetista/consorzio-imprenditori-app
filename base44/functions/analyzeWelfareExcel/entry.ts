@@ -9,6 +9,11 @@ Deno.serve(async (req) => {
     }
 
     const { user_email } = await req.json();
+
+    if (user_email && user_email !== user.email && user.role !== 'admin') {
+      return Response.json({ error: 'Forbidden: non puoi accedere ai dati di altri utenti' }, { status: 403 });
+    }
+
     const emailToCheck = user_email || user.email;
 
     // Carica tutti gli ordini welfare dell'utente
