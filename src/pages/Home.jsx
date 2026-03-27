@@ -60,6 +60,8 @@ export default function Home() {
   const messagesEndRef = useRef(null);
   const messagesContainerRef = useRef(null);
   const inputRef = useRef(null);
+  const handleSelectRef = useRef(null);
+  const handleNewChatRef = useRef(null);
   const [showScrollDown, setShowScrollDown] = useState(false);
 
   // Caricamento effectiveUser basato su user da AuthContext
@@ -198,11 +200,11 @@ export default function Home() {
     const handleLoadConv = (e) => {
       const conv = e.detail;
       if (conv && conv.id) {
-        handleSelectConversation(conv);
+        handleSelectRef.current?.(conv);
       }
     };
     const handleNewChatEvent = () => {
-      handleNewChat();
+      handleNewChatRef.current?.();
     };
     window.addEventListener('load-conversation', handleLoadConv);
     window.addEventListener('new-chat', handleNewChatEvent);
@@ -619,7 +621,9 @@ export default function Home() {
     }
   };
 
-
+  // Mantieni refs aggiornati per i listener globali (evita stale closures)
+  handleSelectRef.current = handleSelectConversation;
+  handleNewChatRef.current = handleNewChat;
 
   if (loading) {
     return (
