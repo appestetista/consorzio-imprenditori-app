@@ -119,7 +119,13 @@ export default function ExportSection({ user, exportManagers, selectedMapCountry
     let interpretationSucceeded = false;
 
     try {
-      const usageLogId = await trackExportUsage({ search_label: `${exportForm.prodotto} → ${mercatiNames.slice(0, 3).join(', ')}`, search_meta: { prodotto: exportForm.prodotto, settore: exportForm.settore, hs_code: hsData.hs_code, mercati: mercatiNames } });
+      let usageLogId;
+      try {
+        usageLogId = await trackExportUsage({ search_label: `${exportForm.prodotto} → ${mercatiNames.slice(0, 3).join(', ')}`, search_meta: { prodotto: exportForm.prodotto, settore: exportForm.settore, hs_code: hsData.hs_code, mercati: mercatiNames } });
+      } catch (limitErr) {
+        if (limitErr.limitReached) { setAnalyzing(false); return; }
+        throw limitErr;
+      }
       setExportStep('fetching');
       const [rawData, macro] = await Promise.all([ fetchTradeData(hsData.hs_code, mercatiInteresse, mercatiNames, exporterCountry, parseInt(periodoAnalisi)), fetchMacroData(mercatiInteresse) ]);
       setTradeData(rawData); setMacroData(macro || {});

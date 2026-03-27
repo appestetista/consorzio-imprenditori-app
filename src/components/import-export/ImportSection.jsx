@@ -87,7 +87,12 @@ export default function ImportSection({ user, exportManagers }) {
     setAnalyzingImport(true); setImportRawData(null); setImportLandedCost(null); setImportResult(null);
 
     try {
-      await trackImportUsage({ search_label: `Import: ${importForm.descrizione_prodotto.substring(0, 60)}`, search_meta: { prodotto: importForm.descrizione_prodotto, hs_code: hsData.hs_code, tipo_richiesta: importForm.tipo_richiesta } });
+      try {
+        await trackImportUsage({ search_label: `Import: ${importForm.descrizione_prodotto.substring(0, 60)}`, search_meta: { prodotto: importForm.descrizione_prodotto, hs_code: hsData.hs_code, tipo_richiesta: importForm.tipo_richiesta } });
+      } catch (limitErr) {
+        if (limitErr.limitReached) { setAnalyzingImport(false); return; }
+        throw limitErr;
+      }
       setImportStep('fetching');
       const rawData = await fetchImportData(hsData.hs_code, hsData.descrizione_ufficiale);
       if (rawData?._api_error) { setImportRawData(rawData); setImportResult({ _api_error: true }); return; }

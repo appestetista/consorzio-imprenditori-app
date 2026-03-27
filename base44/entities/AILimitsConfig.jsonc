@@ -1,0 +1,29 @@
+{
+  "name": "AILimitsConfig",
+  "type": "object",
+  "properties": {
+    "action_type": {
+      "type": "string",
+      "description": "Tipo di azione (es. contract_analysis, export_analysis, import_analysis, grant_match)"
+    },
+    "monthly_limit": {
+      "type": "number",
+      "default": 5,
+      "description": "Limite mensile per questa azione"
+    },
+    "is_weekly": {
+      "type": "boolean",
+      "default": false,
+      "description": "Se true, il limite \u00e8 settimanale invece che mensile"
+    },
+    "is_active": {
+      "type": "boolean",
+      "default": true,
+      "description": "Se il limite \u00e8 attivo"
+    }
+  },
+  "required": [
+    "action_type",
+    "monthly_limit"
+  ]
+}

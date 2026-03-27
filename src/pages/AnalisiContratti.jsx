@@ -123,8 +123,17 @@ export default function AnalisiContratti() {
         setError(null);
 
         try {
-          // Traccia utilizzo
-          await trackUsage();
+          // Traccia utilizzo (verifica server-side + creazione record)
+          try {
+            await trackUsage();
+          } catch (limitErr) {
+            if (limitErr.limitReached) {
+              setError('Hai raggiunto il limite mensile di analisi contratti.');
+              setUploading(false);
+              return;
+            }
+            throw limitErr;
+          }
 
           // Upload di tutti i file
       const uploadedUrls = [];

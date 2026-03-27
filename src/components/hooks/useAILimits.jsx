@@ -1,7 +1,7 @@
 import { useQuery } from '@tanstack/react-query';
 import { base44 } from '@/api/base44Client';
 
-// Limiti per tipo di azione (mensili di default, settimanali se specificato)
+// Limiti di default (fallback se AILimitsConfig non ha il record)
 export const AI_LIMITS = {
   contract_analysis: 5,
   contract_comparison: 2,
@@ -58,21 +58,40 @@ export function useAILimits(userEmail, actionType, userData = null) {
   const remaining = Math.max(0, limit - usageCount);
   const isLimitReached = usageCount >= limit;
 
+  /**
+   * trackUsage — ora passa dalla backend function checkAndTrackAIUsage
+   * che verifica il limite lato server (atomico, no race condition) e crea il record.
+   * 
+   * Restituisce:
+   * - record_id (string) se allowed
+   * - null se il limite è raggiunto o errore
+   * 
+   * Lancia un errore con { limitReached: true } se il server blocca.
+   */
   const trackUsage = async (meta) => {
-    if (!userEmail || isLimitReached) return null;
-    
-    const record = {
+    if (!userEmail) return null;
+
+    const response = await base44.functions.invoke('checkAndTrackAIUsage', {
       user_email: userEmail,
       action_type: actionType,
-      month_year: periodKey
-    };
-    if (meta?.search_label) record.search_label = meta.search_label;
-    if (meta?.search_meta) record.search_meta = meta.search_meta;
-    
-    const created = await base44.entities.UsageLog.create(record);
-    
+      month_year: periodKey,
+      meta: meta || null,
+    });
+
+    const result = response.data;
+
+    if (!result.allowed) {
+      // Aggiorna il conteggio locale per riflettere il blocco
+      refetch();
+      const err = new Error('Limite utilizzo raggiunto');
+      err.limitReached = true;
+      err.reason = result.reason;
+      throw err;
+    }
+
+    // Aggiorna il conteggio locale
     refetch();
-    return created?.id || true;
+    return result.record_id || true;
   };
 
   return {
