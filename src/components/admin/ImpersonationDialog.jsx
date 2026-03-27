@@ -42,41 +42,20 @@ export default function ImpersonationDialog({ open, onClose, onStart }) {
     }
   }, [open, selectedRole]);
 
-  const handleStart = () => {
-    if (!selectedTarget) {
-      console.warn('[ImpersonationDialog] selectedTarget is null');
-      return;
-    }
+  const handleStart = async () => {
+    if (!selectedTarget) return;
 
     const list = selectedRole === 'user' ? users : consultants;
     const target = list.find(item => item.id === selectedTarget);
-    
-    console.log('[ImpersonationDialog] Starting impersonation:', {
-      selectedRole,
-      selectedTarget,
-      targetFound: !!target,
-      target: target ? { id: target.id, name: target.company_name || target.full_name || target.name } : null
-    });
 
     if (target) {
       const targetName = selectedRole === 'user' 
         ? (target.company_name || target.full_name || target.email)
         : target.name;
-      
-      console.log('[ImpersonationDialog] Calling onStart with:', {
-        role: selectedRole,
-        id: target.id,
-        email: target.email,
-        name: targetName,
-        fullUserData: target
-      });
 
-      // Passa anche l'intero oggetto utente per avere accesso al profilo completo (region, company_size, etc.)
-      onStart(selectedRole, target.id, target.email || null, targetName, target);
+      await onStart(selectedRole, target.id, target.email || null, targetName, target);
       onClose();
       setSelectedTarget(null);
-    } else {
-      console.error('[ImpersonationDialog] Target not found in list');
     }
   };
 
