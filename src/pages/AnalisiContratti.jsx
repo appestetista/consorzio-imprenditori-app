@@ -42,9 +42,23 @@ export default function AnalisiContratti() {
 
   const queryClient = useQueryClient();
 
+  const currentMonthYear = new Date().toISOString().slice(0, 7);
+
   useEffect(() => {
     window.scrollTo(0, 0);
   }, []);
+
+  // Carica conteggio follow-up persistente dal DB
+  useEffect(() => {
+    if (!user?.email) return;
+    base44.entities.UsageLog.filter({
+      user_email: user.email,
+      action_type: 'contract_followup',
+      month_year: currentMonthYear
+    }).then(logs => {
+      setFollowUpCount(logs.length);
+    });
+  }, [user?.email, currentMonthYear]);
 
   const { data: messages = [] } = useQuery({
     queryKey: ['unread-messages', user?.email],
@@ -329,6 +343,13 @@ Rispondi direttamente alla domanda senza preamboli inutili e senza firmarti alla
       }]);
       setFollowUpCount(prev => prev + 1);
       setFollowUpQuestion('');
+
+      // Salva record persistente nel DB
+      base44.entities.UsageLog.create({
+        user_email: user.email,
+        action_type: 'contract_followup',
+        month_year: currentMonthYear
+      });
     } catch (err) {
       console.error('Errore follow-up:', err);
       setFollowUpAnswers(prev => [...prev, {
