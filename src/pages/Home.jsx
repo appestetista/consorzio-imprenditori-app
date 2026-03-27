@@ -623,8 +623,8 @@ export default function Home() {
 
   if (loading) {
     return (
-      <div className="min-h-screen bg-slate-900 flex items-center justify-center">
-        <div className="animate-spin rounded-full h-12 w-12 border-t-2 border-b-2 border-lime-400"></div>
+      <div className="min-h-screen bg-app flex items-center justify-center">
+        <div className="animate-spin rounded-full h-12 w-12 border-t-2 border-b-2" style={{ borderColor: 'var(--app-accent)' }}></div>
       </div>
     );
   }
@@ -632,11 +632,11 @@ export default function Home() {
   // Utente bloccato
   if (effectiveUser?.is_blocked) {
     return (
-      <div className="min-h-screen bg-slate-900 flex items-center justify-center px-6">
+      <div className="min-h-screen bg-app flex items-center justify-center px-6">
         <div className="text-center">
-          <p className="text-white text-lg font-bold mb-2">Accesso non autorizzato</p>
-          <p className="text-slate-400 text-sm mb-6">La tua email non è stata autorizzata. Contatta il consorzio per ottenere l'accesso.</p>
-          <button onClick={() => base44.auth.logout()} className="px-6 py-2 bg-red-500 text-white rounded-lg text-sm font-semibold">Esci</button>
+          <p className="text-app-primary text-lg font-bold mb-2">Accesso non autorizzato</p>
+          <p className="text-app-secondary text-sm mb-6">La tua email non è stata autorizzata. Contatta il consorzio per ottenere l'accesso.</p>
+          <button onClick={() => base44.auth.logout()} className="px-6 py-2 bg-red-500 text-app-inverse rounded-lg text-sm font-semibold">Esci</button>
         </div>
       </div>
     );
@@ -645,11 +645,11 @@ export default function Home() {
   // Utente senza dati (non ancora caricato)
   if (!effectiveUser) {
     return (
-      <div className="min-h-screen bg-slate-900 flex items-center justify-center px-6">
+      <div className="min-h-screen bg-app flex items-center justify-center px-6">
         <div className="text-center">
-          <p className="text-white text-lg font-bold mb-2">Sessione scaduta</p>
-          <p className="text-slate-400 text-sm mb-6">Effettua nuovamente l'accesso.</p>
-          <button onClick={() => base44.auth.redirectToLogin()} className="px-6 py-2 bg-lime-500 text-slate-900 rounded-lg text-sm font-semibold">Accedi</button>
+          <p className="text-app-primary text-lg font-bold mb-2">Sessione scaduta</p>
+          <p className="text-app-secondary text-sm mb-6">Effettua nuovamente l'accesso.</p>
+          <button onClick={() => base44.auth.redirectToLogin()} className="px-6 py-2 rounded-lg text-sm font-semibold" style={{ backgroundColor: 'var(--app-accent-secondary)', color: 'var(--app-text-inverse)' }}>Accedi</button>
         </div>
       </div>
     );
@@ -754,10 +754,11 @@ export default function Home() {
             messagesEndRef.current?.scrollIntoView({ behavior: 'smooth' });
             setShowScrollDown(false);
           }}
-          className="fixed z-50 left-1/2 -translate-x-1/2 w-9 h-9 rounded-full bg-slate-700/90 border border-slate-600/50 flex items-center justify-center shadow-lg backdrop-blur-sm transition-all hover:bg-slate-600/90"
+          className="fixed z-50 left-1/2 -translate-x-1/2 w-9 h-9 rounded-full border flex items-center justify-center shadow-lg backdrop-blur-sm transition-all"
+          style={{ backgroundColor: 'var(--app-bg-card)', borderColor: 'var(--app-border)' }}
           style={{ bottom: '180px' }}
         >
-          <ArrowUp className="w-4 h-4 text-slate-200 rotate-180" />
+          <ArrowUp className="w-4 h-4 text-app-secondary rotate-180" />
         </button>
       )}
 
@@ -773,9 +774,9 @@ export default function Home() {
                   {attachedFiles.length > 0 && (
                     <div className="flex flex-wrap gap-1.5 px-2 pt-2">
                       {attachedFiles.map((f, idx) => (
-                        <div key={idx} className="flex items-center gap-1 bg-slate-700/60 rounded-lg px-2 py-1 text-xs text-slate-300">
+                        <div key={idx} className="flex items-center gap-1 rounded-lg px-2 py-1 text-xs text-app-secondary" style={{ backgroundColor: 'var(--app-bg-card)' }}>
                           <span className="truncate max-w-[120px]">{f.name}</span>
-                          <button onClick={() => setAttachedFiles(prev => prev.filter((_, i) => i !== idx))} className="text-slate-500 hover:text-white">
+                          <button onClick={() => setAttachedFiles(prev => prev.filter((_, i) => i !== idx))} className="text-app-muted hover:text-app-primary">
                             <X className="w-3 h-3" />
                           </button>
                         </div>
@@ -795,7 +796,7 @@ export default function Home() {
                     {isRecording ? (
                       <MicOff className="w-3.5 h-3.5 text-white" />
                     ) : (
-                      <Mic className="w-3.5 h-3.5 text-slate-400" />
+                      <Mic className="w-3.5 h-3.5 text-app-muted" />
                     )}
                   </button>
                   <textarea
@@ -821,7 +822,7 @@ export default function Home() {
                     }}
                   >
                     {isTyping ? (
-                      <Loader2 className="w-4 h-4 text-slate-400 animate-spin" />
+                      <Loader2 className="w-4 h-4 text-app-muted animate-spin" />
                     ) : (
                       <Send className="w-4 h-4 text-white" />
                     )}
@@ -839,13 +840,14 @@ export default function Home() {
               </div>
             </>
           ) : (
-            <div className="rounded-2xl border border-[#d4af37]/30 bg-slate-800/80 backdrop-blur-lg p-4 space-y-3 relative">
+            <div className="rounded-2xl backdrop-blur-lg p-4 space-y-3 relative" style={{ border: '1px solid var(--app-border-accent)', backgroundColor: 'var(--app-bg-card)' }}>
               {/* X per chiudere */}
               <button
                 onClick={() => { setCompareMode(false); setScenarioA(''); setScenarioB(''); }}
-                className="absolute top-2 right-2 w-7 h-7 rounded-full bg-slate-700/80 hover:bg-slate-600 flex items-center justify-center transition-colors"
+                className="absolute top-2 right-2 w-7 h-7 rounded-full flex items-center justify-center transition-colors"
+                style={{ backgroundColor: 'var(--app-bg-card-hover)' }}
               >
-                <X className="w-4 h-4 text-slate-300" />
+                <X className="w-4 h-4 text-app-secondary" />
               </button>
               <div className="flex items-center gap-2 mb-1">
                 <Scale className="w-4 h-4 text-[#d4af37]" />
@@ -857,7 +859,8 @@ export default function Home() {
                   onChange={(e) => setScenarioA(e.target.value)}
                   placeholder="Scenario A (es. Assumere dipendente)"
                   rows={2}
-                  className="flex-1 bg-slate-900/60 border border-slate-700/50 rounded-xl text-white text-sm px-3 py-2.5 resize-none outline-none placeholder:text-slate-500 focus:border-[#d4af37]/40"
+                  className="flex-1 rounded-xl text-app-primary text-sm px-3 py-2.5 resize-none outline-none"
+                  style={{ backgroundColor: 'var(--app-bg-input)', border: '1px solid var(--app-border)' }}
                   style={{ scrollbarWidth: 'none' }}
                 />
                 <textarea
@@ -865,7 +868,8 @@ export default function Home() {
                   onChange={(e) => setScenarioB(e.target.value)}
                   placeholder="Scenario B (es. Usare freelance)"
                   rows={2}
-                  className="flex-1 bg-slate-900/60 border border-slate-700/50 rounded-xl text-white text-sm px-3 py-2.5 resize-none outline-none placeholder:text-slate-500 focus:border-[#d4af37]/40"
+                  className="flex-1 rounded-xl text-app-primary text-sm px-3 py-2.5 resize-none outline-none"
+                  style={{ backgroundColor: 'var(--app-bg-input)', border: '1px solid var(--app-border)' }}
                   style={{ scrollbarWidth: 'none' }}
                 />
               </div>

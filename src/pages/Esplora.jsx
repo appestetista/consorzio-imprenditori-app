@@ -338,19 +338,19 @@ export default function Esplora() {
   }, [loading]);
 
   if (loading) {
-    return (<div className="min-h-screen bg-slate-900 flex items-center justify-center"><div className="animate-spin rounded-full h-12 w-12 border-t-2 border-b-2 border-lime-400"></div></div>);
+    return (<div className="min-h-screen bg-app flex items-center justify-center"><div className="animate-spin rounded-full h-12 w-12 border-t-2 border-b-2" style={{ borderColor: 'var(--app-accent)' }}></div></div>);
   }
 
   if (!effectiveUser) {
-    return (<div className="min-h-screen bg-slate-900 flex items-center justify-center p-4"><div className="text-center"><div className="w-20 h-20 bg-red-500/20 rounded-full flex items-center justify-center mx-auto mb-4"><span className="text-4xl">⚠️</span></div><h1 className="text-white text-xl font-bold mb-2">Errore di caricamento</h1><p className="text-slate-400 mb-4">Non è stato possibile caricare il tuo profilo.</p><button onClick={() => window.location.reload()} className="bg-lime-400 text-slate-900 px-6 py-2 rounded-lg font-medium">Riprova</button></div></div>);
+    return (<div className="min-h-screen bg-app flex items-center justify-center p-4"><div className="text-center"><div className="w-20 h-20 bg-red-500/20 rounded-full flex items-center justify-center mx-auto mb-4"><span className="text-4xl">⚠️</span></div><h1 className="text-app-primary text-xl font-bold mb-2">Errore di caricamento</h1><p className="text-app-secondary mb-4">Non è stato possibile caricare il tuo profilo.</p><button onClick={() => window.location.reload()} className="px-6 py-2 rounded-lg font-medium" style={{ backgroundColor: 'var(--app-accent-secondary)', color: 'var(--app-text-inverse)' }}>Riprova</button></div></div>);
   }
 
   if (isBlocked && isEmailNotAuthorized) {
-    return (<div className="min-h-screen bg-slate-900 flex items-center justify-center p-4"><div className="text-center max-w-md"><div className="w-20 h-20 bg-orange-500/20 rounded-full flex items-center justify-center mx-auto mb-4"><span className="text-4xl">📧</span></div><h1 className="text-white text-xl font-bold mb-3">Email non autorizzata</h1><p className="text-slate-300 mb-4">Per accedere devi utilizzare la mail concordata con l'amministrazione del Consorzio.</p><p className="text-slate-400 text-sm mb-6">Se non ricordi quale email utilizzare, chiama il:</p><a href="tel:3292005433" className="inline-flex items-center gap-2 bg-lime-400 text-slate-900 px-6 py-3 rounded-lg font-bold text-lg hover:bg-lime-500 transition-colors">📞 329 200 5433</a><button onClick={() => base44.auth.logout()} className="block w-full mt-4 text-slate-500 hover:text-slate-300 text-sm">Esci e riprova con un'altra email</button></div></div>);
+    return (<div className="min-h-screen bg-app flex items-center justify-center p-4"><div className="text-center max-w-md"><div className="w-20 h-20 bg-orange-500/20 rounded-full flex items-center justify-center mx-auto mb-4"><span className="text-4xl">📧</span></div><h1 className="text-app-primary text-xl font-bold mb-3">Email non autorizzata</h1><p className="text-app-primary mb-4">Per accedere devi utilizzare la mail concordata con l'amministrazione del Consorzio.</p><p className="text-app-secondary text-sm mb-6">Se non ricordi quale email utilizzare, chiama il:</p><a href="tel:3292005433" className="inline-flex items-center gap-2 px-6 py-3 rounded-lg font-bold text-lg transition-colors" style={{ backgroundColor: 'var(--app-accent-secondary)', color: 'var(--app-text-inverse)' }}>📞 329 200 5433</a><button onClick={() => base44.auth.logout()} className="block w-full mt-4 text-app-muted hover:text-app-secondary text-sm">Esci e riprova con un'altra email</button></div></div>);
   }
 
   if (isBlocked) {
-    return (<div className="min-h-screen bg-slate-900 flex items-center justify-center p-4"><div className="text-center max-w-md"><div className="w-20 h-20 bg-red-500/20 rounded-full flex items-center justify-center mx-auto mb-4"><span className="text-4xl">🚫</span></div><h1 className="text-white text-xl font-bold mb-3">Accesso Bloccato</h1><p className="text-slate-300 mb-4">Sei stato bloccato dalla direzione del consorzio.</p><p className="text-slate-400 text-sm mb-6">Per ulteriori spiegazioni chiama il:</p><a href="tel:3292005433" className="inline-flex items-center gap-2 bg-lime-400 text-slate-900 px-6 py-3 rounded-lg font-bold text-lg hover:bg-lime-500 transition-colors">📞 329 200 5433</a><button onClick={() => base44.auth.logout()} className="block w-full mt-4 text-slate-500 hover:text-slate-300 text-sm">Esci</button></div></div>);
+    return (<div className="min-h-screen bg-app flex items-center justify-center p-4"><div className="text-center max-w-md"><div className="w-20 h-20 bg-red-500/20 rounded-full flex items-center justify-center mx-auto mb-4"><span className="text-4xl">🚫</span></div><h1 className="text-app-primary text-xl font-bold mb-3">Accesso Bloccato</h1><p className="text-app-primary mb-4">Sei stato bloccato dalla direzione del consorzio.</p><p className="text-app-secondary text-sm mb-6">Per ulteriori spiegazioni chiama il:</p><a href="tel:3292005433" className="inline-flex items-center gap-2 px-6 py-3 rounded-lg font-bold text-lg transition-colors" style={{ backgroundColor: 'var(--app-accent-secondary)', color: 'var(--app-text-inverse)' }}>📞 329 200 5433</a><button onClick={() => base44.auth.logout()} className="block w-full mt-4 text-app-muted hover:text-app-secondary text-sm">Esci</button></div></div>);
   }
 
   const culturaAziendaleNotifications = notifications.filter(n => n.type === 'cultura_aziendale').length;
@@ -404,7 +404,7 @@ export default function Esplora() {
               <div className="relative w-full h-full rounded-[19px] flex flex-col overflow-hidden backdrop-blur-sm" style={{ background: 'rgba(20, 40, 80, 0.28)', boxShadow: 'inset 0 1px 1px rgba(255,255,255,0.15), inset 0 -1px 2px rgba(0,0,0,0.1)' }}>
                 <div className="flex flex-col items-center justify-center flex-1 relative z-10 p-6">
                   {Icon && <Icon className="w-8 h-8 mb-2 text-white/50" />}
-                  <span className="text-sm font-medium text-center leading-tight text-white/60 whitespace-pre-line">{feature.title}</span>
+                  <span className="text-sm font-medium text-center leading-tight whitespace-pre-line" style={{ color: 'var(--app-text-muted)' }}>{feature.title}</span>
                   <span className="text-[10px] text-[#d4af37] font-semibold mt-1.5">PROSSIMAMENTE</span>
                 </div>
               </div>
@@ -462,15 +462,15 @@ export default function Esplora() {
       <main className="px-4 pt-10 pb-2 max-w-md mx-auto">
         {eventResponse === 'accepted' ? (
           <div className="bg-green-700 rounded-xl p-4 mb-6">
-            <h2 className="text-white font-bold text-lg mb-1">✓ Hai scelto di partecipare</h2>
+            <h2 className="text-app-inverse font-bold text-lg mb-1">✓ Hai scelto di partecipare</h2>
             {nextEvent && <p className="text-green-100 text-sm">Incontro "{nextEvent.title}" del {new Date(nextEvent.date).toLocaleDateString('it-IT', { day: 'numeric', month: 'long' })} ore {nextEvent.time} - {nextEvent.location}</p>}
-            <button onClick={() => setShowChangeResponse(true)} className="text-white text-sm underline mt-2 inline-block hover:text-green-200">Hai cambiato idea?</button>
+            <button onClick={() => setShowChangeResponse(true)} className="text-app-inverse text-sm underline mt-2 inline-block hover:text-green-200">Hai cambiato idea?</button>
           </div>
         ) : eventResponse === 'declined' ? (
           <div className="bg-red-700 rounded-xl p-4 mb-6">
-            <h2 className="text-white font-bold text-lg mb-1">✗ Hai scelto di non partecipare</h2>
+            <h2 className="text-app-inverse font-bold text-lg mb-1">✗ Hai scelto di non partecipare</h2>
             {nextEvent && <p className="text-red-100 text-sm">Incontro "{nextEvent.title}" del {new Date(nextEvent.date).toLocaleDateString('it-IT', { day: 'numeric', month: 'long' })} ore {nextEvent.time} - {nextEvent.location}</p>}
-            <button onClick={() => setShowChangeResponse(true)} className="text-white text-sm underline mt-2 inline-block hover:text-red-200">Hai cambiato idea?</button>
+            <button onClick={() => setShowChangeResponse(true)} className="text-app-inverse text-sm underline mt-2 inline-block hover:text-red-200">Hai cambiato idea?</button>
           </div>
         ) : (
           <div className="mb-6">
@@ -486,7 +486,7 @@ export default function Esplora() {
               {activeTab === 'personale' ? 'Area Personale' : activeTab}
             </h3>
             {activeTab === 'personale' ? (
-              <div className="rounded-xl border border-[#d4af37]/30 bg-slate-800/40 p-8 text-center">
+              <div className="rounded-xl p-8 text-center" style={{ border: '1px solid var(--app-border-accent)', backgroundColor: 'var(--app-bg-card)' }}>
                 <p className="text-[#d4af37] font-semibold text-base">🚧 Questa sezione è in lavorazione</p>
               </div>
             ) : (

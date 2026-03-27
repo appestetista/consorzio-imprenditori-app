@@ -85,5 +85,12 @@ module.exports = {
   		}
   	}
   },
+  safelist: [
+    'bg-app', 'bg-app-secondary', 'bg-app-card', 'bg-app-card-hover',
+    'bg-app-input', 'bg-app-overlay', 'bg-app-accent', 'bg-app-accent-secondary',
+    'text-app-primary', 'text-app-secondary', 'text-app-muted', 'text-app-inverse', 'text-app-accent',
+    'border-app', 'border-app-accent', 'shadow-app-card',
+    'app-card', 'app-card-hover',
+  ],
   plugins: [require("tailwindcss-animate")],
 }

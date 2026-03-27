@@ -19,13 +19,13 @@ const CATEGORY_COLORS = {
 
 function StatCard({ icon: Icon, label, value, sub, iconColor }) {
   return (
-    <div className="bg-slate-800/60 border border-slate-700/50 rounded-xl p-3 flex flex-col gap-1">
+    <div className="app-card border rounded-xl p-3 flex flex-col gap-1">
       <div className="flex items-center gap-2">
         <Icon className={`w-4 h-4 ${iconColor || 'text-[#d4af37]'}`} />
-        <span className="text-[10px] text-slate-400 uppercase tracking-wider font-medium">{label}</span>
+        <span className="text-[10px] text-app-muted uppercase tracking-wider font-medium">{label}</span>
       </div>
-      <p className="text-xl font-bold text-white">{value}</p>
-      {sub && <p className="text-[10px] text-slate-500">{sub}</p>}
+      <p className="text-xl font-bold text-app-primary">{value}</p>
+      {sub && <p className="text-[10px] text-app-muted">{sub}</p>}
     </div>
   );
 }
@@ -33,7 +33,7 @@ function StatCard({ icon: Icon, label, value, sub, iconColor }) {
 function StarsDisplay({ rating }) {
   return (
     <div className="flex items-center gap-0.5">
-      <span className="text-xl font-bold text-white mr-1">{rating > 0 ? rating.toFixed(1) : '—'}</span>
+      <span className="text-xl font-bold text-app-primary mr-1">{rating > 0 ? rating.toFixed(1) : '—'}</span>
       {[1, 2, 3, 4, 5].map(v => (
         <Star key={v} className="w-3.5 h-3.5" fill={rating >= v ? '#d4af37' : 'transparent'} stroke={rating >= v ? '#d4af37' : '#475569'} strokeWidth={1.5} />
       ))}
@@ -44,8 +44,8 @@ function StarsDisplay({ rating }) {
 const CustomTooltip = ({ active, payload }) => {
   if (!active || !payload?.length) return null;
   return (
-    <div className="bg-slate-800 border border-slate-700 rounded-lg px-3 py-2 shadow-lg">
-      <p className="text-xs text-white font-medium">{payload[0].payload.name}</p>
+    <div className="app-card border rounded-lg px-3 py-2 shadow-lg">
+      <p className="text-xs text-app-primary font-medium">{payload[0].payload.name}</p>
       <p className="text-xs text-[#d4af37]">{payload[0].value} analisi</p>
     </div>
   );
@@ -105,15 +105,15 @@ export default function Dashboard() {
   const notEnough = analyses.length === 0;
 
   return (
-    <div className="min-h-screen pb-8" style={{ backgroundColor: '#0a0f1a' }}>
+    <div className="min-h-screen pb-8 bg-app">
       {/* Header */}
       <div className="flex items-center gap-3 px-4 pt-5 pb-4">
-        <Link to={createPageUrl('Home')} className="w-9 h-9 rounded-xl bg-slate-800/60 flex items-center justify-center">
-          <ArrowLeft className="w-5 h-5 text-slate-400" />
+        <Link to={createPageUrl('Home')} className="w-9 h-9 rounded-xl bg-app-card flex items-center justify-center">
+          <ArrowLeft className="w-5 h-5 text-app-muted" />
         </Link>
         <div>
-          <h1 className="text-white text-lg font-bold">Dashboard Analisi</h1>
-          <p className="text-slate-500 text-xs">Le tue decisioni in sintesi</p>
+          <h1 className="text-app-primary text-lg font-bold">Dashboard Analisi</h1>
+          <p className="text-app-muted text-xs">Le tue decisioni in sintesi</p>
         </div>
       </div>
 
@@ -123,12 +123,12 @@ export default function Dashboard() {
         </div>
       ) : notEnough ? (
         <div className="px-4 flex flex-col items-center justify-center py-20">
-          <div className="w-16 h-16 rounded-2xl bg-slate-800/60 border border-slate-700/50 flex items-center justify-center mb-4">
-            <BarChart3 className="w-8 h-8 text-slate-600" />
+          <div className="w-16 h-16 rounded-2xl bg-app-card border border-app flex items-center justify-center mb-4">
+            <BarChart3 className="w-8 h-8 text-app-muted" />
           </div>
-          <p className="text-white font-semibold text-center mb-2">Dashboard non disponibile</p>
-          <p className="text-white font-semibold text-center mb-2">Fai la tua prima analisi!</p>
-          <p className="text-slate-400 text-sm text-center mb-6 max-w-xs">
+          <p className="text-app-primary font-semibold text-center mb-2">Dashboard non disponibile</p>
+          <p className="text-app-primary font-semibold text-center mb-2">Fai la tua prima analisi!</p>
+          <p className="text-app-secondary text-sm text-center mb-6 max-w-xs">
             Inizia a usare il consulente AI per vedere le tue statistiche qui.
           </p>
           <Link
@@ -145,22 +145,22 @@ export default function Dashboard() {
           <div className="grid grid-cols-2 gap-3">
             <StatCard icon={BarChart3} label="Analisi totali" value={analyses.length} iconColor="text-[#d4af37]" />
             <StatCard icon={Calendar} label="Questo mese" value={thisMonthAnalyses.length} iconColor="text-blue-400" />
-            <div className="bg-slate-800/60 border border-slate-700/50 rounded-xl p-3 flex flex-col gap-1">
+            <div className="app-card border rounded-xl p-3 flex flex-col gap-1">
               <div className="flex items-center gap-2">
                 <Star className="w-4 h-4 text-[#d4af37]" />
-                <span className="text-[10px] text-slate-400 uppercase tracking-wider font-medium">Rating medio</span>
+                <span className="text-[10px] text-app-muted uppercase tracking-wider font-medium">Rating medio</span>
               </div>
               <StarsDisplay rating={avgRating} />
-              {rated.length > 0 && <p className="text-[10px] text-slate-500">{rated.length} valutazion{rated.length === 1 ? 'e' : 'i'}</p>}
+              {rated.length > 0 && <p className="text-[10px] text-app-muted">{rated.length} valutazion{rated.length === 1 ? 'e' : 'i'}</p>}
             </div>
             <StatCard icon={Tag} label="Top categoria" value={topCategory} sub={`${catCount[topCategory] || 0} analisi`} iconColor="text-emerald-400" />
           </div>
 
           {/* Grafico distribuzione */}
-          <div className="bg-slate-800/60 border border-slate-700/50 rounded-xl p-4">
+          <div className="app-card border rounded-xl p-4">
             <div className="flex items-center gap-2 mb-4">
               <TrendingUp className="w-4 h-4 text-[#d4af37]" />
-              <span className="text-xs font-semibold text-white">Analisi per categoria (ultimi 3 mesi)</span>
+              <span className="text-xs font-semibold text-app-primary">Analisi per categoria (ultimi 3 mesi)</span>
             </div>
             <div className="h-48">
               <ResponsiveContainer width="100%" height="100%">
@@ -189,9 +189,9 @@ export default function Dashboard() {
           </div>
 
           {/* Ultime 5 analisi */}
-          <div className="bg-slate-800/60 border border-slate-700/50 rounded-xl p-4">
+          <div className="app-card border rounded-xl p-4">
             <div className="flex items-center justify-between mb-3">
-              <span className="text-xs font-semibold text-white">Ultime analisi</span>
+              <span className="text-xs font-semibold text-app-primary">Ultime analisi</span>
             </div>
             <div className="space-y-2">
               {latest5.map(conv => {
@@ -204,23 +204,24 @@ export default function Dashboard() {
                   <Link
                     key={conv.id}
                     to={createPageUrl('Home')}
-                    className="flex items-center gap-3 px-3 py-2.5 rounded-xl bg-slate-900/40 hover:bg-slate-900/70 transition-colors"
+                    className="flex items-center gap-3 px-3 py-2.5 rounded-xl transition-colors"
+                    style={{ backgroundColor: 'var(--app-bg-secondary)' }}
                   >
                     <div className="w-2 h-2 rounded-full flex-shrink-0" style={{ backgroundColor: catColor }} />
                     <div className="flex-1 min-w-0">
-                      <p className="text-xs text-white truncate">{preview}{preview.length >= 60 ? '…' : ''}</p>
+                      <p className="text-xs text-app-primary truncate">{preview}{preview.length >= 60 ? '…' : ''}</p>
                       <div className="flex items-center gap-2 mt-0.5">
                         <span className="text-[10px] font-medium" style={{ color: catColor }}>{conv.categoria}</span>
-                        <span className="text-[10px] text-slate-500">{date}</span>
+                        <span className="text-[10px] text-app-muted">{date}</span>
                         {conv.rating > 0 && (
                           <span className="flex items-center gap-0.5">
                             <Star className="w-2.5 h-2.5" fill="#d4af37" stroke="#d4af37" />
-                            <span className="text-[10px] text-slate-400">{conv.rating}</span>
+                            <span className="text-[10px] text-app-muted">{conv.rating}</span>
                           </span>
                         )}
                       </div>
                     </div>
-                    <ChevronRight className="w-4 h-4 text-slate-600 flex-shrink-0" />
+                    <ChevronRight className="w-4 h-4 text-app-muted flex-shrink-0" />
                   </Link>
                 );
               })}

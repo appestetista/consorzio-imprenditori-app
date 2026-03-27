@@ -1,0 +1,41 @@
+/* ============================================
+   Theme utility classes based on CSS variables
+   defined in Layout.jsx (--app-*)
+   ============================================ */
+
+/* ---------- Backgrounds ---------- */
+.bg-app           { background-color: var(--app-bg); }
+.bg-app-secondary { background-color: var(--app-bg-secondary); }
+.bg-app-card      { background-color: var(--app-bg-card); }
+.bg-app-card-hover:hover { background-color: var(--app-bg-card-hover); }
+.bg-app-input     { background-color: var(--app-bg-input); }
+.bg-app-overlay   { background-color: var(--app-bg-overlay); }
+
+/* ---------- Text ---------- */
+.text-app-primary   { color: var(--app-text-primary); }
+.text-app-secondary { color: var(--app-text-secondary); }
+.text-app-muted     { color: var(--app-text-muted); }
+.text-app-inverse   { color: var(--app-text-inverse); }
+.text-app-accent    { color: var(--app-accent); }
+
+/* ---------- Borders ---------- */
+.border-app         { border-color: var(--app-border); }
+.border-app-accent  { border-color: var(--app-border-accent); }
+
+/* ---------- Accent / Brand ---------- */
+.bg-app-accent      { background-color: var(--app-accent); }
+.bg-app-accent-secondary { background-color: var(--app-accent-secondary); }
+
+/* ---------- Shadows ---------- */
+.shadow-app-card    { box-shadow: var(--app-shadow-card); }
+
+/* ---------- Composites ---------- */
+.app-card {
+  background-color: var(--app-bg-card);
+  border-color: var(--app-border);
+  box-shadow: var(--app-shadow-card);
+}
+
+.app-card-hover:hover {
+  background-color: var(--app-bg-card-hover);
+}
