@@ -23,6 +23,7 @@ Deno.serve(async (req) => {
 });
 
 async function fetchAndSaveGrants(base44) {
+    const MAX_GRANTS_PER_RUN = 5;
     console.log('Starting grant extraction from Incentivi.gov.it...');
 
     // Fonti da monitorare
@@ -118,7 +119,12 @@ Altrimenti: {"grants": [...]}`
         }
     }
 
-    console.log(`Extracted ${allGrants.length} grants total`);
+    const totalExtractedBeforeTruncation = allGrants.length;
+    const wasTruncated = totalExtractedBeforeTruncation > MAX_GRANTS_PER_RUN;
+    if (wasTruncated) {
+        allGrants.splice(MAX_GRANTS_PER_RUN);
+    }
+    console.log(`Extracted ${totalExtractedBeforeTruncation} grants total, processing ${allGrants.length}`);
 
     // Recupera solo bandi attivi per deduplicazione (ottimizzazione)
     const allExistingGrants = await base44.asServiceRole.entities.FinancialGrant.list();
@@ -131,6 +137,8 @@ Altrimenti: {"grants": [...]}`
 
     for (const grant of allGrants) {
         if (!grant.title) continue;
+
+        await new Promise(r => setTimeout(r, 500));
 
         // Se mancano dati importanti (importo, copertura), cerca su altre fonti
         let enrichedGrant = { ...grant };
@@ -240,10 +248,12 @@ Rispondi con JSON: {"min_amount": null, "max_amount": null, "coverage_percentage
 
     const summary = {
         success: true,
-        totalExtracted: allGrants.length,
+        totalExtracted: totalExtractedBeforeTruncation,
+        totalProcessed: allGrants.length,
         newGrants: newGrantsCount,
         updatedGrants: updatedGrantsCount,
         skipped: skippedCount,
+        was_truncated: wasTruncated,
         timestamp: new Date().toISOString()
     };
 
