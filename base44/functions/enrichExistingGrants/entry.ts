@@ -16,7 +16,14 @@ Deno.serve(async (req) => {
             (!g.min_amount && !g.max_amount) || !g.coverage_percentage || !g.website_url
         );
 
-        console.log(`Found ${grantsToEnrich.length} grants to enrich`);
+        const MAX_TO_ENRICH = 20;
+        const totalToEnrich = grantsToEnrich.length;
+        const wasTruncated = totalToEnrich > MAX_TO_ENRICH;
+        if (wasTruncated) {
+            grantsToEnrich.splice(MAX_TO_ENRICH);
+        }
+
+        console.log(`Found ${totalToEnrich} grants to enrich, processing ${grantsToEnrich.length}`);
 
         let enriched = 0;
         let notFound = 0;
@@ -107,7 +114,7 @@ Restituisci SOLO dati che puoi citare con fonte precisa.`,
                 }
 
                 // Pausa per evitare rate limiting
-                await new Promise(resolve => setTimeout(resolve, 2000));
+                await new Promise(resolve => setTimeout(resolve, 800));
 
             } catch (err) {
                 console.error(`Error enriching ${grant.title}:`, err.message);
@@ -115,13 +122,18 @@ Restituisci SOLO dati che puoi citare con fonte precisa.`,
             }
         }
 
-        return Response.json({
+        const response = {
             success: true,
+            total_to_enrich: totalToEnrich,
             total_processed: grantsToEnrich.length,
             enriched: enriched,
             not_found: notFound,
             results: results
-        });
+        };
+        if (wasTruncated) {
+            response.note = 'Processati i primi 20 bandi. Riesegui per i successivi.';
+        }
+        return Response.json(response);
 
     } catch (error) {
         console.error('Error:', error);
