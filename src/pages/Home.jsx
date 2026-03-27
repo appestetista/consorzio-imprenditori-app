@@ -2,7 +2,8 @@ import React, { useState, useEffect, useRef } from 'react';
 import { base44 } from '@/api/base44Client';
 import { useNavigate } from 'react-router-dom';
 import { createPageUrl } from '@/utils';
-import { Send, Sparkles, ArrowUp, Loader2, Mic, MicOff, X, Target, Scale, UserRound } from 'lucide-react';
+import { Send, Sparkles, ArrowUp, Loader2, Mic, MicOff, X, Target, Scale, UserRound, AlertCircle } from 'lucide-react';
+import { toast } from 'sonner';
 import { Link } from 'react-router-dom';
 import { useImpersonation } from '../components/admin/ImpersonationContext';
 import { normalizeUser, isUserConsultant } from '../components/utils/normalizeUser';
@@ -54,6 +55,7 @@ export default function Home() {
   const [webSearchLoading, setWebSearchLoading] = useState(false);
   const [webSearchResult, setWebSearchResult] = useState(null);
   const [attachedFiles, setAttachedFiles] = useState([]);
+  const [saveError, setSaveError] = useState(false);
   const { streamAI } = useStreamingAI();
   const recognitionRef = useRef(null);
   const pendingContextRef = useRef('');
@@ -242,17 +244,23 @@ export default function Home() {
   };
 
   const saveConversation = async (allMessages, convId) => {
-    const messagesForDB = allMessages.map(m => ({
-      role: m.role,
-      content: typeof m.content === 'object' && m.content !== null ? JSON.stringify(m.content) : (m.content || ''),
-      ...(m.isAI ? { isAI: true } : {}),
-      ...(m.isCompare ? { isCompare: true } : {}),
-      ...(m.usageCount ? { usageCount: m.usageCount } : {}),
-      ...(m.isDetail ? { isDetail: true } : {}),
-    }));
-    const lastAssistant = allMessages.filter(m => m.role === 'assistant').pop();
-    const rispostaStr = lastAssistant ? (typeof lastAssistant.content === 'string' ? lastAssistant.content : JSON.stringify(lastAssistant.content)) : '';
-    await base44.entities.ChatConversation.update(convId, { messages: messagesForDB, risposta_json: rispostaStr });
+    try {
+      setSaveError(false);
+      const messagesForDB = allMessages.map(m => ({
+        role: m.role,
+        content: typeof m.content === 'object' && m.content !== null ? JSON.stringify(m.content) : (m.content || ''),
+        ...(m.isAI ? { isAI: true } : {}),
+        ...(m.isCompare ? { isCompare: true } : {}),
+        ...(m.usageCount ? { usageCount: m.usageCount } : {}),
+        ...(m.isDetail ? { isDetail: true } : {}),
+      }));
+      const lastAssistant = allMessages.filter(m => m.role === 'assistant').pop();
+      const rispostaStr = lastAssistant ? (typeof lastAssistant.content === 'string' ? lastAssistant.content : JSON.stringify(lastAssistant.content)) : '';
+      await base44.entities.ChatConversation.update(convId, { messages: messagesForDB, risposta_json: rispostaStr });
+    } catch (e) {
+      setSaveError(true);
+      toast.warning('Conversazione non salvata. Controlla la connessione.');
+    }
   };
 
   const runAnalysis = async ({ msg, newMessages, convPromise }) => {
@@ -693,6 +701,12 @@ export default function Home() {
           // Conversazione attiva
           <div ref={messagesContainerRef} className="flex-1 overflow-y-scroll px-4" style={{ WebkitOverflowScrolling: 'touch', overscrollBehaviorY: 'contain', paddingTop: '56px', paddingBottom: '200px' }}>
             <div className="max-w-2xl mx-auto space-y-4">
+              {saveError && (
+                <div className="flex items-center gap-2 px-3 py-2 rounded-lg text-xs mb-2" style={{ backgroundColor: 'rgba(251, 146, 60, 0.15)', color: '#fb923c' }}>
+                  <AlertCircle className="w-4 h-4 flex-shrink-0" />
+                  <span>Conversazione non salvata. Controlla la connessione.</span>
+                </div>
+              )}
               {messages.map((msg, i) => {
                 // Calcola se è l'ultimo messaggio utente o l'ultimo assistente
                 const isLastUser = msg.role === 'user' && !messages.slice(i + 1).some(m => m.role === 'user');

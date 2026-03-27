@@ -49,10 +49,6 @@ export default function Layout({ children, currentPageName }) {
     }
   };
 
-  useEffect(() => {
-    console.log('[LAYOUT] Current page:', currentPageName);
-  }, [currentPageName]);
-
   // Controlla se c'è il parametro openCalendar=1 nell'URL
   useEffect(() => {
     const params = new URLSearchParams(window.location.search);
