@@ -40,7 +40,7 @@ export default function SimulazioneForm({ onSubmit, loading, userProfile }) {
     base_imponibile_irap: '',
     nome_scenario: '',
     anno: 2026,
-    regione: userProfile?.regione || userProfile?.region || '',
+    regione: userProfile?.regione || '',
     categoria_irap: '',
     codice_ateco: userProfile?.ateco_code || ''
   });

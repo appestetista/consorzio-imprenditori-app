@@ -890,9 +890,8 @@ export default function MyProfile() {
           postal_code: effectiveUser.postal_code || '',
           ragione_sociale_fatturazione: effectiveUser.ragione_sociale_fatturazione || '',
           codice_fiscale: effectiveUser.codice_fiscale || '',
-          regione: effectiveUser.regione || '',
+          regione: effectiveUser.regione || effectiveUser.region || '',
           paese: effectiveUser.paese || '',
-          region: effectiveUser.region || '',
           export_fatturato_annuo: effectiveUser.export_fatturato_annuo || '',
           export_esperienza: effectiveUser.export_esperienza || '',
           export_certificazioni: effectiveUser.export_certificazioni || '',
@@ -953,7 +952,7 @@ export default function MyProfile() {
     }
   };
 
-  const REQUIRED_FIELDS = ['company_name', 'company_email', 'referente', 'cellulare_referente', 'referente_email', 'region', 'specializzazione', 'city'];
+  const REQUIRED_FIELDS = ['company_name', 'company_email', 'referente', 'cellulare_referente', 'referente_email', 'regione', 'specializzazione', 'city'];
 
   const handleSave = async () => {
     setSaving(true);
@@ -1333,8 +1332,8 @@ export default function MyProfile() {
             <div className={highlightFiscale ? 'ring-2 ring-[#d4af37]/50 rounded-lg p-2 -m-2 bg-[#d4af37]/5' : ''}>
               <label className="text-lime-400 text-sm font-medium mb-1 block">Regione (obbligatorio) {highlightFiscale && <span className="text-[#d4af37]">← Simulatore</span>}</label>
               <Select
-                value={formData.region || undefined}
-                onValueChange={(value) => setFormData({...formData, region: value})}
+                value={formData.regione || undefined}
+                onValueChange={(value) => setFormData({...formData, regione: value})}
               >
                 <SelectTrigger className="bg-lime-400/10 border-lime-400 text-white">
                   <SelectValue placeholder="Seleziona regione" />

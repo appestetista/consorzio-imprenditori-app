@@ -135,7 +135,7 @@ export default function FiscalPreFlightPopup({ user, onComplete }) {
   const [values, setValues] = useState({
     forma_giuridica: user?.forma_giuridica || null,
     regime_fiscale: user?.regime_fiscale || null,
-    regione: user?.regione || user?.region || null,
+    regione: user?.regione || null,
     ateco_code: user?.ateco_code || '',
     gestione_inps: user?.gestione_inps || null,
     riduzione_contributiva_forfettario: user?.riduzione_contributiva_forfettario ?? null,

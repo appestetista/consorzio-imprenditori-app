@@ -25,7 +25,7 @@ const REGIMI = ['Ordinario', 'Semplificato', 'Forfettario'];
 
 export default function QuickEditFiscale({ user, onSave, onClose }) {
   const [forma, setForma] = useState(user?.forma_giuridica || '');
-  const [regione, setRegione] = useState(user?.regione || user?.region || '');
+  const [regione, setRegione] = useState(user?.regione || '');
   const [ateco, setAteco] = useState(user?.ateco_code || '');
   const [regime, setRegime] = useState(user?.regime_fiscale || '');
   const [saving, setSaving] = useState(false);

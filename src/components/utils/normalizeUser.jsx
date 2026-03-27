@@ -51,8 +51,8 @@ export function normalizeUser(user) {
     city: user.city || data.city,
     province: user.province || data.province,
     postal_code: user.postal_code || data.postal_code,
-    region: user.region || data.region,
-    regione: user.regione || data.regione,
+
+    regione: user.regione || user.region || data.regione || data.region,
     paese: user.paese || data.paese,
     
     // Dati fiscali

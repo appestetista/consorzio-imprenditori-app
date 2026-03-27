@@ -100,8 +100,8 @@ export default function SimulatoreFiscale() {
             {effectiveUser?.regime_fiscale && (
               <span className="text-xs px-2 py-0.5 rounded" style={{ color: 'var(--app-text-primary)', backgroundColor: 'var(--app-bg-card)' }}>{effectiveUser.regime_fiscale}</span>
             )}
-            {(effectiveUser?.regione || effectiveUser?.region) && (
-              <span className="text-xs px-2 py-0.5 rounded" style={{ color: 'var(--app-text-primary)', backgroundColor: 'var(--app-bg-card)' }}>{effectiveUser.regione || effectiveUser.region}</span>
+            {effectiveUser?.regione && (
+              <span className="text-xs px-2 py-0.5 rounded" style={{ color: 'var(--app-text-primary)', backgroundColor: 'var(--app-bg-card)' }}>{effectiveUser.regione}</span>
             )}
             {effectiveUser?.ateco_code && (
               <span className="text-xs px-2 py-0.5 rounded inline-flex items-center" style={{ color: 'var(--app-text-primary)', backgroundColor: 'var(--app-bg-card)' }}>
