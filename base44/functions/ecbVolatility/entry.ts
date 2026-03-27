@@ -196,9 +196,10 @@ Deno.serve(async (req) => {
     }
 
     const currency = COUNTRY_TO_CURRENCY[countryCode];
+    const eurozone = ['AT','BE','CY','DE','EE','ES','FI','FR','GR','IE','IT','LT','LU','LV','MT','NL','PT','SI','SK','HR'];
     
     // Eurozona: stessa valuta
-    if (currency === null || currency === undefined && ['AT','BE','CY','DE','EE','ES','FI','FR','GR','IE','IT','LT','LU','LV','MT','NL','PT','SI','SK','HR'].includes(countryCode)) {
+    if (currency === null || (currency === undefined && eurozone.includes(countryCode))) {
       return Response.json({
         currency: 'EUR',
         volatilita_annualizzata_pct: 0,
