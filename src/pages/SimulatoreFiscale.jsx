@@ -35,8 +35,12 @@ export default function SimulatoreFiscale() {
     setEffectiveUser(prev => ({ ...prev, ...vals }));
   };
 
+  // Scroll in cima solo al primo mount
   useEffect(() => {
     window.scrollTo(0, 0);
+  }, []);
+
+  useEffect(() => {
     if (!user) return;
     const loadEffective = async () => {
       if (appMode === 'user-preview' && impersonation.previewUserId && user?.role === 'admin') {
