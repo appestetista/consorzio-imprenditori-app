@@ -1,0 +1,44 @@
+{
+  "name": "AppStats",
+  "type": "object",
+  "properties": {
+    "stat_key": {
+      "type": "string",
+      "description": "Chiave univoca, es: 'global_counts'"
+    },
+    "total_users": {
+      "type": "number",
+      "default": 0
+    },
+    "active_users": {
+      "type": "number",
+      "default": 0
+    },
+    "total_events": {
+      "type": "number",
+      "default": 0,
+      "description": "Eventi futuri approvati non cancellati"
+    },
+    "total_videos": {
+      "type": "number",
+      "default": 0
+    },
+    "total_consultants": {
+      "type": "number",
+      "default": 0
+    },
+    "total_vantaggi": {
+      "type": "number",
+      "default": 0,
+      "description": "Vantaggi attivi"
+    },
+    "last_computed_at": {
+      "type": "string",
+      "format": "date-time",
+      "description": "Quando sono state calcolate le statistiche"
+    }
+  },
+  "required": [
+    "stat_key"
+  ]
+}

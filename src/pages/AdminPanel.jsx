@@ -116,23 +116,20 @@ function AdminPanelContent({ user }) {
   const { data: stats } = useQuery({
     queryKey: ['admin-stats'],
     queryFn: async () => {
-      const [users, events, videos, consultants, vantaggi] = await Promise.all([
-        base44.entities.User.list(), base44.entities.Event.list(), base44.entities.Video.list(),
-        base44.entities.Consultant.list(), base44.entities.Vantaggio.list()
-      ]);
-      const today = new Date(); today.setHours(0,0,0,0);
-      const validFutureEvents = events.filter(e => {
-        if (!e.date) return false;
-        const d = new Date(e.date); if (isNaN(d.getTime())) return false;
-        d.setHours(0,0,0,0);
-        return d >= today && e.approval_status === 'approved' && !e.is_cancelled;
-      });
-      return {
-        totalUsers: users.length, activeUsers: users.filter(u => !u.is_blocked).length,
-        totalEvents: validFutureEvents.length, totalVideos: videos.length,
-        totalConsultants: consultants.length, totalVantaggi: vantaggi.filter(v => v.is_active).length
-      };
-    }
+      const cached = await base44.entities.AppStats.filter({ stat_key: 'global_counts' });
+      if (cached.length > 0) {
+        const s = cached[0];
+        return {
+          totalUsers: s.total_users, activeUsers: s.active_users,
+          totalEvents: s.total_events, totalVideos: s.total_videos,
+          totalConsultants: s.total_consultants, totalVantaggi: s.total_vantaggi
+        };
+      }
+      // Fallback: se AppStats non è ancora stato calcolato, triggera il calcolo
+      try { await base44.functions.invoke('computeAppStats', {}); } catch {}
+      return { totalUsers: 0, activeUsers: 0, totalEvents: 0, totalVideos: 0, totalConsultants: 0, totalVantaggi: 0 };
+    },
+    staleTime: 5 * 60 * 1000, // cache 5 minuti lato client
   });
 
   const { data: consultants = [], isLoading: isLoadingConsultants } = useQuery({ queryKey: ['consultants'], queryFn: () => base44.entities.Consultant.list() });
