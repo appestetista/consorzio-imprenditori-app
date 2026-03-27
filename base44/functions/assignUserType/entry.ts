@@ -1,4 +1,4 @@
-import { createClientFromRequest } from 'npm:@base44/sdk@0.8.6';
+import { createClientFromRequest } from 'npm:@base44/sdk@0.8.23';
 
 Deno.serve(async (req) => {
   try {
@@ -20,23 +20,19 @@ Deno.serve(async (req) => {
       });
     }
 
-    // Cerca se c'è un invito pendente per questa email (case-insensitive)
-    const allPendingInvites = await base44.asServiceRole.entities.PendingInvite.filter({
-      is_registered: false
+    // Cerca se c'è un invito pendente per questa email
+    const pendingInvites = await base44.asServiceRole.entities.PendingInvite.filter({
+      is_registered: false,
+      email: user.email.toLowerCase()
     });
-    const pendingInvites = allPendingInvites.filter(
-      inv => inv.email?.toLowerCase() === user.email.toLowerCase()
-    );
 
     if (pendingInvites.length === 0) {
       // Controlla se esiste un invito già registrato per questa email
       // (caso in cui l'utente ha già completato la registrazione in precedenza)
-      const allRegisteredInvites = await base44.asServiceRole.entities.PendingInvite.filter({
-        is_registered: true
+      const registeredInvites = await base44.asServiceRole.entities.PendingInvite.filter({
+        is_registered: true,
+        email: user.email.toLowerCase()
       });
-      const registeredInvites = allRegisteredInvites.filter(
-        inv => inv.email?.toLowerCase() === user.email.toLowerCase()
-      );
 
       if (registeredInvites.length > 0) {
         // L'utente era già stato autorizzato, non bloccare
@@ -48,10 +44,9 @@ Deno.serve(async (req) => {
       }
 
       // Controlla se esiste un Consultant con questa email (creato manualmente dall'admin)
-      const allConsultants = await base44.asServiceRole.entities.Consultant.filter({});
-      const existingConsultants = allConsultants.filter(
-        c => c.email?.toLowerCase() === user.email.toLowerCase()
-      );
+      const existingConsultants = await base44.asServiceRole.entities.Consultant.filter({
+        email: user.email.toLowerCase()
+      });
 
       if (existingConsultants.length > 0) {
         // Il consulente esiste già - autorizza e assegna tipo utente
@@ -186,12 +181,11 @@ Deno.serve(async (req) => {
       }
 
       // Crea anche il record Consultant se non esiste
-      const allConsultantsCheck = await base44.asServiceRole.entities.Consultant.filter({});
-      const existingConsultants = allConsultantsCheck.filter(
-        c => c.email?.toLowerCase() === user.email.toLowerCase()
-      );
+      const existingConsultantsCheck = await base44.asServiceRole.entities.Consultant.filter({
+        email: user.email.toLowerCase()
+      });
 
-      if (existingConsultants.length === 0 && invite.consultant_category) {
+      if (existingConsultantsCheck.length === 0 && invite.consultant_category) {
         await base44.asServiceRole.entities.Consultant.create({
           name: invite.consultant_name || user.full_name || user.email,
           email: user.email.toLowerCase(),
