@@ -63,10 +63,11 @@ function classifyTrend(volLungo, volBreve) {
  * Usa l'API SDMX dell'ECB Data Portal (formato CSV per semplicità di parsing).
  */
 async function fetchECBRates(currency, startDate, endDate) {
+  try {
   // D.{currency}.EUR.SP00.A = tasso giornaliero EUR/{currency}
   const url = `https://data-api.ecb.europa.eu/service/data/EXR/D.${currency}.EUR.SP00.A?startPeriod=${startDate}&endPeriod=${endDate}&format=csvdata`;
   
-  const resp = await fetch(url);
+  const resp = await fetch(url, { signal: AbortSignal.timeout(10000) });
   if (!resp.ok) {
     console.error(`[ECB API] HTTP ${resp.status} per ${currency}`);
     return [];
@@ -113,6 +114,10 @@ async function fetchECBRates(currency, startDate, endDate) {
   }
   
   return rates.sort((a, b) => a.date.localeCompare(b.date));
+  } catch (e) {
+    console.error(`[ECB API] Error fetching rates for ${currency}: ${e.message}`);
+    return [];
+  }
 }
 
 /**
