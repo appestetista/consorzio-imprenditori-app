@@ -14,6 +14,18 @@ Deno.serve(async (req) => {
       return Response.json({ error: 'Forbidden: Admin access required' }, { status: 403 });
     }
 
+    // Protezione contro esecuzioni ripetute
+    const alreadyRun = await base44.asServiceRole.entities.AppStats.filter({
+      stat_key: 'bootstrap_user_stats_completed'
+    });
+    if (alreadyRun.length > 0) {
+      return Response.json({
+        success: false,
+        reason: 'already_executed',
+        message: 'Bootstrap già eseguito in precedenza. Disabilita o rimuovi questa function.'
+      });
+    }
+
     // Prendi tutti gli utenti che hanno già uno UserStats
     const existingStats = await base44.asServiceRole.entities.UserStats.filter({}, '-updated_date', 5000);
     const existingEmails = new Set(existingStats.map(s => s.user_email));
@@ -86,6 +98,12 @@ Deno.serve(async (req) => {
         created++;
       }
     }
+
+    // Segna il bootstrap come completato
+    await base44.asServiceRole.entities.AppStats.create({
+      stat_key: 'bootstrap_user_stats_completed',
+      last_computed_at: now.toISOString()
+    });
 
     return Response.json({ success: true, created, updated, total_users: Object.keys(byUser).length });
     
