@@ -58,14 +58,20 @@ export default function Dashboard() {
     base44.auth.me().then(setUser).catch(() => {});
   }, []);
 
-  const { data: conversations = [], isLoading } = useQuery({
+  // Carica solo conversazioni con categoria degli ultimi 6 mesi, max 200
+  const sixMonthsAgo = new Date();
+  sixMonthsAgo.setMonth(sixMonthsAgo.getMonth() - 6);
+  const sixMonthsAgoISO = sixMonthsAgo.toISOString();
+
+  const { data: analyses = [], isLoading } = useQuery({
     queryKey: ['dashboard-conversations', user?.email],
-    queryFn: () => base44.entities.ChatConversation.filter({ user_email: user.email }, '-created_date'),
+    queryFn: () => base44.entities.ChatConversation.filter(
+      { user_email: user.email, categoria: { $ne: null }, created_date: { $gte: sixMonthsAgoISO } },
+      '-created_date',
+      200
+    ),
     enabled: !!user?.email,
   });
-
-  // Solo analisi con categoria
-  const analyses = conversations.filter(c => c.categoria);
 
   // Analisi questo mese
   const now = new Date();

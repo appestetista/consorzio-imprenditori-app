@@ -37,6 +37,72 @@ const PERMISSIONS_LIST = [
   { key: 'risparmio_energetico', label: 'Risparmio Energetico' }
 ];
 
+// Sub-component per la lista utenti per zona
+function ZoneUsersListInline({ selectedZone }) {
+  const { data: zoneData, isLoading } = useQuery({
+    queryKey: ['zone-users', selectedZone],
+    queryFn: async () => {
+      const res = await base44.functions.invoke('listMembers', {
+        page: 1,
+        pageSize: 500,
+        zone: selectedZone,
+        excludeConsulenti: true,
+        entityType: 'User'
+      });
+      return res.data;
+    },
+  });
+
+  const zoneMembers = zoneData?.records || [];
+
+  if (isLoading) {
+    return (
+      <div className="text-center py-4">
+        <div className="animate-spin w-6 h-6 border-2 border-lime-400 border-t-transparent rounded-full mx-auto" />
+      </div>
+    );
+  }
+
+  return (
+    <div className="space-y-2 max-h-64 overflow-y-auto">
+      {zoneMembers.map(member => (
+        <div key={member.id} className="bg-slate-900 rounded-lg p-3 flex items-center justify-between">
+          <div className="flex items-center gap-3">
+            <div className={`w-8 h-8 rounded-full flex items-center justify-center ${
+              member.user_type === 'consulente' ? 'bg-blue-500/20' : 'bg-lime-400/20'
+            }`}>
+              <User className={`w-4 h-4 ${
+                member.user_type === 'consulente' ? 'text-blue-400' : 'text-lime-400'
+              }`} />
+            </div>
+            <div>
+              <p className="text-white text-sm">{member.company_name || member.full_name}</p>
+              <p className="text-slate-500 text-xs">{member.email}</p>
+            </div>
+          </div>
+          <div className="flex items-center gap-2">
+            {member.zona && (
+              <Badge className="bg-slate-700 text-slate-300 border-0 text-xs">
+                {member.zona}
+              </Badge>
+            )}
+            <Badge className={`border-0 text-xs ${
+              member.user_type === 'consulente' 
+                ? 'bg-blue-500/20 text-blue-400' 
+                : 'bg-lime-400/20 text-lime-400'
+            }`}>
+              {member.user_type === 'consulente' ? 'Consulente' : 'Utente'}
+            </Badge>
+          </div>
+        </div>
+      ))}
+      {zoneMembers.length === 0 && (
+        <p className="text-slate-500 text-sm text-center py-4">Nessun utente in questa zona</p>
+      )}
+    </div>
+  );
+}
+
 export default function GestioneMembri() {
   return (
     <AdminGuard>
@@ -47,10 +113,13 @@ export default function GestioneMembri() {
 
 function GestioneMembriContent({ user }) {
   const [searchTerm, setSearchTerm] = useState('');
+  const [debouncedSearch, setDebouncedSearch] = useState('');
   const [selectedZone, setSelectedZone] = useState('all');
   const [selectedMember, setSelectedMember] = useState(null);
   const [showPermissions, setShowPermissions] = useState(false);
   const [showMemberForm, setShowMemberForm] = useState(false);
+  const [page, setPage] = useState(1);
+  const pageSize = 50;
 
   const [formData, setFormData] = useState(null);
   const [initialFormData, setInitialFormData] = useState(null);
@@ -60,10 +129,38 @@ function GestioneMembriContent({ user }) {
   const navigate = useNavigate();
   const { impersonation } = useImpersonation();
 
-  const { data: members = [], isLoading } = useQuery({
-    queryKey: ['all-members'],
-    queryFn: () => base44.entities.User.list(),
+  // Debounce searchTerm to avoid too many API calls
+  useEffect(() => {
+    const timer = setTimeout(() => {
+      setDebouncedSearch(searchTerm);
+      setPage(1); // Reset to page 1 on search change
+    }, 300);
+    return () => clearTimeout(timer);
+  }, [searchTerm]);
+
+  // Reset page when zone changes
+  useEffect(() => {
+    setPage(1);
+  }, [selectedZone]);
+
+  const { data: membersData, isLoading } = useQuery({
+    queryKey: ['all-members-paginated', page, pageSize, debouncedSearch, selectedZone],
+    queryFn: async () => {
+      const res = await base44.functions.invoke('listMembers', {
+        page,
+        pageSize,
+        searchTerm: debouncedSearch,
+        zone: selectedZone,
+        excludeConsulenti: true,
+        entityType: 'User'
+      });
+      return res.data;
+    },
   });
+
+  const members = membersData?.records || [];
+  const totalPages = membersData?.totalPages || 1;
+  const totalCount = membersData?.totalCount || 0;
 
   const { data: zones = [] } = useQuery({
     queryKey: ['zones'],
@@ -141,7 +238,7 @@ function GestioneMembriContent({ user }) {
       return base44.entities.User.update(memberId, { is_blocked: !isBlocked });
     },
     onSuccess: () => {
-      queryClient.invalidateQueries({ queryKey: ['all-members'] });
+      queryClient.invalidateQueries({ queryKey: ['all-members-paginated'] });
     }
   });
 
@@ -150,7 +247,7 @@ function GestioneMembriContent({ user }) {
       return base44.entities.User.update(memberId, data);
     },
     onSuccess: () => {
-      queryClient.invalidateQueries({ queryKey: ['all-members'] });
+      queryClient.invalidateQueries({ queryKey: ['all-members-paginated'] });
       setShowMemberForm(false);
       setFormData(null);
     }
@@ -161,7 +258,7 @@ function GestioneMembriContent({ user }) {
       return base44.entities.User.update(memberId, { permissions });
     },
     onSuccess: () => {
-      queryClient.invalidateQueries({ queryKey: ['all-members'] });
+      queryClient.invalidateQueries({ queryKey: ['all-members-paginated'] });
       setShowPermissions(false);
       setSelectedMember(null);
     }
@@ -172,7 +269,7 @@ function GestioneMembriContent({ user }) {
       return base44.entities.User.delete(memberId);
     },
     onSuccess: () => {
-      queryClient.invalidateQueries({ queryKey: ['all-members'] });
+      queryClient.invalidateQueries({ queryKey: ['all-members-paginated'] });
     },
     onError: (error) => {
       console.error('Errore eliminazione:', error);
@@ -188,23 +285,11 @@ function GestioneMembriContent({ user }) {
       }
     },
     onSuccess: () => {
-      queryClient.invalidateQueries({ queryKey: ['all-members'] });
+      queryClient.invalidateQueries({ queryKey: ['all-members-paginated'] });
     }
   });
 
-  const filteredMembers = members.filter(member => {
-    // Escludi i consulenti dalla lista utenti
-    if (member.user_type === 'consulente') return false;
-    
-    const searchLower = searchTerm.toLowerCase();
-    const matchesSearch = (
-      member.company_name?.toLowerCase().includes(searchLower) ||
-      member.full_name?.toLowerCase().includes(searchLower) ||
-      member.email?.toLowerCase().includes(searchLower)
-    );
-    const matchesZone = selectedZone === 'all' || member.zona === selectedZone;
-    return matchesSearch && matchesZone;
-  });
+  // Filtering is done server-side via listMembers function
 
   const handleEditMember = (member) => {
     const data = {
@@ -285,7 +370,7 @@ function GestioneMembriContent({ user }) {
           await base44.entities.User.update(newUser.id, formData);
         }
         
-        queryClient.invalidateQueries({ queryKey: ['all-members'] });
+        queryClient.invalidateQueries({ queryKey: ['all-members-paginated'] });
         setShowMemberForm(false);
         setFormData(null);
       } catch (error) {
@@ -380,10 +465,13 @@ function GestioneMembriContent({ user }) {
               className="w-full bg-green-600 hover:bg-green-700 text-white"
             >
               <Unlock className="w-4 h-4 mr-2" />
-              Sblocca Tutti gli Utenti
+              Sblocca Utenti Bloccati
             </Button>
           </div>
         )}
+
+        {/* Conteggio totale */}
+        <p className="text-slate-500 text-xs mb-2">Totale: {totalCount} utenti</p>
 
         {/* Search and Zone Filter */}
         <div className="space-y-3 mb-6">
@@ -446,107 +534,42 @@ function GestioneMembriContent({ user }) {
           </div>
         ) : (
           <div className="space-y-3">
-            {filteredMembers.map((member) => (
+            <div className="flex items-center justify-between mb-2">
+              <p className="text-slate-400 text-xs">{totalCount} utenti trovati — Pagina {page}/{totalPages}</p>
+            </div>
+            {members.map((member) => (
               <Card key={member.id} className="bg-slate-800 border-slate-700">
                 <CardContent className="p-4">
                   <div className="flex items-start gap-3">
-                    <div className={`w-12 h-12 rounded-full flex items-center justify-center flex-shrink-0 ${
-                      member.is_blocked ? 'bg-red-500/20' : 'bg-lime-400/20'
-                    }`}>
-                      <User className={`w-6 h-6 ${member.is_blocked ? 'text-red-400' : 'text-lime-400'}`} />
-                    </div>
-                    <div className="flex-1 min-w-0">
-                      <div className="flex items-center gap-2 flex-wrap">
-                        <p className="text-white font-medium truncate">
-                          {member.company_name || member.full_name || 'N/A'}
-                        </p>
-                        {member.role === 'admin' && (
-                          <Badge className="bg-purple-500/20 text-purple-400 border-0">
-                            <Shield className="w-3 h-3 mr-1" />
-                            Admin
-                          </Badge>
-                        )}
-                        {member.is_blocked && (
-                          <Badge className="bg-red-500/20 text-red-400 border-0">
-                            Bloccato
-                          </Badge>
-                        )}
-                      </div>
-                      <p className="text-slate-400 text-sm truncate">{member.email}</p>
-                    </div>
-                  </div>
-                  
-                  <div className="flex gap-2 mt-4">
-                    <Button
-                      variant="outline"
-                      size="sm"
-                      className="flex-1 border-lime-400 text-lime-400 hover:bg-lime-400/20"
-                      onClick={() => handleEditMember(member)}
-                    >
-                      <Edit className="w-4 h-4 mr-1" />
-                      Modifica
-                    </Button>
-                    
-                    <Button
-                      variant="outline"
-                      size="sm"
-                      className="border-slate-600 text-slate-300 hover:bg-slate-700"
-                      onClick={() => {
-                        setSelectedMember(member);
-                        setShowPermissions(true);
-                      }}
-                    >
-                      <Settings className="w-4 h-4" />
-                    </Button>
-                    
-                    <Button
-                      variant="outline"
-                      size="sm"
-                      className={member.is_blocked 
-                        ? 'border-red-600 text-red-400 hover:bg-red-600/20'
-                        : 'border-green-600 text-green-400 hover:bg-green-600/20'}
-                      onClick={() => toggleBlockMutation.mutate({ memberId: member.id, isBlocked: member.is_blocked })}
-                      disabled={toggleBlockMutation.isPending}
-                    >
-                      {member.is_blocked ? (
-                        <Lock className="w-4 h-4" />
-                      ) : (
-                        <Unlock className="w-4 h-4" />
-                      )}
-                    </Button>
-                    
-                    <AlertDialog>
-                      <AlertDialogTrigger asChild>
-                        <Button
-                          variant="outline"
-                          size="sm"
-                          className="border-red-600 text-red-400 hover:bg-red-600/20"
-                        >
-                          <Trash2 className="w-4 h-4" />
-                        </Button>
-                      </AlertDialogTrigger>
-                      <AlertDialogContent className="bg-slate-800 border-slate-700">
-                        <AlertDialogHeader>
-                          <AlertDialogTitle className="text-white">Eliminare questo membro?</AlertDialogTitle>
-                          <AlertDialogDescription className="text-slate-400">
-                            Questa azione non può essere annullata. Il membro verrà rimosso permanentemente.
-                          </AlertDialogDescription>
-                        </AlertDialogHeader>
-                        <AlertDialogFooter>
-                          <AlertDialogCancel className="bg-slate-700 text-slate-400 border-slate-600 hover:text-white">Annulla</AlertDialogCancel>
-                          <AlertDialogAction 
-                            className="bg-red-600 hover:bg-red-700"
-                            onClick={() => deleteMemberMutation.mutate(member.id)}
-                          >
-                            Elimina
-                          </AlertDialogAction>
-                        </AlertDialogFooter>
-                      </AlertDialogContent>
-                    </AlertDialog>
+...
                   </div>
                 </CardContent>
               </Card>
             ))}
+            {/* Pagination */}
+            {totalPages > 1 && (
+              <div className="flex items-center justify-between pt-4">
+                <Button
+                  variant="outline"
+                  size="sm"
+                  disabled={page <= 1}
+                  onClick={() => setPage(p => Math.max(1, p - 1))}
+                  className="border-slate-600 text-slate-300 hover:bg-slate-700"
+                >
+                  ← Precedente
+                </Button>
+                <span className="text-slate-400 text-sm">{page} / {totalPages}</span>
+                <Button
+                  variant="outline"
+                  size="sm"
+                  disabled={page >= totalPages}
+                  onClick={() => setPage(p => p + 1)}
+                  className="border-slate-600 text-slate-300 hover:bg-slate-700"
+                >
+                  Successiva →
+                </Button>
+              </div>
+            )}
           </div>
         )}
           </TabsContent>
@@ -564,7 +587,7 @@ function GestioneMembriContent({ user }) {
                   Invia subito un invito via email. Solo per utenti (membri del consorzio).
                 </p>
                 <InviteUserForm onSuccess={() => {
-                  queryClient.invalidateQueries({ queryKey: ['all-members'] });
+                  queryClient.invalidateQueries({ queryKey: ['all-members-paginated'] });
                   queryClient.invalidateQueries({ queryKey: ['pending-invites-users'] });
                 }} />
               </CardContent>
@@ -605,44 +628,7 @@ function GestioneMembriContent({ user }) {
                 </Select>
 
                 {selectedZoneRegistrati && (
-                  <div className="space-y-2 max-h-64 overflow-y-auto">
-                    {members
-                      .filter(m => m.user_type !== 'consulente' && (selectedZoneRegistrati === 'all' || m.zona === selectedZoneRegistrati))
-                      .map(member => (
-                        <div key={member.id} className="bg-slate-900 rounded-lg p-3 flex items-center justify-between">
-                          <div className="flex items-center gap-3">
-                            <div className={`w-8 h-8 rounded-full flex items-center justify-center ${
-                              member.user_type === 'consulente' ? 'bg-blue-500/20' : 'bg-lime-400/20'
-                            }`}>
-                              <User className={`w-4 h-4 ${
-                                member.user_type === 'consulente' ? 'text-blue-400' : 'text-lime-400'
-                              }`} />
-                            </div>
-                            <div>
-                              <p className="text-white text-sm">{member.company_name || member.full_name}</p>
-                              <p className="text-slate-500 text-xs">{member.email}</p>
-                            </div>
-                          </div>
-                          <div className="flex items-center gap-2">
-                            {member.zona && (
-                              <Badge className="bg-slate-700 text-slate-300 border-0 text-xs">
-                                {member.zona}
-                              </Badge>
-                            )}
-                            <Badge className={`border-0 text-xs ${
-                              member.user_type === 'consulente' 
-                                ? 'bg-blue-500/20 text-blue-400' 
-                                : 'bg-lime-400/20 text-lime-400'
-                            }`}>
-                              {member.user_type === 'consulente' ? 'Consulente' : 'Utente'}
-                            </Badge>
-                          </div>
-                        </div>
-                      ))}
-                    {members.filter(m => m.user_type !== 'consulente' && (selectedZoneRegistrati === 'all' || m.zona === selectedZoneRegistrati)).length === 0 && (
-                      <p className="text-slate-500 text-sm text-center py-4">Nessun utente in questa zona</p>
-                    )}
-                  </div>
+                  <ZoneUsersListInline selectedZone={selectedZoneRegistrati} />
                 )}
               </CardContent>
             </Card>

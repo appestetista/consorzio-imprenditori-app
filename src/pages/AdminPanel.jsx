@@ -132,7 +132,42 @@ function AdminPanelContent({ user }) {
     staleTime: 5 * 60 * 1000, // cache 5 minuti lato client
   });
 
-  const { data: consultants = [], isLoading: isLoadingConsultants } = useQuery({ queryKey: ['consultants'], queryFn: () => base44.entities.Consultant.list() });
+  // Paginazione consulenti
+  const [consultantPage, setConsultantPage] = useState(1);
+  const [consultantSearch, setConsultantSearchDebounced] = useState('');
+  const consultantPageSize = 50;
+
+  // Debounce searchTermConsultant
+  useEffect(() => {
+    const timer = setTimeout(() => {
+      setConsultantSearchDebounced(searchTermConsultant);
+      setConsultantPage(1);
+    }, 300);
+    return () => clearTimeout(timer);
+  }, [searchTermConsultant]);
+
+  // Reset page when zone changes
+  useEffect(() => {
+    setConsultantPage(1);
+  }, [selectedZoneConsultant]);
+
+  const { data: consultantsData, isLoading: isLoadingConsultants } = useQuery({
+    queryKey: ['consultants-paginated', consultantPage, consultantPageSize, consultantSearch, selectedZoneConsultant],
+    queryFn: async () => {
+      const res = await base44.functions.invoke('listMembers', {
+        page: consultantPage,
+        pageSize: consultantPageSize,
+        searchTerm: consultantSearch,
+        zone: selectedZoneConsultant,
+        entityType: 'Consultant'
+      });
+      return res.data;
+    },
+  });
+
+  const consultants = consultantsData?.records || [];
+  const consultantTotalPages = consultantsData?.totalPages || 1;
+  const consultantTotalCount = consultantsData?.totalCount || 0;
   const { data: zones = [] } = useQuery({ queryKey: ['zones'], queryFn: () => base44.entities.Zone.filter({ is_active: true }) });
   const { data: pendingInvitesConsultants = [] } = useQuery({ queryKey: ['pending-invites-consultants'], queryFn: async () => { const invites = await base44.entities.PendingInvite.filter({ user_type: 'consulente' }); return invites.filter(i => !i.is_registered); } });
   const { data: consultationBookings = [] } = useQuery({ queryKey: ['consultation-bookings-admin'], queryFn: () => base44.entities.ConsultationBooking.list('-created_date') });
@@ -207,7 +242,7 @@ function AdminPanelContent({ user }) {
 
   const updateConsultantMutation = useMutation({
     mutationFn: async ({ consultantId, data }) => base44.entities.Consultant.update(consultantId, data),
-    onSuccess: () => { queryClient.invalidateQueries({ queryKey: ['consultants'] }); setShowEditForm(false); setFormDataConsultant(null); setSelectedConsultant(null); }
+    onSuccess: () => { queryClient.invalidateQueries({ queryKey: ['consultants-paginated'] }); setShowEditForm(false); setFormDataConsultant(null); setSelectedConsultant(null); }
   });
 
   const updateSectionsMutation = useMutation({
@@ -223,17 +258,14 @@ function AdminPanelContent({ user }) {
           await base44.entities.User.update(users[0].id, { permissions });
         }
       }
-    }, onSuccess: () => { queryClient.invalidateQueries({ queryKey: ['consultants'] }); queryClient.invalidateQueries({ queryKey: ['pending-invites-consultants'] }); setShowSections(false); setSelectedConsultant(null); }
+    }, onSuccess: () => { queryClient.invalidateQueries({ queryKey: ['consultants-paginated'] }); queryClient.invalidateQueries({ queryKey: ['pending-invites-consultants'] }); setShowSections(false); setSelectedConsultant(null); }
   });
 
   const deleteConsultantMutation = useMutation({ mutationFn: async (id) => base44.entities.Consultant.delete(id), onSuccess: () => queryClient.invalidateQueries({ queryKey: ['consultants'] }) });
   const deleteInviteConsultantMutation = useMutation({ mutationFn: async (id) => base44.entities.PendingInvite.delete(id), onSuccess: () => queryClient.invalidateQueries({ queryKey: ['pending-invites-consultants'] }) });
 
   // ─── Handlers ───────────────────────────────────────────
-  const filteredConsultants = consultants.filter(c => {
-    const s = searchTermConsultant.toLowerCase();
-    return (c.name?.toLowerCase().includes(s) || c.email?.toLowerCase().includes(s) || c.category?.toLowerCase().includes(s)) && (selectedZoneConsultant === 'all' || c.zona === selectedZoneConsultant);
-  });
+  // Filtering is done server-side via listMembers function
 
   const handleEditConsultant = (c) => {
     setFormDataConsultant({ name: c.name||'', category: c.category||'', email: c.email||'', phone: c.phone||'', city: c.city||'', referente: c.referente||'', cellulare_referente: c.cellulare_referente||'', zona: c.zona||'', zone_assegnate: c.zone_assegnate || (c.zona ? [c.zona] : []), assigned_sections: c.assigned_sections||[], communication_sections: c.communication_sections||[], available_slots: c.available_slots ?? 100, free_consultations_per_user: c.free_consultations_per_user ?? 1, sede_azienda_disabled: c.sede_azienda_disabled ?? false, rimborso_carburante: c.rimborso_carburante ?? 0, block_calls_for_all: c.block_calls_for_all ?? false, blocked_users_calls: c.blocked_users_calls||[], logo_url: c.logo_url||'' });
@@ -455,7 +487,7 @@ function AdminPanelContent({ user }) {
       <Dialog open={showInviteForm} onOpenChange={setShowInviteForm}>
         <DialogContent className="bg-slate-900 border-slate-700 max-w-md max-h-[85vh] overflow-y-auto">
           <DialogHeader><DialogTitle className="text-white flex items-center gap-2"><UserPlus className="w-5 h-5 text-lime-400" />Invita Nuovo Consulente</DialogTitle></DialogHeader>
-          <InviteConsultantForm onSuccess={() => { setShowInviteForm(false); queryClient.invalidateQueries({ queryKey: ['consultants'] }); queryClient.invalidateQueries({ queryKey: ['pending-invites-consultants'] }); }} />
+          <InviteConsultantForm onSuccess={() => { setShowInviteForm(false); queryClient.invalidateQueries({ queryKey: ['consultants-paginated'] }); queryClient.invalidateQueries({ queryKey: ['pending-invites-consultants'] }); }} />
         </DialogContent>
       </Dialog>
 
@@ -496,17 +528,19 @@ function AdminPanelContent({ user }) {
                 {pendingInvitesConsultants.length > 0 && <Card className="bg-amber-500/10 border-amber-500/30"><CardContent className="p-3"><div className="flex items-center gap-2 mb-2"><Clock className="w-4 h-4 text-amber-400" /><h3 className="text-amber-400 font-medium text-xs">Inviti in attesa ({pendingInvitesConsultants.length})</h3></div><div className="space-y-2">{pendingInvitesConsultants.map(inv => <div key={inv.id} className="bg-slate-900 rounded-lg p-2 flex items-center justify-between"><div className="flex items-center gap-2"><Mail className="w-3 h-3 text-amber-400" /><div>{inv.consultant_name && <p className="text-white text-xs font-medium">{inv.consultant_name}</p>}<p className={`text-xs ${inv.consultant_name ? 'text-slate-400' : 'text-white'}`}>{inv.email}</p></div></div><AlertDialog><AlertDialogTrigger asChild><Button variant="ghost" size="sm" className="text-red-400 hover:bg-red-500/20 h-6 w-6 p-0"><Trash2 className="w-3 h-3" /></Button></AlertDialogTrigger><AlertDialogContent className="bg-slate-800 border-slate-700"><AlertDialogHeader><AlertDialogTitle className="text-white">Cancellare?</AlertDialogTitle></AlertDialogHeader><AlertDialogFooter><AlertDialogCancel className="bg-slate-700 text-slate-400 border-slate-600">Annulla</AlertDialogCancel><AlertDialogAction className="bg-red-600 hover:bg-red-700" onClick={() => deleteInviteConsultantMutation.mutate(inv.id)}>Elimina</AlertDialogAction></AlertDialogFooter></AlertDialogContent></AlertDialog></div>)}</div></CardContent></Card>}
                 {isLoadingConsultants ? <div className="text-center py-8"><div className="animate-spin w-6 h-6 border-2 border-lime-400 border-t-transparent rounded-full mx-auto" /></div> : (
                   <div className="space-y-2">
-                    {filteredConsultants.length === 0 ? <Card className="bg-slate-800 border-slate-700"><CardContent className="p-4 text-center"><Briefcase className="w-10 h-10 text-slate-600 mx-auto mb-2" /><p className="text-slate-400 text-sm">Nessun consulente trovato</p></CardContent></Card> : filteredConsultants.map(c => (
+                    <p className="text-slate-400 text-[10px] mb-1">{consultantTotalCount} consulenti — Pagina {consultantPage}/{consultantTotalPages}</p>
+                    {consultants.length === 0 ? <Card className="bg-slate-800 border-slate-700"><CardContent className="p-4 text-center"><Briefcase className="w-10 h-10 text-slate-600 mx-auto mb-2" /><p className="text-slate-400 text-sm">Nessun consulente trovato</p></CardContent></Card> : consultants.map(c => (
                       <Card key={c.id} className="bg-slate-800 border-slate-700"><CardContent className="p-3">
-                        <div className="flex items-start gap-2"><div className={`w-8 h-8 rounded-full flex items-center justify-center flex-shrink-0 ${c.is_blocked ? 'bg-red-500/20' : 'bg-lime-400/20'}`}><Briefcase className={`w-4 h-4 ${c.is_blocked ? 'text-red-400' : 'text-lime-400'}`} /></div><div className="flex-1 min-w-0"><div className="flex items-center gap-1 flex-wrap"><p className="text-white font-medium truncate text-xs">{c.name||'N/A'}</p>{c.is_blocked && <Badge className="bg-red-500/20 text-red-400 border-0 text-[10px]">Bloccato</Badge>}</div><p className="text-lime-400 text-[10px] truncate">{c.category}</p><p className="text-slate-400 text-[10px] truncate">{c.email}</p>{c.zona && <Badge className="bg-blue-500/20 text-blue-400 border-0 text-[10px] mt-0.5">{c.zona}</Badge>}</div></div>
-                        <div className="flex gap-1 mt-2">
-                          <Button variant="outline" size="sm" className="flex-1 border-lime-400 text-lime-400 hover:bg-lime-400/20 h-7 text-[10px]" onClick={() => handleEditConsultant(c)}><Edit className="w-3 h-3 mr-1" />Modifica</Button>
-                          <Button variant="outline" size="sm" className="border-slate-600 text-slate-300 hover:bg-slate-700 h-7 w-7 p-0" onClick={() => handleOpenSections(c)}><Settings className="w-3 h-3" /></Button>
-                          <AlertDialog><AlertDialogTrigger asChild><Button variant="outline" size="sm" className={`h-7 w-7 p-0 ${c.is_blocked ? 'border-green-600 text-green-400 hover:bg-green-600/20' : 'border-red-600 text-red-400 hover:bg-red-600/20'}`}>{c.is_blocked ? <Phone className="w-3 h-3" /> : <PhoneOff className="w-3 h-3" />}</Button></AlertDialogTrigger><AlertDialogContent className="bg-slate-800 border-slate-700"><AlertDialogHeader><AlertDialogTitle className="text-white">{c.is_blocked ? 'Sbloccare?' : 'Bloccare?'}</AlertDialogTitle></AlertDialogHeader><AlertDialogFooter><AlertDialogCancel className="bg-slate-700 text-slate-400 border-slate-600">Annulla</AlertDialogCancel><AlertDialogAction className={c.is_blocked ? "bg-green-600" : "bg-red-600"} onClick={() => toggleBlockConsultantMutation.mutate({ consultantId: c.id, isBlocked: c.is_blocked, consultantEmail: c.email })}>{c.is_blocked ? 'Sblocca' : 'Blocca'}</AlertDialogAction></AlertDialogFooter></AlertDialogContent></AlertDialog>
-                          <AlertDialog><AlertDialogTrigger asChild><Button variant="outline" size="sm" className="border-red-600 text-red-400 hover:bg-red-600/20 h-7 w-7 p-0"><Trash2 className="w-3 h-3" /></Button></AlertDialogTrigger><AlertDialogContent className="bg-slate-800 border-slate-700"><AlertDialogHeader><AlertDialogTitle className="text-white">Eliminare?</AlertDialogTitle></AlertDialogHeader><AlertDialogFooter><AlertDialogCancel className="bg-slate-700 text-slate-400 border-slate-600">Annulla</AlertDialogCancel><AlertDialogAction className="bg-red-600" onClick={() => deleteConsultantMutation.mutate(c.id)}>Elimina</AlertDialogAction></AlertDialogFooter></AlertDialogContent></AlertDialog>
-                        </div>
+...
                       </CardContent></Card>
                     ))}
+                    {consultantTotalPages > 1 && (
+                      <div className="flex items-center justify-between pt-3">
+                        <Button variant="outline" size="sm" disabled={consultantPage <= 1} onClick={() => setConsultantPage(p => Math.max(1, p - 1))} className="border-slate-600 text-slate-300 hover:bg-slate-700 h-7 text-[10px]">← Prec</Button>
+                        <span className="text-slate-400 text-[10px]">{consultantPage} / {consultantTotalPages}</span>
+                        <Button variant="outline" size="sm" disabled={consultantPage >= consultantTotalPages} onClick={() => setConsultantPage(p => p + 1)} className="border-slate-600 text-slate-300 hover:bg-slate-700 h-7 text-[10px]">Succ →</Button>
+                      </div>
+                    )}
                   </div>
                 )}
               </TabsContent>
