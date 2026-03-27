@@ -14,6 +14,7 @@ import { useImpersonation } from '../components/admin/ImpersonationContext';
 import useNotificationSound from '../components/hooks/useNotificationSound';
 import GlobalTopIcons from '../components/layout/GlobalTopIcons';
 import ConsulenzeBanner from '../components/consulenze/ConsulenzeBanner';
+import { normalizeUser } from '../components/utils/normalizeUser';
 
 
 
@@ -35,11 +36,11 @@ export default function Consulenze() {
       if (impersonation.active) {
         if (impersonation.role === 'user') {
           const impersonatedUser = await base44.entities.User.filter({ id: impersonation.targetId });
-          setEffectiveUser(impersonatedUser.length > 0 ? impersonatedUser[0] : user);
+          setEffectiveUser(impersonatedUser.length > 0 ? normalizeUser(impersonatedUser[0]) : user);
         } else if (impersonation.role === 'consulente') {
           const consultantUsers = await base44.entities.User.filter({ email: impersonation.targetEmail });
           if (consultantUsers.length > 0) {
-            setEffectiveUser({ ...consultantUsers[0], user_type: 'consulente' });
+            setEffectiveUser({ ...normalizeUser(consultantUsers[0]), user_type: 'consulente' });
           } else {
             setEffectiveUser({ ...user, email: impersonation.targetEmail, user_type: 'consulente', full_name: impersonation.targetName });
           }
