@@ -34,7 +34,7 @@ export function getCurrentWeekKey() {
   return `${now.getFullYear()}-W${String(weekNumber).padStart(2, '0')}`;
 }
 
-export function useAILimits(userEmail, actionType) {
+export function useAILimits(userEmail, actionType, userData = null) {
   const isWeekly = WEEKLY_LIMITS.includes(actionType);
   const periodKey = isWeekly ? getCurrentWeekKey() : getCurrentMonthYear();
 
@@ -52,13 +52,9 @@ export function useAILimits(userEmail, actionType) {
     enabled: !!userEmail && !!actionType,
   });
 
-  // Override personalizzati per utenti specifici
-  const USER_OVERRIDES = {
-    'direzione.consorzio.imprenditori@gmail.com': { export_analysis: 25, import_analysis: 25 }
-  };
-
-  const userOverride = userEmail ? USER_OVERRIDES[userEmail] : null;
-  const limit = (userOverride && userOverride[actionType]) || AI_LIMITS[actionType] || 0;
+  // Limiti personalizzati dall'entity User (gestiti da admin in GestioneMembri)
+  const customLimit = userData?.ai_limits_override?.[actionType];
+  const limit = customLimit ?? AI_LIMITS[actionType] ?? 0;
   const remaining = Math.max(0, limit - usageCount);
   const isLimitReached = usageCount >= limit;
 

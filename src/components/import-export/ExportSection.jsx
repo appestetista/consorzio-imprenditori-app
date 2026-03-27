@@ -63,7 +63,7 @@ export default function ExportSection({ user, exportManagers, selectedMapCountry
   const [contactSent, setContactSent] = useState(false);
   const queryClient = useQueryClient();
 
-  const { usageCount: exportUsage, limit: exportLimit, isLimitReached: exportLimitReached, trackUsage: trackExportUsage } = useAILimits(user?.email, 'export_analysis');
+  const { usageCount: exportUsage, limit: exportLimit, isLimitReached: exportLimitReached, trackUsage: trackExportUsage } = useAILimits(user?.email, 'export_analysis', user);
 
   const handleAttachmentUpload = async (e) => {
     const file = e.target.files[0];
