@@ -55,11 +55,10 @@ const WEB_SEARCH_TRIGGERS = [
   "fonti con riferimenti",
   "studi comparativi",
   "sintesi basata su fonti esterne",
-  "oggi",
-  "questa settimana",
-  "questo mese",
-  "il mese scorso",
-  "questo anno",
+  "ultime notizie",
+  "news di oggi",
+  "cosa è successo oggi",
+  "aggiornamento di oggi",
 ];
 
 /**
