@@ -19,7 +19,7 @@ const CATEGORY_COLORS = {
 
 function StatCard({ icon: Icon, label, value, sub, iconColor }) {
   return (
-    <div className="app-card border rounded-xl p-3 flex flex-col gap-1">
+    <div className="rounded-xl p-3 flex flex-col gap-1 border" style={{ backgroundColor: 'var(--app-bg-card)', borderColor: 'var(--app-border)' }}>
       <div className="flex items-center gap-2">
         <Icon className={`w-4 h-4 ${iconColor || 'text-[#d4af37]'}`} />
         <span className="text-[10px] text-app-muted uppercase tracking-wider font-medium">{label}</span>
@@ -44,7 +44,7 @@ function StarsDisplay({ rating }) {
 const CustomTooltip = ({ active, payload }) => {
   if (!active || !payload?.length) return null;
   return (
-    <div className="app-card border rounded-lg px-3 py-2 shadow-lg">
+    <div className="rounded-lg px-3 py-2 shadow-lg border" style={{ backgroundColor: 'var(--app-bg-card)', borderColor: 'var(--app-border)' }}>
       <p className="text-xs text-app-primary font-medium">{payload[0].payload.name}</p>
       <p className="text-xs text-[#d4af37]">{payload[0].value} analisi</p>
     </div>
@@ -108,7 +108,7 @@ export default function Dashboard() {
     <div className="min-h-screen pb-8 bg-app">
       {/* Header */}
       <div className="flex items-center gap-3 px-4 pt-5 pb-4">
-        <Link to={createPageUrl('Home')} className="w-9 h-9 rounded-xl bg-app-card flex items-center justify-center">
+        <Link to={createPageUrl('Home')} className="w-9 h-9 rounded-xl flex items-center justify-center" style={{ backgroundColor: 'var(--app-bg-card)' }}>
           <ArrowLeft className="w-5 h-5 text-app-muted" />
         </Link>
         <div>
@@ -123,7 +123,7 @@ export default function Dashboard() {
         </div>
       ) : notEnough ? (
         <div className="px-4 flex flex-col items-center justify-center py-20">
-          <div className="w-16 h-16 rounded-2xl bg-app-card border border-app flex items-center justify-center mb-4">
+          <div className="w-16 h-16 rounded-2xl border flex items-center justify-center mb-4" style={{ backgroundColor: 'var(--app-bg-card)', borderColor: 'var(--app-border)' }}>
             <BarChart3 className="w-8 h-8 text-app-muted" />
           </div>
           <p className="text-app-primary font-semibold text-center mb-2">Dashboard non disponibile</p>
@@ -134,7 +134,7 @@ export default function Dashboard() {
           <Link
             to={createPageUrl('Home')}
             className="flex items-center gap-2 px-5 py-2.5 rounded-xl text-sm font-semibold"
-            style={{ backgroundColor: '#d4af37', color: '#1a1a2e' }}
+            style={{ backgroundColor: 'var(--app-accent)', color: 'var(--app-text-inverse)' }}
           >
             Vai al consulente AI →
           </Link>
@@ -145,7 +145,7 @@ export default function Dashboard() {
           <div className="grid grid-cols-2 gap-3">
             <StatCard icon={BarChart3} label="Analisi totali" value={analyses.length} iconColor="text-[#d4af37]" />
             <StatCard icon={Calendar} label="Questo mese" value={thisMonthAnalyses.length} iconColor="text-blue-400" />
-            <div className="app-card border rounded-xl p-3 flex flex-col gap-1">
+            <div className="rounded-xl p-3 flex flex-col gap-1 border" style={{ backgroundColor: 'var(--app-bg-card)', borderColor: 'var(--app-border)' }}>
               <div className="flex items-center gap-2">
                 <Star className="w-4 h-4 text-[#d4af37]" />
                 <span className="text-[10px] text-app-muted uppercase tracking-wider font-medium">Rating medio</span>
@@ -157,7 +157,7 @@ export default function Dashboard() {
           </div>
 
           {/* Grafico distribuzione */}
-          <div className="app-card border rounded-xl p-4">
+          <div className="rounded-xl p-4 border" style={{ backgroundColor: 'var(--app-bg-card)', borderColor: 'var(--app-border)' }}>
             <div className="flex items-center gap-2 mb-4">
               <TrendingUp className="w-4 h-4 text-[#d4af37]" />
               <span className="text-xs font-semibold text-app-primary">Analisi per categoria (ultimi 3 mesi)</span>
@@ -189,7 +189,7 @@ export default function Dashboard() {
           </div>
 
           {/* Ultime 5 analisi */}
-          <div className="app-card border rounded-xl p-4">
+          <div className="rounded-xl p-4 border" style={{ backgroundColor: 'var(--app-bg-card)', borderColor: 'var(--app-border)' }}>
             <div className="flex items-center justify-between mb-3">
               <span className="text-xs font-semibold text-app-primary">Ultime analisi</span>
             </div>
@@ -204,7 +204,7 @@ export default function Dashboard() {
                   <Link
                     key={conv.id}
                     to={createPageUrl('Home')}
-                    className="flex items-center gap-3 px-3 py-2.5 rounded-xl transition-colors"
+                    className="flex items-center gap-3 px-3 py-2.5 rounded-xl transition-colors app-card-hover"
                     style={{ backgroundColor: 'var(--app-bg-secondary)' }}
                   >
                     <div className="w-2 h-2 rounded-full flex-shrink-0" style={{ backgroundColor: catColor }} />
@@ -216,7 +216,7 @@ export default function Dashboard() {
                         {conv.rating > 0 && (
                           <span className="flex items-center gap-0.5">
                             <Star className="w-2.5 h-2.5" fill="#d4af37" stroke="#d4af37" />
-                            <span className="text-[10px] text-app-muted">{conv.rating}</span>
+                            <span className="text-[10px] text-app-secondary">{conv.rating}</span>
                           </span>
                         )}
                       </div>

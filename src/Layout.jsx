@@ -192,6 +192,9 @@ export default function Layout({ children, currentPageName }) {
             transition: opacity 0s;
           }
 
+          /* Theme overrides removed — pages now use CSS variable-based utility classes
+             (text-app-primary, bg-app-card, etc.) defined in theme-classes.css.
+             Migrate remaining pages gradually to eliminate all body.theme-light overrides. */
         `}</style>
         {/* Imposta --page-bg in base alla pagina corrente per il gradient dell'header */}
         <style>{`:root { --page-bg: var(--app-bg, ${

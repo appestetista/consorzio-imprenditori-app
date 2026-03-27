@@ -755,8 +755,7 @@ export default function Home() {
             setShowScrollDown(false);
           }}
           className="fixed z-50 left-1/2 -translate-x-1/2 w-9 h-9 rounded-full border flex items-center justify-center shadow-lg backdrop-blur-sm transition-all"
-          style={{ backgroundColor: 'var(--app-bg-card)', borderColor: 'var(--app-border)' }}
-          style={{ bottom: '180px' }}
+          style={{ backgroundColor: 'var(--app-bg-card)', borderColor: 'var(--app-border)', bottom: '180px' }}
         >
           <ArrowUp className="w-4 h-4 text-app-secondary rotate-180" />
         </button>
@@ -860,8 +859,7 @@ export default function Home() {
                   placeholder="Scenario A (es. Assumere dipendente)"
                   rows={2}
                   className="flex-1 rounded-xl text-app-primary text-sm px-3 py-2.5 resize-none outline-none"
-                  style={{ backgroundColor: 'var(--app-bg-input)', border: '1px solid var(--app-border)' }}
-                  style={{ scrollbarWidth: 'none' }}
+                  style={{ backgroundColor: 'var(--app-bg-input)', border: '1px solid var(--app-border)', scrollbarWidth: 'none' }}
                 />
                 <textarea
                   value={scenarioB}
@@ -869,8 +867,7 @@ export default function Home() {
                   placeholder="Scenario B (es. Usare freelance)"
                   rows={2}
                   className="flex-1 rounded-xl text-app-primary text-sm px-3 py-2.5 resize-none outline-none"
-                  style={{ backgroundColor: 'var(--app-bg-input)', border: '1px solid var(--app-border)' }}
-                  style={{ scrollbarWidth: 'none' }}
+                  style={{ backgroundColor: 'var(--app-bg-input)', border: '1px solid var(--app-border)', scrollbarWidth: 'none' }}
                 />
               </div>
               <div className="flex items-center justify-end">
@@ -879,8 +876,8 @@ export default function Home() {
                   disabled={!scenarioA.trim() || !scenarioB.trim() || isTyping || chatBlocked}
                   className="flex items-center gap-2 px-5 py-2 rounded-xl text-sm font-semibold transition-all disabled:opacity-30"
                   style={{
-                    backgroundColor: scenarioA.trim() && scenarioB.trim() && !isTyping && !chatBlocked ? '#d4af37' : '#334155',
-                    color: scenarioA.trim() && scenarioB.trim() && !isTyping && !chatBlocked ? '#1a1a2e' : '#94a3b8',
+                    backgroundColor: scenarioA.trim() && scenarioB.trim() && !isTyping && !chatBlocked ? 'var(--app-accent)' : 'var(--app-btn-disabled-bg)',
+                    color: scenarioA.trim() && scenarioB.trim() && !isTyping && !chatBlocked ? 'var(--app-text-inverse)' : 'var(--app-text-muted)',
                   }}
                 >
                   <Send className="w-4 h-4" />
