@@ -34,21 +34,25 @@ Deno.serve(async (req) => {
             }
         }
         
-        // Elimina i bandi scaduti
-        let deletedCount = 0;
+        // Archivia i bandi scaduti
+        let archivedCount = 0;
         for (const grant of expiredGrants) {
             try {
-                await base44.asServiceRole.entities.FinancialGrant.delete(grant.id);
-                deletedCount++;
+                await base44.asServiceRole.entities.FinancialGrant.update(grant.id, {
+                    is_archived: true,
+                    status: 'Chiuso',
+                    archived_date: today.toISOString().split('T')[0]
+                });
+                archivedCount++;
             } catch (e) {
-                console.error(`Error deleting grant ${grant.id}:`, e.message);
+                console.error(`Error archiving grant ${grant.id}:`, e.message);
             }
         }
         
         return Response.json({
             success: true,
             total_grants: allGrants.length,
-            expired_deleted: deletedCount,
+            expired_archived: archivedCount,
             remaining_grants: validGrants.length,
             today: today.toISOString().split('T')[0]
         });
