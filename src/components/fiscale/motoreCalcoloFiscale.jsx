@@ -16,6 +16,20 @@
  */
 
 // ═══════════════════════════════════════
+// METADATA NORMATIVA
+// ═══════════════════════════════════════
+export const ANNO_NORMATIVA = 2026;
+export const DATA_ULTIMO_AGGIORNAMENTO = '2026-02-09';
+
+/**
+ * Verifica se la normativa è aggiornata all'anno corrente.
+ * Restituisce true se ANNO_NORMATIVA >= anno corrente.
+ */
+export function isNormativaAggiornata() {
+  return ANNO_NORMATIVA >= new Date().getFullYear();
+}
+
+// ═══════════════════════════════════════
 // COSTANTI FISCALI 2025/2026
 // ═══════════════════════════════════════
 

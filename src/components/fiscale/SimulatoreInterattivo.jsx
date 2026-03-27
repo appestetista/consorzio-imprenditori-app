@@ -2,6 +2,7 @@ import React, { useState, useMemo, useCallback } from "react";
 import { HelpCircle, X } from "lucide-react";
 import PianificatoreMensile from "./PianificatoreMensile";
 import CaricaBilancioButton from "./CaricaBilancioButton";
+import NormativaWarningBanner from "./NormativaWarningBanner";
 
 /* Tooltip spiegazione ❓ */
 function Tip({ text }) {
@@ -510,9 +511,12 @@ export default function SimulatoreInterattivo({ user }) {
 
 
   return (
-    <div className="space-y-4">
+   <div className="space-y-4">
 
-      {/* HEADER — Carica bilancio per società */}
+     {/* Avviso normativa non aggiornata */}
+     <NormativaWarningBanner />
+
+     {/* HEADER — Carica bilancio per società */}
       {isSocieta && (
         <div className="space-y-2">
           <div className="flex items-center justify-between">

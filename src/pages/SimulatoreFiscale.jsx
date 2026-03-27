@@ -12,6 +12,7 @@ import FiscalPreFlightPopup from '../components/fiscale/FiscalPreFlightPopup';
 import AtecoInfoPopup from '../components/fiscale/AtecoInfoPopup';
 import QuickEditFiscale from '../components/fiscale/QuickEditFiscale';
 import SimulatoreHero from '../components/fiscale/SimulatoreHero';
+import NormativaWarningBanner from '../components/fiscale/NormativaWarningBanner';
 
 export default function SimulatoreFiscale() {
   const [effectiveUser, setEffectiveUser] = useState(null);
@@ -64,6 +65,9 @@ export default function SimulatoreFiscale() {
 
         {/* Hero visivo */}
         <SimulatoreHero />
+
+        {/* Avviso normativa non aggiornata */}
+        <NormativaWarningBanner />
 
         {/* Popup pre-flight dati fiscali mancanti */}
         {showPreFlight && effectiveUser && (
