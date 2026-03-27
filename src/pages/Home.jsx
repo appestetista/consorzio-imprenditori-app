@@ -87,29 +87,11 @@ export default function Home() {
     }
   }, [loading, effectiveUser?.role, impersonation.active, navigate]);
 
-  // Reset mensile consulenze + sync stato abbonamento
+  // Sync stato abbonamento e consulenze (sola lettura — il reset è gestito dal cron resetMonthlyConsulenze)
   useEffect(() => {
     if (!effectiveUser || effectiveUser.role === 'admin') return;
-    const piano = effectiveUser.piano_abbonamento || 'free';
-    setPianoAbbonamento(piano);
+    setPianoAbbonamento(effectiveUser.piano_abbonamento || 'free');
     setConsulenzeUsate(effectiveUser.consulenze_usate_mese || 0);
-
-    // Controlla se il mese è cambiato → reset
-    const now = new Date();
-    const currentMonth = `${now.getFullYear()}-${String(now.getMonth() + 1).padStart(2, '0')}`;
-    if (effectiveUser.mese_reset_consulenze && effectiveUser.mese_reset_consulenze !== currentMonth) {
-      // Reset asincrono
-      (async () => {
-        await base44.auth.updateMe({ consulenze_usate_mese: 0, mese_reset_consulenze: currentMonth });
-        setConsulenzeUsate(0);
-      })();
-    } else if (!effectiveUser.mese_reset_consulenze) {
-      // Prima volta: inizializza
-      (async () => {
-        await base44.auth.updateMe({ consulenze_usate_mese: 0, mese_reset_consulenze: currentMonth });
-        setConsulenzeUsate(0);
-      })();
-    }
   }, [effectiveUser]);
 
   // (onboarding rimosso — ora i dati vengono chiesti contestualmente nella chat)
