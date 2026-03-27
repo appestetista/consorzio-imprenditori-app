@@ -114,10 +114,10 @@ export default function Header({ user }) {
     if (impersonation.active) {
       // In impersonazione: normalizza i dati dell'utente impersonificato
       const impersonatedUser = normalizeUser(impersonation.targetUserData);
-      return impersonatedUser?.company_logo || DEFAULT_LOGO;
+      return impersonatedUser?.logo_url || DEFAULT_LOGO;
     }
     // Utente normale o consulente: usa il logo normalizzato
-    return normalizedUser?.company_logo || DEFAULT_LOGO;
+    return normalizedUser?.logo_url || DEFAULT_LOGO;
   };
 
   return (
