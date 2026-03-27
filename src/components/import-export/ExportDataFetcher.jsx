@@ -1,4 +1,5 @@
 import { base44 } from '@/api/base44Client';
+import { fetchWBCached } from './wbFetchCache';
 
 /**
  * Tronca codice HS a 4 cifre per analisi domanda globale
@@ -30,9 +31,8 @@ const ALPHA2_TO_ALPHA3 = {
 async function fetchWBIndicator(alpha3, indicatorCode) {
   try {
     const url = `https://api.worldbank.org/v2/country/${alpha3}/indicator/${indicatorCode}?format=json&per_page=10&mrv=5`;
-    const resp = await fetch(url);
-    if (!resp.ok) return { value: null, year: null };
-    const json = await resp.json();
+    const json = await fetchWBCached(url);
+    if (!json) return { value: null, year: null };
     const records = json?.[1];
     if (!Array.isArray(records) || records.length === 0) return { value: null, year: null };
     for (const rec of records) {
@@ -54,9 +54,8 @@ async function fetchWBIndicator(alpha3, indicatorCode) {
 async function fetchWBSeries(alpha3, indicatorCode, years = 5) {
   try {
     const url = `https://api.worldbank.org/v2/country/${alpha3}/indicator/${indicatorCode}?format=json&per_page=${years + 2}&mrv=${years + 2}`;
-    const resp = await fetch(url);
-    if (!resp.ok) return [];
-    const json = await resp.json();
+    const json = await fetchWBCached(url);
+    if (!json) return [];
     const records = json?.[1];
     if (!Array.isArray(records)) return [];
     return records
