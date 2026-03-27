@@ -9,8 +9,8 @@ Deno.serve(async (req) => {
             return Response.json({ error: 'Forbidden: Admin access required' }, { status: 403 });
         }
 
-        // Ottieni tutti i bandi
-        const allGrants = await base44.asServiceRole.entities.FinancialGrant.list();
+        // Ottieni tutti i bandi ordinati per deadline
+        const allGrants = await base44.asServiceRole.entities.FinancialGrant.filter({}, '-deadline', 5000);
         
         const today = new Date();
         today.setHours(0, 0, 0, 0);

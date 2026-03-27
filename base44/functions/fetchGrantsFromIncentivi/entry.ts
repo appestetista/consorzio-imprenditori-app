@@ -127,8 +127,7 @@ Altrimenti: {"grants": [...]}`
     console.log(`Extracted ${totalExtractedBeforeTruncation} grants total, processing ${allGrants.length}`);
 
     // Recupera solo bandi attivi per deduplicazione (ottimizzazione)
-    const allExistingGrants = await base44.asServiceRole.entities.FinancialGrant.list();
-    const activeGrants = allExistingGrants.filter(g => g.status !== 'Chiuso');
+    const activeGrants = await base44.asServiceRole.entities.FinancialGrant.filter({ is_archived: false }, '-created_date', 200);
     console.log(`Active grants for deduplication: ${activeGrants.length}`);
 
     let newGrantsCount = 0;

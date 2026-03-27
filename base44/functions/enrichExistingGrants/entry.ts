@@ -9,7 +9,7 @@ Deno.serve(async (req) => {
             return Response.json({ error: 'Forbidden: Admin access required' }, { status: 403 });
         }
 
-        const allGrants = await base44.asServiceRole.entities.FinancialGrant.list();
+        const allGrants = await base44.asServiceRole.entities.FinancialGrant.filter({ is_archived: false }, '-created_date', 200);
         
         // Filtra bandi senza importo, copertura O senza website_url
         const grantsToEnrich = allGrants.filter(g => 
