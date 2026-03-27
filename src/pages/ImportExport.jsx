@@ -1,5 +1,6 @@
 import React, { useState, useEffect } from 'react';
 import { base44 } from '@/api/base44Client';
+import { useAuth } from '@/lib/AuthContext';
 import { useQuery } from '@tanstack/react-query';
 import { ArrowLeft, TrendingUp, Ship, Mail, Clock, UserRound, History } from 'lucide-react';
 import { Link } from 'react-router-dom';
@@ -17,7 +18,7 @@ import { Button } from '@/components/ui/button';
 import AnalysisErrorBoundary from '@/components/import-export/AnalysisErrorBoundary';
 
 export default function ImportExport() {
-  const [user, setUser] = useState(null);
+  const { user } = useAuth();
   const urlParamsIE = new URLSearchParams(window.location.search);
   const initialTab = urlParamsIE.get('tab') === 'import' ? 'import' : 'export';
   const [activeTab, setActiveTab] = useState(initialTab);
@@ -28,10 +29,6 @@ export default function ImportExport() {
 
   useEffect(() => {
     window.scrollTo(0, 0);
-    const loadUser = async () => {
-      try { setUser(await base44.auth.me()); } catch (e) { console.error(e); }
-    };
-    loadUser();
   }, []);
 
   const { data: messages = [] } = useQuery({

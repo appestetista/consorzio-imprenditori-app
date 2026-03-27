@@ -6,6 +6,7 @@ import { createPageUrl } from '@/utils';
 import BottomNavWithMenu from '../components/layout/BottomNavWithMenu';
 import { useImpersonation } from '../components/admin/ImpersonationContext';
 import { normalizeUser } from '../components/utils/normalizeUser';
+import { useAuth } from '@/lib/AuthContext';
 import SimulatoreInterattivo from '../components/fiscale/SimulatoreInterattivo';
 import GestioneAliquoteIRAP from '../components/fiscale/GestioneAliquoteIRAP';
 import FiscalPreFlightPopup from '../components/fiscale/FiscalPreFlightPopup';
@@ -15,6 +16,7 @@ import SimulatoreHero from '../components/fiscale/SimulatoreHero';
 import NormativaWarningBanner from '../components/fiscale/NormativaWarningBanner';
 
 export default function SimulatoreFiscale() {
+  const { user } = useAuth();
   const [effectiveUser, setEffectiveUser] = useState(null);
   const [showPreFlight, setShowPreFlight] = useState(false);
   const [showAliquote, setShowAliquote] = useState(false);
@@ -28,8 +30,6 @@ export default function SimulatoreFiscale() {
     }
   }, [effectiveUser]);
 
-  // Non impostiamo più un tab attivo automaticamente — l'utente sceglie
-
   const handlePreFlightComplete = (vals) => {
     setShowPreFlight(false);
     setEffectiveUser(prev => ({ ...prev, ...vals }));
@@ -37,17 +37,17 @@ export default function SimulatoreFiscale() {
 
   useEffect(() => {
     window.scrollTo(0, 0);
-    const loadUser = async () => {
-      const currentUser = await base44.auth.me();
-      if (appMode === 'user-preview' && impersonation.previewUserId && currentUser?.role === 'admin') {
+    if (!user) return;
+    const loadEffective = async () => {
+      if (appMode === 'user-preview' && impersonation.previewUserId && user?.role === 'admin') {
         const users = await base44.entities.User.filter({ id: impersonation.previewUserId });
-        setEffectiveUser(normalizeUser(users.length > 0 ? users[0] : currentUser));
+        setEffectiveUser(normalizeUser(users.length > 0 ? users[0] : user));
       } else {
-        setEffectiveUser(normalizeUser(currentUser));
+        setEffectiveUser(normalizeUser(user));
       }
     };
-    loadUser();
-  }, [appMode, impersonation.previewUserId]);
+    loadEffective();
+  }, [user, appMode, impersonation.previewUserId]);
 
   return (
     <div className="min-h-screen pb-64" style={{ backgroundColor: 'var(--app-bg)' }}>

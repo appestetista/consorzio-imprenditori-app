@@ -1,6 +1,6 @@
-import React, { useState, useEffect } from 'react';
-import { base44 } from '@/api/base44Client';
+import React, { useEffect } from 'react';
 import { ArrowLeft, Users } from 'lucide-react';
+import { useAuth } from '@/lib/AuthContext';
 import { Link } from 'react-router-dom';
 import { createPageUrl } from '@/utils';
 import { Card, CardContent } from '@/components/ui/card';
@@ -15,11 +15,10 @@ import StoricoCalcoli from '@/components/costo-personale/StoricoCalcoli';
 import GlobalTopIcons from '../components/layout/GlobalTopIcons';
 
 export default function SimulatoreCostoPersonale() {
-  const [user, setUser] = useState(null);
+  const { user } = useAuth();
 
   useEffect(() => {
     window.scrollTo(0, 0);
-    base44.auth.me().then(setUser).catch(console.error);
   }, []);
 
   return (

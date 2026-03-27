@@ -1,5 +1,6 @@
-import React, { useState, useEffect } from 'react';
+import React, { useEffect } from 'react';
 import { base44 } from '@/api/base44Client';
+import { useAuth } from '@/lib/AuthContext';
 import { useQuery } from '@tanstack/react-query';
 import { ArrowLeft, Zap, Lightbulb, Leaf, Shield, Flame, Sun, Phone, Wifi, Euro } from 'lucide-react';
 import { Link } from 'react-router-dom';
@@ -11,19 +12,10 @@ import SectionConsultantPanel from '../components/consulenze/SectionConsultantPa
 import GlobalTopIcons from '../components/layout/GlobalTopIcons';
 
 export default function RisparmioEnergetico() {
-  const [user, setUser] = useState(null);
+  const { user } = useAuth();
 
   useEffect(() => {
     window.scrollTo(0, 0);
-    const loadUser = async () => {
-      try {
-        const currentUser = await base44.auth.me();
-        setUser(currentUser);
-      } catch (e) {
-        console.error(e);
-      }
-    };
-    loadUser();
   }, []);
 
   const { data: messages = [] } = useQuery({

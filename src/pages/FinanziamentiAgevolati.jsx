@@ -27,18 +27,11 @@ import BandoForm from '../components/admin/BandoForm';
 import { useImpersonation } from '../components/admin/ImpersonationContext';
 import SectionConsultantPanel from '../components/consulenze/SectionConsultantPanel';
 import GlobalTopIcons from '../components/layout/GlobalTopIcons';
+import { useAuth } from '@/lib/AuthContext';
 
 export default function FinanziamentiAgevolati() {
-  const [user, setUser] = useState(() => {
-    // Pre-carica dallo stato cached per evitare flash
-    try {
-      const cached = sessionStorage.getItem('finanziamenti_user_cache');
-      return cached ? JSON.parse(cached) : null;
-    } catch { return null; }
-  });
-  const [userLoaded, setUserLoaded] = useState(() => {
-    try { return !!sessionStorage.getItem('finanziamenti_user_cache'); } catch { return false; }
-  });
+  const { user } = useAuth();
+  const [userLoaded, setUserLoaded] = useState(!!user);
   const [selectedGrant, setSelectedGrant] = useState(null);
   const [showDetails, setShowDetails] = useState(false);
   const [showConsultationDialog, setShowConsultationDialog] = useState(false);
@@ -75,36 +68,32 @@ export default function FinanziamentiAgevolati() {
   // L'admin vede la sezione richieste solo se NON sta impersonificando
   const isRealAdmin = user?.role === 'admin' && !impersonation.active;
 
+  // Sync userLoaded quando user cambia
+  useEffect(() => {
+    if (user) setUserLoaded(true);
+  }, [user]);
+
   useEffect(() => {
     window.scrollTo(0, 0);
-    const loadUser = async () => {
-      try {
-        const currentUser = await base44.auth.me();
-        setUser(currentUser);
-        setUserLoaded(true);
-        try { sessionStorage.setItem('finanziamenti_user_cache', JSON.stringify(currentUser)); } catch {}
-        
-        // Aggiorna timestamp ultima visita per utenti non admin (anche in impersonation)
-        const effectiveRole = impersonation.active ? impersonation.role : currentUser?.role;
-        const effectiveEmail = impersonation.active ? impersonation.targetEmail : currentUser?.email;
-        
-        if (effectiveRole !== 'admin' && effectiveEmail) {
-          const views = await base44.entities.UserGrantView.filter({ user_email: effectiveEmail });
-          if (views.length > 0) {
-            await base44.entities.UserGrantView.update(views[0].id, { last_viewed_at: new Date().toISOString() });
-          } else {
-            await base44.entities.UserGrantView.create({ user_email: effectiveEmail, last_viewed_at: new Date().toISOString() });
-          }
-          // Invalida la cache per aggiornare il contatore nella Home
-          queryClient.invalidateQueries({ queryKey: ['user-grant-view', effectiveEmail] });
-          queryClient.invalidateQueries({ queryKey: ['new-grants-count'] });
+    if (!user) return;
+    
+    // Aggiorna timestamp ultima visita per utenti non admin (anche in impersonation)
+    const effectiveRole = impersonation.active ? impersonation.role : user?.role;
+    const effectiveEmail = impersonation.active ? impersonation.targetEmail : user?.email;
+    
+    if (effectiveRole !== 'admin' && effectiveEmail) {
+      (async () => {
+        const views = await base44.entities.UserGrantView.filter({ user_email: effectiveEmail });
+        if (views.length > 0) {
+          await base44.entities.UserGrantView.update(views[0].id, { last_viewed_at: new Date().toISOString() });
+        } else {
+          await base44.entities.UserGrantView.create({ user_email: effectiveEmail, last_viewed_at: new Date().toISOString() });
         }
-      } catch (e) {
-        console.error(e);
-      }
-    };
-    loadUser();
-  }, [impersonation.active, impersonation.role, impersonation.targetEmail]);
+        queryClient.invalidateQueries({ queryKey: ['user-grant-view', effectiveEmail] });
+        queryClient.invalidateQueries({ queryKey: ['new-grants-count'] });
+      })();
+    }
+  }, [user, impersonation.active, impersonation.role, impersonation.targetEmail]);
 
   const today = new Date();
   today.setHours(0, 0, 0, 0);
