@@ -25,6 +25,10 @@ Deno.serve(async (req) => {
     }
     const sim = simulazioni[0];
 
+    if (sim.user_email && sim.user_email !== user.email && user.role !== 'admin') {
+      return Response.json({ error: 'Forbidden: accesso non autorizzato a questa simulazione' }, { status: 403 });
+    }
+
     const prompt = `Sei un consulente fiscale italiano esperto.
 
 Ti vengono forniti i RISULTATI GIÀ CALCOLATI di una simulazione fiscale. I numeri sono DEFINITIVI e NON devono essere ricalcolati né modificati.
