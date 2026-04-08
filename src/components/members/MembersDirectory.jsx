@@ -64,6 +64,24 @@ export default function MembersDirectory({ currentUserEmail }) {
 
   const isLoading = loadingUsers;
 
+  // Demo: imprenditori finti visibili solo all'admin per anteprima
+  const { data: currentUser } = useQuery({
+    queryKey: ['current-user-role'],
+    queryFn: () => base44.auth.me(),
+  });
+
+  const demoMembers = useMemo(() => {
+    if (currentUser?.role !== 'admin') return [];
+    return [
+      { id: 'demo-1', company_name: 'Oleificio Ferrara Srl', full_name: 'Marco Ferrara', specializzazione: 'Produzione olio extravergine biologico', city: 'Andria', province: 'BT', user_type: 'utente', email: 'demo-ferrara@test.it', _isDemo: true },
+      { id: 'demo-2', company_name: 'TechnoMec Srl', full_name: 'Laura Bianchi', specializzazione: 'Componentistica meccanica di precisione', city: 'Brescia', province: 'BS', user_type: 'utente', email: 'demo-technomec@test.it', _isDemo: true },
+      { id: 'demo-3', company_name: 'Dolci Tradizioni', full_name: 'Giuseppe Amato', specializzazione: 'Pasticceria artigianale e export dolciumi', city: 'Napoli', province: 'NA', user_type: 'utente', email: 'demo-dolci@test.it', _isDemo: true },
+      { id: 'demo-4', company_name: 'GreenBuild Italia SpA', full_name: 'Alessandra Conti', specializzazione: 'Edilizia sostenibile e certificazione LEED', city: 'Bologna', province: 'BO', user_type: 'utente', email: 'demo-greenbuild@test.it', _isDemo: true },
+      { id: 'demo-5', company_name: 'Moda Tessile Marche', full_name: 'Francesca Rossi', specializzazione: 'Tessuti pregiati per alta moda', city: 'Fermo', province: 'FM', user_type: 'utente', email: 'demo-modatessile@test.it', _isDemo: true },
+      { id: 'demo-6', company_name: 'Digital Solutions Srl', full_name: 'Andrea Marino', specializzazione: 'Sviluppo software e digitalizzazione PMI', city: 'Milano', province: 'MI', user_type: 'utente', email: 'demo-digital@test.it', _isDemo: true },
+    ];
+  }, [currentUser?.role]);
+
   // Filtra utenti in base alla ricerca - mostra solo utenti di tipo 'utente' (no admin, no consulenti)
   const filteredUsers = useMemo(() => {
     // Prima filtra per tipo utente
@@ -72,15 +90,17 @@ export default function MembersDirectory({ currentUserEmail }) {
       user.role !== 'admin' && 
       !user.is_blocked
     );
+
+    const combined = [...membersOnly, ...demoMembers];
     
-    if (!searchTerm) return membersOnly;
+    if (!searchTerm) return combined;
     const search = searchTerm.toLowerCase();
-    return membersOnly.filter(user => 
+    return combined.filter(user => 
       user.company_name?.toLowerCase().includes(search) ||
       user.full_name?.toLowerCase().includes(search) ||
       user.city?.toLowerCase().includes(search)
     );
-  }, [allUsers, searchTerm]);
+  }, [allUsers, demoMembers, searchTerm]);
 
   const handleChat = (email) => {
     // Naviga direttamente alla pagina messaggi con la chat aperta
@@ -146,9 +166,16 @@ function MemberCard({ user, onChat, currentUserEmail, unreadCount }) {
           </div>
         )}
         <div className="min-w-0 flex-1">
-          <p className="text-white font-semibold truncate">
-            {user.company_name || 'Azienda'}
-          </p>
+          <div className="flex items-center gap-1.5">
+            <p className="text-white font-semibold truncate">
+              {user.company_name || 'Azienda'}
+            </p>
+            {user._isDemo && (
+              <span className="text-[9px] font-bold px-1.5 py-0.5 rounded-full bg-amber-500/20 text-amber-400 flex-shrink-0">
+                DEMO
+              </span>
+            )}
+          </div>
           {user.specializzazione && (
             <p className="text-lime-400 text-xs truncate">
               {user.specializzazione}
