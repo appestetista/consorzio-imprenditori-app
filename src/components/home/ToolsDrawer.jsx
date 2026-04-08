@@ -51,22 +51,27 @@ const ICON_MAP = {
 };
 
 const DEFAULT_TOOLS = [
-  { id: 'analisi_contratti', title: 'Analisi Contratti', icon: 'FileSearch', page: 'AnalisiContratti' },
-  { id: 'compliance', title: 'Evita Sanzioni', icon: 'Shield', page: 'ComplianceAziendale' },
-  { id: 'risparmio', title: 'Risparmio', icon: 'PiggyBank', page: 'RisparmioEnergetico' },
+  // Soldi e Finanza
   { id: 'bandi', title: 'Bandi', icon: 'Euro', page: 'FinanziamentiAgevolati' },
+  { id: 'simulatore', title: 'Simulatore Fiscale', icon: 'Calculator', page: 'SimulatoreFiscale' },
+  { id: 'risparmio', title: 'Risparmio Bollette', icon: 'PiggyBank', page: 'RisparmioEnergetico' },
+  // Protezione legale
+  { id: 'compliance', title: 'Evita Sanzioni', icon: 'Shield', page: 'ComplianceAziendale' },
+  { id: 'analisi_contratti', title: 'Analisi Contratti', icon: 'FileSearch', page: 'AnalisiContratti' },
+  // Crescita e operatività
   { id: 'export', title: 'Export', icon: 'Globe', page: 'ImportExport' },
   { id: 'import', title: 'Import', icon: 'Ship', page: 'ImportExport?tab=import' },
-  { id: 'simulatore', title: 'Simulatore Fiscale', icon: 'Calculator', page: 'SimulatoreFiscale' },
   { id: 'consulenze', title: 'Consulenze', icon: 'Briefcase', page: 'Consulenze' },
-  { id: 'welfare', title: 'Benefit Dipendenti', icon: 'Heart', page: 'WelfareAziendale' },
   { id: 'costo_personale', title: 'Costo Personale', icon: 'Users', page: 'SimulatoreCostoPersonale' },
   { id: 'fornitori', title: 'Ricerca Fornitori', icon: 'Truck', page: 'Fornitori' },
+  // HR e welfare
+  { id: 'welfare', title: 'Benefit Dipendenti', icon: 'Heart', page: 'WelfareAziendale' },
   { id: 'marketplace', title: 'Market Place', icon: 'ShoppingBag', page: 'Marketplace' },
-  { id: 'video_recensioni', title: 'Video Recensioni', icon: 'Star', page: 'VideoRecensioni' },
-  { id: 'video_interviste', title: 'Video Interviste', icon: 'Video', page: 'VideoInterviste' },
+  // Networking
   { id: 'contatta_imprenditori', title: 'Contatta Imprenditori', icon: 'User', page: 'GestioneMembri' },
   { id: 'consigli', title: 'Consigli Imprenditori', icon: 'Handshake', page: 'Imprenditori' },
+  { id: 'video_interviste', title: 'Video Interviste', icon: 'Video', page: 'VideoInterviste' },
+  { id: 'video_recensioni', title: 'Video Recensioni', icon: 'Star', page: 'VideoRecensioni' },
   { id: 'aste', title: 'Aste Immobiliari', icon: 'Gavel', page: 'AsteImmobiliari' },
 ];
 
