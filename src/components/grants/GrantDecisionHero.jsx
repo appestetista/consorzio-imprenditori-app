@@ -70,8 +70,8 @@ export default function GrantDecisionHero({
     );
   }
 
-  // Calcola la somma totale dei max_amount dei bandi compatibili
-  const totalMaxAmount = matchedGrants.reduce((sum, g) => sum + (g.max_amount || 0), 0);
+  // Importo massimo ottenibile dal singolo bando migliore
+  const bestAmount = bestGrant?.max_amount || 0;
 
   return (
     <div className={`rounded-2xl border p-6 ${
@@ -85,14 +85,14 @@ export default function GrantDecisionHero({
 
       {hasMatch ? (
         <>
-          {/* Cifra totale */}
+          {/* Importo bando migliore */}
           <div className="mb-3">
-            <p className="text-slate-300 text-sm mb-1">Ci sono fino a</p>
+            <p className="text-slate-300 text-sm mb-1">Il bando più adatto a te vale fino a</p>
             <p className="text-emerald-400 text-3xl font-bold tracking-tight">
-              {totalMaxAmount > 0 ? `${totalMaxAmount.toLocaleString('it-IT')} €` : 'fondi disponibili'}
+              {bestAmount > 0 ? `${bestAmount.toLocaleString('it-IT')} €` : 'importo da definire'}
             </p>
             <p className="text-slate-500 text-xs mt-1">
-              in {matchedGrants.length} bandi compatibili con il tuo profilo
+              + altri {matchedGrants.length - 1 > 0 ? matchedGrants.length - 1 : 0} bandi compatibili con il tuo profilo
             </p>
           </div>
 
@@ -102,7 +102,7 @@ export default function GrantDecisionHero({
               <CheckCircle2 className="w-5 h-5 text-emerald-400" />
             </div>
             <h2 className="text-white text-lg font-bold leading-tight">
-              Ti conviene agire
+              Ti conviene partecipare
             </h2>
           </div>
 

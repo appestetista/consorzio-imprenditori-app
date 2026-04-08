@@ -171,7 +171,7 @@ export default function GrantCard({ grant, onDetails, userInterest, onToggleAler
           <div className="flex items-center gap-2 text-slate-300">
             <Euro className="w-4 h-4 text-lime-400 flex-shrink-0" />
             <span className="flex-1">
-              <strong>Importo:</strong> {grant.min_amount && grant.max_amount 
+              <strong>Importo per azienda:</strong> {grant.min_amount && grant.max_amount 
                 ? `${grant.min_amount.toLocaleString('it-IT')} - ${grant.max_amount.toLocaleString('it-IT')} €`
                 : grant.max_amount 
                   ? `Fino a ${grant.max_amount.toLocaleString('it-IT')} €`
@@ -180,8 +180,8 @@ export default function GrantCard({ grant, onDetails, userInterest, onToggleAler
                     : 'Da definire'}
             </span>
             <InfoTooltip 
-              title="Importo del contributo" 
-              description="È l'ammontare minimo e massimo del finanziamento che puoi richiedere. L'importo effettivo dipende dal tuo progetto e dai requisiti del bando."
+              title="Importo per singola azienda" 
+              description="È l'importo minimo e massimo che la tua azienda può richiedere partecipando a questo bando. L'importo effettivo dipende dal tuo progetto e dai requisiti specifici."
             />
           </div>
 
