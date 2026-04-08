@@ -292,8 +292,8 @@ export default function Esplora() {
     queryKey: ['new-grants-count', effectiveUser?.email, userGrantView?.last_viewed_at],
     queryFn: async () => {
       const today = new Date(); today.setHours(0,0,0,0);
-      const allGrants = await base44.entities.FinancialGrant.list('-created_date');
-      const validGrants = allGrants.filter(g => { if (g.deadline) { const d = new Date(g.deadline); d.setHours(0,0,0,0); return d >= today; } return true; });
+      const allGrants = await base44.entities.FinancialGrant.filter({ is_archived: false }, '-created_date');
+      const validGrants = allGrants.filter(g => { if (g.status === 'Chiuso') return false; if (g.deadline) { const d = new Date(g.deadline); d.setHours(0,0,0,0); return d >= today; } return true; });
       const matchesProfile = (grant) => {
         if (grant.eligible_company_sizes?.length > 0 && effectiveUser?.company_size) { if (!grant.eligible_company_sizes.includes(effectiveUser.company_size)) return false; }
         if (grant.eligible_regions?.length > 0) { const ur = effectiveUser?.interested_regions || (effectiveUser?.region ? [effectiveUser.region] : []); if (ur.length > 0 && !grant.eligible_regions.some(r => ur.includes(r))) return false; }

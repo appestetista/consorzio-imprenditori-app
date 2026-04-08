@@ -101,28 +101,35 @@ export default function FinanziamentiAgevolati() {
   const { data: allGrants = [], isLoading } = useQuery({
     queryKey: ['financial-grants'],
     queryFn: async () => {
-      const grants = await base44.entities.FinancialGrant.list('-created_date');
+      // Carica solo bandi NON archiviati
+      const grants = await base44.entities.FinancialGrant.filter({ is_archived: false }, '-created_date');
       
-      // Filtra bandi scaduti e eliminali dal database
+      // Filtra bandi scaduti e archiviali in background
       const validGrants = [];
-      const expiredGrantIds = [];
+      const expiredGrants = [];
       
       for (const grant of grants) {
+        // Escludi bandi con status Chiuso
+        if (grant.status === 'Chiuso') continue;
+        
         if (grant.deadline) {
           const deadlineDate = new Date(grant.deadline);
           deadlineDate.setHours(0, 0, 0, 0);
           if (deadlineDate < today) {
-            expiredGrantIds.push(grant.id);
+            expiredGrants.push(grant);
             continue;
           }
         }
         validGrants.push(grant);
       }
       
-      // Elimina bandi scaduti in background
-      if (expiredGrantIds.length > 0) {
-        Promise.all(expiredGrantIds.map(id => 
-          base44.entities.FinancialGrant.delete(id).catch(e => console.error('Error deleting expired grant:', e))
+      // Archivia bandi scaduti in background (non cancellare!)
+      if (expiredGrants.length > 0) {
+        Promise.all(expiredGrants.map(g => 
+          base44.entities.FinancialGrant.update(g.id, { 
+            is_archived: true, 
+            status: 'Chiuso' 
+          }).catch(e => console.error('Error archiving expired grant:', e))
         ));
       }
       
