@@ -1,0 +1,46 @@
+{
+  "name": "CoefficienteRedditivita",
+  "type": "object",
+  "properties": {
+    "gruppo": {
+      "type": "number",
+      "description": "Numero progressivo del gruppo (1-9 da Allegato 4 L.190/2014)"
+    },
+    "settore": {
+      "type": "string",
+      "description": "Nome del gruppo di settore"
+    },
+    "codici_ateco_pattern": {
+      "type": "string",
+      "description": "Pattern dei codici ATECO appartenenti a questo gruppo (es: '10,11' oppure '45,46.2-46.9')"
+    },
+    "codici_divisione": {
+      "type": "array",
+      "items": {
+        "type": "string"
+      },
+      "description": "Lista divisioni ATECO (prime 2 cifre) o range inclusi"
+    },
+    "codici_specifici": {
+      "type": "array",
+      "items": {
+        "type": "string"
+      },
+      "description": "Codici ATECO specifici (es: 47.81) se il gruppo non copre un'intera divisione"
+    },
+    "coefficiente": {
+      "type": "number",
+      "description": "Coefficiente di redditivit\u00e0 (es: 0.40 per 40%)"
+    },
+    "fonte_normativa": {
+      "type": "string",
+      "description": "Riferimento normativo (Allegato 4, L.190/2014)"
+    }
+  },
+  "required": [
+    "gruppo",
+    "settore",
+    "coefficiente",
+    "fonte_normativa"
+  ]
+}

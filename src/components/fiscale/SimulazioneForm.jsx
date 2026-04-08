@@ -11,13 +11,17 @@ import AtecoSearchInput from './AtecoSearchInput';
 import CategoriaIRAPBadge from './CategoriaIRAPBadge';
 import useRaccordoATECO from './useRaccordoATECO';
 
+// Coefficienti di redditività ufficiali da Allegato 4, L.190/2014
 const coefficientiAteco = [
-  { label: '40% – Industrie alimentari e bevande', value: '0.40' },
-  { label: '54% – Costruzioni e attività immobiliari', value: '0.54' },
-  { label: '62% – Commercio all\'ingrosso e al dettaglio', value: '0.62' },
-  { label: '67% – Attività di alloggio e ristorazione', value: '0.67' },
-  { label: '78% – Servizi professionali e tecnici', value: '0.78' },
-  { label: '86% – Commercio ambulante (non alimentare)', value: '0.86' },
+  { label: '40% – Industrie alimentari e bevande (10-11)', value: '0.40' },
+  { label: '40% – Commercio ingrosso/dettaglio (45, 46.2-46.9, 47.1-47.7, 47.9)', value: '0.40' },
+  { label: '40% – Commercio ambulante alimentari (47.81)', value: '0.40' },
+  { label: '40% – Alloggio e ristorazione (55-56)', value: '0.40' },
+  { label: '54% – Commercio ambulante altri prodotti (47.82, 47.89)', value: '0.54' },
+  { label: '62% – Intermediari del commercio (46.1)', value: '0.62' },
+  { label: '67% – Altre attività economiche (manifattura, trasporti, IT, servizi...)', value: '0.67' },
+  { label: '78% – Professionali, scientifiche, sanitarie, istruzione, finanza', value: '0.78' },
+  { label: '86% – Costruzioni e attività immobiliari (41-43, 68)', value: '0.86' },
 ];
 
 export default function SimulazioneForm({ onSubmit, loading, userProfile }) {
@@ -58,6 +62,21 @@ export default function SimulazioneForm({ onSubmit, loading, userProfile }) {
       setForm(prev => ({ ...prev, categoria_irap: raccordo.categoriaIrap }));
     }
   }, [raccordo.categoriaIrap, raccordo.loading]);
+
+  // Auto-lookup coefficiente di redditività dal codice ATECO (fonte: DB, Allegato 4 L.190/2014)
+  useEffect(() => {
+    if (!form.codice_ateco || form.regime !== 'Forfettario') return;
+    let cancelled = false;
+    (async () => {
+      try {
+        const res = await base44.functions.invoke('lookupCoefficiente', { codice_ateco: form.codice_ateco });
+        if (!cancelled && res.data?.success) {
+          setForm(prev => ({ ...prev, coefficiente_redditivita: String(res.data.coefficiente) }));
+        }
+      } catch (e) { /* fallback al valore manuale */ }
+    })();
+    return () => { cancelled = true; };
+  }, [form.codice_ateco, form.regime]);
 
   const handleSubmit = () => {
     if (!form.regime || !form.fatturato) return;
@@ -159,18 +178,33 @@ export default function SimulazioneForm({ onSubmit, loading, userProfile }) {
       {/* Campi specifici Forfettario */}
       {form.regime === 'Forfettario' && (
         <>
-          <div>
-            <label className="text-slate-400 text-xs font-medium mb-1 block">Coefficiente di redditività</label>
-            <Select value={form.coefficiente_redditivita} onValueChange={(v) => update('coefficiente_redditivita', v)}>
-              <SelectTrigger className="bg-slate-800 border-slate-700 text-white">
-                <SelectValue />
-              </SelectTrigger>
-              <SelectContent>
-                {coefficientiAteco.map(c => (
-                  <SelectItem key={c.value} value={c.value}>{c.label}</SelectItem>
-                ))}
-              </SelectContent>
-            </Select>
+          <div className="bg-[#0a2540] border border-[#1a3a5c] rounded-xl p-4 space-y-3">
+            <p className="text-[#d4af37] text-xs font-bold uppercase tracking-wider">③ Il tuo codice ATECO</p>
+            <AtecoSearchInput 
+              value={form.codice_ateco} 
+              onChange={(v) => update('codice_ateco', v)} 
+            />
+            {form.codice_ateco && (
+              <div className="bg-emerald-900/30 border border-emerald-700/40 rounded-lg p-3">
+                <p className="text-emerald-400 text-xs font-medium">
+                  Coefficiente di redditività: <strong className="text-white">{(parseFloat(form.coefficiente_redditivita) * 100).toFixed(0)}%</strong>
+                  <span className="text-slate-500 ml-1">(Allegato 4, L.190/2014)</span>
+                </p>
+              </div>
+            )}
+            <div>
+              <label className="text-slate-400 text-xs font-medium mb-1 block">Oppure seleziona manualmente</label>
+              <Select value={form.coefficiente_redditivita} onValueChange={(v) => update('coefficiente_redditivita', v)}>
+                <SelectTrigger className="bg-slate-800 border-slate-700 text-white">
+                  <SelectValue />
+                </SelectTrigger>
+                <SelectContent>
+                  {coefficientiAteco.map((c, i) => (
+                    <SelectItem key={i} value={c.value}>{c.label}</SelectItem>
+                  ))}
+                </SelectContent>
+              </Select>
+            </div>
           </div>
           <div>
             <label className="text-slate-400 text-xs font-medium mb-1 block">Tipo aliquota</label>
