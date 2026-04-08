@@ -1,23 +1,20 @@
 import React, { useState, useMemo, useEffect } from 'react';
 import { base44 } from '@/api/base44Client';
-import { useQuery, useMutation, useQueryClient } from '@tanstack/react-query';
+import { useQuery, useQueryClient } from '@tanstack/react-query';
 import useNotificationSound from '../hooks/useNotificationSound';
-import { ChevronDown, ChevronRight, MapPin, Building2, Users, Search, MessageCircle, User, Briefcase } from 'lucide-react';
+import { MapPin, Building2, Search, MessageCircle, User, Briefcase, Navigation } from 'lucide-react';
 import { Input } from '@/components/ui/input';
-import { Card, CardContent } from '@/components/ui/card';
-import { Badge } from '@/components/ui/badge';
+import { Card } from '@/components/ui/card';
 import { Button } from '@/components/ui/button';
-import { Link, useNavigate } from 'react-router-dom';
+import { useNavigate } from 'react-router-dom';
 import { createPageUrl } from '@/utils';
 
 export default function MembersDirectory({ currentUserEmail }) {
   const [searchTerm, setSearchTerm] = useState('');
+  const [mode, setMode] = useState('useful'); // 'useful' = chi mi è utile, 'nearby' = chi mi è vicino
   const navigate = useNavigate();
   const queryClient = useQueryClient();
   const { playSound } = useNotificationSound();
-
-  // Debug log
-  console.log('[MembersDirectory] currentUserEmail:', currentUserEmail);
 
   const { data: allUsers = [], isLoading: loadingUsers } = useQuery({
     queryKey: ['members-directory'],
@@ -82,25 +79,39 @@ export default function MembersDirectory({ currentUserEmail }) {
     ];
   }, [currentUser?.role]);
 
-  // Filtra utenti in base alla ricerca - mostra solo utenti di tipo 'utente' (no admin, no consulenti)
+  // Filtra utenti in base alla ricerca e modalità
   const filteredUsers = useMemo(() => {
-    // Prima filtra per tipo utente
     const membersOnly = allUsers.filter(user => 
       user.user_type === 'utente' && 
       user.role !== 'admin' && 
       !user.is_blocked
     );
 
-    const combined = [...membersOnly, ...demoMembers];
+    let combined = [...membersOnly, ...demoMembers];
     
-    if (!searchTerm) return combined;
-    const search = searchTerm.toLowerCase();
-    return combined.filter(user => 
-      user.company_name?.toLowerCase().includes(search) ||
-      user.full_name?.toLowerCase().includes(search) ||
-      user.city?.toLowerCase().includes(search)
-    );
-  }, [allUsers, demoMembers, searchTerm]);
+    // Filtra per ricerca
+    if (searchTerm) {
+      const search = searchTerm.toLowerCase();
+      combined = combined.filter(user => 
+        user.company_name?.toLowerCase().includes(search) ||
+        user.full_name?.toLowerCase().includes(search) ||
+        user.city?.toLowerCase().includes(search) ||
+        user.specializzazione?.toLowerCase().includes(search) ||
+        user.settore?.toLowerCase().includes(search)
+      );
+    }
+
+    // Ordina in base alla modalità
+    if (mode === 'nearby' && currentUser) {
+      combined.sort((a, b) => {
+        const scoreA = getProximityScore(a, currentUser);
+        const scoreB = getProximityScore(b, currentUser);
+        return scoreB - scoreA;
+      });
+    }
+
+    return combined;
+  }, [allUsers, demoMembers, searchTerm, mode, currentUser]);
 
   const handleChat = (email) => {
     // Naviga direttamente alla pagina messaggi con la chat aperta
@@ -115,23 +126,53 @@ export default function MembersDirectory({ currentUserEmail }) {
     );
   }
 
+  const placeholderText = mode === 'nearby'
+    ? 'Cerca per città, provincia...'
+    : 'Cerca per nome, azienda, settore...';
+
   return (
     <div className="space-y-4">
+      {/* Toggle modalità */}
+      <div className="flex gap-2">
+        <button
+          onClick={() => setMode('useful')}
+          className={`flex-1 py-2.5 px-3 rounded-xl text-sm font-medium transition-all flex items-center justify-center gap-1.5 ${
+            mode === 'useful'
+              ? 'bg-lime-400 text-slate-900'
+              : 'bg-slate-800 text-slate-400 border border-slate-700'
+          }`}
+        >
+          <Briefcase className="w-4 h-4" />
+          Chi mi è utile
+        </button>
+        <button
+          onClick={() => setMode('nearby')}
+          className={`flex-1 py-2.5 px-3 rounded-xl text-sm font-medium transition-all flex items-center justify-center gap-1.5 ${
+            mode === 'nearby'
+              ? 'bg-lime-400 text-slate-900'
+              : 'bg-slate-800 text-slate-400 border border-slate-700'
+          }`}
+        >
+          <Navigation className="w-4 h-4" />
+          Chi mi è vicino
+        </button>
+      </div>
+
       {/* Ricerca */}
       <div className="relative">
         <Search className="absolute left-3 top-1/2 -translate-y-1/2 w-5 h-5 text-slate-400" />
         <Input
-          placeholder="Cerca per nome, azienda..."
+          placeholder={placeholderText}
           value={searchTerm}
           onChange={(e) => setSearchTerm(e.target.value)}
           className="bg-slate-800 border-slate-700 text-white pl-10"
         />
       </div>
 
-      {/* Lista Aziende */}
+      {/* Lista Imprenditori */}
       <div className="space-y-3">
         {filteredUsers.length === 0 ? (
-          <p className="text-slate-400 text-sm text-center py-8">Nessuna azienda trovata</p>
+          <p className="text-slate-400 text-sm text-center py-8">Nessun imprenditore trovato</p>
         ) : (
           filteredUsers.map(user => (
             <MemberCard 
@@ -140,6 +181,8 @@ export default function MembersDirectory({ currentUserEmail }) {
               onChat={() => handleChat(user.email)}
               currentUserEmail={currentUserEmail}
               unreadCount={unreadCountByEmail[user.email] || 0}
+              showProximity={mode === 'nearby'}
+              currentUser={currentUser}
             />
           ))
         )}
@@ -148,53 +191,93 @@ export default function MembersDirectory({ currentUserEmail }) {
   );
 }
 
-function MemberCard({ user, onChat, currentUserEmail, unreadCount }) {
+function getProximityScore(member, currentUser) {
+  if (!currentUser) return 0;
+  if (currentUser.city && member.city && currentUser.city === member.city) return 3;
+  if (currentUser.province && member.province && currentUser.province === member.province) return 2;
+  if (currentUser.region && member.region && currentUser.region === member.region) return 1;
+  return 0;
+}
+
+function getProximityBadge(member, currentUser) {
+  if (!currentUser) return null;
+  if (currentUser.city && member.city && currentUser.city === member.city) {
+    return { label: 'Stessa città', className: 'bg-emerald-500/20 text-emerald-400' };
+  }
+  if (currentUser.province && member.province && currentUser.province === member.province) {
+    return { label: 'Stessa provincia', className: 'bg-cyan-500/20 text-cyan-400' };
+  }
+  if (currentUser.region && member.region && currentUser.region === member.region) {
+    return { label: 'Stessa regione', className: 'bg-blue-500/20 text-blue-400' };
+  }
+  return null;
+}
+
+function MemberCard({ user, onChat, currentUserEmail, unreadCount, showProximity, currentUser }) {
   const isCurrentUser = user.email === currentUserEmail;
+  const proximityBadge = showProximity ? getProximityBadge(user, currentUser) : null;
   
   return (
     <Card className="bg-slate-800 border-slate-700 p-4">
-      <div className="flex items-center gap-3">
+      <div className="flex items-start gap-3">
+        {/* Avatar */}
         {user.logo_url ? (
           <img 
             src={user.logo_url} 
             alt={user.company_name} 
-            className="w-14 h-14 rounded-lg object-cover flex-shrink-0"
+            className="w-12 h-12 rounded-xl object-cover flex-shrink-0"
           />
         ) : (
-          <div className="w-14 h-14 rounded-lg bg-slate-700 flex items-center justify-center flex-shrink-0">
-            <Building2 className="w-7 h-7 text-slate-500" />
+          <div className="w-12 h-12 rounded-xl bg-gradient-to-br from-lime-400/20 to-emerald-400/20 flex items-center justify-center flex-shrink-0">
+            <User className="w-6 h-6 text-lime-400" />
           </div>
         )}
+
+        {/* Info */}
         <div className="min-w-0 flex-1">
-          <div className="flex items-center gap-1.5">
-            <p className="text-white font-semibold truncate">
+          {/* Nome imprenditore (in alto, principale) */}
+          <p className="text-white font-semibold text-[15px] leading-tight">
+            {user.referente || user.full_name}
+          </p>
+
+          {/* Nome azienda */}
+          <div className="flex items-center gap-1.5 mt-0.5">
+            <Building2 className="w-3 h-3 text-slate-500 flex-shrink-0" />
+            <p className="text-slate-300 text-sm">
               {user.company_name || 'Azienda'}
             </p>
-            {user._isDemo && (
-              <span className="text-[9px] font-bold px-1.5 py-0.5 rounded-full bg-amber-500/20 text-amber-400 flex-shrink-0">
-                DEMO
-              </span>
-            )}
           </div>
+
+          {/* Specializzazione (completa, senza abbreviare) */}
           {user.specializzazione && (
-            <p className="text-lime-400 text-xs truncate">
+            <p className="text-lime-400 text-xs mt-1 leading-snug">
               {user.specializzazione}
             </p>
           )}
-          <p className="text-slate-500 text-xs truncate flex items-center gap-1">
-            <MapPin className="w-3 h-3" />
+
+          {/* Località */}
+          <p className="text-slate-500 text-xs mt-1 flex items-center gap-1">
+            <MapPin className="w-3 h-3 flex-shrink-0" />
             {user.city ? `${user.city}${user.province ? ` (${user.province})` : ''}` : 'Località non specificata'}
           </p>
-          {(user.referente || user.full_name) && (
-            <div className="text-slate-400 text-sm mt-1 flex items-start gap-1">
-              <User className="w-3 h-3 mt-0.5 flex-shrink-0" />
-              <div>
-                <span className="text-slate-500 text-xs">Responsabile:</span>
-                <p className="text-slate-300 truncate">{user.referente || user.full_name}</p>
-              </div>
-            </div>
+
+          {/* Badge prossimità */}
+          {proximityBadge && (
+            <span className={`inline-flex items-center gap-1 text-[10px] font-semibold px-2 py-0.5 rounded-full mt-1.5 ${proximityBadge.className}`}>
+              <Navigation className="w-2.5 h-2.5" />
+              {proximityBadge.label}
+            </span>
+          )}
+
+          {/* Badge DEMO in fondo */}
+          {user._isDemo && (
+            <span className="inline-block text-[9px] font-bold px-1.5 py-0.5 rounded-full bg-amber-500/20 text-amber-400 mt-1.5">
+              DEMO
+            </span>
           )}
         </div>
+
+        {/* Bottone chat */}
         {!isCurrentUser && (
           <div className="relative flex-shrink-0">
             {unreadCount > 0 && (
@@ -202,14 +285,12 @@ function MemberCard({ user, onChat, currentUserEmail, unreadCount }) {
                 {unreadCount}
               </span>
             )}
-            <Button
+            <button
               onClick={onChat}
-              size="sm"
-              className="bg-lime-400 hover:bg-lime-500 text-slate-900"
+              className="w-10 h-10 rounded-xl bg-lime-400 hover:bg-lime-500 flex items-center justify-center transition-colors active:scale-95"
             >
-              <MessageCircle className="w-4 h-4 mr-1" />
-              Chatta
-            </Button>
+              <MessageCircle className="w-5 h-5 text-slate-900" />
+            </button>
           </div>
         )}
       </div>
