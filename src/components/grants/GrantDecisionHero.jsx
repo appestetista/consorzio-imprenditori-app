@@ -91,8 +91,15 @@ export default function GrantDecisionHero({
             <p className="text-emerald-400 text-3xl font-bold tracking-tight">
               {bestAmount > 0 ? `${bestAmount.toLocaleString('it-IT')} €` : 'importo da definire'}
             </p>
+            {bestGrant?.coverage_percentage && bestAmount > 0 && (
+              <p className="text-emerald-400/70 text-xs mt-0.5">
+                Copre il {bestGrant.coverage_percentage}% di quello che investi
+              </p>
+            )}
             <p className="text-slate-500 text-xs mt-1">
-              + altri {matchedGrants.length - 1 > 0 ? matchedGrants.length - 1 : 0} bandi compatibili con il tuo profilo
+              {matchedGrants.length > 1 
+                ? `+ altri ${matchedGrants.length - 1} bandi compatibili con il tuo profilo`
+                : '1 bando compatibile con il tuo profilo'}
             </p>
           </div>
 

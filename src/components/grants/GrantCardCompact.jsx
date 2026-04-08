@@ -90,7 +90,7 @@ export default function GrantCardCompact({ grant, onDetails, isRecommended = fal
       {/* Coverage + region row */}
       <div className="flex items-center gap-4 mt-1.5 text-xs text-slate-500">
         {grant.coverage_percentage && (
-          <span>Copertura {grant.coverage_percentage}%</span>
+          <span>Copre il {grant.coverage_percentage}% delle spese</span>
         )}
         {grant.eligible_regions?.length > 0 && (
           <span>{grant.eligible_regions.length > 2 ? `${grant.eligible_regions.slice(0,2).join(', ')}...` : grant.eligible_regions.join(', ')}</span>

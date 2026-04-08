@@ -189,13 +189,13 @@ export default function GrantCard({ grant, onDetails, userInterest, onToggleAler
           <div className="flex items-center gap-2 text-slate-300">
             <TrendingUp className="w-4 h-4 text-lime-400 flex-shrink-0" />
             <span className="flex-1">
-              <strong>Copertura:</strong> {grant.coverage_percentage 
-                ? `${grant.coverage_percentage}%` 
+              <strong>Copertura spese:</strong> {grant.coverage_percentage 
+                ? `${grant.coverage_percentage}% delle spese ammissibili` 
                 : 'Da definire'}
             </span>
             <InfoTooltip 
-              title="Percentuale di copertura" 
-              description="È la percentuale delle spese ammissibili che viene coperta dal contributo. Ad esempio, se la copertura è 50% e investi 100.000€, riceverai 50.000€ di contributo."
+              title="Copertura spese: cosa significa?" 
+              description={`Il bando ti rimborsa una percentuale di quello che spendi per il progetto. ${grant.coverage_percentage ? `In questo caso, se investi 100.000€, il bando ti restituisce ${(grant.coverage_percentage * 1000).toLocaleString('it-IT')}€. Il resto (${(100 - grant.coverage_percentage)}%) lo metti tu.` : ''}`}
             />
           </div>
           

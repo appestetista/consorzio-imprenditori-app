@@ -48,11 +48,16 @@ export default function GrantRecommendedCard({ grant, onDetails, onRequestConsul
           <div className="bg-black/20 rounded-xl px-3 py-2.5">
             <div className="flex items-center gap-1.5 text-slate-400 text-[10px] uppercase tracking-wider mb-0.5">
               <TrendingUp className="w-3 h-3" />
-              Copertura
+              Copertura spese
             </div>
             <p className="text-white text-lg font-bold">
               {grant.coverage_percentage ? `${grant.coverage_percentage}%` : '—'}
             </p>
+            {grant.coverage_percentage && (
+              <p className="text-slate-500 text-[9px] mt-0.5 leading-tight">
+                Il bando ti rimborsa il {grant.coverage_percentage}% di quello che spendi
+              </p>
+            )}
           </div>
 
           {/* Deadline */}
