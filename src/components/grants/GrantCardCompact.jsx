@@ -1,5 +1,5 @@
 import React from 'react';
-import { Calendar, Euro, Zap, ChevronRight, Clock, CheckCircle2, ExternalLink } from 'lucide-react';
+import { Calendar, Euro, Zap, ChevronRight, Clock, CheckCircle2, ExternalLink, ShieldCheck, ShieldQuestion } from 'lucide-react';
 import { format } from 'date-fns';
 import { it } from 'date-fns/locale';
 
@@ -100,6 +100,18 @@ export default function GrantCardCompact({ grant, onDetails, isRecommended = fal
         )}
         {grant.livello === 'Europeo' && (
           <span>🇪🇺 Europeo</span>
+        )}
+        {grant.confidence_level === 'alto' && (
+          <span className="inline-flex items-center gap-0.5 text-emerald-400">
+            <ShieldCheck className="w-3 h-3" />
+            Verificato
+          </span>
+        )}
+        {grant.confidence_level === 'medio' && (
+          <span className="inline-flex items-center gap-0.5 text-amber-400">
+            <ShieldQuestion className="w-3 h-3" />
+            Da verificare
+          </span>
         )}
       </div>
 

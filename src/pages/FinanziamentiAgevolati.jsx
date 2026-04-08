@@ -1,7 +1,7 @@
 import React, { useState, useEffect, useRef } from 'react';
 import { base44 } from '@/api/base44Client';
 import { useQuery, useMutation, useQueryClient } from '@tanstack/react-query';
-import { ArrowLeft, Sparkles, AlertCircle, Info, Briefcase, XCircle, Building2, CalendarDays, MessageSquare, Mail, Eye, Trash2, User, Phone, Search, Loader2, Plus, Edit, Share2, Archive, ExternalLink, CheckCircle2, ChevronDown, Filter, SlidersHorizontal } from 'lucide-react';
+import { ArrowLeft, Sparkles, AlertCircle, Info, Briefcase, XCircle, Building2, CalendarDays, MessageSquare, Mail, Eye, Trash2, User, Phone, Search, Loader2, Plus, Edit, Share2, Archive, ExternalLink, CheckCircle2, ChevronDown, Filter, SlidersHorizontal, ShieldCheck, ShieldQuestion, ShieldAlert } from 'lucide-react';
 
 import { toast } from 'sonner';
 import { format } from 'date-fns';
@@ -1335,6 +1335,32 @@ export default function FinanziamentiAgevolati() {
                   </div>
                 </div>
               )}
+
+              {/* Affidabilità fonte */}
+              <div className={`rounded-lg p-3 flex items-start gap-3 ${
+                selectedGrant.confidence_level === 'alto' 
+                  ? 'bg-emerald-500/10 border border-emerald-500/30' 
+                  : selectedGrant.confidence_level === 'basso'
+                    ? 'bg-red-500/10 border border-red-500/30'
+                    : 'bg-amber-500/10 border border-amber-500/30'
+              }`}>
+                {selectedGrant.confidence_level === 'alto' && <ShieldCheck className="w-5 h-5 text-emerald-400 mt-0.5 flex-shrink-0" />}
+                {selectedGrant.confidence_level === 'medio' && <ShieldQuestion className="w-5 h-5 text-amber-400 mt-0.5 flex-shrink-0" />}
+                {selectedGrant.confidence_level === 'basso' && <ShieldAlert className="w-5 h-5 text-red-400 mt-0.5 flex-shrink-0" />}
+                {!selectedGrant.confidence_level && <ShieldQuestion className="w-5 h-5 text-amber-400 mt-0.5 flex-shrink-0" />}
+                <div>
+                  <p className={`text-sm font-medium ${
+                    selectedGrant.confidence_level === 'alto' ? 'text-emerald-400' :
+                    selectedGrant.confidence_level === 'basso' ? 'text-red-400' : 'text-amber-400'
+                  }`}>
+                    {selectedGrant.confidence_level === 'alto' ? 'Fonte verificata' :
+                     selectedGrant.confidence_level === 'basso' ? 'Fonte non verificata' : 'Fonte da verificare'}
+                  </p>
+                  {selectedGrant.extraction_notes && (
+                    <p className="text-slate-400 text-xs mt-1">{selectedGrant.extraction_notes}</p>
+                  )}
+                </div>
+              </div>
 
               {selectedGrant.website_url && (
                 <Button
