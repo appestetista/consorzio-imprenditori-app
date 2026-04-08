@@ -414,7 +414,153 @@ Deno.serve(async (req) => {
       const pressioneUtile = utile > 0 ? r2((imposte_totali / utile) * 100) : 0;
       dettaglio.push(`Pressione fiscale su fatturato: ${pressioneFatturato}%`);
       dettaglio.push(`Pressione fiscale su utile: ${pressioneUtile}%`);
-    } else {
+    }
+
+    // ===================== SAS / SNC (società di persone) =====================
+    // Tassazione per TRASPARENZA: IRPEF progressiva sui soci + IRAP a livello societario + INPS
+    else if (regime === 'SAS' || regime === 'SNC') {
+      const costiDed = costi_deducibili || 0;
+      reddito_imponibile = fatturato - costiDed;
+      utile = reddito_imponibile;
+
+      // === IRAP (la società di persone paga IRAP) ===
+      let aliqIrap = getAliquota('IRAP'); // fallback nazionale
+      let irapRegione = regione || '';
+      let irapCategoria = 'Impresa Ordinaria';
+      if (regione) {
+        const irapRecords = await base44.asServiceRole.entities.AliquoteIRAPRegionali.filter({ anno: anno, regione: regione });
+        if (irapRecords.length > 0) {
+          let irapRecord = null;
+          if (categoria_irap) {
+            irapRecord = irapRecords.find(r => r.categoria === categoria_irap);
+          }
+          if (!irapRecord) {
+            irapRecord = irapRecords.find(r => r.categoria === 'Impresa Ordinaria');
+          }
+          if (irapRecord) {
+            aliqIrap = irapRecord.aliquota;
+            irapCategoria = irapRecord.categoria;
+          }
+        }
+      }
+
+      const irapSpecificata = base_imponibile_irap !== undefined && base_imponibile_irap !== null && base_imponibile_irap !== '';
+      const baseIrap = irapSpecificata ? parseFloat(base_imponibile_irap) : reddito_imponibile;
+      const irap = r2(baseIrap * aliqIrap);
+
+      // === IRPEF progressiva (sul reddito del socio — per trasparenza) ===
+      const scaglione1 = getAliquota('IRPEF_scaglione1');
+      const scaglione2 = getAliquota('IRPEF_scaglione2');
+      const scaglione3 = getAliquota('IRPEF_scaglione3');
+      const soglia1 = aliquoteRecords.find(a => a.tipo_imposta === 'IRPEF_scaglione1')?.soglia_max || 28000;
+      const soglia2 = aliquoteRecords.find(a => a.tipo_imposta === 'IRPEF_scaglione2')?.soglia_max || 50000;
+      const scag2Eff = reddito_imponibile > 200000 ? 0.35 : scaglione2;
+
+      let irpef = 0;
+      const dettaglioIrpef = [];
+
+      if (reddito_imponibile <= soglia1) {
+        irpef = r2(reddito_imponibile * scaglione1);
+        dettaglioIrpef.push(`  Scaglione 1 (${(scaglione1 * 100).toFixed(0)}%): ${fmt(reddito_imponibile)} × ${scaglione1} = ${fmt(irpef)}`);
+      } else if (reddito_imponibile <= soglia2) {
+        const p1 = r2(soglia1 * scaglione1);
+        const ecc = reddito_imponibile - soglia1;
+        const p2 = r2(ecc * scag2Eff);
+        irpef = r2(p1 + p2);
+        dettaglioIrpef.push(`  Scaglione 1 (${(scaglione1 * 100).toFixed(0)}%): ${fmt(soglia1)} × ${scaglione1} = ${fmt(p1)}`);
+        dettaglioIrpef.push(`  Scaglione 2 (${(scag2Eff * 100).toFixed(0)}%): ${fmt(ecc)} × ${scag2Eff} = ${fmt(p2)}`);
+      } else {
+        const p1 = r2(soglia1 * scaglione1);
+        const fascia2 = soglia2 - soglia1;
+        const p2 = r2(fascia2 * scag2Eff);
+        const ecc = reddito_imponibile - soglia2;
+        const p3 = r2(ecc * scaglione3);
+        irpef = r2(p1 + p2 + p3);
+        dettaglioIrpef.push(`  Scaglione 1 (${(scaglione1 * 100).toFixed(0)}%): ${fmt(soglia1)} × ${scaglione1} = ${fmt(p1)}`);
+        dettaglioIrpef.push(`  Scaglione 2 (${(scag2Eff * 100).toFixed(0)}%): ${fmt(fascia2)} × ${scag2Eff} = ${fmt(p2)}`);
+        dettaglioIrpef.push(`  Scaglione 3 (${(scaglione3 * 100).toFixed(0)}%): ${fmt(ecc)} × ${scaglione3} = ${fmt(p3)}`);
+      }
+
+      // === INPS (soci operativi — Artigiani o Commercianti) ===
+      let contributi_totali = 0;
+      const dettaglioInps = [];
+      if (gestione_inps === 'Artigiani' || gestione_inps === 'Commercianti') {
+        const inpsRecords = await base44.asServiceRole.entities.ContributiINPS.filter({ anno: anno, gestione: gestione_inps });
+        if (inpsRecords.length > 0) {
+          const inps = inpsRecords[0];
+          const contributo_fisso = r2(inps.contributo_fisso_annuo || 0);
+          const minimale = inps.minimale_annuo || 0;
+          const aliqInps = inps.aliquota_percentuale || 0;
+          const massimale = inps.massimale_reddito || Infinity;
+          const redditoInps = Math.min(reddito_imponibile, massimale);
+          let contributo_variabile = 0;
+          if (redditoInps > minimale) {
+            contributo_variabile = r2((redditoInps - minimale) * aliqInps);
+          }
+          contributi_totali = r2(contributo_fisso + contributo_variabile);
+          dettaglioInps.push(`Contributi INPS – Gestione ${gestione_inps}:`);
+          dettaglioInps.push(`  Fisso (minimale ${fmt(minimale)}): ${fmt(contributo_fisso)}`);
+          dettaglioInps.push(`  Variabile: ${fmt(contributo_variabile)}`);
+          dettaglioInps.push(`  Totale INPS: ${fmt(contributi_totali)}`);
+        }
+      }
+
+      // === Totali ===
+      imposte_pure = r2(irpef + irap);
+      contributi_pure = r2(contributi_totali);
+      imposte_totali = r2(irpef + irap + contributi_totali);
+      netto_finale = r2(reddito_imponibile - irpef - irap - contributi_totali);
+      tasse_societarie = r2(irap);
+      tasse_personali = r2(irpef);
+
+      dettaglio.push(`══════════════════════════════════`);
+      dettaglio.push(`SEZIONE A – CALCOLO REDDITO`);
+      dettaglio.push(`══════════════════════════════════`);
+      dettaglio.push(`Regime: ${regime} (società di persone — tassazione per trasparenza)`);
+      dettaglio.push(`Fatturato: ${fmt(fatturato)}`);
+      dettaglio.push(`Costi deducibili: ${fmt(costiDed)}`);
+      dettaglio.push(`Reddito imponibile: ${fmt(fatturato)} - ${fmt(costiDed)} = ${fmt(reddito_imponibile)}`);
+      dettaglio.push(``);
+      dettaglio.push(`══════════════════════════════════`);
+      dettaglio.push(`SEZIONE B – IMPOSTE SOCIETÀ`);
+      dettaglio.push(`══════════════════════════════════`);
+      dettaglio.push(`IRAP (${(aliqIrap * 100).toFixed(2)}%):`);
+      if (irapRegione) {
+        dettaglio.push(`  Aliquota IRAP per ${irapRegione}: ${(aliqIrap * 100).toFixed(2)}% (${irapCategoria})`);
+      }
+      dettaglio.push(`  Base imponibile IRAP: ${fmt(baseIrap)}${!irapSpecificata ? ' (stimata = reddito)' : ' (inserita manualmente)'}`);
+      dettaglio.push(`  IRAP: ${fmt(baseIrap)} × ${(aliqIrap * 100).toFixed(2)}% = ${fmt(irap)}`);
+      if (!irapSpecificata) {
+        avvisi.push('La base IRAP è stimata. Nella realtà può differire. Verificare con il consulente.');
+      }
+      dettaglio.push(``);
+      dettaglio.push(`══════════════════════════════════`);
+      dettaglio.push(`SEZIONE C – IMPOSTE SOCI (TRASPARENZA)`);
+      dettaglio.push(`══════════════════════════════════`);
+      dettaglio.push(`IRPEF progressiva su reddito ${fmt(reddito_imponibile)}:`);
+      dettaglioIrpef.forEach(d => dettaglio.push(d));
+      dettaglio.push(`  IRPEF totale: ${fmt(irpef)}`);
+      if (dettaglioInps.length > 0) {
+        dettaglio.push(``);
+        dettaglioInps.forEach(d => dettaglio.push(d));
+      }
+      dettaglio.push(``);
+      dettaglio.push(`══════════════════════════════════`);
+      dettaglio.push(`SEZIONE D – INDICATORI FISCALI`);
+      dettaglio.push(`══════════════════════════════════`);
+      dettaglio.push(`Imposte (IRPEF + IRAP): ${fmt(imposte_pure)}`);
+      dettaglio.push(`Contributi INPS: ${fmt(contributi_pure)}`);
+      dettaglio.push(`TOTALE: ${fmt(imposte_totali)}`);
+      dettaglio.push(`NETTO FINALE: ${fmt(netto_finale)}`);
+      const pressioneFatturato = fatturato > 0 ? r2((imposte_totali / fatturato) * 100) : 0;
+      const pressioneUtile = utile > 0 ? r2((imposte_totali / utile) * 100) : 0;
+      dettaglio.push(`Pressione fiscale su fatturato: ${pressioneFatturato}%`);
+      dettaglio.push(`Pressione fiscale su utile: ${pressioneUtile}%`);
+      dettaglio.push(``);
+      dettaglio.push(`ℹ️ Nota: il reddito delle ${regime} è tassato per TRASPARENZA in capo ai soci (IRPEF). L'IRAP è pagata dalla società.`);
+    }
+
+    else {
       return Response.json({ error: `Regime "${regime}" non supportato` }, { status: 400 });
     }
 

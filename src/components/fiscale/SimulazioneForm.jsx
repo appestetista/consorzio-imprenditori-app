@@ -29,7 +29,9 @@ export default function SimulazioneForm({ onSubmit, loading, userProfile }) {
   const mapFormaToRegime = (fg, rf) => {
     if (fg === 'RF' || rf === 'Forfettario') return 'Forfettario';
     if (['SRL', 'SRLU', 'SPA', 'SAPA', 'SE', 'COOP'].includes(fg)) return 'SRL';
-    if (['Ditta individuale', 'SS', 'SNC', 'SAS'].includes(fg) && rf === 'Ordinario') return 'DittaOrdinaria';
+    if (fg === 'SAS') return 'SAS';
+    if (fg === 'SNC') return 'SNC';
+    if (['Ditta individuale', 'SS'].includes(fg) && rf === 'Ordinario') return 'DittaOrdinaria';
     return '';
   };
 
@@ -128,12 +130,14 @@ export default function SimulazioneForm({ onSubmit, loading, userProfile }) {
         <p className="text-[#d4af37] text-xs font-bold uppercase tracking-wider">① Che tipo di azienda hai?</p>
         <Select value={form.regime} onValueChange={(v) => update('regime', v)}>
           <SelectTrigger className="bg-slate-800 border-slate-700 text-white">
-            <SelectValue placeholder="Seleziona regime fiscale" />
+            <SelectValue placeholder="Seleziona forma giuridica" />
           </SelectTrigger>
           <SelectContent>
-            <SelectItem value="SRL">S.R.L.</SelectItem>
-            <SelectItem value="Forfettario">Forfettario</SelectItem>
+            <SelectItem value="SRL">S.R.L. / S.R.L.S. (società di capitali)</SelectItem>
+            <SelectItem value="SAS">S.A.S. (società in accomandita semplice)</SelectItem>
+            <SelectItem value="SNC">S.N.C. (società in nome collettivo)</SelectItem>
             <SelectItem value="DittaOrdinaria">Ditta Individuale Ordinaria</SelectItem>
+            <SelectItem value="Forfettario">Forfettario (ditta individuale)</SelectItem>
           </SelectContent>
         </Select>
         <div>
@@ -221,6 +225,47 @@ export default function SimulazioneForm({ onSubmit, loading, userProfile }) {
         </>
       )}
 
+      {/* Campi specifici SAS / SNC (società di persone) */}
+      {(form.regime === 'SAS' || form.regime === 'SNC') && (
+        <>
+          {/* Regione */}
+          <div>
+            <label className="text-slate-400 text-xs font-medium mb-1 block">Regione *</label>
+            <Select value={form.regione} onValueChange={(v) => { update('regione', v); update('categoria_irap', ''); update('codice_ateco', ''); }}>
+              <SelectTrigger className="bg-slate-800 border-slate-700 text-white">
+                <SelectValue placeholder="Seleziona regione" />
+              </SelectTrigger>
+              <SelectContent>
+                <SelectItem value="Marche">Marche</SelectItem>
+                <SelectItem value="Emilia-Romagna">Emilia-Romagna</SelectItem>
+              </SelectContent>
+            </Select>
+          </div>
+
+          {/* Codice ATECO + Categoria IRAP automatica */}
+          {form.regione && (
+            <>
+              <AtecoSearchInput 
+                value={form.codice_ateco} 
+                onChange={(v) => update('codice_ateco', v)} 
+              />
+              <CategoriaIRAPBadge 
+                categoriaIrap={raccordo.categoriaIrap}
+                aliquotaIrap={raccordo.aliquotaIrap}
+                fonte={raccordo.fonte}
+                loading={raccordo.loading}
+              />
+            </>
+          )}
+
+          <div className="bg-amber-900/20 border border-amber-700/30 rounded-xl p-3">
+            <p className="text-amber-400 text-xs font-medium">
+              ⚠️ Le {form.regime === 'SAS' ? 'S.A.S.' : 'S.N.C.'} sono tassate per trasparenza: i soci pagano IRPEF progressiva sul reddito + IRAP a livello societario + INPS.
+            </p>
+          </div>
+        </>
+      )}
+
       {/* Campi specifici SRL */}
       {form.regime === 'SRL' && (
         <>
@@ -301,7 +346,7 @@ export default function SimulazioneForm({ onSubmit, loading, userProfile }) {
       {/* Submit */}
       <button
         onClick={handleSubmit}
-        disabled={loading || !form.regime || !form.fatturato || (form.regime === 'SRL' && !form.regione)}
+        disabled={loading || !form.regime || !form.fatturato || (['SRL', 'SAS', 'SNC'].includes(form.regime) && !form.regione)}
         className="w-full h-12 cursor-pointer transition-all duration-150 hover:brightness-110 active:scale-[0.98] disabled:opacity-50 disabled:cursor-not-allowed flex items-center justify-center gap-2 text-slate-900 font-bold text-sm"
         style={{
           background: 'linear-gradient(to bottom, #f7d774 0%, #e6b93d 35%, #c6921b 60%, #9e6f0f 100%)',
