@@ -1,7 +1,7 @@
 import React from 'react';
-import { MessageCircle, MapPin, Building2, Users, Briefcase } from 'lucide-react';
+import { MessageCircle, MapPin, Building2, Briefcase, Navigation } from 'lucide-react';
 
-export default function MemberCard({ member, onContact }) {
+export default function MemberCard({ member, onContact, highlightGeo, currentUser }) {
   const initials = (member.company_name || member.full_name || '?')
     .split(' ')
     .map(w => w[0])
@@ -10,6 +10,9 @@ export default function MemberCard({ member, onContact }) {
     .toUpperCase();
 
   const location = [member.city, member.province].filter(Boolean).join(', ');
+
+  // Badge prossimità (solo in modalità "vicino a me")
+  const proximityBadge = highlightGeo && currentUser ? getProximityBadge(member, currentUser) : null;
 
   return (
     <div className="bg-slate-800/80 border border-slate-700/50 rounded-2xl p-4 hover:border-slate-600 transition-all">
@@ -29,9 +32,17 @@ export default function MemberCard({ member, onContact }) {
 
         {/* Info */}
         <div className="flex-1 min-w-0">
-          <h3 className="text-white font-semibold text-[15px] truncate leading-tight">
-            {member.company_name || member.full_name}
-          </h3>
+          <div className="flex items-center gap-2">
+            <h3 className="text-white font-semibold text-[15px] truncate leading-tight flex-1">
+              {member.company_name || member.full_name}
+            </h3>
+            {proximityBadge && (
+              <span className={`flex items-center gap-0.5 text-[10px] font-semibold px-1.5 py-0.5 rounded-full flex-shrink-0 ${proximityBadge.className}`}>
+                <Navigation className="w-2.5 h-2.5" />
+                {proximityBadge.label}
+              </span>
+            )}
+          </div>
 
           {member.specializzazione && (
             <p className="text-lime-400/80 text-xs mt-0.5 truncate">{member.specializzazione}</p>
@@ -69,4 +80,17 @@ export default function MemberCard({ member, onContact }) {
       </div>
     </div>
   );
+}
+
+function getProximityBadge(member, currentUser) {
+  if (currentUser.city && member.city && currentUser.city === member.city) {
+    return { label: 'Stessa città', className: 'bg-emerald-500/20 text-emerald-400' };
+  }
+  if (currentUser.province && member.province && currentUser.province === member.province) {
+    return { label: 'Stessa provincia', className: 'bg-cyan-500/20 text-cyan-400' };
+  }
+  if (currentUser.region && member.region && currentUser.region === member.region) {
+    return { label: 'Stessa regione', className: 'bg-blue-500/20 text-blue-400' };
+  }
+  return null;
 }

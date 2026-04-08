@@ -1,7 +1,7 @@
 import React, { useState, useEffect, useMemo } from 'react';
 import { base44 } from '@/api/base44Client';
 import { useQuery } from '@tanstack/react-query';
-import { ArrowLeft, Users, MessageCircle } from 'lucide-react';
+import { ArrowLeft, Users, Compass, Handshake } from 'lucide-react';
 import { useNavigate } from 'react-router-dom';
 import { createPageUrl } from '@/utils';
 import BottomNav from '../components/layout/BottomNav';
@@ -11,14 +11,23 @@ import MemberFilters from '../components/contatta-membri/MemberFilters';
 
 export default function ContattaMembri() {
   const [user, setUser] = useState(null);
+  const [mode, setMode] = useState('useful'); // 'useful' | 'nearby'
   const [searchTerm, setSearchTerm] = useState('');
-  const [filters, setFilters] = useState({ region: null, sector: null, size: null, city: null });
+  const [filters, setFilters] = useState({ region: null, sector: null, size: null, city: null, specializzazione: null });
   const [showFilters, setShowFilters] = useState(false);
   const navigate = useNavigate();
 
   useEffect(() => {
     base44.auth.me().then(setUser).catch(console.error);
   }, []);
+
+  // Reset filtri e ricerca quando cambi modalità
+  const handleModeChange = (newMode) => {
+    setMode(newMode);
+    setSearchTerm('');
+    setFilters({ region: null, sector: null, size: null, city: null, specializzazione: null });
+    setShowFilters(false);
+  };
 
   const { data: members = [], isLoading } = useQuery({
     queryKey: ['members-directory'],
@@ -31,7 +40,7 @@ export default function ContattaMembri() {
     enabled: !!user?.email,
   });
 
-  // Solo imprenditori (no admin, no consulenti, no se stesso, no bloccati)
+  // Solo imprenditori
   const eligibleMembers = useMemo(() => {
     return members.filter(m => {
       if (m.email === user?.email) return false;
@@ -43,23 +52,16 @@ export default function ContattaMembri() {
     });
   }, [members, user?.email]);
 
-  // Applica ricerca testuale + filtri
+  // Applica filtri + ricerca + ordinamento in base alla modalità
   const filteredMembers = useMemo(() => {
     let result = eligibleMembers;
 
     // Filtri dropdown
-    if (filters.region) {
-      result = result.filter(m => m.region === filters.region);
-    }
-    if (filters.city) {
-      result = result.filter(m => m.city === filters.city);
-    }
-    if (filters.sector) {
-      result = result.filter(m => (m.settore || m.sector) === filters.sector);
-    }
-    if (filters.size) {
-      result = result.filter(m => m.company_size === filters.size);
-    }
+    if (filters.region) result = result.filter(m => m.region === filters.region);
+    if (filters.city) result = result.filter(m => m.city === filters.city);
+    if (filters.sector) result = result.filter(m => (m.settore || m.sector) === filters.sector);
+    if (filters.specializzazione) result = result.filter(m => m.specializzazione === filters.specializzazione);
+    if (filters.size) result = result.filter(m => m.company_size === filters.size);
 
     // Ricerca testuale
     if (searchTerm.trim()) {
@@ -71,20 +73,42 @@ export default function ContattaMembri() {
         m.settore?.toLowerCase().includes(q) ||
         m.sector?.toLowerCase().includes(q) ||
         m.city?.toLowerCase().includes(q) ||
+        m.province?.toLowerCase().includes(q) ||
         m.region?.toLowerCase().includes(q)
       );
     }
 
-    // Ordina: chi ha profilo completo prima, poi per nome
-    result.sort((a, b) => {
-      const aScore = (a.company_name ? 1 : 0) + (a.city ? 1 : 0) + (a.settore || a.sector ? 1 : 0);
-      const bScore = (b.company_name ? 1 : 0) + (b.city ? 1 : 0) + (b.settore || b.sector ? 1 : 0);
-      if (bScore !== aScore) return bScore - aScore;
-      return (a.company_name || a.full_name || '').localeCompare(b.company_name || b.full_name || '');
-    });
+    // Ordinamento in base alla modalità
+    if (mode === 'nearby') {
+      // Priorità: stessa città > stessa provincia > stessa regione > resto
+      result.sort((a, b) => {
+        const scoreGeo = (m) => {
+          let s = 0;
+          if (user?.city && m.city === user.city) s += 100;
+          if (user?.province && m.province === user.province) s += 50;
+          if (user?.region && m.region === user.region) s += 20;
+          return s;
+        };
+        const diff = scoreGeo(b) - scoreGeo(a);
+        if (diff !== 0) return diff;
+        return (a.company_name || a.full_name || '').localeCompare(b.company_name || b.full_name || '');
+      });
+    } else {
+      // "Chi mi è utile": profilo completo prima, poi per nome
+      result.sort((a, b) => {
+        const score = (m) =>
+          (m.company_name ? 1 : 0) +
+          (m.specializzazione ? 2 : 0) +
+          (m.settore || m.sector ? 1 : 0) +
+          (m.city ? 1 : 0);
+        const diff = score(b) - score(a);
+        if (diff !== 0) return diff;
+        return (a.company_name || a.full_name || '').localeCompare(b.company_name || b.full_name || '');
+      });
+    }
 
     return result;
-  }, [eligibleMembers, filters, searchTerm]);
+  }, [eligibleMembers, filters, searchTerm, mode, user]);
 
   const handleContact = (email) => {
     navigate(createPageUrl('Messaggi') + `?contact=${encodeURIComponent(email)}&source=diretto`);
@@ -111,12 +135,48 @@ export default function ContattaMembri() {
               <ArrowLeft className="w-7 h-7" />
             </button>
             <div>
-              <h1 className="text-white text-xl font-bold">Directory Imprenditori</h1>
-              <p className="text-slate-500 text-xs">{eligibleMembers.length} imprenditori iscritti</p>
+              <h1 className="text-white text-xl font-bold">Imprenditori</h1>
+              <p className="text-slate-500 text-xs">{eligibleMembers.length} iscritti</p>
             </div>
           </div>
           <SectionHeaderIcons userEmail={user?.email} />
         </div>
+
+        {/* Toggle modalità: Utile / Vicino */}
+        <div className="flex gap-2 mb-4">
+          <button
+            onClick={() => handleModeChange('useful')}
+            className={`flex-1 flex items-center justify-center gap-2 py-3 rounded-xl font-semibold text-sm transition-all ${
+              mode === 'useful'
+                ? 'bg-lime-400 text-slate-900'
+                : 'bg-slate-800 text-slate-400 border border-slate-700'
+            }`}
+          >
+            <Handshake className="w-4 h-4" />
+            Chi mi è utile
+          </button>
+          <button
+            onClick={() => handleModeChange('nearby')}
+            className={`flex-1 flex items-center justify-center gap-2 py-3 rounded-xl font-semibold text-sm transition-all ${
+              mode === 'nearby'
+                ? 'bg-lime-400 text-slate-900'
+                : 'bg-slate-800 text-slate-400 border border-slate-700'
+            }`}
+          >
+            <Compass className="w-4 h-4" />
+            Chi mi è vicino
+          </button>
+        </div>
+
+        {/* Sottotitolo contestuale */}
+        <p className="text-slate-500 text-xs mb-3 px-1">
+          {mode === 'useful'
+            ? 'Trova imprenditori per settore, specializzazione o competenza'
+            : user?.city
+              ? `Imprenditori vicini a ${user.city} — ordinati per prossimità`
+              : 'Imprenditori nella tua zona — completa il profilo per risultati migliori'
+          }
+        </p>
 
         {/* Ricerca e Filtri */}
         <MemberFilters
@@ -127,9 +187,10 @@ export default function ContattaMembri() {
           onFiltersChange={setFilters}
           showFilters={showFilters}
           onToggleFilters={() => setShowFilters(!showFilters)}
+          mode={mode}
         />
 
-        {/* Counter risultati */}
+        {/* Counter */}
         <div className="flex items-center justify-between mt-4 mb-3 px-1">
           <p className="text-slate-500 text-xs">
             {filteredMembers.length} {filteredMembers.length === 1 ? 'risultato' : 'risultati'}
@@ -154,6 +215,8 @@ export default function ContattaMembri() {
                 key={member.id}
                 member={member}
                 onContact={handleContact}
+                highlightGeo={mode === 'nearby'}
+                currentUser={user}
               />
             ))}
           </div>
