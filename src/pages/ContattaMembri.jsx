@@ -1,34 +1,27 @@
-import React, { useState, useEffect } from 'react';
+import React, { useState, useEffect, useMemo } from 'react';
 import { base44 } from '@/api/base44Client';
 import { useQuery } from '@tanstack/react-query';
-import { ArrowLeft, User, MessageCircle, Search } from 'lucide-react';
-import { Link, useNavigate } from 'react-router-dom';
+import { ArrowLeft, Users, MessageCircle } from 'lucide-react';
+import { useNavigate } from 'react-router-dom';
 import { createPageUrl } from '@/utils';
-import { Button } from '@/components/ui/button';
-import { Input } from '@/components/ui/input';
-import { Card } from '@/components/ui/card';
-import Header from '../components/layout/Header';
 import BottomNav from '../components/layout/BottomNav';
+import SectionHeaderIcons from '../components/layout/SectionHeaderIcons';
+import MemberCard from '../components/contatta-membri/MemberCard';
+import MemberFilters from '../components/contatta-membri/MemberFilters';
 
 export default function ContattaMembri() {
   const [user, setUser] = useState(null);
   const [searchTerm, setSearchTerm] = useState('');
+  const [filters, setFilters] = useState({ region: null, sector: null, size: null, city: null });
+  const [showFilters, setShowFilters] = useState(false);
   const navigate = useNavigate();
 
   useEffect(() => {
-    const loadUser = async () => {
-      try {
-        const currentUser = await base44.auth.me();
-        setUser(currentUser);
-      } catch (e) {
-        console.error(e);
-      }
-    };
-    loadUser();
+    base44.auth.me().then(setUser).catch(console.error);
   }, []);
 
   const { data: members = [], isLoading } = useQuery({
-    queryKey: ['members'],
+    queryKey: ['members-directory'],
     queryFn: () => base44.entities.User.list(),
   });
 
@@ -38,89 +31,130 @@ export default function ContattaMembri() {
     enabled: !!user?.email,
   });
 
-  const filteredMembers = members.filter(member => {
-    if (member.email === user?.email) return false;
-    if (member.is_blocked) return false;
-    if (member.role === 'admin') return false; // Nascondi admin
-    if (member.user_type === 'consulente') return false; // Nascondi consulenti
-    if (member.user_type !== 'utente') return false; // Mostra solo utenti
-    const searchLower = searchTerm.toLowerCase();
-    return (
-      member.company_name?.toLowerCase().includes(searchLower) ||
-      member.full_name?.toLowerCase().includes(searchLower) ||
-      member.email?.toLowerCase().includes(searchLower)
-    );
-  });
+  // Solo imprenditori (no admin, no consulenti, no se stesso, no bloccati)
+  const eligibleMembers = useMemo(() => {
+    return members.filter(m => {
+      if (m.email === user?.email) return false;
+      if (m.is_blocked) return false;
+      if (m.role === 'admin') return false;
+      if (m.user_type === 'consulente') return false;
+      if (m.user_type !== 'utente') return false;
+      return true;
+    });
+  }, [members, user?.email]);
 
-  const handleStartConversation = (memberEmail) => {
-    navigate(createPageUrl('Messaggi') + `?contact=${memberEmail}`);
+  // Applica ricerca testuale + filtri
+  const filteredMembers = useMemo(() => {
+    let result = eligibleMembers;
+
+    // Filtri dropdown
+    if (filters.region) {
+      result = result.filter(m => m.region === filters.region);
+    }
+    if (filters.city) {
+      result = result.filter(m => m.city === filters.city);
+    }
+    if (filters.sector) {
+      result = result.filter(m => (m.settore || m.sector) === filters.sector);
+    }
+    if (filters.size) {
+      result = result.filter(m => m.company_size === filters.size);
+    }
+
+    // Ricerca testuale
+    if (searchTerm.trim()) {
+      const q = searchTerm.toLowerCase();
+      result = result.filter(m =>
+        m.company_name?.toLowerCase().includes(q) ||
+        m.full_name?.toLowerCase().includes(q) ||
+        m.specializzazione?.toLowerCase().includes(q) ||
+        m.settore?.toLowerCase().includes(q) ||
+        m.sector?.toLowerCase().includes(q) ||
+        m.city?.toLowerCase().includes(q) ||
+        m.region?.toLowerCase().includes(q)
+      );
+    }
+
+    // Ordina: chi ha profilo completo prima, poi per nome
+    result.sort((a, b) => {
+      const aScore = (a.company_name ? 1 : 0) + (a.city ? 1 : 0) + (a.settore || a.sector ? 1 : 0);
+      const bScore = (b.company_name ? 1 : 0) + (b.city ? 1 : 0) + (b.settore || b.sector ? 1 : 0);
+      if (bScore !== aScore) return bScore - aScore;
+      return (a.company_name || a.full_name || '').localeCompare(b.company_name || b.full_name || '');
+    });
+
+    return result;
+  }, [eligibleMembers, filters, searchTerm]);
+
+  const handleContact = (email) => {
+    navigate(createPageUrl('Messaggi') + `?contact=${encodeURIComponent(email)}&source=diretto`);
   };
 
-  // Loading state mentre si carica l'utente
   if (!user) {
     return (
-      <div className="min-h-screen bg-slate-900 flex items-center justify-center">
-        <div className="animate-spin w-8 h-8 border-2 border-lime-400 border-t-transparent rounded-full"></div>
+      <div className="min-h-screen flex items-center justify-center" style={{ backgroundColor: 'var(--app-bg)' }}>
+        <div className="animate-spin w-8 h-8 border-2 border-lime-400 border-t-transparent rounded-full" />
       </div>
     );
   }
 
   return (
-    <div className="min-h-screen bg-slate-900 pb-64">
+    <div className="min-h-screen pb-64" style={{ backgroundColor: 'var(--app-bg)' }}>
       <main className="px-4 py-6 max-w-md mx-auto">
-        <div className="flex items-center gap-3 mb-6">
-          <Link to={createPageUrl('Esplora?tab=strumenti')} className="text-lime-400">
-            <ArrowLeft className="w-6 h-6" />
-          </Link>
-          <h1 className="text-white text-xl font-bold">Contatta Membri</h1>
+        {/* Header */}
+        <div className="flex items-center justify-between mb-5">
+          <div className="flex items-center gap-3">
+            <button
+              onClick={() => navigate(createPageUrl('Esplora?tab=strumenti'))}
+              className="text-lime-400 p-3 -m-3 rounded-full back-arrow-tap"
+            >
+              <ArrowLeft className="w-7 h-7" />
+            </button>
+            <div>
+              <h1 className="text-white text-xl font-bold">Directory Imprenditori</h1>
+              <p className="text-slate-500 text-xs">{eligibleMembers.length} imprenditori iscritti</p>
+            </div>
+          </div>
+          <SectionHeaderIcons userEmail={user?.email} />
         </div>
 
-        {/* Search */}
-        <div className="relative mb-6">
-          <Search className="absolute left-3 top-1/2 -translate-y-1/2 w-5 h-5 text-slate-400" />
-          <Input
-            placeholder="Cerca membri..."
-            value={searchTerm}
-            onChange={(e) => setSearchTerm(e.target.value)}
-            className="bg-slate-800 border-slate-700 text-white pl-10"
-          />
+        {/* Ricerca e Filtri */}
+        <MemberFilters
+          members={eligibleMembers}
+          searchTerm={searchTerm}
+          onSearchChange={setSearchTerm}
+          filters={filters}
+          onFiltersChange={setFilters}
+          showFilters={showFilters}
+          onToggleFilters={() => setShowFilters(!showFilters)}
+        />
+
+        {/* Counter risultati */}
+        <div className="flex items-center justify-between mt-4 mb-3 px-1">
+          <p className="text-slate-500 text-xs">
+            {filteredMembers.length} {filteredMembers.length === 1 ? 'risultato' : 'risultati'}
+          </p>
         </div>
 
+        {/* Lista */}
         {isLoading ? (
-          <div className="text-center py-12">
-            <div className="animate-spin w-8 h-8 border-2 border-lime-400 border-t-transparent rounded-full mx-auto"></div>
+          <div className="flex items-center justify-center py-16">
+            <div className="animate-spin w-8 h-8 border-2 border-lime-400 border-t-transparent rounded-full" />
           </div>
         ) : filteredMembers.length === 0 ? (
-          <div className="text-center py-12">
-            <User className="w-16 h-16 text-slate-600 mx-auto mb-4" />
-            <p className="text-slate-400">Nessun membro trovato</p>
+          <div className="text-center py-16">
+            <Users className="w-14 h-14 text-slate-700 mx-auto mb-3" />
+            <p className="text-slate-400 font-medium">Nessun imprenditore trovato</p>
+            <p className="text-slate-600 text-sm mt-1">Prova a cambiare i filtri o la ricerca</p>
           </div>
         ) : (
           <div className="space-y-3">
-            {filteredMembers.map((member) => (
-              <Card
+            {filteredMembers.map(member => (
+              <MemberCard
                 key={member.id}
-                className="bg-slate-800 border-slate-700 p-4"
-              >
-                <div className="flex items-center gap-3">
-                  <div className="w-12 h-12 bg-lime-400/20 rounded-full flex items-center justify-center flex-shrink-0">
-                    <User className="w-6 h-6 text-lime-400" />
-                  </div>
-                  <div className="flex-1 min-w-0">
-                    <p className="text-white font-medium truncate">
-                      {member.company_name || member.full_name}
-                    </p>
-                    <p className="text-slate-400 text-sm truncate">{member.email}</p>
-                  </div>
-                  <Button
-                    size="sm"
-                    className="bg-lime-400 hover:bg-lime-500 text-slate-900"
-                    onClick={() => handleStartConversation(member.email)}
-                  >
-                    <MessageCircle className="w-4 h-4" />
-                  </Button>
-                </div>
-              </Card>
+                member={member}
+                onContact={handleContact}
+              />
             ))}
           </div>
         )}
