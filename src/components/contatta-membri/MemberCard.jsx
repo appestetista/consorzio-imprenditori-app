@@ -36,6 +36,11 @@ export default function MemberCard({ member, onContact, highlightGeo, currentUse
             <h3 className="text-white font-semibold text-[15px] truncate leading-tight flex-1">
               {member.company_name || member.full_name}
             </h3>
+            {member._isDemo && (
+              <span className="text-[9px] font-bold px-1.5 py-0.5 rounded-full bg-amber-500/20 text-amber-400 flex-shrink-0">
+                DEMO
+              </span>
+            )}
             {proximityBadge && (
               <span className={`flex items-center gap-0.5 text-[10px] font-semibold px-1.5 py-0.5 rounded-full flex-shrink-0 ${proximityBadge.className}`}>
                 <Navigation className="w-2.5 h-2.5" />

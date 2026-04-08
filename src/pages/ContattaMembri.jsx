@@ -41,7 +41,7 @@ export default function ContattaMembri() {
   });
 
   // Solo imprenditori
-  const eligibleMembers = useMemo(() => {
+  const realMembers = useMemo(() => {
     return members.filter(m => {
       if (m.email === user?.email) return false;
       if (m.is_blocked) return false;
@@ -51,6 +51,23 @@ export default function ContattaMembri() {
       return true;
     });
   }, [members, user?.email]);
+
+  // Demo: imprenditori finti visibili solo all'admin per anteprima
+  const demoMembers = useMemo(() => {
+    if (user?.role !== 'admin') return [];
+    return [
+      { id: 'demo-1', company_name: 'Oleificio Ferrara Srl', full_name: 'Marco Ferrara', specializzazione: 'Produzione olio extravergine biologico', settore: 'Agroalimentare', city: 'Andria', province: 'BT', region: 'Puglia', company_size: 'Piccola', email: 'demo-ferrara@test.it', user_type: 'utente', _isDemo: true },
+      { id: 'demo-2', company_name: 'TechnoMec Srl', full_name: 'Laura Bianchi', specializzazione: 'Componentistica meccanica di precisione', settore: 'Meccanica', city: 'Brescia', province: 'BS', region: 'Lombardia', company_size: 'Media', email: 'demo-technomec@test.it', user_type: 'utente', _isDemo: true },
+      { id: 'demo-3', company_name: 'Dolci Tradizioni', full_name: 'Giuseppe Amato', specializzazione: 'Pasticceria artigianale e export dolciumi', settore: 'Alimentare', city: 'Napoli', province: 'NA', region: 'Campania', company_size: 'Micro', email: 'demo-dolci@test.it', user_type: 'utente', _isDemo: true },
+      { id: 'demo-4', company_name: 'GreenBuild Italia SpA', full_name: 'Alessandra Conti', specializzazione: 'Edilizia sostenibile e certificazione LEED', settore: 'Edilizia', city: 'Bologna', province: 'BO', region: 'Emilia-Romagna', company_size: 'Grande', email: 'demo-greenbuild@test.it', user_type: 'utente', _isDemo: true },
+      { id: 'demo-5', company_name: 'Moda Tessile Marche', full_name: 'Francesca Rossi', specializzazione: 'Tessuti pregiati per alta moda', settore: 'Tessile', city: 'Fermo', province: 'FM', region: 'Marche', company_size: 'Piccola', email: 'demo-modatessile@test.it', user_type: 'utente', _isDemo: true },
+      { id: 'demo-6', company_name: 'Digital Solutions Srl', full_name: 'Andrea Marino', specializzazione: 'Sviluppo software e digitalizzazione PMI', settore: 'Informatica', city: 'Milano', province: 'MI', region: 'Lombardia', company_size: 'Piccola', email: 'demo-digital@test.it', user_type: 'utente', _isDemo: true },
+    ];
+  }, [user?.role]);
+
+  const eligibleMembers = useMemo(() => {
+    return [...realMembers, ...demoMembers];
+  }, [realMembers, demoMembers]);
 
   // Applica filtri + ricerca + ordinamento in base alla modalità
   const filteredMembers = useMemo(() => {
