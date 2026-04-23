@@ -16,20 +16,14 @@ export default function ImpersonationBanner() {
   };
 
   return (
-    <div className="fixed left-2 right-2 z-[9999] flex items-center justify-between bg-amber-500/95 backdrop-blur-sm text-black rounded-full px-3 py-1.5 shadow-lg" style={{ top: '68px' }}>
-      <div className="flex items-center gap-1.5 text-xs font-medium truncate">
-        <Eye className="w-3.5 h-3.5 flex-shrink-0" />
-        <span className="truncate">
-          <strong>{impersonation.targetName || impersonation.targetEmail}</strong>
-        </span>
-      </div>
-      <button
-        onClick={handleStop}
-        className="flex items-center gap-1 bg-black/20 hover:bg-black/30 rounded-full px-2.5 py-0.5 transition-colors text-xs font-semibold flex-shrink-0 ml-2"
-      >
-        <X className="w-3 h-3" />
-        Admin
-      </button>
-    </div>
+    <button
+      onClick={handleStop}
+      className="fixed right-3 z-[9999] flex items-center gap-1.5 bg-amber-500/80 hover:bg-amber-500 backdrop-blur-sm text-black rounded-full px-2.5 py-1 shadow-md transition-all text-[10px] font-semibold"
+      style={{ top: '70px' }}
+      title={`Visualizzando come: ${impersonation.targetName || impersonation.targetEmail}`}
+    >
+      <Eye className="w-3 h-3" />
+      <X className="w-3 h-3" />
+    </button>
   );
 }
