@@ -106,14 +106,15 @@ function TaggedContent({ text }) {
 
 // Barra affidabilità
 function AffidabilitaBar({ affidabilita }) {
-  if (!affidabilita) return null;
-  const punteggio = affidabilita.punteggio ?? 0;
+  const punteggio = affidabilita?.punteggio ?? 0;
   const [width, setWidth] = useState(0);
 
   useEffect(() => {
     const t = setTimeout(() => setWidth(punteggio * 10), 50);
     return () => clearTimeout(t);
   }, [punteggio]);
+
+  if (!affidabilita) return null;
 
   let barColor, label;
   if (punteggio >= 8) { barColor = '#22c55e'; label = 'Alta affidabilità — Dati verificati'; }

@@ -23,21 +23,12 @@ const TIME_OPTIONS = (() => {
 })();
 
 export default function FileReminderDialog({ file, onSave, onClose }) {
-  if (!file) return null;
-
   const now = new Date();
   const [date, setDate] = useState(now.toISOString().split('T')[0]);
   const [time, setTime] = useState('19:00');
   const [repeat, setRepeat] = useState('none');
-  const [openDropdown, setOpenDropdown] = useState(null); // 'date' | 'time' | 'repeat' | null
+  const [openDropdown, setOpenDropdown] = useState(null);
 
-  const formatDateLabel = (dateStr) => {
-    if (!dateStr) return '';
-    const d = new Date(dateStr + 'T00:00:00');
-    return d.toLocaleDateString('it-IT', { day: 'numeric', month: 'long' });
-  };
-
-  // Prossimi 60 giorni per la selezione data
   const dateOptions = useMemo(() => {
     const opts = [];
     const today = new Date();
@@ -50,6 +41,14 @@ export default function FileReminderDialog({ file, onSave, onClose }) {
     }
     return opts;
   }, []);
+
+  if (!file) return null;
+
+  const formatDateLabel = (dateStr) => {
+    if (!dateStr) return '';
+    const d = new Date(dateStr + 'T00:00:00');
+    return d.toLocaleDateString('it-IT', { day: 'numeric', month: 'long' });
+  };
 
   const DropdownField = ({ id, value, label }) => (
     <button

@@ -35,10 +35,6 @@ const SECTION_MAP = {
 };
 
 export default function DynamicAppRenderer({ data, editable, onDataChange }) {
-  if (!data) return null;
-
-  const { appName, tagline, logoUrl, primaryColor, secondaryColor, accentColor, headerStyle, darkMode, fontStyle, sections, bottomNav } = data;
-
   // Global cart state
   const [cart, setCart] = useState([]);
 
@@ -60,6 +56,10 @@ export default function DynamicAppRenderer({ data, editable, onDataChange }) {
   const handleUpdateCartQty = useCallback((index, qty) => {
     setCart(prev => prev.map((c, i) => i === index ? { ...c, qty } : c));
   }, []);
+
+  if (!data) return null;
+
+  const { appName, tagline, logoUrl, primaryColor, secondaryColor, accentColor, headerStyle, darkMode, fontStyle, sections, bottomNav } = data;
 
   const handleItemChange = (sectionIndex, itemIndex, field, value) => {
     if (!onDataChange) return;

@@ -10,9 +10,8 @@ import { HelpCircle } from 'lucide-react';
  *   visible: boolean
  */
 export default function ContextFollowup({ question, onSelect, visible }) {
-  if (!question || !visible) return null;
-
   const parsed = useMemo(() => {
+    if (!question) return null;
     // Prova a parsare come nuovo JSON format
     try {
       const obj = JSON.parse(question);
@@ -28,7 +27,7 @@ export default function ContextFollowup({ question, onSelect, visible }) {
     return { question: 'Per rendere la risposta ancora più utile:', options: [question.trim()] };
   }, [question]);
 
-  if (!parsed.question || !parsed.options?.length) return null;
+  if (!question || !visible || !parsed?.question || !parsed?.options?.length) return null;
 
   return (
     <AnimatePresence>

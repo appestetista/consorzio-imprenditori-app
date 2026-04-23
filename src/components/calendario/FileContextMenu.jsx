@@ -27,16 +27,12 @@ const TIME_OPTIONS = (() => {
 })();
 
 export default function FileContextMenu({ file, cartelle = [], onSave, onClose }) {
-  if (!file) return null;
-
-  const [title, setTitle] = useState(file.titolo || '');
-  const [color, setColor] = useState(file.colore || '#06b6d4');
-  const [selectedCartella, setSelectedCartella] = useState(file.cartella_id || '');
-
-  // Promemoria
   const now = new Date();
-  const [remDate, setRemDate] = useState(file.data || now.toISOString().split('T')[0]);
-  const [remTime, setRemTime] = useState(file.time || '19:00');
+  const [title, setTitle] = useState(file?.titolo || '');
+  const [color, setColor] = useState(file?.colore || '#06b6d4');
+  const [selectedCartella, setSelectedCartella] = useState(file?.cartella_id || '');
+  const [remDate, setRemDate] = useState(file?.data || now.toISOString().split('T')[0]);
+  const [remTime, setRemTime] = useState(file?.time || '19:00');
   const [remRepeat, setRemRepeat] = useState('none');
   const [openDropdown, setOpenDropdown] = useState(null);
 
@@ -50,6 +46,8 @@ export default function FileContextMenu({ file, cartelle = [], onSave, onClose }
     }
     return opts;
   }, []);
+
+  if (!file) return null;
 
   const formatDateLabel = (dateStr) => {
     if (!dateStr) return 'Scegli data';

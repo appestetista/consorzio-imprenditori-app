@@ -461,7 +461,7 @@ export default function Esplora() {
         onClose={() => setImpersonationDialogOpen(false)}
         onStart={(role, targetId, targetEmail, targetName, targetUserData) => {
           startImpersonation(role, targetId, targetEmail, targetName, targetUserData);
-          setTimeout(() => { window.location.href = createPageUrl('Home'); }, 100);
+          setTimeout(() => { window.location.href = createPageUrl('Esplora'); }, 100);
         }}
       />
       

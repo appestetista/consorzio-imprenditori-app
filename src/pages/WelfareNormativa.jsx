@@ -476,7 +476,7 @@ export default function WelfareNormativa() {
                     </div>
                   </div>
                   <div className="bg-amber-500/10 border border-amber-500/30 rounded-lg p-3">
-                    <p className="text-amber-400 text-xs font-semibold mb-1">⚠️ Omaggio > €50</p>
+                    <p className="text-amber-400 text-xs font-semibold mb-1">⚠️ Omaggio &gt; €50</p>
                     <div className="space-y-1">
                       <div className="flex items-center gap-2">
                         <XCircle className="w-3 h-3 text-amber-400 flex-shrink-0" />

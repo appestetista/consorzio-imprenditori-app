@@ -403,7 +403,7 @@ function AdminPanelContent({ user }) {
       </main>
 
       <BottomNav currentPage="AdminPanel" unreadMessages={messages.length} isAdmin={true} />
-      <ImpersonationDialog open={showImpersonationDialog} onClose={() => setShowImpersonationDialog(false)} onStart={(role, id, email, name) => { startImpersonation(role, id, email, name); navigate(createPageUrl('Home')); }} />
+      <ImpersonationDialog open={showImpersonationDialog} onClose={() => setShowImpersonationDialog(false)} onStart={(role, id, email, name, userData) => { startImpersonation(role, id, email, name, userData); navigate(createPageUrl('Esplora')); }} />
 
       {/* Extracted Dialog Components */}
       <AdminMessagesDialog open={showAllMessages} onOpenChange={setShowAllMessages} messages={allAdminMessages} onMarkRead={(id) => markMessageReadMutation.mutate(id)} />

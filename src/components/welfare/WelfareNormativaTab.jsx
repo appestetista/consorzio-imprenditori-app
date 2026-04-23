@@ -220,7 +220,7 @@ export default function WelfareNormativaTab() {
                   <span className="text-slate-300 text-xs">IVA detraibile, costo deducibile al 100%</span>
                 </div>
                 <div className="bg-amber-500/10 border border-amber-500/30 rounded-lg p-3">
-                  <p className="text-amber-400 text-xs font-semibold mb-1">⚠️ Omaggio > €50</p>
+                  <p className="text-amber-400 text-xs font-semibold mb-1">⚠️ Omaggio &gt; €50</p>
                   <span className="text-slate-300 text-xs">IVA indetraibile, deducibilità limitata</span>
                 </div>
               </div>
