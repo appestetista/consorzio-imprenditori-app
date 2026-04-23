@@ -73,15 +73,16 @@ export default function FinanziamentiAgevolati() {
     if (user) setUserLoaded(true);
   }, [user]);
 
+  const grantViewUpdated = useRef(false);
   useEffect(() => {
     window.scrollTo(0, 0);
-    if (!user) return;
+    if (!user || grantViewUpdated.current) return;
     
-    // Aggiorna timestamp ultima visita per utenti non admin (anche in impersonation)
     const effectiveRole = impersonation.active ? impersonation.role : user?.role;
     const effectiveEmail = impersonation.active ? impersonation.targetEmail : user?.email;
     
     if (effectiveRole !== 'admin' && effectiveEmail) {
+      grantViewUpdated.current = true;
       (async () => {
         const views = await base44.entities.UserGrantView.filter({ user_email: effectiveEmail });
         if (views.length > 0) {
@@ -100,6 +101,7 @@ export default function FinanziamentiAgevolati() {
 
   const { data: allGrants = [], isLoading } = useQuery({
     queryKey: ['financial-grants'],
+    staleTime: 5 * 60 * 1000, // 5 minuti
     queryFn: async () => {
       // Carica solo bandi NON archiviati
       const grants = await base44.entities.FinancialGrant.filter({ is_archived: false }, '-created_date');
