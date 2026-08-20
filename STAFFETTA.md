@@ -454,3 +454,75 @@ L'audit PROMPT 01 (inventario completo di pagine, entità, funzioni, punteggi di
 esperienza d'uso, sostenibilità dei 50 €) esiste **solo nella cronologia della conversazione
 originale**: non è mai stato salvato come file, perché quel prompt lo vietava espressamente.
 Se serve, va rigenerato.
+
+---
+
+## DECISIONI ESPLICITE DI GIACOMO — 19 AGOSTO 2026
+
+> Addendum **append-only**. Nulla di quanto precede è stato riscritto o cancellato.
+> Dove queste decisioni sono in conflitto con affermazioni delle sezioni 1-15, **prevalgono queste**.
+
+### 1. Scadenza vincolante aggiornata
+
+**15 settembre 2026.** La precedente scadenza del **31 agosto 2026 è superata**.
+
+### 2. Manuale operativo
+
+Il `MANUALE_OPERATIVO_APP_IMPRENDITORI_AGENTICA.md` del **29 luglio 2026 resta vincolante**, salvo
+decisioni esplicite successive di Giacomo.
+
+### 3. Azienda multi-utente
+
+**Obbligatoria.**
+
+### 4. Gerarchia prevista
+
+```
+organizzazione → azienda → sede → reparto → utente → ruolo → permessi
+```
+
+### 5. Sostituibilità del motore agentico
+
+**Requisito obbligatorio.** Lo strato di astrazione deve precedere qualsiasi integrazione Manus.
+
+### 6. Limiti
+
+**Sia per azienda sia per utente.**
+
+### 7. Ruoli iniziali
+
+**I nove indicati nel manuale.**
+
+### 8. Decisione A — Schemi Base44
+
+**Approvata** l'esportazione nel repository dei **56 schemi Base44 mancanti**.
+
+Non esportare dati dei clienti, password, token, chiavi API o segreti.
+
+**L'esportazione non è stata eseguita in questo prompt.**
+
+### 9. Decisione B — Manus API
+
+Utilizzare **esclusivamente Manus API v2**. La versione **v1 è deprecata e non deve essere usata**.
+
+Fonti ufficiali:
+
+- https://open.manus.im/docs/v2/introduction
+- https://open.manus.im/docs/v2/webhooks-overview
+- https://open.manus.im/docs/v2/webhooks-security
+- https://open.manus.im/docs/v2/rate-limits
+
+### 10. Decisione C — Responsabilità del piano
+
+**ARIA costruisce, conserva e controlla il piano operativo ufficiale.**
+
+Manus esegue **esclusivamente incarichi autorizzati**. Manus può proporre passaggi, ma **piano,
+approvazioni, permessi, costi e cronologia restano nell'app**.
+
+### 11. Perimetro
+
+**Esclusivamente App Imprenditori.** Non leggere o utilizzare staffette di `estetista.app`.
+
+### 12. Stato documentale
+
+`AGENTS.md` e `CLAUDE.md` **non esistono ancora**. Non creati in questo prompt.
